@@ -2,6 +2,8 @@
 
 This project provides Bazel rules to achieve hermetic and cross-platform builds.
 
+[!WARNING] This project is under active development and is not yet ready for production use.
+
 Hermetic builds benefits:
 * Reproducibility: Every build produces identical results regardless of the developer's machine environment.
 * Consistency: Eliminates "works on my machine" issues, ensuring builds are consistent across different development environments.
