@@ -199,7 +199,7 @@ CUDA_TOOLS = if_cuda_hermetic_clang(
 cc_toolchain_import(
     name = "imports_lx64_lx64_cuda",
     deps = [
-        "@rules_ml_toolchains//cc_toolchain/cuda/clang:inject_cuda_runtime_wrapper",
+        "@rules_ml_toolchain//cc_toolchain/cuda/clang:inject_cuda_runtime_wrapper",
         "@sysroot_linux_x86_64//:includes_c",
         "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_x86_64//:includes_system",

@@ -167,7 +167,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@local_config_cuda//cuda:cuda_headers",
-        "@rules_ml_toolchains//third_party/xla/tsl/cuda:nccl_stub",
+        "@rules_ml_toolchain//third_party/xla/tsl/cuda:nccl_stub",
     ],
 )
 

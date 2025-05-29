@@ -20,9 +20,9 @@ To set up the SDK for macOS:
 
 4. Copy `MacOSX.sdk.tar.xz` to the computer with current project. 
 Let's imagine that you copy or download SDK to `~/Downloads` directory and the project path is 
-`~/Projects/rules_ml_toolchains`. 
+`~/Projects/rules_ml_toolchain`. 
 5. Extract MacOSX.sdk to the project directory `sysroots/macos_arm64` directory with help of next command:
 
-`tar xf ~/Downloads/MacOSX.sdk.tar.xz -C ~/Projects/rules_ml_toolchains/sysroots/macos_arm64/`
+`tar xf ~/Downloads/MacOSX.sdk.tar.xz -C ~/Projects/rules_ml_toolchain/sysroots/macos_arm64/`
 
 That's it, you project is ready for cross-platform builds where target is macOS ARM64.
