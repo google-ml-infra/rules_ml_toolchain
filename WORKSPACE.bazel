@@ -14,7 +14,7 @@
 # ==============================================================================
 
 workspace(
-    name = "rules_ml_toolchains",
+    name = "rules_ml_toolchain",
 )
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
@@ -169,14 +169,14 @@ register_toolchains("//cc_toolchain/...")
 ##############################################################
 # NCCL configuration
 #load(
-#    "@rules_ml_toolchains//nccl/hermetic:nccl_redist_init_repository.bzl",
+#    "@rules_ml_toolchain//nccl/hermetic:nccl_redist_init_repository.bzl",
 #    "nccl_redist_init_repository",
 #)
 
 #nccl_redist_init_repository()
 
 #load(
-#    "@rules_ml_toolchains//nccl/hermetic:nccl_configure.bzl",
+#    "@rules_ml_toolchain//nccl/hermetic:nccl_configure.bzl",
 #    "nccl_configure",
 #)
 

@@ -4,7 +4,7 @@ build --cxxopt=-std=c++17
 build --repo_env USE_HERMETIC_CC_TOOLCHAIN=1
 
 build:clang_local --noincompatible_enable_cc_toolchain_resolution
-build:clang_local --@rules_ml_toolchains//cc_toolchain/config:enable_hermetic_cc=False
+build:clang_local --@rules_ml_toolchain//cc_toolchain/config:enable_hermetic_cc=False
 build:clang_local --repo_env USE_HERMETIC_CC_TOOLCHAIN=0
 
 # Disable clang extention that rejects type definitions within offsetof.
