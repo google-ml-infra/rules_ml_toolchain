@@ -40,7 +40,7 @@ load(
     _feature = "feature",
 )
 load(
-    "@rules_ml_toolchains//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
+    "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "CcToolchainImportInfo",
 )
 

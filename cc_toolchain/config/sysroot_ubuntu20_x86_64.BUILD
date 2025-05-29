@@ -14,11 +14,11 @@
 # ==============================================================================
 
 load(
-    "@rules_ml_toolchains//third_party/rules_cc_toolchain:sysroot.bzl",
+    "@rules_ml_toolchain//third_party/rules_cc_toolchain:sysroot.bzl",
     "sysroot_package",
 )
 load(
-    "@rules_ml_toolchains//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
+    "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "cc_toolchain_import",
 )
 
