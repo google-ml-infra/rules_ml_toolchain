@@ -1,7 +1,7 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 
 load(
-    "@rules_ml_toolchains//cc_toolchain/cuda/features:cuda_nvcc_feature.bzl",
+    "@rules_ml_toolchain//cc_toolchain/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
 
@@ -71,7 +71,7 @@ cuda_nvcc_feature(
     enabled = True,
     bin = ":bin/nvcc",
     version = "%{version_of_cuda}",
-    visibility = ["@rules_ml_toolchains//cc_toolchain:__pkg__"],
+    visibility = ["@rules_ml_toolchain//cc_toolchain:__pkg__"],
 )
 
 cc_library(

@@ -38,7 +38,7 @@ def _remote_platform_configure_impl(repository_ctx):
 
     repository_ctx.template(
         "BUILD",
-        Label("@rules_ml_toolchains//third_party/remote_config:BUILD.tpl"),
+        Label("@rules_ml_toolchain//third_party/remote_config:BUILD.tpl"),
         {
             "%{platform}": platform,
             "%{exec_properties}": serialized_exec_properties,
