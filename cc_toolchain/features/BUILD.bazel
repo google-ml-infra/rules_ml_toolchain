@@ -166,8 +166,48 @@ cc_feature(
     enabled = True,
 )
 
+cc_feature(
+    name = "supports_dynamic_linker",
+    enabled = True,
+)
+
 #cc_feature(
 #    name = "nobuiltin",
 #    compiler_flags = ["-fno-builtin"],
 #    provides = ["compilation_mode"],
 #)
+
+cc_feature(
+    name = "allow_shlib_undefined",
+    enabled = True,
+    linker_flags = [
+        "-Wl,--allow-shlib-undefined",
+    ],
+)
+
+cc_feature(
+    name = "supports_start_end_lib_feature",
+    enabled = True,
+)
+
+cc_feature(
+    name = "generate_pdb_file",
+    #    requires = [
+    #        feature_set(features = ["dbg"]),
+    #        feature_set(features = ["fastbuild"]),
+    #    ],
+)
+
+#cc_feature(
+#    name = "dbg",
+#    implies = ["generate_pdb_file"],
+#)
+
+cc_feature(
+    name = "fastbuild",
+    #implies = ["generate_pdb_file"],
+)
+
+cc_feature(
+    name = "opt",
+)
