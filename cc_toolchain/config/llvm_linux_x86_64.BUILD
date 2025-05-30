@@ -87,6 +87,16 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
+cc_toolchain_import(
+    name = "libclang_rt",
+    static_library = "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
+    }),
+    visibility = ["//visibility:public"],
+)
+
 # Use when build CUDA by Clang (NVCC doesn't need it)
 cc_library(
     name = "cuda_wrappers_headers",
