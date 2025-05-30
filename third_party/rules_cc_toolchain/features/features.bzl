@@ -319,7 +319,7 @@ def _import_feature_impl(ctx):
 
     if linker_dir_flags or linker_flags_for_shared_obj:
         flag_sets.append(flag_set(
-            actions = [ACTION_NAMES.cpp_link_dynamic_library],
+            actions = [ACTION_NAMES.cpp_link_dynamic_library, ACTION_NAMES.cpp_link_nodeps_dynamic_library],
             flag_groups = [
                 flag_group(
                     flags = linker_dir_flags +
