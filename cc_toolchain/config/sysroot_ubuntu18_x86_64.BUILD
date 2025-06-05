@@ -149,6 +149,17 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
+    name = "rt",
+    additional_libs = [
+        "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
+        "lib/x86_64-linux-gnu/librt.so.1",
+        "usr/lib/x86_64-linux-gnu/librt.so",
+        "usr/lib/x86_64-linux-gnu/librt.a",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
     name = "libc",
     additional_libs = [
         "lib/x86_64-linux-gnu/libc.so.6",
@@ -162,6 +173,7 @@ cc_toolchain_import(
         ":gcc",
         ":math",
         ":stdc++",
+        ":rt",
     ],
 )
 
