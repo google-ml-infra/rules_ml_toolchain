@@ -20,10 +20,10 @@ def cc_toolchain_deps():
         # Produce wheels with tag manylinux_2_27_x86_64
         http_archive(
             name = "sysroot_linux_x86_64",
-            sha256 = "5f62ca2978b4243cfca5d3798e78f4ced50b07bbc7ed1299ccbb8a715931304c",
-            urls = ["https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot.tar.xz"],
-            build_file = Label("//cc_toolchain/config:sysroot_ubuntu18_x86_64.BUILD"),
-            strip_prefix = "ubuntu18_x86_64_sysroot",
+            #sha256 = "5f62ca2978b4243cfca5d3798e78f4ced50b07bbc7ed1299ccbb8a715931304c",
+            urls = ["https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot_gcc9_patch.tar.xz"],
+            build_file = Label("//cc_toolchain/config:sysroot_ubuntu18_x86_64_gcc9_patch.BUILD"),
+            strip_prefix = "ubuntu18_x86_64_sysroot_gcc9_patch",
         )
 
     if "sysroot_linux_aarch64" not in native.existing_rules():
