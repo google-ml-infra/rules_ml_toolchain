@@ -59,9 +59,7 @@ def cuda_compiler(if_cuda_clang, if_nvcc, neither = []):
             "//conditions:default": neither
         })
     else:
-        return select({
-            "//conditions:default": neither
-        })
+        return neither
 
 def if_cuda_hermetic_clang(if_true, if_false = []):
     """Tests if the CUDA Clang and Hermetic C++ toolchain were enabled during the configure process.
@@ -72,7 +70,7 @@ def if_cuda_hermetic_clang(if_true, if_false = []):
             "//conditions:default": if_false
         })
 
-    return select({"//conditions:default": if_false})
+    return if_false
 
 def if_cuda_clang_opt(if_true, if_false = []):
    """Shorthand for select()'ing on wheteher we're building with cuda-clang
@@ -116,8 +114,8 @@ def if_cuda_is_configured(x, no_cuda = []):
     --config=cuda. Used to allow non-CUDA code to depend on CUDA libraries.
     """
     if %{cuda_is_configured}:
-      return select({"//conditions:default": x})
-    return select({"//conditions:default": no_cuda})
+      return x
+    return no_cuda
 
 def is_cuda_configured():
     """
@@ -147,8 +145,8 @@ def if_cuda_newer_than(wanted_ver, if_true, if_false = []):
     configured_minor = int(configured_version_parts[1])
 
     if %{cuda_is_configured} and (wanted_major, wanted_minor) <= (configured_major, configured_minor):
-      return select({"//conditions:default": if_true})
-    return select({"//conditions:default": if_false})
+      return if_true
+    return if_false
 
 
 def cuda_header_library(
