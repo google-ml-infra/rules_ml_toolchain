@@ -374,6 +374,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "libcublas": {
         "repo_name": "cuda_cublas",
         "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_cublas.BUILD.tpl",
             "12": "//third_party/gpus/cuda/hermetic:cuda_cublas.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_cublas.BUILD.tpl",
         },
@@ -389,6 +390,8 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "libcufft": {
         "repo_name": "cuda_cufft",
         "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_cufft.BUILD.tpl",
+            "12": "//third_party/gpus/cuda/hermetic:cuda_cufft.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_cufft.BUILD.tpl",
             "10": "//third_party/gpus/cuda/hermetic:cuda_cufft.BUILD.tpl",
         },
@@ -396,6 +399,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_cupti": {
         "repo_name": "cuda_cupti",
         "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_cupti.BUILD.tpl",
             "12": "//third_party/gpus/cuda/hermetic:cuda_cupti.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_cupti.BUILD.tpl",
         },
@@ -409,12 +413,14 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "libcusolver": {
         "repo_name": "cuda_cusolver",
         "version_to_template": {
+            "12": "//third_party/gpus/cuda/hermetic:cuda_cusolver.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_cusolver.BUILD.tpl",
         },
     },
     "libcusparse": {
         "repo_name": "cuda_cusparse",
         "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_cusparse.BUILD.tpl",
             "12": "//third_party/gpus/cuda/hermetic:cuda_cusparse.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_cusparse.BUILD.tpl",
         },
