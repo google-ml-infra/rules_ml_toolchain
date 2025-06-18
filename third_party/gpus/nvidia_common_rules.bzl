@@ -655,3 +655,20 @@ def json_init_repository(
         local_path_env_var = local_path_env_var,
         use_tar_file_env_var = use_tar_file_env_var,
     )
+
+# Constructs rpath linker flags for use with nvidia wheel-packaged libs
+# avaialble from PyPI. Two paths are needed because symbols are used from
+# both the root of the TensorFlow installation directory as well as from
+# various pywrap libs within the 'python' subdir.
+def cuda_rpath_flags(relpath):
+    #return [
+    #        "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
+    #        "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
+    #    ]
+    return select({
+                   "@rules_ml_toolchain//third_party/gpus:enable_cuda_rpath": [
+            "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
+            "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
+        ],
+        "//conditions:default": [],
+    })
