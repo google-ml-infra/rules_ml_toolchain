@@ -661,14 +661,10 @@ def json_init_repository(
 # both the root of the TensorFlow installation directory as well as from
 # various pywrap libs within the 'python' subdir.
 def cuda_rpath_flags(relpath):
-    #return [
-    #        "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
-    #        "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
-    #    ]
     return select({
-                   "@rules_ml_toolchain//third_party/gpus:enable_cuda_rpath": [
-            "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
-            "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
-        ],
-        "//conditions:default": [],
-    })
+            "@rules_ml_toolchain//third_party/gpus:enable_cuda_rpath": [
+                "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
+                "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
+            ],
+            "//conditions:default": [],
+        })
