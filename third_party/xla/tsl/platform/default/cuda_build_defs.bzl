@@ -18,12 +18,18 @@ load(
     "@local_config_cuda//cuda:build_defs.bzl",
     _if_cuda_is_configured = "if_cuda_is_configured",
     _if_cuda_newer_than = "if_cuda_newer_than",
+    _is_cuda_configured = "is_cuda_configured",
 )
 
 # We perform this indirection so that the copybara tool can distinguish this
 # macro from others provided by the same file.
 def if_cuda_is_configured(x, no_cuda = []):
     return _if_cuda_is_configured(x, no_cuda)
+
+# We perform this indirection so that the copybara tool can distinguish this
+# macro from others provided by the same file.
+def is_cuda_configured():
+    return _is_cuda_configured()
 
 # Constructs rpath linker flags for use with nvidia wheel-packaged libs
 # avaialble from PyPI. Two paths are needed because symbols are used from
