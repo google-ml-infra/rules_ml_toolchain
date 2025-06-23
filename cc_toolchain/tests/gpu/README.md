@@ -1,20 +1,20 @@
 ## Build CUDA binary
 ### by Clang
 
-`bazel build --config=cuda --config=build_cuda_with_clang //cc_toolchain/tests/cuda:vector_cuda_test`
+`bazel build --config=cuda --config=build_cuda_with_clang //cc_toolchain/tests/gpu:vector_cuda_test`
 
 ### by NVCC 
 
-`bazel build --config=cuda --config=build_cuda_with_nvcc //cc_toolchain/tests/cuda:vector_cuda_test`
+`bazel build --config=cuda --config=build_cuda_with_nvcc //cc_toolchain/tests/gpu:vector_cuda_test`
 
 ## Test CUDA (GPU machine only)
 ### by Clang
 
-`bazel test --config=cuda --config=build_cuda_with_clang //cc_toolchain/tests/cuda:vector_cuda_test`
+`bazel test --config=cuda --config=build_cuda_with_clang //cc_toolchain/tests/gpu:vector_cuda_test`
 
 ### by NVCC (TASK IN PROGRESS)
 
-`bazel test --config=cuda --config=build_cuda_with_nvcc //cc_toolchain/tests/cuda:vector_cuda_test`
+`bazel test --config=cuda --config=build_cuda_with_nvcc //cc_toolchain/tests/gpu:vector_cuda_test`
 
 ## Clang non hermetic builds
 bazel build //third_party/gpus/tests:vector_cuda -s \
