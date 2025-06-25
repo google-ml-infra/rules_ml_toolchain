@@ -96,16 +96,17 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
-# TODO: Check LiteRT builds without this library
-#cc_toolchain_import(
-#    name = "libclang_rt",
-#    static_library = "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
-#    target_compatible_with = select({
-#        "@platforms//os:linux": [],
-#        "@platforms//os:macos": [],
-#    }),
-#    visibility = ["//visibility:public"],
-#)
+# This library is needed for LiteRT because it uses a compiler-specific
+# built-in functions, and these functions are not provided by GCC 8.4.
+cc_toolchain_import(
+    name = "libclang_rt",
+    static_library = "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
+    }),
+    visibility = ["//visibility:public"],
+)
 
 # Use when build CUDA by Clang (NVCC doesn't need it)
 cc_library(
