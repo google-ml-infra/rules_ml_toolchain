@@ -206,7 +206,6 @@ def _merge_archive_impl(ctx):
     mri_script += r"\nsave\nend"
 
     if %{use_hermetic_cc_toolchain}:
-        ar = Label("@llvm_linux_x86_64//:bin/llvm-ar")
         command = "echo -e \"%s\" | %s -M" % (mri_script, ctx.file.ar.path)
         tools = [ctx.file.ar]
     else:
@@ -215,7 +214,7 @@ def _merge_archive_impl(ctx):
         tools = []
 
     ctx.actions.run_shell(
-        inputs = ctx.files.srcs,
+        inputs = ctx.files.srcs + ctx.files.distro_libs,
         outputs = [ctx.outputs.out],
         command = command,
         tools = tools,
@@ -232,6 +231,10 @@ _merge_archive = rule(
         "ar": attr.label(
             allow_single_file = True,
             default = "@llvm_linux_x86_64//:bin/llvm-ar",
+        ),
+        "distro_libs":  attr.label(
+            allow_single_file = True,
+            default = "@llvm_linux_x86_64//:distro_libs",
         ),
     },
     outputs = {"out": "lib%{name}.a"},
