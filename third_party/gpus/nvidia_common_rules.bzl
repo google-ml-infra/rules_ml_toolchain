@@ -672,8 +672,8 @@ def cuda_rpath_flags(relpath):
 def if_cuda_major_version_newer_than(
         major_version,
         wanted_major_version,
-        if_true = [],
-        if_false = []):
+        if_true,
+        if_false):
     version = int(major_version)
     if version >= wanted_major_version:
         return if_true
