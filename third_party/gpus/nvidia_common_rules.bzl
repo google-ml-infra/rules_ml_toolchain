@@ -670,4 +670,6 @@ def cuda_rpath_flags(relpath):
         })
 
 def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefix, old_header_prefix):
+    if not major_version:
+        return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
