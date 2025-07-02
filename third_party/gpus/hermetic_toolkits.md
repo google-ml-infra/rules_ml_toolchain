@@ -17,16 +17,16 @@ local files](#custom-redistributions).
    This option is recommended for testing custom/unreleases redistributions, or
    redistributions previously loaded locally.
 
-3) [Repository rules use locally-installed toolkits](#local-toolkit-installation).
+3) Not recommended: [Repository rules use locally-installed toolkits](#local-toolkit-installation).
 
-> [!WARNING]
->
-> This feature exists solely to cover the use case when the same person
-> develops both XLA/JAX and CUDA binaries, which is specific to NVIDIA teams.
-> Everyone else, who does not build custom NVIDIA binaries should not be using
-> this feature at all.
+   > [!WARNING]
+   >
+   > This feature exists solely to cover the use case when the same person
+   > develops both XLA/JAX and CUDA binaries, which is specific to NVIDIA teams.
+   > Everyone else, who does not build custom NVIDIA binaries should not be using
+   > this feature at all.
 
-## Standard redistributions loaded from NVIDIA repositories
+## 1) Standard redistributions loaded from NVIDIA repositories
 ### Supported hermetic CUDA, CUDNN, NVSHMEM versions {#standard-redistributions}
 
 The supported CUDA versions are specified in `CUDA_REDIST_JSON_DICT`
@@ -271,7 +271,7 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
     `MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT` dictionaries in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
-## Custom CUDA/CUDNN/NVSHMEM archives and NCCL wheels {#custom-redistributions}
+## 2) Custom CUDA/CUDNN/NVSHMEM archives and NCCL wheels {#custom-redistributions}
 
 There are three options that allow usage of custom distributions.
 
@@ -628,7 +628,7 @@ nccl_redist_init_repository(
 )
 ```
 
-## Local toolkit installations used as sources for hermetic repositories {#local-toolkit-installation}
+## 3) Local toolkit installations used as sources for hermetic repositories {#local-toolkit-installation}
 
 You can use the local CUDA/CUDNN/NCCL/NVSHMEM paths as a source of
 redistributions. The following additional environment variables are required:
