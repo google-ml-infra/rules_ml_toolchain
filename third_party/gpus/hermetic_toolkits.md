@@ -19,12 +19,6 @@ local files](#custom-redistributions).
 
 3) Not recommended: [Repository rules use locally-installed toolkits](#local-toolkit-installation).
 
-   > [!WARNING]
-   >
-   > This feature exists solely to cover the use case when the same person
-   > develops both XLA/JAX and CUDA binaries, which is specific to NVIDIA teams.
-   > Everyone else, who does not build custom NVIDIA binaries should not be using
-   > this feature at all.
 
 ## 1) Standard redistributions loaded from NVIDIA repositories
 ### Supported hermetic CUDA, CUDNN, NVSHMEM versions {#standard-redistributions}
@@ -629,6 +623,13 @@ nccl_redist_init_repository(
 ```
 
 ## 3) Local toolkit installations used as sources for hermetic repositories {#local-toolkit-installation}
+
+> [!WARNING]
+>
+> This feature exists solely to cover the use case when the same person
+> develops both XLA/JAX and CUDA binaries, which is specific to NVIDIA teams.
+> Everyone else, who does not build custom NVIDIA binaries should not be using
+> this feature at all.
 
 You can use the local CUDA/CUDNN/NCCL/NVSHMEM paths as a source of
 redistributions. The following additional environment variables are required:
