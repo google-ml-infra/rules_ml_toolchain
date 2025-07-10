@@ -66,6 +66,13 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+cc_import(
+   name = "nvptxcompiler",
+    hdrs = ["include/nvPTXCompiler.h"],
+    static_library = "lib/libnvptxcompiler_static.a",
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
 filegroup(
     name = "link_stub",
     srcs = [
