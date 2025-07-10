@@ -51,6 +51,7 @@ load("@cuda_nvdisasm//:version.bzl", _nvdisasm_version = "VERSION")
 load("@cuda_nvjitlink//:version.bzl", _nvjitlink_version = "VERSION")
 load("@cuda_nvml//:version.bzl", _nvml_version = "VERSION")
 load("@cuda_nvtx//:version.bzl", _nvtx_version = "VERSION")
+load("@llvm_linux_x86_64//:version.bzl", _llvm_hermetic_version = "VERSION")
 load(
     "//third_party/gpus:compiler_common_tools.bzl",
     "get_cxx_inc_directories",
@@ -304,16 +305,21 @@ def _create_cuda_copts_list(compute_capabilities):
 def _create_cuda_ptx_copts_list(repository_ctx, cuda_version):
     copts = []
 
+    clang_major_version = None
     if _use_hermetic_toolchains(repository_ctx):
-        return copts
+        clang_major_version = _llvm_hermetic_version
 
-    cc = _find_cc(repository_ctx)
-    if not _is_clang(cc):
+    if not clang_major_version:
+        cc = _find_cc(repository_ctx)
+        if _is_clang(cc):
+            clang_major_version = _get_clang_major_version(repository_ctx, cc)
+
+    if not clang_major_version:
         return copts
 
     ptx_version = _get_cuda_ptx_version(
         cuda_version,
-        _get_clang_major_version(repository_ctx, cc),
+        clang_major_version,
     )
 
     copts.append("--no-cuda-include-ptx=all")

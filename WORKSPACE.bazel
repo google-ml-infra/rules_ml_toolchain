@@ -128,6 +128,14 @@ http_archive(
     url = "https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip",
 )
 
+##############################################################
+# Hermetic toolchain configuration
+load("//cc_toolchain/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
+cc_toolchain_deps()
+
+register_toolchains("//cc_toolchain/...")
+
+##############################################################
 # CUDA
 load(
     "//third_party/gpus/cuda/hermetic:cuda_json_init_repository.bzl",
@@ -208,10 +216,4 @@ load(
 
 nvshmem_configure(name = "local_config_nvshmem")
 
-##############################################################
-# Hermetic toolchain configuration
-load("//cc_toolchain/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
-cc_toolchain_deps()
-
-register_toolchains("//cc_toolchain/...")
