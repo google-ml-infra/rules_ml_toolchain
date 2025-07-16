@@ -138,8 +138,9 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    build:cuda --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,compute_90"
    ```
 
-3. To enable hermetic CUDA during test execution, or when running a binary via
-   bazel, make sure to add `--@local_config_cuda//cuda:include_cuda_libs=true`
+3. To enable hermetic CUDA and NVSHMEM during test execution, or when running a
+   binary via bazel, make sure to add
+   `--@local_config_cuda//cuda:include_cuda_libs=true`
    flag to your bazel command. It is recommended to turn this flag on in all the
    cases except when you release a binary or a wheel.
    You can provide it either directly in a shell or in `.bazelrc`:
@@ -195,11 +196,6 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
       nvshmem_redistributions = NVSHMEM_REDISTRIBUTIONS,
    )
 
-   load(
-      "@rules_ml_toolchain//third_party/nvshmem/hermetic:nvshmem_configure.bzl",
-      "nvshmem_configure",
-   )
-   nvshmem_configure(name = "local_config_nvshmem")
    ```
 
 2. To select specific version of hermetic NVSHMEM, set the
@@ -209,18 +205,6 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    ```
    build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
    ```
-
-3. To enable hermetic NVSHMEM during test execution, or when running a binary
-   via bazel, make sure to add
-   `--@local_config_nvshmem//cuda:include_nvshmem_libs=true`
-   flag to your bazel command. You can provide it either directly in a shell or
-   in `.bazelrc`:
-   ```
-   build:cuda --@local_config_nvshmem//cuda:include_nvshmem_libs=true
-   ```
-   The flag is needed to make sure that NVSHMEM dependencies are properly
-   provided to test executables. The flag is false by default to avoid unwanted
-   coupling of Google-released Python wheels to NVSHMEM binaries.
 
 ### Upgrade hermetic CUDA/CUDNN/NCCL/NVSHMEM version
 
@@ -508,11 +492,6 @@ dependencies in Google ML projects.
       nvshmem_redist_path_prefix = "file:///home/usr/Downloads/dists/nvshmem/"
    )
 
-   load(
-      "@rules_ml_toolchain//third_party/nvshmem/hermetic:nvshmem_configure.bzl",
-      "nvshmem_configure",
-   )
-   nvshmem_configure(name = "local_config_nvshmem")
    ```
 
 ### Combination of the options above
