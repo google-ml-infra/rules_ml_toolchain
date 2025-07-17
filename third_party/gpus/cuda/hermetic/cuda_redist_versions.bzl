@@ -270,6 +270,10 @@ NVSHMEM_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.2.5.json",
         "6945425d3bfd24de23c045996f93ec720c010379bfd6f0860ac5f2716659442d",
     ],
+    "3.3.9": [
+        "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.9.json",
+        "fecaaab763c23d53f747c299491b4f4e32e0fc2e059b676772b886ada2ba711e",
+    ],
 }
 
 MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
