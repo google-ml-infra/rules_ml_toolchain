@@ -54,9 +54,9 @@ http_archive(
 ### com_google_protobuf
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "f66073dee0bc159157b0bd7f502d7d1ee0bc76b3c1eac9836927511bdc4b3fc1",
-    strip_prefix = "protobuf-3.21.9",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.21.9.zip"],
+    sha256 = "f645e6e42745ce922ca5388b1883ca583bafe4366cc74cf35c3c9299005136e2",
+    strip_prefix = "protobuf-5.28.3",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.28.3.zip"],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -131,6 +131,7 @@ http_archive(
 ##############################################################
 # Hermetic toolchain configuration
 load("//cc_toolchain/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
+
 cc_toolchain_deps()
 
 register_toolchains("//cc_toolchain/...")
@@ -208,6 +209,3 @@ load(
 nvshmem_redist_init_repository(
     nvshmem_redistributions = NVSHMEM_REDISTRIBUTIONS,
 )
-
-
-
