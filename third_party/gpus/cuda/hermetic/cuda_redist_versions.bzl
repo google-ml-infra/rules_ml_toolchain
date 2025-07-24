@@ -281,6 +281,10 @@ MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.2.5_tar.json",
         "641f7ca7048e4acfb466ce8be722f4828b2fa6b8671c28f6e8c230344484fd1c",
     ],
+    "3.3.9": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.9.json",
+        "87d22389c1e267a3a00e333d26378fabcb02ce62bc30de58ba9170966964634d",
+    ],
 }
 
 CUDA_12_NCCL_WHEEL_DICT = {
