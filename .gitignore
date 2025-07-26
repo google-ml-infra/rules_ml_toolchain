@@ -3,6 +3,6 @@ compare/
 .ijwb/
 .clwb/
 .idea/
-cc_toolchain/sysroots/macos_arm64/*.sdk
-cc_toolchain/sysroots/linux_x86_64/
+cc/sysroots/darwin_aarch64/*.sdk
+cc/sysroots/linux_x86_64/
 /_

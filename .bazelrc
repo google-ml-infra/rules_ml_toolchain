@@ -6,7 +6,7 @@ build --cxxopt=-std=c++17
 build --repo_env USE_HERMETIC_CC_TOOLCHAIN=1
 
 build:clang_local --noincompatible_enable_cc_toolchain_resolution
-build:clang_local --@rules_ml_toolchain//cc_toolchain/config:enable_hermetic_cc=False
+build:clang_local --@rules_ml_toolchain//cc/config:enable_hermetic_cc=False
 build:clang_local --repo_env USE_HERMETIC_CC_TOOLCHAIN=0
 
 # Disable clang extention that rejects type definitions within offsetof.
@@ -28,7 +28,7 @@ build:cuda --repo_env TF_NCCL_USE_STUB=1
 # "sm" means we emit only cubin, which is forward compatible within a GPU generation.
 # "compute" means we emit both cubin and PTX, which is larger but also forward compatible to future GPU generations.
 build:cuda --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,compute_90"
-build:cuda --@local_config_cuda//:enable_cuda
+build:cuda --@rules_ml_toolchain//common:enable_cuda
 
 # Default hermetic CUDA and CUDNN versions.
 build:cuda --repo_env=HERMETIC_CUDA_VERSION="12.3.2"
@@ -50,7 +50,7 @@ build:cuda_libraries_from_stubs --@local_config_cuda//cuda:include_cuda_libs=fal
 #   via LD_LIBRARY_PATH, if the nvidia-... pip packages are installed. This is
 #   acceptable, because the workaround is "remove the nvidia-..." pip packages.
 # The list of CUDA pip packages that JAX depends on are present in setup.py.
-build:cuda --platforms=//cc_toolchain/config:linux_x86_64_cuda
+build:cuda --platforms=//cc/config:linux_x86_64_cuda
 build:cuda --linkopt=-Wl,--disable-new-dtags
 
 build:cuda_clang_local --config=cuda

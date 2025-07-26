@@ -22,7 +22,7 @@ Project supports CPU hermetic builds on:
 
 You could run hermetic build tests with help of command
 
-`bazel test //cc_toolchain/tests/cpu:all`
+`bazel test //cc/tests/cpu:all`
 
 If project doesn't support cross-platform builds for specified platform,
 it will use host utilities and host sysroot for running such build.
@@ -35,15 +35,15 @@ Project supports GPU hermetic builds on:
 
 You could run hermetic build and test with help of command:
 ##### Build by Clang
-`bazel test //cc_toolchain/tests/gpu:all --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs`
+`bazel test //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs`
 
 ##### Build by NVCC
-`bazel test //cc_toolchain/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs`
+`bazel test //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs`
 
 ### Non-hermetic builds
 When executor and a target are the same, you still can run non-hermetic build. Command should look like:
 
-`bazel build //cc_toolchain/tests/cpu:all --//cc_toolchain/config:enable_hermetic_cc=False`
+`bazel build //cc/tests/cpu:all --//cc/config:enable_hermetic_cc=False`
 
 ### Cross-platform builds
 Project supports cross-platform builds only on Linux x86_64 executor 
@@ -52,9 +52,9 @@ and allows build for such targets:
 * macOS aarch64
 
 #### Build for Linux aarch64
-`bazel build //cc_toolchain/tests/cpu/... --platforms=//cc_toolchain/config:linux_aarch64`
+`bazel build //cc/tests/cpu/... --platforms=//cc/config:linux_aarch64`
 
 #### Build for macOS aarch64
-[Prepare SDK](cc_toolchain/sysroots/macos_arm64/README.md) before run the following command.
+[Prepare SDK](cc/sysroots/darwin_aarch64/README.md) before run the following command.
 
-`bazel build //cc_toolchain/tests/... --platforms=//cc_toolchain/config:macos_aarch64`
+`bazel build //cc/tests/cpu/... --platforms=//cc/config:macos_aarch64`

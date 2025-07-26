@@ -28,13 +28,17 @@ load(
 )
 
 package(
-    default_visibility = ["//cc_toolchain:__pkg__"],
+    default_visibility = [
+        "//cc:__pkg__",
+        "//cc/impls/cpu:__pkg__",
+        "//cc/impls/cuda:__pkg__",
+    ],
 )
 
 cc_toolchain_import_feature(
     name = "startup_libs_ma64",
     enabled = True,
-    toolchain_import = "//cc_toolchain:startup_libs_ma64",
+    toolchain_import = "//cc:startup_libs_ma64",
 )
 
 # Example, how to set ENV variables
