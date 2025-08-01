@@ -15,6 +15,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("llvm_http_archive.bzl", "llvm_http_archive")
+load("//third_party:repo.bzl", "tf_mirror_urls")
 
 def cc_toolchain_deps():
     if "sysroot_linux_x86_64" not in native.existing_rules():
@@ -46,7 +47,7 @@ def cc_toolchain_deps():
     if "llvm_linux_x86_64" not in native.existing_rules():
         llvm_http_archive(
             name = "llvm_linux_x86_64",
-            urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz"],
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz"),
             sha256 = "54ec30358afcc9fb8aa74307db3046f5187f9fb89fb37064cdde906e062ebf36",
             build_file = Label("//cc/config:llvm18_linux_x86_64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
@@ -64,7 +65,7 @@ def cc_toolchain_deps():
     #if "llvm_linux_x86_64" not in native.existing_rules():
     #    llvm_http_archive(
     #        name = "llvm_linux_x86_64",
-    #        urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz"],
+    #        urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz"),
     #        sha256 = "4a5ec53951a584ed36f80240f6fbf8fdd46b4cf6c7ee87cc2d5018dc37caf679",
     #        build_file = Label("//cc/config:llvm19_linux_x86_64.BUILD"),
     #        strip_prefix = "LLVM-19.1.7-Linux-X64",
@@ -73,7 +74,7 @@ def cc_toolchain_deps():
     if "llvm_darwin_aarch64" not in native.existing_rules():
         llvm_http_archive(
             name = "llvm_darwin_aarch64",
-            urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-arm64-apple-macos11.tar.xz"],
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-arm64-apple-macos11.tar.xz"),
             sha256 = "4573b7f25f46d2a9c8882993f091c52f416c83271db6f5b213c93f0bd0346a10",
             build_file = Label("//cc/config:llvm18_darwin_aarch64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-arm64-apple-macos11",
