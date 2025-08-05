@@ -1,3 +1,4 @@
+"""TODO: ybaturina - Write module docstring."""
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,8 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("llvm_http_archive.bzl", "llvm_http_archive")
-load("//third_party:repo.bzl", "tf_mirror_urls")
+load("@rules_ml_toolchain//third_party:repo.bzl", "tf_mirror_urls")
+load("@rules_ml_toolchain//llvm_http_archive.bzl", "llvm_http_archive")
 
 def cc_toolchain_deps():
     if "sysroot_linux_x86_64" not in native.existing_rules():
@@ -49,6 +50,7 @@ def cc_toolchain_deps():
             name = "llvm_linux_x86_64",
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz"),
             sha256 = "54ec30358afcc9fb8aa74307db3046f5187f9fb89fb37064cdde906e062ebf36",
+            mirrored_tar_sha256 = "01b8e95e34e7d0117edd085577529b375ec422130ed212d2911727545314e6c2",
             build_file = Label("//cc/config:llvm18_linux_x86_64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
             remote_file_urls = {
@@ -76,6 +78,8 @@ def cc_toolchain_deps():
             name = "llvm_darwin_aarch64",
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-arm64-apple-macos11.tar.xz"),
             sha256 = "4573b7f25f46d2a9c8882993f091c52f416c83271db6f5b213c93f0bd0346a10",
+            mirrored_tar_sha256 = "abf9636295730364bfe4cfa6b491dc8476587bd6d7271e3011dafdb5e382bcdf",
             build_file = Label("//cc/config:llvm18_darwin_aarch64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-arm64-apple-macos11",
         )
+

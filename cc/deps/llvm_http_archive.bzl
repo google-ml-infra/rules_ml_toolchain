@@ -75,13 +75,13 @@ def extract_llvm_version(text):
 
     start_index = text.find(start_marker)
     if start_index == -1:
-        return None # "llvm" not found
+        return None  # "llvm" not found
 
     version_start = start_index + len(start_marker)
 
     end_index = text.find(end_marker, version_start)
     if end_index == -1:
-        return None # "_" not found after "llvm"
+        return None  # "_" not found after "llvm"
 
     version_str = text[version_start:end_index]
 
@@ -100,11 +100,7 @@ def _get_all_urls(ctx):
     if not ctx.attr.urls:
         fail("At least one of url must be provided")
 
-    all_urls = []
-    if ctx.attr.urls:
-        all_urls = ctx.attr.urls
-
-    return all_urls
+    return ctx.attr.urls
 
 def _download_remote_files(ctx, auth = None):
     """Utility function for downloading remote files.
@@ -179,17 +175,53 @@ def _llvm_http_archive_impl(ctx):
     """Implementation of the llvm_http_archive rule."""
 
     all_urls = _get_all_urls(ctx)
+    use_tars = ctx.getenv("USE_LLVM_TAR_ARCHIVE_FILES")
+    mirrored_tar_sha256 = ctx.attr.mirrored_tar_sha256
     auth = _get_auth(ctx, all_urls)
 
-    download_info = ctx.download_and_extract(
-        all_urls,
-        ctx.attr.add_prefix,
-        ctx.attr.sha256,
-        ctx.attr.type,
-        ctx.attr.strip_prefix,
-        canonical_id = ctx.attr.canonical_id,
-        auth = auth,
-        integrity = ctx.attr.integrity,
+    llvm_file = None
+    first_url = all_urls[0]
+    llvm_file_name = first_url.split("/")[-1]
+    if (use_tars and mirrored_tar_sha256 and
+        first_url.endswith(".tar.xz") and
+        first_url.startswith("https://storage.googleapis.com/mirror.tensorflow.org")):
+
+        mirrored_tar_url = first_url.replace(".tar.xz", ".tar")
+        mirrored_tar_llvm_file_name = mirrored_tar_url.split("/")[-1]
+        download_info = ctx.download(
+            url = mirrored_tar_url,
+            sha256 = mirrored_tar_sha256,
+            output = mirrored_tar_llvm_file_name,
+            canonical_id = ctx.attr.canonical_id,
+            auth = auth,
+            allow_fail = True,
+            integrity = ctx.attr.integrity,
+        )
+        if download_info.success:
+            print("Successfully downloaded mirrored tar file: {}".format(
+                mirrored_tar_url,
+            ))  # buildifier: disable=print
+            llvm_file = mirrored_tar_llvm_file_name
+        else:
+            print("Failed to download mirrored tar file: {}".format(
+                mirrored_tar_url,
+            ))  # buildifier: disable=print
+
+    if not llvm_file:
+        download_info = ctx.download(
+            url = all_urls,
+            sha256 = ctx.attr.sha256,
+            output = llvm_file_name,
+        )
+        llvm_file = llvm_file_name
+
+    if ctx.attr.strip_prefix:
+        strip_prefix = ctx.attr.strip_prefix
+    else:
+        strip_prefix = llvm_file_name
+    ctx.extract(
+        archive = llvm_file,
+        stripPrefix = strip_prefix,
     )
     buildfile(ctx)
 
@@ -202,6 +234,8 @@ def _llvm_http_archive_impl(ctx):
     if llvm_version:
         create_version_file(ctx, llvm_version)
 
+    ctx.delete(llvm_file)
+
     return _update_sha256_attr(ctx, _http_archive_attrs, download_info)
 
 _http_archive_attrs = {
@@ -213,6 +247,9 @@ This must match the SHA-256 of the file downloaded. _It is a security risk
 to omit the SHA-256 as remote files can change._ At best omitting this
 field will make your build non-hermetic. It is optional to make development
 easier but either this attribute or `integrity` should be set before shipping.""",
+    ),
+    "mirrored_tar_sha256": attr.string(mandatory = False,
+        doc = "The expected SHA-256 of the mirrored .tar archive.",
     ),
     "integrity": attr.string(
         doc = """Expected checksum in Subresource Integrity format of the file downloaded.
@@ -343,7 +380,7 @@ following: `"zip"`, `"war"`, `"aar"`, `"tar"`, `"tar.gz"`, `"tgz"`,
             "This attribute is an absolute label (use '@//' for the main " +
             "repo). The file does not need to be named BUILD, but can " +
             "be (something like BUILD.new-repo-name may work well for " +
-            "distinguishing it from the repository's actual BUILD files. "
+            "distinguishing it from the repository's actual BUILD files. ",
     ),
 }
 
@@ -399,3 +436,4 @@ Examples:
   Then targets would specify `@my_ssl//:openssl-lib` as a dependency.
 """,
 )
+
