@@ -14,8 +14,8 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@rules_ml_toolchain//third_party:repo.bzl", "tf_mirror_urls")
 load("//cc/deps:llvm_http_archive.bzl", "llvm_http_archive")
+load("//third_party:repo.bzl", "tf_mirror_urls")
 
 # DEPRECATED FUNCTION, USE //cc/deps:cc_toolchain_deps.bzl INSTEAD
 def cc_toolchain_deps():

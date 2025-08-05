@@ -14,8 +14,8 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@rules_ml_toolchain//third_party:repo.bzl", "tf_mirror_urls")
-load("@rules_ml_toolchain//llvm_http_archive.bzl", "llvm_http_archive")
+load("//third_party:repo.bzl", "tf_mirror_urls")
+load("llvm_http_archive.bzl", "llvm_http_archive")
 
 def cc_toolchain_deps():
     if "sysroot_linux_x86_64" not in native.existing_rules():
