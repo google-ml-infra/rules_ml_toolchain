@@ -480,7 +480,7 @@ def _sysroot_http_archive_impl(repository_ctx):
     if repository_ctx.attr.strip_prefix:
         strip_prefix = repository_ctx.attr.strip_prefix
     else:
-        strip_prefix = llvm_file_name.split(".")[0]
+        strip_prefix = sysroot_file_name.split(".")[0]
     repository_ctx.extract(
         archive = sysroot_file,
         stripPrefix = strip_prefix,
