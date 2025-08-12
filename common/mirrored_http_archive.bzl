@@ -101,6 +101,4 @@ mirrored_http_archive = repository_rule(
         mirrored tar if mirrored_tar_sha256 is provided and the .tar file is
         available in the mirror.""",
 )
-        
-    
 
