@@ -236,9 +236,9 @@ def _llvm_http_archive_impl(ctx):
 
     ctx.delete(llvm_file)
 
-    return _update_sha256_attr(ctx, _http_archive_attrs, download_info)
+    return _update_sha256_attr(ctx, _llvm_http_archive_attrs, download_info)
 
-_http_archive_attrs = {
+_llvm_http_archive_attrs = {
     "urls": attr.string_list(doc = _URLS_DOC),
     "sha256": attr.string(
         doc = """The expected SHA-256 of the file downloaded.
@@ -386,7 +386,7 @@ following: `"zip"`, `"war"`, `"aar"`, `"tar"`, `"tar.gz"`, `"tgz"`,
 
 llvm_http_archive = repository_rule(
     implementation = _llvm_http_archive_impl,
-    attrs = _http_archive_attrs,
+    attrs = _llvm_http_archive_attrs,
     doc =
         """Downloads a Bazel repository as a compressed archive file, decompresses it,
 and makes its targets available for binding.
@@ -436,4 +436,67 @@ Examples:
   Then targets would specify `@my_ssl//:openssl-lib` as a dependency.
 """,
 )
+
+def _sysroot_http_archive_impl(repository_ctx):
+    """Implementation of the sysroot_http_archive rule."""
+
+    all_urls = _get_all_urls(repository_ctx)
+    use_tars = repository_ctx.getenv("USE_SYSROOT_TAR_ARCHIVE_FILES")
+    mirrored_tar_sha256 = repository_ctx.attr.mirrored_tar_sha256
+
+    sysroot_file = None
+    first_url = all_urls[0]
+    sysroot_file_name = first_url.split("/")[-1]
+    if (use_tars and mirrored_tar_sha256 and
+        first_url.endswith(".tar.xz") and
+        first_url.startswith("https://storage.googleapis.com/mirror.tensorflow.org")):
+
+        mirrored_tar_url = first_url.replace(".tar.xz", ".tar")
+        mirrored_tar_sysroot_file_name = mirrored_tar_url.split("/")[-1]
+        download_info = repository_ctx.download(
+            url = mirrored_tar_url,
+            sha256 = mirrored_tar_sha256,
+            output = mirrored_tar_sysroot_file_name,
+            allow_fail = True,
+        )
+        if download_info.success:
+            print("Successfully downloaded mirrored tar file: {}".format(
+                mirrored_tar_url,
+            ))  # buildifier: disable=print
+            sysroot_file = mirrored_tar_sysroot_file_name
+        else:
+            print("Failed to download mirrored tar file: {}".format(
+                mirrored_tar_url,
+            ))  # buildifier: disable=print
+
+    if not sysroot_file:
+        download_info = repository_ctx.download(
+            url = all_urls,
+            sha256 = repository_ctx.attr.sha256,
+            output = sysroot_file_name,
+        )
+        sysroot_file = sysroot_file_name
+
+    repository_ctx.extract(
+        archive = sysroot_file,
+        stripPrefix = sysroot_file_name,
+    )
+    buildfile(repository_ctx)
+
+    repository_ctx.delete(sysroot_file)
+
+sysroot_http_archive = repository_rule(
+    implementation = _sysroot_http_archive_impl.
+    attrs = {
+        "urls": attr.string_list(),
+        "sha256": attr.string(),
+        "mirrored_tar_sha256": attr.string(mandatory = False),
+        "build_file": attr.label(
+            allow_single_file = True,
+            mandatory = True,
+        ),
+    },
+)
+        
+    
 
