@@ -486,7 +486,7 @@ def _sysroot_http_archive_impl(repository_ctx):
     repository_ctx.delete(sysroot_file)
 
 sysroot_http_archive = repository_rule(
-    implementation = _sysroot_http_archive_impl.
+    implementation = _sysroot_http_archive_impl,
     attrs = {
         "urls": attr.string_list(),
         "sha256": attr.string(),
@@ -496,6 +496,8 @@ sysroot_http_archive = repository_rule(
             mandatory = True,
         ),
     },
+    doc = "Downloads a compressed sysroot archive file, decompresses it,
+and makes its targets available for binding.",
 )
         
     
