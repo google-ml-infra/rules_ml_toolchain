@@ -218,7 +218,7 @@ def _llvm_http_archive_impl(ctx):
     if ctx.attr.strip_prefix:
         strip_prefix = ctx.attr.strip_prefix
     else:
-        strip_prefix = llvm_file_name
+        strip_prefix = llvm_file_name.split(".")[0]
     ctx.extract(
         archive = llvm_file,
         stripPrefix = strip_prefix,
@@ -477,9 +477,13 @@ def _sysroot_http_archive_impl(repository_ctx):
         )
         sysroot_file = sysroot_file_name
 
+    if repository_ctx.attr.strip_prefix:
+        strip_prefix = repository_ctx.attr.strip_prefix
+    else:
+        strip_prefix = llvm_file_name.split(".")[0]
     repository_ctx.extract(
         archive = sysroot_file,
-        stripPrefix = sysroot_file_name,
+        stripPrefix = strip_prefix,
     )
     buildfile(repository_ctx)
 
@@ -495,6 +499,7 @@ sysroot_http_archive = repository_rule(
             allow_single_file = True,
             mandatory = True,
         ),
+        "strip_prefix": attr.string(),
     },
     doc = """Downloads a compressed sysroot archive file, decompresses it,
         and makes its targets available for binding.""",

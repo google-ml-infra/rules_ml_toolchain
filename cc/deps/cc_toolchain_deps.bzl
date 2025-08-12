@@ -26,6 +26,7 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "9841fd7999c812766c067d30b31ae3dbd872b0ede2c047b9ced5fe24994e4a9b",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot_gcc8_patched.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_x86_64.BUILD"),
+            strip_prefix = "ubuntu18_x86_64_sysroot_gcc8_patched",
         )
 
     if "sysroot_linux_aarch64" not in native.existing_rules():
@@ -35,6 +36,7 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "46f591a3c7f95d2d0c2d5cb64975e7222167e0033f76c96886b49130c7e53a88",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_aarch64-sysroot.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_aarch64.BUILD"),
+            strip_prefix = "ubuntu18_aarch64-sysroot",
         )
 
     if "sysroot_darwin_aarch64" not in native.existing_rules():
