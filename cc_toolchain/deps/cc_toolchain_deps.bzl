@@ -15,7 +15,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//cc/deps:llvm_http_archive.bzl", "llvm_http_archive")
-load("//cc/deps:mirrored_http_archive.bzl", "mirrored_http_archive")
+load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//third_party:repo.bzl", "tf_mirror_urls")
 
 # DEPRECATED FUNCTION, USE //cc/deps:cc_toolchain_deps.bzl INSTEAD
