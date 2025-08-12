@@ -496,8 +496,8 @@ sysroot_http_archive = repository_rule(
             mandatory = True,
         ),
     },
-    doc = "Downloads a compressed sysroot archive file, decompresses it,
-and makes its targets available for binding.",
+    doc = """Downloads a compressed sysroot archive file, decompresses it,
+        and makes its targets available for binding.""",
 )
         
     
