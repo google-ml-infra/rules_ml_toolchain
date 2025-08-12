@@ -14,13 +14,14 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("llvm_http_archive.bzl", "llvm_http_archive", "sysroot_http_archive")
+load("llvm_http_archive.bzl", "llvm_http_archive")
+load("mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//third_party:repo.bzl", "tf_mirror_urls")
 
 def cc_toolchain_deps():
     if "sysroot_linux_x86_64" not in native.existing_rules():
         # Produce wheels with tag manylinux_2_27_x86_64
-        sysroot_http_archive(
+        mirrored_http_archive(
             name = "sysroot_linux_x86_64",
             sha256 = "02f418783479fbf612701e20ff9f48c1713b60545ec090da3855e77b9e27881a",
             mirrored_tar_sha256 = "9841fd7999c812766c067d30b31ae3dbd872b0ede2c047b9ced5fe24994e4a9b",
@@ -30,13 +31,13 @@ def cc_toolchain_deps():
         )
 
     if "sysroot_linux_aarch64" not in native.existing_rules():
-        sysroot_http_archive(
+        mirrored_http_archive(
             name = "sysroot_linux_aarch64",
             sha256 = "d883a1d664500f11bb49aa70c650a9e68d49341324c447f9abda77ec2f335ac5",
             mirrored_tar_sha256 = "46f591a3c7f95d2d0c2d5cb64975e7222167e0033f76c96886b49130c7e53a88",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_aarch64-sysroot.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_aarch64.BUILD"),
-            strip_prefix = "ubuntu18_aarch64-sysroot",
+            strip_prefix = "ubuntu18_aarch64-sysroot",strip_prefix = "ubuntu18_x86_64_sysroot_gcc8_patched",
         )
 
     if "sysroot_darwin_aarch64" not in native.existing_rules():
