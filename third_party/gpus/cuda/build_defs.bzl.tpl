@@ -223,6 +223,8 @@ def if_version_equal_or_greater_than(
         dist_version,
         if_true,
         if_false = []):
+    if not lib_version:
+        return if_false
     if tuple([int(x) for x in lib_version.split(".")]) >= tuple([
         int(x)
         for x in dist_version.split(".")
