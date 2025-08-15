@@ -55,6 +55,11 @@ load("@cuda_nvtx//:version.bzl", _nvtx_version = "VERSION")
 load("@cuda_nvvm//:version.bzl", _nvvm_version = "VERSION")
 load("@llvm_linux_x86_64//:version.bzl", _llvm_hermetic_version = "VERSION")
 load(
+    "//cc:constants.bzl",
+    "USE_HERMETIC_CC_TOOLCHAIN",
+    "USE_HERMETIC_CC_TOOLCHAIN_DEFAULT_VALUE",
+)
+load(
     "//third_party/gpus:compiler_common_tools.bzl",
     "get_cxx_inc_directories",
     "to_list_of_strings",
@@ -169,7 +174,7 @@ def _is_linux_x86_64(repository_ctx):
     return repository_ctx.os.arch == "amd64" and repository_ctx.os.name == "linux"
 
 def _use_hermetic_toolchains(repository_ctx):
-    return _flag_enabled(repository_ctx, USE_HERMETIC_CC_TOOLCHAIN)
+    return get_host_environ(repository_ctx, USE_HERMETIC_CC_TOOLCHAIN, USE_HERMETIC_CC_TOOLCHAIN_DEFAULT_VALUE) == "1"
 
 def enable_cuda(repository_ctx):
     """Returns whether to build with CUDA support."""
@@ -718,7 +723,6 @@ _CLANG_CUDA_COMPILER_PATH = "CLANG_CUDA_COMPILER_PATH"
 _HERMETIC_CUDA_COMPUTE_CAPABILITIES = "HERMETIC_CUDA_COMPUTE_CAPABILITIES"
 _TF_CUDA_COMPUTE_CAPABILITIES = "TF_CUDA_COMPUTE_CAPABILITIES"
 HERMETIC_CUDA_VERSION = "HERMETIC_CUDA_VERSION"
-USE_HERMETIC_CC_TOOLCHAIN = "USE_HERMETIC_CC_TOOLCHAIN"
 TF_CUDA_VERSION = "TF_CUDA_VERSION"
 TF_NEED_CUDA = "TF_NEED_CUDA"
 _TF_NEED_ROCM = "TF_NEED_ROCM"
@@ -774,4 +778,3 @@ Args:
 # TODO(yuriit): Remove after moving to //gpu/cuda package
 def cuda_configure_wrapper(name):
     cuda_configure(name = name)
-

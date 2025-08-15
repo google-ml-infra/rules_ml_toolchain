@@ -37,6 +37,15 @@ load(
     "update_attrs",
     "use_netrc",
 )
+load(
+    "//cc:constants.bzl",
+    "USE_HERMETIC_CC_TOOLCHAIN",
+    "USE_HERMETIC_CC_TOOLCHAIN_DEFAULT_VALUE",
+)
+load(
+    "//third_party/remote_config:common.bzl",
+    "get_host_environ",
+)
 
 _URL_DOC = """A URL to a file that will be made available to Bazel.
 
@@ -87,8 +96,11 @@ def extract_llvm_version(text):
 
     return version_str
 
-def create_version_file(repository_ctx, major_version):
-    repository_ctx.file(
+def _create_empty_build_file(ctx):
+    ctx.file("BUILD", "")
+
+def _create_version_file(ctx, major_version):
+    ctx.file(
         "version.bzl",
         "VERSION = \"{}\"".format(major_version),
     )
@@ -166,6 +178,9 @@ def _get_auth(ctx, urls):
         netrc = read_user_netrc(ctx)
     return use_netrc(netrc, urls, ctx.attr.auth_patterns)
 
+def _use_hermetic_toolchains(ctx):
+    return get_host_environ(ctx, USE_HERMETIC_CC_TOOLCHAIN, USE_HERMETIC_CC_TOOLCHAIN_DEFAULT_VALUE) == "1"
+
 def _update_sha256_attr(ctx, attrs, download_info):
     # We don't need to override the sha256 attribute if integrity is already specified.
     sha256_override = {} if ctx.attr.integrity else {"sha256": download_info.sha256}
@@ -173,6 +188,11 @@ def _update_sha256_attr(ctx, attrs, download_info):
 
 def _llvm_http_archive_impl(ctx):
     """Implementation of the llvm_http_archive rule."""
+
+    if not _use_hermetic_toolchains(ctx):
+        _create_version_file(ctx, "")
+        _create_empty_build_file(ctx)
+        return _llvm_http_archive_attrs
 
     all_urls = _get_all_urls(ctx)
     use_tars = ctx.getenv("USE_LLVM_TAR_ARCHIVE_FILES")
@@ -185,7 +205,6 @@ def _llvm_http_archive_impl(ctx):
     if (use_tars and mirrored_tar_sha256 and
         first_url.endswith(".tar.xz") and
         first_url.startswith("https://storage.googleapis.com/mirror.tensorflow.org")):
-
         mirrored_tar_url = first_url.replace(".tar.xz", ".tar")
         mirrored_tar_llvm_file_name = mirrored_tar_url.split("/")[-1]
         download_info = ctx.download(
@@ -232,7 +251,7 @@ def _llvm_http_archive_impl(ctx):
     llvm_version = extract_llvm_version(str(ctx.attr.build_file))
 
     if llvm_version:
-        create_version_file(ctx, llvm_version)
+        _create_version_file(ctx, llvm_version)
 
     ctx.delete(llvm_file)
 
@@ -248,7 +267,8 @@ to omit the SHA-256 as remote files can change._ At best omitting this
 field will make your build non-hermetic. It is optional to make development
 easier but either this attribute or `integrity` should be set before shipping.""",
     ),
-    "mirrored_tar_sha256": attr.string(mandatory = False,
+    "mirrored_tar_sha256": attr.string(
+        mandatory = False,
         doc = "The expected SHA-256 of the mirrored .tar archive.",
     ),
     "integrity": attr.string(
@@ -436,4 +456,3 @@ Examples:
   Then targets would specify `@my_ssl//:openssl-lib` as a dependency.
 """,
 )
-

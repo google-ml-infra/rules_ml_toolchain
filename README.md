@@ -49,8 +49,8 @@ must be avoided.
 For diagnosing the utility set being used during build or test execution, the `--subcommands` flag should be appended 
 to the Bazel command. This will facilitate checking that the compiler or linker are not being used from your machine.
 
-### How to run this project tests
-#### CPU Hermetic tests
+## How to run this project tests
+### CPU Hermetic tests
 Project supports CPU hermetic builds on:
 * Linux x86_64
 * macOS aarch64
@@ -62,7 +62,14 @@ The command allows you to run hermetic build tests:
 If project doesn't support cross-platform builds for specified platform,
 it will use host utilities and host sysroot for running such build.
 
-#### GPU Hermetic test 
+##### Non-hermetic CPU builds
+When executor and a target are the same, you still can run non-hermetic build. Command should look like:
+
+`bazel build //cc/tests/cpu:all --config=clang_local`
+
+For details, look at the `.bazelrc` file, specifically the `clang_local` configuration.
+
+### GPU Hermetic tests
 Project supports GPU hermetic builds on Linux x86_64 and requires machine with NVIDIA GPU
 
 You could run hermetic tests with help of command:
@@ -72,10 +79,16 @@ You could run hermetic tests with help of command:
 ###### Build by NVCC
 `bazel test //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs`
 
-#### Non-hermetic builds
-When executor and a target are the same, you still can run non-hermetic build. Command should look like:
+#### Non-hermetic GPU tests
+When executor and a target are the same, you still can run non-hermetic GPU build.
 
-`bazel build //cc/tests/cpu:all --//common:enable_hermetic_cc=False`
+###### Build by Clang
+`bazel test //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda_clang_local --config=cuda_libraries_from_stubs`
+
+###### Build by NVCC
+`bazel test //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda_clang_local --config=cuda_libraries_from_stubs`
+
+For details, look at the `.bazelrc` file, specifically the `cuda_clang_local` configuration.
 
 ### Cross-platform builds
 Project supports cross-platform builds only on Linux x86_64 executor 
