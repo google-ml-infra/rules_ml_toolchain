@@ -4,8 +4,8 @@ load(
     "@rules_ml_toolchain//cc/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
-load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
 load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
 
 exports_files([
     "bin/nvcc",

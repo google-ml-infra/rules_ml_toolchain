@@ -449,6 +449,7 @@ def _create_local_toolchains_repository(repository_ctx):
         "%{msvc_lib_path}": "msvc_not_used",
         "%{win_compiler_deps}": ":empty",
     })
+
     cuda_defines["%{builtin_sysroot}"] = tf_sysroot
     is_clang_compiler = _is_clang(cc)
     if not enable_cuda(repository_ctx):
