@@ -4,6 +4,8 @@ load(
     "@rules_ml_toolchain//cc/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
+load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
+load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
 
 exports_files([
     "bin/nvcc",
@@ -11,9 +13,12 @@ exports_files([
 
 filegroup(
     name = "nvvm",
-    srcs = [
-        "nvvm/libdevice/libdevice.10.bc",
-    ],
+    srcs = if_version_equal_or_greater_than(
+        _cudart_version,
+        "13",
+        if_true = [],
+        if_false = ["nvvm/libdevice/libdevice.10.bc"],
+    ),
     visibility = ["//visibility:public"],
 )
 
@@ -85,10 +90,14 @@ cuda_nvcc_feature(
 cc_library(
     name = "headers",
     %{comment}hdrs = glob([
-        %{comment}"include/crt/**",
         %{comment}"include/fatbinary_section.h",
         %{comment}"include/nvPTXCompiler.h",
-    %{comment}]),
+    %{comment}]) + if_version_equal_or_greater_than(
+        %{comment}_cudart_version,
+        %{comment}"13",
+        %{comment}if_true = [],
+        %{comment}if_false = glob(["include/crt/**"]),
+    %{comment}),
     include_prefix = "third_party/gpus/cuda/include",
     includes = ["include"],
     strip_include_prefix = "include",

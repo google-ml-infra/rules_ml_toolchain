@@ -101,6 +101,7 @@ def cuda_redist_init_repositories(
             repository_symlinks = {
                 Label("@cuda_cudart//:include/cuda.h"): "include/cuda.h",
                 Label("@cuda_nvdisasm//:bin/nvdisasm"): "bin/nvdisasm",
+               Label("@cuda_nvvm//:nvvm/bin/cicc"): "nvvm/bin/cicc",
             } if repo_data["repo_name"] == "cuda_nvcc" else {},
         )
 

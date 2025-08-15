@@ -62,11 +62,13 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# TODO(ybaturina): rename to "cuda_bin"
 filegroup(
     name = "cuda_nvcc",
     srcs = if_cuda([
         "@cuda_nvcc//:bin",
         "@cuda_nvcc//:nvvm",
+        "@cuda_nvvm//:cicc",
     ]),
 )
 
