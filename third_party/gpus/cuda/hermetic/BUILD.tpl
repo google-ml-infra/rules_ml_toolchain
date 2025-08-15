@@ -68,7 +68,7 @@ cc_library(
             ":cupti_headers",
             ":nvml_headers",
             ":nvjitlink_headers",
-           ] + ([":crt_headers"] if int(_cudart_version)>=13 else []),
+           ] + ([":crt_headers"] if _cudart_version and int(_cudart_version)>=13 else []),
 )
 
 # This target is needed by the `cuda_library` rule. We can't implicitly
@@ -239,7 +239,7 @@ alias(
 
 alias(
     name = "cuda-nvvm",
-    actual = "@cuda_nvcc//:nvvm" if int(_cudart_version) < 13 else "@cuda_nvvm//:nvvm",
+    actual = "@cuda_nvcc//:nvvm" if _cudart_version and int(_cudart_version) < 13 else "@cuda_nvvm//:nvvm",
 )
 
 alias(

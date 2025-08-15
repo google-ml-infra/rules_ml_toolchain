@@ -4,7 +4,7 @@ load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
 
 exports_files([
-    "nvvm/bin/cicccuda_defines["%{builtin_sysroot}"] = tf_sysroot",
+    "nvvm/bin/cicc",
 ])
 
 filegroup(
