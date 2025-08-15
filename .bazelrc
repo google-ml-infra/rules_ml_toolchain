@@ -3,7 +3,6 @@ common --noenable_bzlmod
 build --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 build --toolchain_resolution_debug=.*
 build --cxxopt=-std=c++17
-build --repo_env USE_HERMETIC_CC_TOOLCHAIN=1
 
 build:clang_local --noincompatible_enable_cc_toolchain_resolution
 build:clang_local --@rules_ml_toolchain//common:enable_hermetic_cc=False
