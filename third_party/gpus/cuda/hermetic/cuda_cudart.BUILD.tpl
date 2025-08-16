@@ -45,7 +45,7 @@ cc_library(
         %{comment}":cudart_shared_library",
     %{comment}],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libcudart_major_version}",
+        %{comment}"%{libcudart_version}",
         %{comment}"13",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_runtime/lib"),

@@ -25,7 +25,7 @@ cc_library(
     name = "cusolver",
     %{comment}deps = [":cusolver_shared_library"],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libsolver_major_version}",
+        %{comment}"%{libcusolver_version}",
         %{comment}"12",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cusolver/lib"),

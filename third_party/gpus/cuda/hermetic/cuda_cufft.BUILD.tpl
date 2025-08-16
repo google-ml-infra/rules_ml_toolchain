@@ -19,7 +19,7 @@ cc_library(
     name = "cufft",
     %{comment}deps = [":cufft_shared_library"],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libcufft_major_version}",
+        %{comment}"%{libcufft_version}",
         %{comment}"12",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cufft/lib"),

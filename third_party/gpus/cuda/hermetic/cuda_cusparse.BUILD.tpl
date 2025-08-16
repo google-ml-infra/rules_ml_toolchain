@@ -20,7 +20,7 @@ cc_library(
     name = "cusparse",
     %{comment}deps = [":cusparse_shared_library"],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libsparse_minor_version}",
+        %{comment}"%{libcusparse_minor_version}",
         %{comment}"12.6",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cusparse/lib"),

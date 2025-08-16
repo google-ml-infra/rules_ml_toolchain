@@ -27,7 +27,7 @@ cc_library(
     visibility = ["//visibility:public"],
     %{comment}deps = [":cublas_shared_library"],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libcublas_major_version}",
+        %{comment}"%{libcublas_version}",
         %{comment}"13",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cublas/lib"),
@@ -39,7 +39,7 @@ cc_library(
     visibility = ["//visibility:public"],
     %{comment}deps = [":cublasLt_shared_library"],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libcublasLt_major_version}",
+        %{comment}"%{libcublaslt_version}",
         %{comment}"13",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cublas/lib"),

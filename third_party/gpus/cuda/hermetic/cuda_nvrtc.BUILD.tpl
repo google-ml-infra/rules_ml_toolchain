@@ -26,7 +26,7 @@ cc_library(
         %{comment}":nvrtc_builtins",
     %{comment}],
     %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libnvrtc_major_version}",
+        %{comment}"%{libnvrtc_version}",
         %{comment}"13",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_nvrtc/lib"),
