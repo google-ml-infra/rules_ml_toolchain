@@ -1,5 +1,9 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
+    "@local_config_cuda//cuda:build_defs.bzl",
+    "if_cuda_newer_than",
+)
+load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
     "cuda_rpath_flags",
 )
@@ -20,7 +24,11 @@ cc_import(
 cc_library(
     name = "cusolver",
     %{comment}deps = [":cusolver_shared_library"],
-    %{comment}linkopts = cuda_rpath_flags("nvidia/cusolver/lib"),
+    %{comment}linkopts = if_cuda_newer_than(
+        %{comment}"13_0",
+        %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
+        %{comment}if_false = cuda_rpath_flags("nvidia/cusolver/lib"),
+    %{comment}),
     visibility = ["//visibility:public"],
 )
 

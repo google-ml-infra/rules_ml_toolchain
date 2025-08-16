@@ -244,6 +244,10 @@ CUDNN_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.11.0.json",
         "7a16458ea21573e18d190df0c8d68ea1e8c82faf1bcfad4a39ceb600c26639cc",
     ],
+    "9.12.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.12.0.json",
+        "39bb68f0ca6abdbf9bab3ecb1cb18f458d635f72d72ede98a308216fd22efab3",
+    ],
 }
 
 MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
@@ -333,6 +337,10 @@ NVSHMEM_REDIST_JSON_DICT = {
     "3.3.9": [
         "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.9.json",
         "fecaaab763c23d53f747c299491b4f4e32e0fc2e059b676772b886ada2ba711e",
+    ],
+    "3.3.20": [
+        "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.20.json",
+        "0da2b7f4553e4debef4dbbe899fe7c3bb6324a7cba181e3da6666479c7d4038e",
     ],
 }
 
@@ -517,12 +525,24 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "11": "//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
         },
     },
+    "cuda_crt": {
+        "repo_name": "cuda_crt",
+        "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_crt.BUILD.tpl",
+        },
+    },
     "cuda_nvcc": {
         "repo_name": "cuda_nvcc",
         "version_to_template": {
             "13": "//third_party/gpus/cuda/hermetic:cuda_nvcc.BUILD.tpl",
             "12": "//third_party/gpus/cuda/hermetic:cuda_nvcc.BUILD.tpl",
             "11": "//third_party/gpus/cuda/hermetic:cuda_nvcc.BUILD.tpl",
+        },
+    },
+    "libnvvm": {
+        "repo_name": "cuda_nvvm",
+        "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_nvvm.BUILD",
         },
     },
     "cuda_nvdisasm": {

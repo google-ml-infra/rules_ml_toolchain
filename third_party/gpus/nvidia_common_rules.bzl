@@ -242,7 +242,14 @@ def _create_libcuda_symlinks(
 
 def _create_repository_symlinks(repository_ctx):
     for target, link_name in repository_ctx.attr.repository_symlinks.items():
-        repository_ctx.symlink(repository_ctx.path(target), link_name)
+        target_path = repository_ctx.path(target)
+        if not target_path.exists:
+            print("Target %s doesn't exist!" % target_path)  # buildifier: disable=print
+            continue
+        if repository_ctx.path(link_name).exists:
+            print("File %s already exists!" % repository_ctx.path(link_name))  # buildifier: disable=print
+            continue
+        repository_ctx.symlink(target_path, link_name)
 
 def create_version_file(repository_ctx, major_lib_version):
     repository_ctx.file(
@@ -662,14 +669,15 @@ def json_init_repository(
 # various pywrap libs within the 'python' subdir.
 def cuda_rpath_flags(relpath):
     return select({
-            "@rules_ml_toolchain//third_party/gpus:enable_cuda_rpath": [
-                "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
-                "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
-            ],
-            "//conditions:default": [],
-        })
+        "@rules_ml_toolchain//third_party/gpus:enable_cuda_rpath": [
+            "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
+            "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
+        ],
+        "//conditions:default": [],
+    })
 
 def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefix, old_header_prefix):
     if not major_version:
         return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
+

@@ -1,6 +1,7 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
 
 licenses(["restricted"])  # MPL2, portions GPL v3, LGPL v3, BSD-like
 
@@ -66,7 +67,8 @@ cc_library(
             ":curand_headers",
             ":cupti_headers",
             ":nvml_headers",
-            ":nvjitlink_headers"],
+            ":nvjitlink_headers",
+           ] + ([":crt_headers"] if _cudart_version and int(_cudart_version)>=13 else []),
 )
 
 # This target is needed by the `cuda_library` rule. We can't implicitly
@@ -125,6 +127,11 @@ alias(
 alias(
   name = "nvcc_headers",
   actual = "@cuda_nvcc//:headers",
+)
+
+alias(
+  name = "crt_headers",
+  actual = "@cuda_crt//:headers",
 )
 
 alias(
@@ -232,7 +239,7 @@ alias(
 
 alias(
     name = "cuda-nvvm",
-    actual = "@cuda_nvcc//:nvvm",
+    actual = "@cuda_nvcc//:nvvm" if _cudart_version and int(_cudart_version) < 13 else "@cuda_nvvm//:nvvm",
 )
 
 alias(
