@@ -1,7 +1,7 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@local_config_cuda//cuda:build_defs.bzl",
-     "if_version_equal_or_greater_than",
+     "if_cuda_newer_than",
 )
 load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
@@ -19,9 +19,8 @@ cc_import(
 cc_library(
     name = "cusparse",
     %{comment}deps = [":cusparse_shared_library"],
-    %{comment}linkopts = if_version_equal_or_greater_than(
-        %{comment}"%{libcusparse_minor_version}",
-        %{comment}"12.6",
+    %{comment}linkopts = if_cuda_newer_than(
+        %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cusparse/lib"),
     %{comment}),

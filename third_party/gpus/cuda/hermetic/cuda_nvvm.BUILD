@@ -1,7 +1,6 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 
-load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
-load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_newer_than")
 
 exports_files([
     "nvvm/bin/cicc",
@@ -9,9 +8,8 @@ exports_files([
 
 filegroup(
     name = "cicc",
-    srcs = if_version_equal_or_greater_than(
-        _cudart_version,
-        "13",
+    srcs = if_cuda_newer_than(
+        "13_0",
         if_true = ["nvvm/bin/cicc"],
         if_false = [],
     ),
@@ -20,9 +18,8 @@ filegroup(
 
 filegroup(
     name = "nvvm",
-    srcs = if_version_equal_or_greater_than(
-        _cudart_version,
-        "13",
+    srcs = if_cuda_newer_than(
+        "13_0",
         if_true = ["nvvm/libdevice/libdevice.10.bc"],
         if_false = [],
     ),

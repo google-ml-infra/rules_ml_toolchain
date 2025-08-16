@@ -4,8 +4,7 @@ load(
     "@rules_ml_toolchain//cc/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
-load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
-load("@local_config_cuda//cuda:build_defs.bzl", "if_version_equal_or_greater_than")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_newer_than")
 
 exports_files([
     "bin/nvcc",
@@ -92,9 +91,8 @@ cc_library(
     %{comment}hdrs = glob([
         %{comment}"include/fatbinary_section.h",
         %{comment}"include/nvPTXCompiler.h",
-    %{comment}]) + if_version_equal_or_greater_than(
-        %{comment}_cudart_version,
-        %{comment}"13",
+    %{comment}]) + if_cuda_newer_than(
+        %{comment}"13_0",
         %{comment}if_true = [],
         %{comment}if_false = glob(["include/crt/**"]),
     %{comment}),
