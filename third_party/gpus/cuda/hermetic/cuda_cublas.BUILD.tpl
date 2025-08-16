@@ -38,7 +38,7 @@ cc_library(
     visibility = ["//visibility:public"],
     %{comment}deps = [":cublasLt_shared_library"],
     %{comment}linkopts = if_cuda_newer_than(
-        %{comment}"13",
+        %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cublas/lib"),
     %{comment}),
