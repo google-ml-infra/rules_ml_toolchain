@@ -12,9 +12,8 @@ exports_files([
 
 filegroup(
     name = "nvvm",
-    srcs = if_version_equal_or_greater_than(
-        _cudart_version,
-        "13",
+    srcs = if_cuda_newer_than(
+        "13_0",
         if_true = [],
         if_false = ["nvvm/libdevice/libdevice.10.bc"],
     ),
