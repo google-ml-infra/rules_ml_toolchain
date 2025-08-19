@@ -8,3 +8,13 @@ cc_library(
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
+
+%{multiline_comment}
+cc_import(
+    name = "nvidia-ml_stub",
+    interface_library = "lib/stubs/libnvidia-ml.so",
+    system_provided = 1,
+    visibility = ["@cuda_cudart//:__pkg__"],
+)
+%{multiline_comment}
+
