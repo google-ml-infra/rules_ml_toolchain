@@ -78,6 +78,8 @@ def _get_lib_name_and_version(path):
 def _get_main_lib_name(repository_ctx):
     if repository_ctx.name == "cuda_driver":
         return "libcuda"
+    if repository_ctx.name == "cuda_nvml":
+        return "libnvidia-ml"
     if repository_ctx.name == "nvidia_nvshmem":
         return "libnvshmem_host"
     else:
@@ -228,17 +230,28 @@ def _create_symlinks(repository_ctx, local_path, dirs):
 def _create_libcuda_symlinks(
         repository_ctx,
         lib_name_to_version_dict):
+    lib_names = ["cuda", "nvidia-ml", "nvidia-ptxjitcompiler"]
     if repository_ctx.name == "cuda_driver":
-        key = "%{libcuda_version}"
-        if key not in lib_name_to_version_dict:
-            return
-        nvidia_driver_path = "lib/libcuda.so.{}".format(
-            lib_name_to_version_dict[key],
-        )
-        if not repository_ctx.path(nvidia_driver_path).exists:
-            fail("%s doesn't exist!" % nvidia_driver_path)
-        repository_ctx.symlink(nvidia_driver_path, "lib/libcuda.so.1")
-        repository_ctx.symlink("lib/libcuda.so.1", "lib/libcuda.so")
+        for lib in lib_names:
+            key = "%" + "{lib%s_version}" % lib
+            if key not in lib_name_to_version_dict:
+                return
+            versioned_lib_path = "lib/lib{}.so.{}".format(
+                lib,
+                lib_name_to_version_dict[key],
+            )
+            if not repository_ctx.path(versioned_lib_path).exists:
+                fail("%s doesn't exist!" % versioned_lib_path)
+            symlink_so_1 = "lib/lib%s.so.1" % lib
+            if repository_ctx.path(symlink_so_1).exists:
+                print("File %s already exists!" % repository_ctx.path(symlink_so_1))  # buildifier: disable=print
+            else:
+                repository_ctx.symlink(versioned_lib_path, symlink_so_1)
+            unversioned_symlink = "lib/lib%s.so" % lib
+            if repository_ctx.path(unversioned_symlink).exists:
+                print("File %s already exists!" % repository_ctx.path(unversioned_symlink))  # buildifier: disable=print
+            else:
+                repository_ctx.symlink(symlink_so_1, unversioned_symlink)
 
 def _create_repository_symlinks(repository_ctx):
     for target, link_name in repository_ctx.attr.repository_symlinks.items():
