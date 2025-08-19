@@ -102,6 +102,7 @@ def cuda_redist_init_repositories(
                 Label("@cuda_cudart//:include/cuda.h"): "include/cuda.h",
                 Label("@cuda_nvdisasm//:bin/nvdisasm"): "bin/nvdisasm",
                 Label("@cuda_nvvm//:nvvm/bin/cicc"): "nvvm/bin/cicc",
+                Label("@cuda_nvvm//:nvvm/libdevice/libdevice.10.bc"): "nvvm/libdevice/libdevice.10.bc",
             } if repo_data["repo_name"] == "cuda_nvcc" else {},
         )
 

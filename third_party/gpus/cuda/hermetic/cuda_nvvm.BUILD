@@ -4,6 +4,7 @@ load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_newer_than")
 
 exports_files([
     "nvvm/bin/cicc",
+    "nvvm/libdevice/libdevice.10.bc",
 ])
 
 filegroup(
