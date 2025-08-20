@@ -124,11 +124,11 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    ```
 
 2. To enable CUDA, set `TF_NEED_CUDA` environment variable and enable the flag
-   `--@local_config_cuda//:enable_cuda`:
+   `--@rules_ml_toolchain//common:enable_cuda`:
 
    ```
    build:cuda --repo_env TF_NEED_CUDA=1
-   build:cuda --@local_config_cuda//:enable_cuda
+   build:cuda --@rules_ml_toolchain//common:enable_cuda
    ```
    
    To use Clang compiler for CUDA targets, set
