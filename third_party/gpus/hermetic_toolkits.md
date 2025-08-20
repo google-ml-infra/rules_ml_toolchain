@@ -123,7 +123,27 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    nccl_configure(name = "local_config_nccl")
    ```
 
-2. To select specific versions of hermetic CUDA and CUDNN, set the
+2. To enable CUDA, set `TF_NEED_CUDA` environment variable and enable the flag
+   `--@local_config_cuda//:enable_cuda`:
+
+   ```
+   build:cuda --repo_env TF_NEED_CUDA=1
+   build:cuda --@local_config_cuda//:enable_cuda
+   ```
+   
+   To use Clang compiler for CUDA targets, set
+   `--@local_config_cuda//:cuda_compiler=clang`, for NVCC compiler set
+  `--@local_config_cuda//:cuda_compiler=nvcc` and `TF_NVCC_CLANG` environment
+   variable.
+   
+   ```
+   build:build_cuda_with_clang --@local_config_cuda//:cuda_compiler=clang
+
+   build:build_cuda_with_nvcc --action_env=TF_NVCC_CLANG="1"
+   build:build_cuda_with_nvcc --@local_config_cuda//:cuda_compiler=nvcc
+   ```
+
+3. To select specific versions of hermetic CUDA and CUDNN, set the
    `HERMETIC_CUDA_VERSION` and `HERMETIC_CUDNN_VERSION` environment variables
    respectively. Use only supported versions.
    Also you need to specify the CUDA compute capabilities in
@@ -138,7 +158,7 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    build:cuda --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,compute_90"
    ```
 
-3. To enable hermetic CUDA and NVSHMEM during test execution, or when running a
+4. To enable hermetic CUDA and NVSHMEM during test execution, or when running a
    binary via bazel, make sure to add
    `--@local_config_cuda//cuda:include_cuda_libs=true`
    flag to your bazel command. It is recommended to turn this flag on in all the
@@ -151,7 +171,7 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    to test executables. The flag is false by default to avoid unwanted coupling
    of Google-released Python wheels to CUDA binaries.
 
-4. To enforce CUDA forward compatibility mode, add
+5. To enforce CUDA forward compatibility mode, add
    `--@cuda_driver//:enable_forward_compatibility=true` flag to your bazel
    command. You can provide it either directly in a shell or in `.bazelrc`:
    ```
