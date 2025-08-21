@@ -165,6 +165,10 @@ MIRRORED_TARS_CUDA_REDIST_JSON_DICT = {
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cuda/redist/redistrib_12.9.1_tar.json",
         "a6b09fa5048ca1ea206ea5a0a287f28f7eaae7cd3e08ab20d2c4d47d53ec39f5",
     ],
+    "13.0.0": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.0_tar.json",
+        "0beef25312491a2c5fff36470be82d68adc870a250f59a647389b7ebcf275722",
+    ],
 }
 
 CUDNN_REDIST_JSON_DICT = {
@@ -327,6 +331,10 @@ MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.11.0_tar.json",
         "fa8d0fc0fdb6d2e3f5d208f8eef93826122a91d9deec8f501c4966323dcad745",
     ],
+    "9.12.0": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.12.0_tar.json",
+        "925940c7204f26f0ee2a7135e17a7a13a01253f1d9ebb88a1a3dbe6b3948b465",
+    ],
 }
 
 NVSHMEM_REDIST_JSON_DICT = {
@@ -352,6 +360,10 @@ MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
     "3.3.9": [
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.9_tar.json",
         "87d22389c1e267a3a00e333d26378fabcb02ce62bc30de58ba9170966964634d",
+    ],
+    "3.3.20": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.20_tar.json",
+        "f8be46c78cb6340f92708092d6c33ed220d67ece919053062ebb7ae895a330c7",
     ],
 }
 
