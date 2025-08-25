@@ -32,7 +32,7 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cuda_driver",
-    %{comment}deps = [":cuda_stub", "@cuda_nvml//:nvidia-ml_stub"],
+    %{comment}deps = [":cuda_stub"],
     visibility = ["//visibility:public"],
 )
 
