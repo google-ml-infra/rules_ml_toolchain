@@ -14,10 +14,16 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libnvJitLink.so.%{libnvjitlink_version}",
 )
+
+cc_import(
+    name = "nvjitlink_compiler",
+    hdrs = ["include/nvJitLink.h"],
+    static_library = "lib/libnvJitLink_static.a",
+)
 %{multiline_comment}
 cc_library(
     name = "nvjitlink",
-    %{comment}deps = [":nvjitlink_shared_library"],
+    %{comment}deps = [":nvjitlink_shared_library", ":nvjitlink_compiler"],
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),

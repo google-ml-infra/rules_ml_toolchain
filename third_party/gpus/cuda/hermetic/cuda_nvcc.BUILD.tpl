@@ -84,6 +84,14 @@ cuda_nvcc_feature(
     ],
 )
 
+%{multiline_comment}
+cc_import(
+    name = "nvptxcompiler_static_library",
+    hdrs = ["include/nvPTXCompiler.h"],
+    static_library = "lib/libnvptxcompiler_static.a",
+)
+%{multiline_comment}
+
 cc_library(
     name = "headers",
     %{comment}hdrs = glob([
@@ -99,3 +107,10 @@ cc_library(
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
+
+cc_library(
+    name = "nvptxcompiler",
+    %{comment}deps = [":nvptxcompiler_static_library"],
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
