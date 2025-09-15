@@ -94,6 +94,10 @@ CUDA_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.0.json",
         "fe6a86b54450d03ae709123a52717870c49046d65d45303ce585c7aa8a83a217",
     ],
+    "13.0.1": [
+        "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.1.json",
+        "9c494bc13b34e8fbcad083a6486d185b0906068b821722502edf9d0e3bd14096",
+    ],
 }
 
 MIRRORED_TARS_CUDA_REDIST_JSON_DICT = {
@@ -252,6 +256,10 @@ CUDNN_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.12.0.json",
         "39bb68f0ca6abdbf9bab3ecb1cb18f458d635f72d72ede98a308216fd22efab3",
     ],
+    "9.13.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.13.0.json",
+        "55e3eb3ccb1ca543a7811312466f44841d630d3b2252f5763ad53509d2c09fbf",
+    ],
 }
 
 MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
@@ -354,6 +362,10 @@ NVSHMEM_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.24.json",
         "60ef5424c1632bb1fa1fb41aea9d75b1777f62faeebb1eeaa818ed92068403b8",
     ],
+    "3.4.5": [
+        "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.4.5.json",
+        "a656614a6ec638d85922bc816e5e26063308c3905273a72a863cf0f24e188f38",
+    ],
 }
 
 MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
@@ -368,6 +380,10 @@ MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
     "3.3.20": [
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.20_tar.json",
         "f8be46c78cb6340f92708092d6c33ed220d67ece919053062ebb7ae895a330c7",
+    ],
+    "3.3.24": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.3.24_tar.json",
+        "d62080bbc4d5d334b2b1d72f6913b85d66ca5d00c904b4a73fd2f845afdec92e",
     ],
 }
 
