@@ -211,7 +211,7 @@ def _llvm_http_archive_impl(ctx):
     if not _use_hermetic_toolchains(ctx) or not _is_supported_platform(ctx):
         _create_version_file(ctx, "")
         _create_empty_build_file(ctx)
-        return _llvm_http_archive_attrs
+        return ctx.attr
 
     all_urls = _get_all_urls(ctx)
     use_tars = ctx.getenv("USE_LLVM_TAR_ARCHIVE_FILES")
