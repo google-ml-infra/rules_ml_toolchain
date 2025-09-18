@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/google-ml-infra/rules_ml_toolchain",
+  "maintainers": [
+    {
+      "email": "yuriit@google.com",
+      "github": "yuriivcs",
+      "name": "Yurii Topin"
+    }
+  ],
+  "versions": [],
+  "yanked_versions": {},
+  "repository": [
+    "github:google-ml-infra/rules_ml_toolchain"
+  ]
+}
