@@ -1,0 +1,62 @@
+module(name = "rules_ml_toolchain")
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "protobuf", version = "28.3", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_proto", version = "6.0.0-rc1")
+bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+bazel_dep(name = "rules_cc", version = "0.0.9")
+bazel_dep(name = "abseil-cpp", version = "20240116.2", repo_name = "com_google_absl")
+bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "gtest")
+bazel_dep(name = "platforms", version = "0.0.11")
+
+pybind11_internal_configure = use_extension(
+    "@pybind11_bazel//:internal_configure.bzl",
+    "internal_configure_extension",
+)
+use_repo(pybind11_internal_configure, "pybind11")
+
+##############################################################
+# CUDA
+
+cuda_extension = use_extension("//third_party/extensions:cuda_extension.bzl", "cuda_extension")
+use_repo(cuda_extension, "local_config_cuda")
+
+cuda_json_ext = use_extension("//third_party/extensions:cuda_json_ext.bzl", "cuda_json_ext")
+use_repo(cuda_json_ext, "cuda_redist_json")
+
+cuda_redist_init_ext = use_extension("//third_party/extensions:cuda_redist_init_ext.bzl", "cuda_redist_init_ext")
+use_repo(
+    cuda_redist_init_ext,
+    "cuda_cccl",
+    "cuda_crt",
+    "cuda_cublas",
+    "cuda_cudart",
+    "cuda_cudnn",
+    "cuda_cufft",
+    "cuda_cupti",
+    "cuda_curand",
+    "cuda_cusolver",
+    "cuda_cusparse",
+    "cuda_nvcc",
+    "cuda_nvdisasm",
+    "cuda_nvjitlink",
+    "cuda_nvml",
+    "cuda_nvtx",
+    "cuda_nvvm",
+)
+
+##############################################################
+# Hermetic toolchain configuration
+
+toolchain_ext = use_extension("//third_party/extensions:toolchain_ext.bzl", "toolchain_ext")
+use_repo(
+    toolchain_ext,
+    "llvm_darwin_aarch64",
+    "llvm_linux_aarch64",
+    "llvm_linux_x86_64",
+    "sysroot_darwin_aarch64",
+    "sysroot_linux_aarch64",
+    "sysroot_linux_x86_64",
+)
+
+register_toolchains("//cc/...")

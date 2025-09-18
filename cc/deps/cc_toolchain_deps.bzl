@@ -14,6 +14,7 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//third_party:repo.bzl", "tf_mirror_urls")
 load("llvm_http_archive.bzl", "llvm_http_archive")
@@ -64,7 +65,7 @@ def cc_toolchain_deps():
     #        )
 
     if "sysroot_darwin_aarch64" not in native.existing_rules():
-        native.new_local_repository(
+        new_local_repository(
             name = "sysroot_darwin_aarch64",
             build_file = "//cc/config:sysroot_darwin_aarch64.BUILD",
             path = "cc/sysroots/darwin_aarch64/MacOSX.sdk",
