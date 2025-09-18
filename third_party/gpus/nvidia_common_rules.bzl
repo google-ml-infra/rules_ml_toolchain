@@ -247,11 +247,12 @@ def _create_libcuda_symlinks(
                 print("File %s already exists!" % repository_ctx.path(symlink_so_1))  # buildifier: disable=print
             else:
                 repository_ctx.symlink(versioned_lib_path, symlink_so_1)
-            unversioned_symlink = "lib/lib%s.so" % lib
-            if repository_ctx.path(unversioned_symlink).exists:
-                print("File %s already exists!" % repository_ctx.path(unversioned_symlink))  # buildifier: disable=print
-            else:
-                repository_ctx.symlink(symlink_so_1, unversioned_symlink)
+            if lib=="cuda":
+                unversioned_symlink = "lib/lib%s.so" % lib
+                if repository_ctx.path(unversioned_symlink).exists:
+                    print("File %s already exists!" % repository_ctx.path(unversioned_symlink))  # buildifier: disable=print
+                else:
+                    repository_ctx.symlink(symlink_so_1, unversioned_symlink)
 
 def _create_repository_symlinks(repository_ctx):
     for target, link_name in repository_ctx.attr.repository_symlinks.items():

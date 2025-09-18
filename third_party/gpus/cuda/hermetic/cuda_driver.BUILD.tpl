@@ -39,32 +39,10 @@ cc_import(
     shared_library = "lib/libcuda.so",
 )
 
-cc_import(
-    name = "libnvidia-ml_so",
-    shared_library = "lib/libnvidia-ml.so",
-)
-
-cc_import(
-    name = "libnvidia-ptxjitcompiler_so",
-    shared_library = "lib/libnvidia-ptxjitcompiler.so",
-)
-
 # Workaround for adding unversioned library to NEEDED section of cc_binaries.
 genrule(
     name = "fake_libcuda_cc",
     outs = ["libcuda.cc"],
-    cmd = "echo '' > $@",
-)
-
-genrule(
-    name = "fake_libnvidia-ml_cc",
-    outs = ["libnvidia-ml.cc"],
-    cmd = "echo '' > $@",
-)
-
-genrule(
-    name = "fake_libnvidia-ptxjitcompiler_cc",
-    outs = ["libnvidia-ptxjitcompiler.cc"],
     cmd = "echo '' > $@",
 )
 
@@ -75,33 +53,9 @@ cc_binary(
     linkshared = True,
 )
 
-cc_binary(
-    name = "fake_libnvidia-ml_binary",
-    srcs = [":fake_libnvidia-ml_cc"],
-    linkopts = ["-Wl,-soname,libnvidia-ml.so"],
-    linkshared = True,
-)
-
-cc_binary(
-    name = "fake_libnvidia-ptxjitcompiler_binary",
-    srcs = [":fake_libnvidia-ptxjitcompiler_cc"],
-    linkopts = ["-Wl,-soname,libnvidia-ptxjitcompiler.so"],
-    linkshared = True,
-)
-
 cc_import(
     name = "fake_libcuda",
     shared_library = ":fake_libcuda_binary",
-)
-
-cc_import(
-    name = "fake_libnvidia-ml",
-    shared_library = ":fake_libnvidia-ml_binary",
-)
-
-cc_import(
-    name = "fake_libnvidia-ptxjitcompiler",
-    shared_library = ":fake_libnvidia-ptxjitcompiler_binary",
 )
 %{multiline_comment}
 
@@ -119,8 +73,6 @@ cc_library(
 cc_library(
     name = "nvidia_ml",
     %{comment}deps = [
-        %{comment}":libnvidia-ml_so",
-        %{comment}":fake_libnvidia-ml",
         %{comment}":libnvidia-ml_so_1",
         %{comment}":nvidia-ml_shared_library",
     %{comment}],
@@ -130,8 +82,6 @@ cc_library(
 cc_library(
     name = "nvidia_ptxjitcompiler",
     %{comment}deps = [
-        %{comment}":libnvidia-ptxjitcompiler_so",
-        %{comment}":fake_libnvidia-ptxjitcompiler",
         %{comment}":libnvidia-ptxjitcompiler_so_1",
         %{comment}":nvidia-ptxjitcompiler_shared_library",
     %{comment}],
