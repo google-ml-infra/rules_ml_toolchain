@@ -27,7 +27,7 @@ jobs:
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.3
     with:
       prerelease: false
-      release_files: rules_cc-*.tar.gz
+      release_files: rules_ml_toolchain-*.tar.gz
       tag_name: ${{ inputs.tag_name || github.ref_name }}
   publish:
     needs: release
