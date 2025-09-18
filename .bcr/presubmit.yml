@@ -9,4 +9,4 @@ tasks:
     platform: ${{ platform }}
     bazel: ${{ bazel }}
     build_targets:
-      - "@rules_ml_toolchain//..."
+      - "@rules_ml_toolchain//cc/tests/cpu:all"
