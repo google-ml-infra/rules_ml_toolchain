@@ -46,6 +46,15 @@ use_repo(
 )
 
 ##############################################################
+# NCCL configuration
+
+nccl_redist_ext = use_extension("//third_party/extensions:nccl_redist_ext.bzl", "nccl_redist_ext")
+use_repo(nccl_redist_ext, "cuda_nccl")
+
+nccl_configure_ext = use_extension("//third_party/extensions:nccl_configure_ext.bzl", "nccl_configure_ext")
+use_repo(nccl_configure_ext, "local_config_nccl")
+
+##############################################################
 # Hermetic toolchain configuration
 
 toolchain_ext = use_extension("//third_party/extensions:toolchain_ext.bzl", "toolchain_ext")
