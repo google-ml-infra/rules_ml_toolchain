@@ -58,6 +58,13 @@ def _get_file_name(url):
     last_slash_index = url.rfind("/")
     return url[last_slash_index + 1:]
 
+def _get_orig_repo_name(repository_ctx):
+    """Get the repo name used when this repository rule was called"""
+    # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
+    # we need to extract the original repo name.
+    # TODO: migrate to use repository_ctx.original_name with Bazel 8
+    return repository_ctx.name.split("~")[-1]
+
 def get_archive_name(url):
     # buildifier: disable=function-docstring-return
     # buildifier: disable=function-docstring-args
@@ -76,11 +83,11 @@ def _get_lib_name_and_version(path):
     return (lib_name, lib_version)
 
 def _get_main_lib_name(repository_ctx):
-    if repository_ctx.name == "cuda_driver":
+    if _get_orig_repo_name(repository_ctx) == "cuda_driver":
         return "libcuda"
-    if repository_ctx.name == "cuda_nvml":
+    if _get_orig_repo_name(repository_ctx) == "cuda_nvml":
         return "libnvidia-ml"
-    if repository_ctx.name == "nvidia_nvshmem":
+    if _get_orig_repo_name(repository_ctx) == "nvidia_nvshmem":
         return "libnvshmem_host"
     else:
         return "lib{}".format(
@@ -88,7 +95,7 @@ def _get_main_lib_name(repository_ctx):
         )
 
 def _get_common_lib_name(repository_ctx):
-    return repository_ctx.name.split("_")[1].lower()
+    return _get_orig_repo_name(repository_ctx).split("_")[1].lower()
 
 def _get_libraries_by_redist_name_in_dir(repository_ctx):
     lib_dir_path = repository_ctx.path("lib")
@@ -166,7 +173,7 @@ def _get_build_template(repository_ctx, major_lib_version):
                 break
     if not template:
         fail("No build template found for {} version {}".format(
-            repository_ctx.name,
+            _get_orig_repo_name(repository_ctx),
             major_lib_version,
         ))
     return template
@@ -192,7 +199,7 @@ def create_build_file(
             repository_ctx.attr.build_templates[0],
         )
 
-        if repository_ctx.name == "cuda_nvcc":
+        if _get_orig_repo_name(repository_ctx) == "cuda_nvcc":
             create_cuda_nvcc_build_file(
                 repository_ctx,
                 use_comment_symbols = True if "_version}" in build_template_content else False,
@@ -231,7 +238,7 @@ def _create_libcuda_symlinks(
         repository_ctx,
         lib_name_to_version_dict):
     lib_names = ["cuda", "nvidia-ml", "nvidia-ptxjitcompiler"]
-    if repository_ctx.name == "cuda_driver":
+    if _get_orig_repo_name(repository_ctx) == "cuda_driver":
         for lib in lib_names:
             key = "%" + "{lib%s_version}" % lib
             if key not in lib_name_to_version_dict:
@@ -336,7 +343,7 @@ def _get_platform_architecture(repository_ctx):
     target_arch = get_env_var(repository_ctx, repository_ctx.attr.target_arch_env_var)
 
     # We use NVCC compiler as the host compiler.
-    if target_arch and repository_ctx.name != "cuda_nvcc":
+    if target_arch and _get_orig_repo_name(repository_ctx) != "cuda_nvcc":
         if target_arch in OS_ARCH_DICT.keys():
             host_arch = target_arch
         else:
@@ -373,7 +380,7 @@ def _use_downloaded_redistribution(repository_ctx):
 
     if len(repository_ctx.attr.url_dict) == 0:
         print("{} is not found in redistributions list.".format(
-            repository_ctx.name,
+            _get_orig_repo_name(repository_ctx),
         ))  # buildifier: disable=print
         create_dummy_build_file(repository_ctx)
         create_version_file(repository_ctx, major_version)
@@ -393,7 +400,7 @@ def _use_downloaded_redistribution(repository_ctx):
                 .format(
                 supported_platforms = repository_ctx.attr.url_dict.keys(),
                 platform = arch_key,
-                dist_name = repository_ctx.name,
+                dist_name = _get_orig_repo_name(repository_ctx),
             ),
         )
 
@@ -444,6 +451,7 @@ _redist_repo = repository_rule(
         "local_source_dirs": attr.string_list(mandatory = False),
         "repository_symlinks": attr.label_keyed_string_dict(mandatory = False),
     },
+    environ = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"],
 )
 
 def redist_init_repository(
