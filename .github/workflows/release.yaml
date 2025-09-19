@@ -3,14 +3,14 @@ name: Release
 
 on:
   # Can be triggered from the tag.yaml workflow
-  workflow_call:
-    inputs:
-      tag_name:
-        required: true
-        type: string
-    secrets:
-      publish_token:
-        required: true
+  # workflow_call:
+  #   inputs:
+  #     tag_name:
+  #       required: true
+  #       type: string
+  #   secrets:
+  #     publish_token:
+  #       required: true
   # Or, developers can manually push a tag from their clone
   push:
     tags:
@@ -36,3 +36,4 @@ jobs:
       tag_name: ${{ inputs.tag_name || github.ref_name }}
     secrets:
       publish_token: ${{ secrets.publish_token || secrets.BCR_PUBLISH_TOKEN }}
+  environment: release
