@@ -9,5 +9,5 @@ def _nccl_redist_ext_impl(mctx):
     nccl_redist_init_repository()
 
 nccl_redist_ext = module_extension(
-    implementation = _nccl_redist_ext_impl,
+    implementation = lambda mctx: nccl_redist_init_repository(), # Generate repo `@cuda_nccl`
 )

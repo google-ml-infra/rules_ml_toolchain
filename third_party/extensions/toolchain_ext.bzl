@@ -16,9 +16,6 @@
 
 load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
-def _toolchain_module_ext_impl(mctx):
-    cc_toolchain_deps()
-
 toolchain_ext = module_extension(
-    implementation = _toolchain_module_ext_impl,
+    implementation = lambda mctx: cc_toolchain_deps(),
 )

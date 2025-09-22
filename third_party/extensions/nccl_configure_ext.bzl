@@ -5,9 +5,6 @@ load(
     "nccl_configure",
 )
 
-def _nccl_configure_ext_impl(mctx):
-    nccl_configure(name = "local_config_nccl")
-
 nccl_configure_ext = module_extension(
-    implementation = _nccl_configure_ext_impl,
+    implementation = lambda mctx: nccl_configure(name = "local_config_nccl"),
 )

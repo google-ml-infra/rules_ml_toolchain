@@ -16,9 +16,6 @@
 
 load("//gpu/cuda:cuda_json_init_repository.bzl", "cuda_json_init_repository")
 
-def _cuda_json_ext_impl(mctx):
-    cuda_json_init_repository()
-
 cuda_json_ext = module_extension(
-    implementation = _cuda_json_ext_impl,
+    implementation = lambda mctx: cuda_json_init_repository(), # Generate `@cuda_redist_json`
 )
