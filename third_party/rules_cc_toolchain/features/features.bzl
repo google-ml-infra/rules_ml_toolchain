@@ -217,7 +217,7 @@ def _import_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
 
     include_flags = [
-        "-isystem" + inc
+        "-isystem " + inc
         for inc in toolchain_import_info
             .compilation_context.includes.to_list()
     ]
