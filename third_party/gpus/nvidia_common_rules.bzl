@@ -14,7 +14,7 @@
 
 """Common rules and functions for hermetic NVIDIA repositories."""
 
-load("//common:utils.bzl", "extract_tar_xz_file")
+load("//common:utils.bzl", "extract_tar_file")
 load("//third_party:repo.bzl", "tf_mirror_urls")
 
 OS_ARCH_DICT = {
@@ -332,8 +332,8 @@ def _download_redistribution(
         strip_prefix = repository_ctx.attr.override_strip_prefix
     else:
         strip_prefix = archive_name
-    if url.endswith(".tar.xz"):
-        extract_tar_xz_file(repository_ctx, file_name, strip_prefix)
+    if url.endswith(".tar.xz") or url.endswith(".tar"):
+        extract_tar_file(repository_ctx, file_name, strip_prefix)
     else:
         repository_ctx.extract(
             archive = file_name,

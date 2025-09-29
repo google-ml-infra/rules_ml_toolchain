@@ -13,23 +13,16 @@
 # limitations under the License.
 # ==============================================================================
 
-def extract_tar_xz_file(repository_ctx, file_name, strip_prefix):
-    extract_command = "xz -d -T32 {archive}".format(
+def extract_tar_file(repository_ctx, file_name, strip_prefix):
+    extract_command = "tar -xvf {archive} --strip-components=1".format(
         archive = file_name,
     )
     exec_result = repository_ctx.execute(
         ["/bin/bash", "-c", extract_command],
     )
     if exec_result.return_code != 0:
-        print("Couldn't extract {archive} using xz, falling back to default behavior".format(archive = file_name))
+        print("Couldn't extract {archive} using tar, falling back to default behavior".format(archive = file_name))
         repository_ctx.extract(
             archive = file_name,
             stripPrefix = strip_prefix,
         )
-    else:
-        tar_file_name = file_name.replace(".tar.xz", ".tar")
-        repository_ctx.extract(
-            archive = tar_file_name,
-            stripPrefix = strip_prefix,
-        )
-        repository_ctx.delete(tar_file_name)
