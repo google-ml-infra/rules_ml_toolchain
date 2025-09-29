@@ -118,7 +118,6 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "dynamic_linker",
     additional_libs = [
-        "lib64/ld-linux-x86-64.so.2",
         "lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
         "lib/x86_64-linux-gnu/ld-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
     ],
