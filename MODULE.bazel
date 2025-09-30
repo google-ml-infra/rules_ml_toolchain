@@ -48,24 +48,24 @@ use_repo(
 ##############################################################
 # NCCL configuration
 
-nccl_redist_ext = use_extension("//third_party/extensions:nccl_redist.bzl", "nccl_redist_ext")
-use_repo(nccl_redist_ext, "cuda_nccl")
+nccl_redist = use_extension("//third_party/extensions:nccl_redist.bzl", "nccl_redist_ext")
+use_repo(nccl_redist, "cuda_nccl")
 
-nccl_configure_ext = use_extension("//third_party/extensions:nccl_configure.bzl", "nccl_configure_ext")
-use_repo(nccl_configure_ext, "local_config_nccl")
+nccl_configure = use_extension("//third_party/extensions:nccl_configure.bzl", "nccl_configure_ext")
+use_repo(nccl_configure, "local_config_nccl")
 
 ##############################################################
 # SYCL configuration
 
-sycl_configure_ext = use_extension("//third_party/extensions:sycl_configure.bzl", "sycl_configure_ext")
-use_repo(sycl_configure_ext, "local_config_sycl")
+sycl_configure = use_extension("//third_party/extensions:sycl_configure.bzl", "sycl_configure_ext")
+use_repo(sycl_configure, "local_config_sycl")
 
 ##############################################################
 # Hermetic toolchain configuration
 
-toolchain_ext = use_extension("//third_party/extensions:toolchain.bzl", "toolchain_ext")
+toolchain = use_extension("//third_party/extensions:toolchain.bzl", "toolchain_ext")
 use_repo(
-    toolchain_ext,
+    toolchain,
     "llvm_darwin_aarch64",
     "llvm_linux_aarch64",
     "llvm_linux_x86_64",
