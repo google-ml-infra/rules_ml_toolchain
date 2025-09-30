@@ -1,7 +1,7 @@
 module(name = "rules_ml_toolchain")
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "protobuf", version = "28.3", repo_name = "com_google_protobuf")
+bazel_dep(name = "protobuf", version = "32.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_proto", version = "6.0.0-rc1")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 bazel_dep(name = "rules_cc", version = "0.0.9")
@@ -18,13 +18,13 @@ use_repo(pybind11_internal_configure, "pybind11")
 ##############################################################
 # CUDA
 
-cuda_extension = use_extension("//third_party/extensions:cuda_extension.bzl", "cuda_extension")
-use_repo(cuda_extension, "local_config_cuda")
+cuda_configure_ext = use_extension("//third_party/extensions:cuda_configure.bzl", "cuda_configure_ext")
+use_repo(cuda_configure_ext, "local_config_cuda")
 
-cuda_json_ext = use_extension("//third_party/extensions:cuda_json_ext.bzl", "cuda_json_ext")
+cuda_json_ext = use_extension("//third_party/extensions:cuda_json.bzl", "cuda_json_ext")
 use_repo(cuda_json_ext, "cuda_redist_json")
 
-cuda_redist_init_ext = use_extension("//third_party/extensions:cuda_redist_init_ext.bzl", "cuda_redist_init_ext")
+cuda_redist_init_ext = use_extension("//third_party/extensions:cuda_redist_init.bzl", "cuda_redist_init_ext")
 use_repo(
     cuda_redist_init_ext,
     "cuda_cccl",
@@ -48,16 +48,22 @@ use_repo(
 ##############################################################
 # NCCL configuration
 
-nccl_redist_ext = use_extension("//third_party/extensions:nccl_redist_ext.bzl", "nccl_redist_ext")
+nccl_redist_ext = use_extension("//third_party/extensions:nccl_redist.bzl", "nccl_redist_ext")
 use_repo(nccl_redist_ext, "cuda_nccl")
 
-nccl_configure_ext = use_extension("//third_party/extensions:nccl_configure_ext.bzl", "nccl_configure_ext")
+nccl_configure_ext = use_extension("//third_party/extensions:nccl_configure.bzl", "nccl_configure_ext")
 use_repo(nccl_configure_ext, "local_config_nccl")
+
+##############################################################
+# SYCL configuration
+
+sycl_configure_ext = use_extension("//third_party/extensions:sycl_configure.bzl", "sycl_configure_ext")
+use_repo(sycl_configure_ext, "local_config_sycl")
 
 ##############################################################
 # Hermetic toolchain configuration
 
-toolchain_ext = use_extension("//third_party/extensions:toolchain_ext.bzl", "toolchain_ext")
+toolchain_ext = use_extension("//third_party/extensions:toolchain.bzl", "toolchain_ext")
 use_repo(
     toolchain_ext,
     "llvm_darwin_aarch64",

@@ -19,6 +19,6 @@ load(
     "cuda_configure",
 )
 
-cuda_extension = module_extension(
+cuda_configure_ext = module_extension(
     implementation = lambda mctx: cuda_configure(name = "local_config_cuda")
 )
