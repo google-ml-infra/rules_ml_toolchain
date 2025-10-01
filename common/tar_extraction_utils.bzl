@@ -30,7 +30,7 @@ def _is_above_min_version(actual_ver, min_ver):
             return True
     return True
 
-def _version(repository_ctx, path, bash_bin = None):
+def _get_tool_version(repository_ctx, path, bash_bin = None):
     if bash_bin == None:
         bash_bin = get_bash_bin(repository_ctx)
 
@@ -42,7 +42,7 @@ def _get_tool_path(repository_ctx, tool_name, min_version = None):
         return None
 
     if min_version:
-        tool_version_result = _version(repository_ctx, tool)
+        tool_version_result = _get_tool_version(repository_ctx, tool)
         tool_version = tool_version_result.split("\n")[0].split(" ")[-1]
         if not _is_above_min_version(tool_version.split("."), min_version):
             return None
