@@ -26,19 +26,19 @@ def _extract_tar_with_bazel(repository_ctx, file_name, strip_prefix):
         archive = file_name,
         stripPrefix = strip_prefix,
     )
+def _is_above_min_version(actual_ver, min_ver):
+    for i in range(0, len(min_ver)):
+        actual_ver_int = int(actual_ver[i])
+        if actual_ver_int < min_ver[i]:
+            return False
+        if actual_ver_int > min_ver[i]:
+            return True
+    return True
 
 def _is_xz_multithreading_enabled(xz_tool_version_result):
     # Multithreading was introduced in version 5.8.1.
     xz_tool_version = xz_tool_version_result.split("\n")[0].split(" ")[-1]
-    (major, minor, patch) = xz_tool_version.split(".")
-    if int(major) < 5:
-        return False
-    if int(major) == 5:
-        if int(minor) < 8:
-            return False
-        elif int(minor) ==8 and int(patch) == 0:
-            return False
-    return True
+    return _is_above_min_version(xz_tool_version.split("."), [5, 8, 1])
 
 def extract_tar_with_tar_tool(repository_ctx, file_name, strip_prefix):
     if repository_ctx.os.name != "linux":
@@ -52,6 +52,7 @@ def extract_tar_with_tar_tool(repository_ctx, file_name, strip_prefix):
         return
     xz_tool_version_result = version(repository_ctx, xz_tool)
     if not _is_xz_multithreading_enabled(xz_tool_version_result):
+        fail()
         _extract_tar_with_bazel(repository_ctx, file_name, strip_prefix)
         return
     tar_tool_path = realpath(repository_ctx, tar_tool)
