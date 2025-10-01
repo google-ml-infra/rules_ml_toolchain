@@ -52,7 +52,6 @@ def extract_tar_with_tar_tool(repository_ctx, file_name, strip_prefix):
         return
     xz_tool_version_result = version(repository_ctx, xz_tool)
     if not _is_xz_multithreading_enabled(xz_tool_version_result):
-        fail()
         _extract_tar_with_bazel(repository_ctx, file_name, strip_prefix)
         return
     tar_tool_path = realpath(repository_ctx, tar_tool)
