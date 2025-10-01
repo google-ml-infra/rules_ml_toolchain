@@ -15,9 +15,9 @@
 
 load(
     "//third_party/remote_config:common.bzl",
+    "execute",
     "get_bash_bin",
     "realpath",
-    "version",
     "which",
 )
 
@@ -39,6 +39,22 @@ def _is_xz_multithreading_enabled(xz_tool_version_result):
     # Multithreading was introduced in version 5.8.1.
     xz_tool_version = xz_tool_version_result.split("\n")[0].split(" ")[-1]
     return _is_above_min_version(xz_tool_version.split("."), [5, 8, 1])
+
+def version(repository_ctx, path, bash_bin = None):
+    """Returns the result of "path --version".
+
+    Args:
+      repository_ctx: the repository_ctx
+      path: a path on the file system
+      bash_bin: path to the bash interpreter
+
+    Returns:
+      Returns the result of "path --version"
+    """
+    if bash_bin == None:
+        bash_bin = get_bash_bin(repository_ctx)
+
+    return execute(repository_ctx, [bash_bin, "-c", "\"%s\" --version" % path]).stdout.strip()
 
 def extract_tar_with_tar_tool(repository_ctx, file_name, strip_prefix):
     if repository_ctx.os.name != "linux":

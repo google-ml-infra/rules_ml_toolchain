@@ -299,22 +299,6 @@ def realpath(repository_ctx, path, bash_bin = None):
 
     return execute(repository_ctx, [bash_bin, "-c", "realpath \"%s\"" % path]).stdout.strip()
 
-def version(repository_ctx, path, bash_bin = None):
-    """Returns the result of "path --version".
-
-    Args:
-      repository_ctx: the repository_ctx
-      path: a path on the file system
-      bash_bin: path to the bash interpreter
-
-    Returns:
-      Returns the result of "path --version"
-    """
-    if bash_bin == None:
-        bash_bin = get_bash_bin(repository_ctx)
-
-    return execute(repository_ctx, [bash_bin, "-c", "\"%s\" --version" % path]).stdout.strip()
-
 def relative_to(repository_ctx, base, path, bash_bin = None):
     """Returns the result of "realpath --relative-to".
 
