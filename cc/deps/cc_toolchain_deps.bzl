@@ -24,10 +24,10 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_x86_64",
-            sha256 = "9ea0f95a1bf5e0dfb7db3dfa0ca6f4a412138705ce3c5c85c1c52e95a0f767a3",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot_gcc8_patched_v0.1.tar.xz"),
+            sha256 = "7d9300ec03d008e96f0098dfcd4e9974dd64f2d5fccdd0f1a2b2d4af63301a04",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot_gcc8_patched-0.1.0.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_x86_64.BUILD"),
-            strip_prefix = "ubuntu18_x86_64_sysroot_gcc8_patched_v0.1",
+            strip_prefix = "ubuntu18_x86_64_sysroot_gcc8_patched-0.1.0",
         )
 
         # C++20, manylinux_2_31, gcc-10
@@ -45,10 +45,10 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64",
-            sha256 = "b939d4c063d2ce6ffb191124cfa04c2bdcc267625ba20e30fb48b43699c67225",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4_v0.1.tar.xz"),
+            sha256 = "31a285faccb6996c16acde8ef6841841d591f73196dc5b7bdd9cf55b7f0c35a1",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4-0.1.0.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_aarch64.BUILD"),
-            strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4_v0.1",
+            strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4-0.1.0",
         )
 
         # C++20, manylinux_2_31, gcc-10
