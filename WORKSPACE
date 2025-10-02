@@ -109,8 +109,6 @@ python_register_toolchains(
     python_version = "3.12",
 )
 
-bazel_skylib_workspace()
-
 load("@pybind11_bazel//:python_configure.bzl", "python_configure")
 load("@python//:defs.bzl", "interpreter")
 
