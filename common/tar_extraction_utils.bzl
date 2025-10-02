@@ -21,34 +21,6 @@ load(
     "which",
 )
 
-def _is_above_min_version(actual_ver, min_ver):
-    for i in range(0, len(min_ver)):
-        actual_ver_int = int(actual_ver[i])
-        if actual_ver_int < min_ver[i]:
-            return False
-        if actual_ver_int > min_ver[i]:
-            return True
-    return True
-
-def _get_tool_version(repository_ctx, path, bash_bin = None):
-    if bash_bin == None:
-        bash_bin = get_bash_bin(repository_ctx)
-
-    return execute(repository_ctx, [bash_bin, "-c", "\"%s\" --version" % path]).stdout.strip()
-
-def _get_tool_path(repository_ctx, tool_name, min_version = None):
-    tool = which(repository_ctx, tool_name, allow_failure = True)
-    if not tool:
-        return None
-
-    if min_version:
-        tool_version_result = _get_tool_version(repository_ctx, tool)
-        tool_version = tool_version_result.split("\n")[0].split(" ")[-1]
-        if not _is_above_min_version(tool_version.split("."), min_version):
-            return None
-
-    return realpath(repository_ctx, tool)
-
 def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_prefix):
     if repository_ctx.os.name != "linux":
         repository_ctx.extract(
@@ -82,7 +54,7 @@ def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_pref
         archive = file_name,
         compress_program_option = compress_program_option
     )
-    exec_result = repository_ctx.execute(
+    exec_result = execute(repository_ctx,
         [get_bash_bin(repository_ctx), "-c", extract_command],
     )
     if exec_result.return_code != 0:
@@ -92,3 +64,30 @@ def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_pref
             stripPrefix = strip_prefix,
         )
 
+def _is_above_min_version(actual_ver, min_ver):
+    for i in range(0, len(min_ver)):
+        actual_ver_int = int(actual_ver[i])
+        if actual_ver_int < min_ver[i]:
+            return False
+        if actual_ver_int > min_ver[i]:
+            return True
+    return True
+
+def _get_tool_version(repository_ctx, path, bash_bin = None):
+    if bash_bin == None:
+        bash_bin = get_bash_bin(repository_ctx)
+
+    return execute(repository_ctx, [bash_bin, "-c", "\"%s\" --version" % path]).stdout.strip()
+
+def _get_tool_path(repository_ctx, tool_name, min_version = None):
+    tool = which(repository_ctx, tool_name, allow_failure = True)
+    if not tool:
+        return None
+
+    if min_version:
+        tool_version_result = _get_tool_version(repository_ctx, tool)
+        tool_version = tool_version_result.split("\n")[0].split(" ")[-1]
+        if not _is_above_min_version(tool_version.split("."), min_version):
+            return None
+
+    return realpath(repository_ctx, tool)
