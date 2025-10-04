@@ -21,6 +21,9 @@ load("//third_party:repo.bzl", "tf_mirror_urls")
 load("llvm_http_archive.bzl", "llvm_http_archive")
 
 def cc_toolchain_deps():
+    ################################################################
+    # Linux x86_64 sysroot
+    ################################################################
     if "sysroot_linux_x86_64" not in native.existing_rules():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
@@ -42,6 +45,9 @@ def cc_toolchain_deps():
     #            strip_prefix = "sysroot_x86_64_ubuntu20_gcc10",
     #        )
 
+    ################################################################
+    # Linux aarch64 sysroot
+    ################################################################
     if "sysroot_linux_aarch64" not in native.existing_rules():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
@@ -63,6 +69,9 @@ def cc_toolchain_deps():
     #            strip_prefix = "sysroot_aarch64_ubuntu20_gcc10",
     #        )
 
+    ################################################################
+    # Darwin (macOS) aarch64 sysroot
+    ################################################################
     if "sysroot_darwin_aarch64" not in native.existing_rules():
         new_local_repository(
             name = "sysroot_darwin_aarch64",
@@ -70,8 +79,9 @@ def cc_toolchain_deps():
             path = "cc/sysroots/darwin_aarch64/MacOSX.sdk",
         )
 
-    #################################################################################################################
-    # Linux x86_64
+    ################################################################
+    # Linux x86_64 LLVM
+    ################################################################
     if "llvm_linux_x86_64" not in native.existing_rules():
         llvm(
             name = "llvm_linux_x86_64",
@@ -138,7 +148,7 @@ def cc_toolchain_deps():
         )
 
     ################################################################
-    # Linux aarch64
+    # Linux aarch64 LLVM
     ################################################################
     if "llvm_linux_aarch64" not in native.existing_rules():
         llvm(
@@ -174,7 +184,7 @@ def cc_toolchain_deps():
         )
 
     ################################################################
-    # Darwin (macOS) aarch64
+    # Darwin (macOS) aarch64 LLVM
     ################################################################
     if "llvm_darwin_aarch64" not in native.existing_rules():
         llvm(
@@ -182,6 +192,7 @@ def cc_toolchain_deps():
             default_version = "18",
             versions = {
                 "@llvm18_darwin_aarch64//:all": "18",
+                "@llvm20_darwin_aarch64//:all": "20",
             },
             build_file_tpl = Label("//cc/llvm:llvm_darwin.BUILD.tpl"),
         )
