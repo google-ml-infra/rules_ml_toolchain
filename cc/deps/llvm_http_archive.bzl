@@ -428,10 +428,12 @@ following: `"zip"`, `"war"`, `"aar"`, `"tar"`, `"tar.gz"`, `"tgz"`,
     "xz_tool": attr.label(
         default = Label("@xz//:bin/xz"),
         allow_single_file = True,
+        doc = "The hermetic xz tool to extract tar.xz archives.",
     ),
     "tar_tool": attr.label(
         default = Label("@tar//:bin/tar"),
         allow_single_file = True,
+        doc = "The hermetic tar tool to extract tar archives.",
     ),
 }
 

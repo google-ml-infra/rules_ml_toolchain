@@ -17,8 +17,6 @@ load(
     "//third_party/remote_config:common.bzl",
     "execute",
     "get_bash_bin",
-    "realpath",
-    "which",
 )
 
 
@@ -29,31 +27,15 @@ def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_pref
             stripPrefix = strip_prefix,
         )
         return
-    tar_name = repository_ctx.path(repository_ctx.attr.tar_tool)
-    tar_tool_path = _get_tool_path(repository_ctx, tar_name)
-    if not tar_tool_path:
-        repository_ctx.extract(
-            archive = file_name,
-            stripPrefix = strip_prefix,
-        )
-        return
+    tar_tool_path = repository_ctx.path(repository_ctx.attr.tar_tool)
     if file_name.endswith(".xz"):
-        if hasattr(repository_ctx.attr, "xz_tool"):
-            xz_name = repository_ctx.path(repository_ctx.attr.xz_tool)
-        else:
+        if not hasattr(repository_ctx.attr, "xz_tool"):
             repository_ctx.extract(
                 archive = file_name,
                 stripPrefix = strip_prefix,
             )
             return
-        # Multithreading was introduced in version 5.8.1.
-        xz_tool_path = _get_tool_path(repository_ctx, xz_name, [5, 8, 1])
-        if not xz_tool_path:
-            repository_ctx.extract(
-                archive = file_name,
-                stripPrefix = strip_prefix,
-            )
-            return
+        xz_tool_path = repository_ctx.path(repository_ctx.attr.xz_tool)
         compress_program_option = "--use-compress-program=%s" % xz_tool_path
     else:
         compress_program_option = ""
@@ -99,31 +81,3 @@ tool_archive = repository_rule(
         "linux_aarch64_strip_prefix": attr.string(),
     },
 )
-
-def _is_above_min_version(actual_ver, min_ver):
-    for i in range(0, len(min_ver)):
-        actual_ver_int = int(actual_ver[i])
-        if actual_ver_int < min_ver[i]:
-            return False
-        if actual_ver_int > min_ver[i]:
-            return True
-    return True
-
-def _get_tool_version(repository_ctx, path, bash_bin = None):
-    if bash_bin == None:
-        bash_bin = get_bash_bin(repository_ctx)
-
-    return execute(repository_ctx, [bash_bin, "-c", "\"%s\" --version" % path]).stdout.strip()
-
-def _get_tool_path(repository_ctx, tool_name, min_version = None):
-    tool = which(repository_ctx, tool_name, allow_failure = True)
-    if not tool:
-        return None
-
-    if min_version:
-        tool_version_result = _get_tool_version(repository_ctx, tool)
-        tool_version = tool_version_result.split("\n")[0].split(" ")[-1]
-        if not _is_above_min_version(tool_version.split("."), min_version):
-            return None
-
-    return realpath(repository_ctx, tool)
