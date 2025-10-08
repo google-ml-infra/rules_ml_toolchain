@@ -69,9 +69,15 @@ use_repo(
     "llvm_darwin_aarch64",
     "llvm_linux_aarch64",
     "llvm_linux_x86_64",
+    "llvm18_linux_x86_64",
+    "llvm19_linux_x86_64",
+    "llvm20_linux_x86_64",
+    "llvm21_linux_x86_64",
     "sysroot_darwin_aarch64",
     "sysroot_linux_aarch64",
     "sysroot_linux_x86_64",
+    "tar",
+    "xz",
 )
 
 register_toolchains("//cc/...")
