@@ -10,6 +10,8 @@ is supported only for Linux platform.
 
 ## XZ archive
 
+The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
+
 1. Download latest xz sources package from https://github.com/tukaani-project/xz/releases.
 
    ```
@@ -26,6 +28,7 @@ is supported only for Linux platform.
 
    ```
    cd <custom xz location>/xz-<version>
+   sudo apt install autopoint po4a
    ./autogen.sh
    ./configure --prefix=$(pwd)/installation
    make
@@ -45,23 +48,26 @@ is supported only for Linux platform.
 6. Rename the folder:
    - for linux x86_64 platform:
      ```
-     mv $(pwd)/installation $(pwd)/xz_x86_64-<version>
+     mv $(pwd)/installation $(pwd)/xz_x86_64_<xz_version>-<archive_version>
      ```
 
    - for linux aarch64 platform:
      ```
-     mv $(pwd)/installation $(pwd)/xz_aarch64-<version>
+     mv $(pwd)/installation $(pwd)/xz_aarch64_<xz_version>-<archive_version>
      ```
+   
+   Note that archive version should be different than the one existing in the
+   `gs://ml-sysroot-testing` bucket.
 
 7. Create a tar archive.
    - for linux x86_64 platform:
      ```
-     tar cf - xz_x86_64-<version> | xz -T32 -c > xz_x86_64-<version>.tar.xz
+     tar cf - xz_x86_64_<xz_version>-<archive_version> | xz -T32 -c > xz_x86_64_<xz_version>-<archive_version>.tar.xz
      ```
 
    - for linux aarch64 platform:
      ```
-     tar cf - xz_aarch64-<version> | xz -T32 -c > xz_aarch64-<version>.tar.xz
+     tar cf - xz_aarch64_<xz_version>-<archive_version> | xz -T32 -c > xz_aarch64_<xz_version>-<archive_version>.tar.xz
      ```
 
 8. Upload the archive to the GCS bucket.
@@ -73,6 +79,8 @@ is supported only for Linux platform.
    `cc/deps/cc_toolchain_deps.bzl` file.
 
 ## TAR archive
+
+The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
 
 1. Download latest tar sources package from https://www.gnu.org/software/tar.
 
@@ -102,23 +110,25 @@ is supported only for Linux platform.
 5. Rename the folder:
    - for linux x86_64 platform:
      ```
-     mv $(pwd)/installation $(pwd)/tar_x86_64-<version>
+     mv $(pwd)/installation $(pwd)/tar_x86_64_<tar_version>-<archive_version>
      ```
 
    - for linux aarch64 platform:
      ```
-     mv $(pwd)/installation $(pwd)/tar_aarch64-<version>
+     mv $(pwd)/installation $(pwd)/tar_aarch64_<tar_version>-<archive_version>
      ```
+   Note that archive version should be different than the one existing in the
+   `gs://ml-sysroot-testing` bucket.
 
 6. Create a tar archive.
    - for linux x86_64 platform:
      ```
-     tar cf - tar_x86_64-<version> | xz -T32 -c > tar_x86_64-<version>.tar.xz
+     tar cf - tar_x86_64_<tar_version>-<archive_version> | xz -T32 -c > tar_x86_64_<tar_version>-<archive_version>.tar.xz
      ```
 
    - for linux aarch64 platform:
      ```
-     tar cf - tar_aarch64-<version> | xz -T32 -c > tar_aarch64-<version>.tar.xz
+     tar cf - tar_aarch64_<tar_version>-<archive_version> | xz -T32 -c > tar_aarch64_<tar_version>-<archive_version>.tar.xz
      ```
 
 7. Upload the archive to the GCS bucket.

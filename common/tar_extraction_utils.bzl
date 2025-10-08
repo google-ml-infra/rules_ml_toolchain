@@ -47,6 +47,7 @@ def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_pref
     )
     exec_result = execute(repository_ctx,
         [get_bash_bin(repository_ctx), "-c", extract_command],
+        allow_failure = True,
     )
     if exec_result.return_code != 0:
         print("Couldn't extract {archive} using tar, falling back to default behavior".format(archive = file_name))

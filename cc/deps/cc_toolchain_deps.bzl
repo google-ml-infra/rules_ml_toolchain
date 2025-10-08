@@ -28,9 +28,9 @@ def cc_toolchain_deps():
         linux_x86_64_sha256 = "d3be6744685d7a90adc16e3d5342ba9b28fc388422629a1bea146b3798229af6",
         linux_x86_64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/tar_x86_64-1.35.tar.xz"],
         linux_x86_64_strip_prefix = "tar_x86_64-1.35",
-        linux_aarch64_sha256 = "fa729b264b5445e2d1a1398f11f81b5412998fc618e42c3a8d86efe5e7f199cb",
-        linux_aarch64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/tar_aarch64-1.35.tar.xz"],
-        linux_aarch64_strip_prefix = "tar_aarch64-1.35",
+        linux_aarch64_sha256 = "f75b274fdec81fa3563dff722c7cc93403c8d155abdf637f745b44b2ccaeb5d7",
+        linux_aarch64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/tar_aarch64_1.35-0.1.0.tar.xz"],
+        linux_aarch64_strip_prefix = "tar_aarch64_1.35-0.1.0",
     )
 
     tool_archive(
@@ -38,9 +38,9 @@ def cc_toolchain_deps():
         linux_x86_64_sha256 = "59b9f6681b2aa395a07908d6875ce47eae8e2a5af496449b827bd0370947d355",
         linux_x86_64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/xz_x86_64-5.8.1.tar.xz"],
         linux_x86_64_strip_prefix = "xz_x86_64-5.8.1",
-        linux_aarch64_sha256 = "ef876d6fec29dcd7f90bf5417da6882ce76b4fb4db666925286e184acbcb1081",
-        linux_aarch64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/xz_aarch64-5.8.1.tar.xz"],
-        linux_aarch64_strip_prefix = "xz_aarch64-5.8.1",
+        linux_aarch64_sha256 = "0ac42974d1bd31c1e10d9c8cdbf98885bdee563b3db11de9ae1e236da02281f7",
+        linux_aarch64_urls = ["https://storage.googleapis.com/ml-sysroot-testing/xz_aarch64_5.8.1-0.1.0.tar.xz"],
+        linux_aarch64_strip_prefix = "xz_aarch64_5.8.1-0.1.0",
     )
 
     if "sysroot_linux_x86_64" not in native.existing_rules():
