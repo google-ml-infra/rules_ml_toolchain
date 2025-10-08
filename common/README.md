@@ -10,7 +10,7 @@ is supported only for Linux platform.
 
 ## XZ archive
 
-The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
+The archive should be made on Linux machine with GLIBC 2.31 or earlier version.
 
 1. Download latest xz sources package from https://github.com/tukaani-project/xz/releases.
 
@@ -62,12 +62,12 @@ The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
 7. Create a tar archive.
    - for linux x86_64 platform:
      ```
-     tar cf - xz_x86_64_<xz_version>-<archive_version> | xz -T32 -c > xz_x86_64_<xz_version>-<archive_version>.tar.xz
+     tar cf - xz_x86_64_<xz_version>-<archive_version> | xz -T8 -c > xz_x86_64_<xz_version>-<archive_version>.tar.xz
      ```
 
    - for linux aarch64 platform:
      ```
-     tar cf - xz_aarch64_<xz_version>-<archive_version> | xz -T32 -c > xz_aarch64_<xz_version>-<archive_version>.tar.xz
+     tar cf - xz_aarch64_<xz_version>-<archive_version> | xz -T8 -c > xz_aarch64_<xz_version>-<archive_version>.tar.xz
      ```
 
 8. Upload the archive to the GCS bucket.
@@ -80,7 +80,7 @@ The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
 
 ## TAR archive
 
-The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
+The archive should be made on Linux machine with GLIBC 2.31 or earlier version.
 
 1. Download latest tar sources package from https://www.gnu.org/software/tar.
 
@@ -123,12 +123,12 @@ The archive should be made on Ubuntu 20 machine with GLIBC version 2.31.
 6. Create a tar archive.
    - for linux x86_64 platform:
      ```
-     tar cf - tar_x86_64_<tar_version>-<archive_version> | xz -T32 -c > tar_x86_64_<tar_version>-<archive_version>.tar.xz
+     tar cf - tar_x86_64_<tar_version>-<archive_version> | xz -T8 -c > tar_x86_64_<tar_version>-<archive_version>.tar.xz
      ```
 
    - for linux aarch64 platform:
      ```
-     tar cf - tar_aarch64_<tar_version>-<archive_version> | xz -T32 -c > tar_aarch64_<tar_version>-<archive_version>.tar.xz
+     tar cf - tar_aarch64_<tar_version>-<archive_version> | xz -T8 -c > tar_aarch64_<tar_version>-<archive_version>.tar.xz
      ```
 
 7. Upload the archive to the GCS bucket.
