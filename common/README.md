@@ -10,7 +10,8 @@ is supported only for Linux platform.
 
 ## XZ archive
 
-The archive should be made on Linux machine with GLIBC 2.31 or earlier version.
+The archive should be made on Linux machine with GLIBC 2.31 or earlier version
+(for example, Ubuntu 20.04 LTS).
 
 1. Download latest xz sources package from https://github.com/tukaani-project/xz/releases.
 
@@ -80,7 +81,8 @@ The archive should be made on Linux machine with GLIBC 2.31 or earlier version.
 
 ## TAR archive
 
-The archive should be made on Linux machine with GLIBC 2.31 or earlier version.
+The archive should be made on Linux machine with GLIBC 2.31 or earlier version
+(for example, Ubuntu 20.04 LTS).
 
 1. Download latest tar sources package from https://www.gnu.org/software/tar.
 
