@@ -1,5 +1,9 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
+     "@local_config_cuda//cuda:build_defs.bzl",
+     "if_static_cuda",
+)
+load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
     "cuda_rpath_flags",
 )
@@ -52,20 +56,69 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libcudnn.so.%{libcudnn_version}",
 )
+
+cc_import(
+    name = "cudnn_graph_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_graph_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_adv_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_adv_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_engines_runtime_compiled_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_engines_runtime_compiled_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_engines_precompiled_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_engines_precompiled_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_ops_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_ops_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_heuristic_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_heuristic_static_v9.a",
+)
+
+cc_import(
+    name = "cudnn_cnn_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_cnn_static_v9.a",
+)
 %{multiline_comment}
 cc_library(
     name = "cudnn",
-    %{comment}deps = [
-      %{comment}":cudnn_engines_precompiled",
+    %{comment}deps = if_static_cuda(
+      %{comment}[":cudnn_engines_precompiled_static",
+      %{comment}":cudnn_ops_static",
+      %{comment}":cudnn_graph_static",
+      %{comment}":cudnn_cnn_static",
+      %{comment}":cudnn_adv_static",
+      %{comment}":cudnn_engines_runtime_compiled_static",
+      %{comment}":cudnn_heuristic_static",
+      %{comment}],
+      %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
       %{comment}":cudnn_graph",
       %{comment}":cudnn_cnn",
       %{comment}":cudnn_adv",
       %{comment}":cudnn_engines_runtime_compiled",
       %{comment}":cudnn_heuristic",
-      %{comment}"@cuda_nvrtc//:nvrtc",
       %{comment}":cudnn_main",
-    %{comment}],
+    %{comment}]) + ["@cuda_nvrtc//:nvrtc"],
     %{comment}linkopts = cuda_rpath_flags("nvidia/cudnn/lib"),
     visibility = ["//visibility:public"],
 )

@@ -20,7 +20,19 @@ def if_cuda(if_true, if_false = []):
     with CUDA enabled.  Otherwise, the select statement evaluates to if_false.
     """
     return select({
-        "@local_config_cuda//:is_cuda_enabled": if_true,
+        "@rules_ml_toolchain//common:is_cuda_enabled": if_true,
+        "//conditions:default": if_false,
+    })
+
+# Macros for building CUDA static code.
+def if_static_cuda(if_true, if_false = []):
+    """Shorthand for select()'ing on whether we're building with static CUDA libs.
+
+    Returns a select statement which evaluates to if_true if we're building
+    with static CUDA enabled.  Otherwise, the select statement evaluates to if_false.
+    """
+    return select({
+        "@rules_ml_toolchain//common:is_cuda_static_linking_enabled": if_true,
         "//conditions:default": if_false,
     })
 
