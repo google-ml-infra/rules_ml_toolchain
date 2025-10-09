@@ -31,7 +31,7 @@ cc_import(
 cc_import(
     name = "cufft_static_nocallback_library",
     hdrs = [":headers"],
-    static_library = "lib/libcufft_static_nocallback.a",
+    static_library = if_cuda_newer_than("13_0", None, "lib/libcufft_static_nocallback.a"),
 )
 %{multiline_comment}
 cc_library(

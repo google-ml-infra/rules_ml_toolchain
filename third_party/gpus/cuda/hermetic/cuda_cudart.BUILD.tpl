@@ -40,7 +40,7 @@ cc_import(
 cc_import(
     name = "culibos_static_library",
     hdrs = [":headers"],
-    static_library = "lib/libculibos.a",
+    static_library = if_cuda_newer_than("13_0", None, "lib/libculibos.a"),
 )
 
 cc_import(
