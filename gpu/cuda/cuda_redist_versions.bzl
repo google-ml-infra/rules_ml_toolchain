@@ -615,6 +615,12 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "source_dirs": ["include", "lib"],
         },
     },
+    "cuda_culibos": {
+            "repo_name": "cuda_culibos",
+            "version_to_template": {
+                "13": "//third_party/gpus/cuda/hermetic:cuda_culibos.BUILD.tpl",
+            },
+        },
     "libcufft": {
         "repo_name": "cuda_cufft",
         "version_to_template": {
@@ -772,6 +778,12 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "source_dirs": ["include", "lib"],
         },
     },
+    "libnvptxcompiler": {
+            "repo_name": "cuda_nvptxcompiler",
+            "version_to_template": {
+                "13": "//third_party/gpus/cuda/hermetic:cuda_nvptxcompiler.BUILD.tpl",
+            },
+        },
 }
 
 NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES = {

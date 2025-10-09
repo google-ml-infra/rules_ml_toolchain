@@ -59,6 +59,7 @@ use_repo(
     "cuda_nvtx",
     "cuda_nvvm",
     "cuda_profiler_api",
+    "cuda_nvptxcompiler",
 )
 
 ##############################################################

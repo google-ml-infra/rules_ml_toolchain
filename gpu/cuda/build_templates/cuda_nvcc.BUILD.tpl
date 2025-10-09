@@ -1,6 +1,10 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 
 load(
+    "@local_config_cuda//cuda:build_defs.bzl",
+    "if_static_cuda",
+)
+load(
     "@rules_ml_toolchain//cc/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
@@ -105,3 +109,22 @@ cc_library(
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
+
+%{multiline_comment}
+cc_import(
+    name = "nvptxcompiler_static_library",
+    hdrs = [":headers"],
+    static_library = if_cuda_newer_than("13_0", None, "lib/libnvptxcompiler_static.a"),
+)
+%{multiline_comment}
+
+cc_library(
+    name = "nvptxcompiler",
+    %{comment}deps = if_static_cuda(if_cuda_newer_than(
+        %{comment}"13_0",
+        %{comment}["@cuda_nvptxcompiler//:nvptxcompiler"],
+        %{comment}[":nvptxcompiler_static_library"],
+    %{comment})),
+    visibility = ["//visibility:public"],
+)
+
