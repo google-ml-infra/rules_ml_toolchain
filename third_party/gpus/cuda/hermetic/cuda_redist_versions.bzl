@@ -517,6 +517,12 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "11": "//third_party/gpus/cuda/hermetic:cuda_cudart.BUILD.tpl",
         },
     },
+    "cuda_culibos": {
+            "repo_name": "cuda_culibos",
+            "version_to_template": {
+                "13": "//third_party/gpus/cuda/hermetic:cuda_culibos.BUILD.tpl",
+            },
+        },
     "libcufft": {
         "repo_name": "cuda_cufft",
         "version_to_template": {

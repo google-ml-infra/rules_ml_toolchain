@@ -64,7 +64,7 @@ cc_library(
         %{comment}],
         %{comment}"//conditions:default": [":cuda_driver"],
     %{comment}}) + if_static_cuda(
-        %{comment}[":cudart_static_library", ":culibos_static_library", ":cudadevrt_static_library"],
+        %{comment}[":cudart_static_library", ":cudadevrt_static_library"] + if_cuda_newer_than("13_0", ["@cuda_culibos//:culibos_static_library"], [":culibos_static_library"]),
         %{comment}[":cudart_shared_library"],
     %{comment}),
     %{comment}linkopts = if_cuda_newer_than(
