@@ -170,6 +170,11 @@ alias(
 )
 
 alias(
+  name = "nvrtc_headers",
+  actual = "@cuda_nvrtc//:headers",
+)
+
+alias(
   name = "cublas",
   actual = "@cuda_cublas//:cublas",
 )
