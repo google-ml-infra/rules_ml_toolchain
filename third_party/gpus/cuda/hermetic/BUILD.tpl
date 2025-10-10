@@ -209,6 +209,11 @@ alias(
   actual = "@cuda_curand//:curand",
 )
 
+alias(
+  name = "nvrtc",
+  actual = "@cuda_nvrtc//:nvrtc",
+)
+
 cc_library(
     name = "cuda",
     deps = [
