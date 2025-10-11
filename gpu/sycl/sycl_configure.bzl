@@ -34,11 +34,6 @@ def _use_icpx_and_clang(ctx):
     """Returns whether to use ICPX for SYCL and Clang for C++."""
     return ctx.getenv("TF_ICPX_CLANG", "").strip()
 
-def _get_path(ctx, labelname):
-    """Returns file path by label name."""
-    tpl = "//gpu/sycl%s.tpl" if labelname.startswith(":") else "//gpu/sycl/%s.tpl"
-    return ctx.path(Label(tpl % labelname))
-
 _DUMMY_CROSSTOOL_BZL_FILE = """
 def error_gpu_disabled():
   fail("ERROR: Building with --config=sycl but TensorFlow is not configured " +
@@ -84,7 +79,7 @@ def _create_dummy_repository(ctx):
     # Materialize templated files under sycl/
     ctx.template(
         "sycl/build_defs.bzl",
-        _get_path(ctx, ":build_defs.bzl"),
+        ctx.attr.build_defs_tpl,
         {
             "%{sycl_is_configured}": "False",
             "%{sycl_build_is_configured}": "False",
@@ -106,14 +101,14 @@ def _sycl_configure_impl(ctx):
     # Set up BUILD file for sycl/
     ctx.template(
         "sycl/build_defs.bzl",
-        _get_path(ctx, ":build_defs.bzl"),
+        ctx.attr.build_defs_tpl,
         {
             "%{sycl_is_configured}": "True",
             "%{sycl_build_is_configured}": "True",
         },
     )
 
-    ctx.file("sycl/BUILD", "")
+    ctx.file("sycl/BUILD", ctx.read(ctx.attr.build_defs_tpl))
 
     ctx.file("BUILD", "")
 
@@ -121,5 +116,7 @@ sycl_configure = repository_rule(
     implementation = _sycl_configure_impl,
     local = True,
     attrs = {
+        "build_defs_tpl": attr.label(default = Label("//gpu/sycl:build_defs.bzl.tpl")),
+        "build_file": attr.label(default = Label("//gpu/sycl:sycl.BUILD")),
     },
 )
