@@ -613,6 +613,14 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "11": "//third_party/gpus/cuda/hermetic:cuda_nvprune.BUILD",
         },
     },
+    "cuda_profiler_api": {
+        "repo_name": "cuda_profiler_api",
+        "version_to_template": {
+            "13": "//third_party/gpus/cuda/hermetic:cuda_profiler.BUILD.tpl",
+            "12": "//third_party/gpus/cuda/hermetic:cuda_profiler.BUILD.tpl",
+            "11": "//third_party/gpus/cuda/hermetic:cuda_profiler.BUILD.tpl",
+        },
+    },
     "cuda_nvtx": {
         "repo_name": "cuda_nvtx",
         "version_to_template": {
