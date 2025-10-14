@@ -14,7 +14,12 @@ cc_import(
     name = "nvidia-ml_stub",
     interface_library = "lib/stubs/libnvidia-ml.so",
     system_provided = 1,
-    visibility = ["//visibility:public"],
+    visibility = ["@cuda_cudart//:__pkg__"],
 )
 %{multiline_comment}
 
+cc_library(
+    name = "nvml",
+    %{comment}deps = [":nvidia-ml_stub"],
+    visibility = ["//visibility:public"],
+)
