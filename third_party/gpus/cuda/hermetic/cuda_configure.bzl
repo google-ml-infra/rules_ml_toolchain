@@ -53,6 +53,7 @@ load("@cuda_nvjitlink//:version.bzl", _nvjitlink_version = "VERSION")
 load("@cuda_nvml//:version.bzl", _nvml_version = "VERSION")
 load("@cuda_nvtx//:version.bzl", _nvtx_version = "VERSION")
 load("@cuda_nvvm//:version.bzl", _nvvm_version = "VERSION")
+load("@cuda_profiler_api//:version.bzl", _cuda_profiler_api_version = "VERSION")
 load("@llvm_linux_aarch64//:version.bzl", _llvm_aarch64_hermetic_version = "VERSION")
 load("@llvm_linux_x86_64//:version.bzl", _llvm_x86_64_hermetic_version = "VERSION")
 load(
@@ -364,6 +365,7 @@ def _get_cuda_config(repository_ctx):
         cuda_version = get_cuda_version(repository_ctx),
         cupti_version = _cupti_version,
         cudart_version = _cudart_version,
+        cuda_profiler_api_version = _cuda_profiler_api_version,
         cublas_version = _cublas_version,
         cusolver_version = _cusolver_version,
         curand_version = _curand_version,
