@@ -58,6 +58,7 @@ cc_library(
     ],
     deps = [":cudart_headers",
             ":cublas_headers",
+            ":profiler_api_headers",
             ":cccl_headers",
             ":nvtx_headers",
             ":nvcc_headers",
@@ -142,6 +143,11 @@ alias(
 alias(
   name = "cublas_headers",
   actual = "@cuda_cublas//:headers",
+)
+
+alias(
+  name = "profiler_api_headers",
+  actual = "@cuda_profiler_api//:headers",
 )
 
 alias(
