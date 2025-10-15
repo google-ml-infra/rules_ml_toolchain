@@ -229,8 +229,12 @@ def InvokeNvcc(argv, log=False):
   out = ' -o ' + out_file[0]
 
   nvccopts = '-D_FORCE_INLINES '
-  capabilities_sm = set(GetOptionValue(argv, "--cuda-gpu-arch"))
-  capabilities_compute = set(GetOptionValue(argv, '--cuda-include-ptx'))
+  capabilities_sm = set(get_option_value(argv, '--cuda-gpu-arch')) - set(
+      get_option_value(argv, '--no-cuda-gpu-arch')
+  )
+  capabilities_compute = set(
+      get_option_value(argv, '--cuda-include-ptx')
+  ) - set(get_option_value(argv, '--no-cuda-include-ptx'))
   # When both "code=sm_xy" and "code=compute_xy" are requested for a single
   # arch, they can be combined using "code=xy,compute_xy" which avoids a
   # redundant PTX generation during compilation.
