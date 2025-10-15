@@ -78,4 +78,5 @@ cc_library(
     include_prefix = "third_party/nvshmem",
     includes = ["include"],
     strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
 )
