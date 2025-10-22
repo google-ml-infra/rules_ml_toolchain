@@ -19,7 +19,7 @@ load(
     "get_bash_bin",
 )
 
-def extract_tar_with_non_hermetic_tar_tool(repository_ctx, file_name, strip_prefix):
+def extract_tar_with_hermetic_tar_tool(repository_ctx, file_name, strip_prefix):
     if not (repository_ctx.os.name == "linux" and hasattr(repository_ctx.attr, "tar_tool")):
         repository_ctx.extract(
             archive = file_name,
