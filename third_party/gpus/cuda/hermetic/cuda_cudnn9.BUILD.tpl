@@ -61,7 +61,6 @@ cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v9.a",
-    alwayslink = True
 )
 
 cc_import(
@@ -105,11 +104,11 @@ cc_library(
     %{comment}deps = if_static_cuda(
       %{comment}[":cudnn_engines_precompiled_static",
       %{comment}":cudnn_ops_static",
-      %{comment}":cudnn_graph_static",
       %{comment}":cudnn_cnn_static",
       %{comment}":cudnn_adv_static",
       %{comment}":cudnn_engines_runtime_compiled_static",
       %{comment}":cudnn_heuristic_static",
+      %{comment}":cudnn_graph_static",
       %{comment}],
       %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
