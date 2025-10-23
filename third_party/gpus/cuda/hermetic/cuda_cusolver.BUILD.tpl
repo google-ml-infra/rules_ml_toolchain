@@ -42,7 +42,7 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cusolver",
-    %{comment}deps = if_static_cuda([":cusolver_lapack_static_library", ":cusolver_static_library", ":cusolver_metis_static_library", ":metis_static_library"], [":cusolver_shared_library"])
+    %{comment}deps = if_static_cuda([":cusolver_static_library", ":cusolver_lapack_static_library", ":cusolver_metis_static_library", ":metis_static_library"], [":cusolver_shared_library"])
     %{comment}+ [
         %{comment}"@cuda_nvjitlink//:nvjitlink",
         %{comment}"@cuda_cusparse//:cusparse",
