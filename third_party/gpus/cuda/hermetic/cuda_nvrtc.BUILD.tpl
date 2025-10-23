@@ -49,6 +49,7 @@ cc_library(
         %{comment}":nvrtc_static",
         %{comment}":nvrtc_builtins_static",
         %{comment}":nvrtc_static_alt",
+        %{comment}"@cuda_nvcc//:nvptxcompiler",
     %{comment}],
     %{comment}[
         %{comment}":nvrtc_main",

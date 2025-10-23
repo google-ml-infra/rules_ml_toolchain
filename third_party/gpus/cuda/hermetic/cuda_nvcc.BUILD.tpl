@@ -92,13 +92,17 @@ cuda_nvcc_feature(
 cc_import(
     name = "nvptxcompiler_static_library",
     hdrs = [":headers"],
-    static_library = "lib/libnvptxcompiler_static.a",
+    static_library = if_cuda_newer_than("13_0", None, "lib/libnvptxcompiler_static.a"),
 )
 %{multiline_comment}
 
 cc_library(
     name = "nvptxcompiler",
-    %{comment}deps = if_static_cuda([":nvptxcompiler_static_library"]),
+    %{comment}deps = if_static_cuda(if_cuda_newer_than(
+        %{comment}"13_0",
+        %{comment}["@cuda_nvptxcompiler//:nvptxcompiler"],
+        %{comment}[":nvptxcompiler_static_library"],
+    %{comment})),
     visibility = ["//visibility:public"],
 )
 

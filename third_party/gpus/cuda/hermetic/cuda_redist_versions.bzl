@@ -643,6 +643,12 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "11": "//third_party/gpus/cuda/hermetic:cuda_nvtx.BUILD.tpl",
         },
     },
+    "libnvptxcompiler": {
+            "repo_name": "cuda_nvptxcompiler",
+            "version_to_template": {
+                "13": "//third_party/gpus/cuda/hermetic:cuda_nvptxcompiler.BUILD.tpl",
+            },
+        },
 }
 
 NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
