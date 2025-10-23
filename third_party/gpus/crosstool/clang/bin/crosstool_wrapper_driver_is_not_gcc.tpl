@@ -241,15 +241,15 @@ def InvokeNvcc(argv, log=False):
   capabilities_both = capabilities_sm.intersection(capabilities_compute)
   for capability in capabilities_both:
     capability = capability[len('sm_'):]
-    nvccopts += r'-gencode=arch=compute_%s,code=\"sm_%s,compute_%s\" ' % (
+    nvccopts += r'-gencode=arch=compute_%s,code=\"lto_sm_%s,lto_compute_%s\" ' % (
         capability, capability, capability)
   for capability in capabilities_sm - capabilities_both:
     capability = capability[len('sm_'):]
-    nvccopts += r'-gencode=arch=compute_%s,\"code=sm_%s\" ' % (capability,
+    nvccopts += r'-gencode=arch=compute_%s,\"code=lto_sm_%s\" ' % (capability,
                                                                capability)
   for capability in capabilities_compute - capabilities_both:
     capability = capability[len('sm_'):]
-    nvccopts += r'-gencode=arch=compute_%s,\"code=compute_%s\" ' % (capability,
+    nvccopts += r'-gencode=arch=compute_%s,\"code=lto_compute_%s\" ' % (capability,
                                                                     capability)
   nvccopts += nvcc_compiler_options
   nvccopts += undefines
@@ -257,7 +257,7 @@ def InvokeNvcc(argv, log=False):
   nvccopts += std_options
   nvccopts += m_options
   nvccopts += warning_options
-  nvccopts += ' -rdc=true -dlto '
+  nvccopts += ' -rdc=true '
   # Force C++17 dialect (note, everything in just one string!)
   nvccopts += ' --std c++17 '
   nvccopts += fatbin_options
