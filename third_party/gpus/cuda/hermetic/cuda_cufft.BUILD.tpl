@@ -41,7 +41,7 @@ cc_library(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cufft/lib"),
-    %{comment}),
+    %{comment}) + if_static_cuda(["--no-relax"]),
     visibility = ["//visibility:public"],
 )
 
