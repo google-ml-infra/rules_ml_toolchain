@@ -61,6 +61,7 @@ cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v9.a",
+    alwayslink = True
 )
 
 cc_import(
