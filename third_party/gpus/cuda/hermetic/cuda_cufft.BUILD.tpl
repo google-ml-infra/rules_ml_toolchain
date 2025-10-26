@@ -31,12 +31,12 @@ cc_import(
 cc_import(
     name = "cufft_static_nocallback_library",
     hdrs = [":headers"],
-    static_library = "lib/libcufft_static_nocallback.a",
+    static_library = if_cuda_newer_than("13_0", None, "lib/libcufft_static_nocallback.a"),
 )
 %{multiline_comment}
 cc_library(
     name = "cufft",
-    %{comment}deps = if_static_cuda([":cufftw_static_library", ":cufft_static_nocallback_library"], [":cufft_shared_library"]),
+    %{comment}deps = if_static_cuda(if_cuda_newer_than("13_0", [":cufftw_static_library"], ["lib/libcufft_static_nocallback.a"]) + [":cufft_static_nocallback_library"], [":cufft_shared_library"]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
