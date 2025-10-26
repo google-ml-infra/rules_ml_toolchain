@@ -36,7 +36,7 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cufft",
-    %{comment}deps = if_static_cuda(if_cuda_newer_than("13_0", [":cufftw_static_library"], [":cufft_static_nocallback_library"]) + [":cufftw_static_library"], [":cufft_shared_library"]),
+    %{comment}deps = if_static_cuda(if_cuda_newer_than("13_0", [":cufft_static_library"], [":cufft_static_nocallback_library"]) + [":cufftw_static_library"], [":cufft_shared_library"]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
