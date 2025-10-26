@@ -224,7 +224,7 @@ def InvokeNvcc(argv, log=False):
   # Unfortunately, there are other options that have -c prefix too.
   # So allowing only those look like C/C++ files.
   src_files = [f for f in src_files if
-               re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$|\.cu$', f)]
+	       re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$|\.cu$', f)]
   srcs = ' '.join(src_files)
   out = ' -o ' + out_file[0]
 
@@ -241,11 +241,11 @@ def InvokeNvcc(argv, log=False):
   capabilities_both = capabilities_sm.intersection(capabilities_compute)
   for capability in capabilities_both:
     capability = capability[len('sm_'):]
-    nvccopts += r'-gencode=arch=compute_%s,code=\"lto_%s,compute_%s\" ' % (
+    nvccopts += r'-gencode=arch=compute_%s,code=\"sm_%s,compute_%s\" ' % (
         capability, capability, capability)
   for capability in capabilities_sm - capabilities_both:
     capability = capability[len('sm_'):]
-    nvccopts += r'-gencode=arch=compute_%s,\"code=lto_%s\" ' % (capability,
+    nvccopts += r'-gencode=arch=compute_%s,\"code=sm_%s\" ' % (capability,
                                                                capability)
   for capability in capabilities_compute - capabilities_both:
     capability = capability[len('sm_'):]
