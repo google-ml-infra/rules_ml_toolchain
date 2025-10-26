@@ -101,7 +101,8 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cudnn",
-    %{comment}deps = if_static_cuda(
+   
+    %{comment}srcs = if_static_cuda(
       %{comment}[":cudnn_engines_precompiled_static",
       %{comment}":cudnn_ops_static",
       %{comment}":cudnn_cnn_static",
@@ -109,7 +110,9 @@ cc_library(
       %{comment}":cudnn_heuristic_static",
       %{comment}":cudnn_graph_static",
       %{comment}":cudnn_engines_runtime_compiled_static",
-      %{comment}],
+      %{comment}], []),
+    %{comment}deps = if_static_cuda(
+      %{comment}[],
       %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
       %{comment}":cudnn_graph",
@@ -119,7 +122,16 @@ cc_library(
       %{comment}":cudnn_heuristic",
       %{comment}":cudnn_main",
     %{comment}]) + ["@cuda_nvrtc//:nvrtc"],
-    %{comment}linkopts = cuda_rpath_flags("nvidia/cudnn/lib"),
+    %{comment}linkopts = cuda_rpath_flags("nvidia/cudnn/lib") + if_static_cuda(
+      %{comment}["-Wl,--start-group",
+      %{comment}"$(location :cudnn_engines_precompiled_static)",
+      %{comment}"$(location :cudnn_ops_static)",
+      %{comment}"$(location :cudnn_cnn_static)",
+      %{comment}"$(location :cudnn_adv_static)",
+      %{comment}"$(location :cudnn_heuristic_static)",
+      %{comment}"$(location :cudnn_graph_static)",
+      %{comment}"$(location :cudnn_engines_runtime_compiled_static)",
+      %{comment}"-Wl,--end-group"], []),
     visibility = ["//visibility:public"],
 )
 
