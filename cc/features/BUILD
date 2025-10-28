@@ -80,25 +80,6 @@ cc_feature(
     enabled = True,
 )
 
-cc_feature(
-    name = "clang",
-    compiler_flags = [
-        # Disable clang extention that rejects type definitions within offsetof.
-        # This was added in clang-16 by https://reviews.llvm.org/D133574.
-        # Can be removed once upb is updated, since a type definition is used within
-        # offset of in the current version of ubp.
-        # See https://github.com/protocolbuffers/upb/blob/9effcbcb27f0a665f9f345030188c0b291e32482/upb/upb.c#L183.
-        "-Wno-gnu-offsetof-extensions",
-
-        # Disable clang extention that rejects unknown arguments.
-        "-Qunused-arguments",
-
-        # Error on struct/class mismatches, since this causes link failures on Windows.
-        "-Werror=mismatched-tags",
-    ],
-    enabled = True,
-)
-
 # Required when building with clang>=19, see jax-ml/jax#27091
 cc_feature(
     name = "clang19",

@@ -118,7 +118,6 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:use_lld",
         "//cc/features:sysroot_darwin_aarch64",
         "//third_party/rules_cc_toolchain/features:coverage",
-        "//cc/features:clang",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
         "//cc/features:max_install_names",
         "//cc/features:no_elaborated_enum_base",
