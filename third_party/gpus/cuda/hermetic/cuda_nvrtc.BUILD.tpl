@@ -45,10 +45,8 @@ cc_import(
 cc_library(
     name = "nvrtc",
     %{comment}deps = if_static_cuda([
-        %{comment}":nvrtc_builtins_static_alt",
         %{comment}":nvrtc_static",
         %{comment}":nvrtc_builtins_static",
-        %{comment}":nvrtc_static_alt",
         %{comment}"@cuda_nvcc//:nvptxcompiler",
     %{comment}],
     %{comment}[
