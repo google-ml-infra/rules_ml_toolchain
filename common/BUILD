@@ -109,6 +109,20 @@ config_setting(
     },
 )
 
+
+# Flag for linking static CUDA NVRTC libs
+bool_flag(
+    name = "link_nvrtc_static_libs",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_nvrtc_static_linking_enabled",
+    flag_values = {
+        ":link_nvrtc_static_libs": "True",
+    },
+)
+
 #######################################################
 # Enable SYCL support flags
 
