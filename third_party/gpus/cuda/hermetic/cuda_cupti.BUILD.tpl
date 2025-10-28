@@ -31,7 +31,7 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cupti",
-    %{comment}deps = if_static_cuda([":cupti_static_library", ":nvperf_host_static_library"], [":cupti_shared_library"]),
+    %{comment}deps = if_static_cuda([":cupti_static_library"], [":cupti_shared_library"]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
