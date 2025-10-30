@@ -2,6 +2,7 @@ licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@local_config_cuda//cuda:build_defs.bzl",
     "if_cuda_newer_than",
+    "if_static_cuda",
 )
 load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
@@ -14,10 +15,16 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libcurand.so.%{libcurand_version}",
 )
+
+cc_import(
+    name = "curand_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcurand_static.a",
+)
 %{multiline_comment}
 cc_library(
     name = "curand",
-    %{comment}deps = [":curand_shared_library"],
+    %{comment}deps = if_static_cuda([":curand_static_library"], [":curand_shared_library"]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),

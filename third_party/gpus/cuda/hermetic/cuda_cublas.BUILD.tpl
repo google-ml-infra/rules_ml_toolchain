@@ -2,6 +2,7 @@ licenses(["restricted"])  # NVIDIA proprietary license
 load(
      "@local_config_cuda//cuda:build_defs.bzl",
      "if_cuda_newer_than",
+     "if_static_cuda",
 )
 load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
@@ -13,7 +14,6 @@ cc_import(
     name = "cublas_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcublas.so.%{libcublas_version}",
-    deps = [":cublasLt"],
 )
 
 cc_import(
@@ -21,11 +21,26 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libcublasLt.so.%{libcublaslt_version}",
 )
+
+cc_import(
+    name = "cublasLt_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcublasLt_static.a",
+)
+
+cc_import(
+    name = "cublas_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcublas_static.a",
+)
 %{multiline_comment}
 cc_library(
     name = "cublas",
     visibility = ["//visibility:public"],
-    %{comment}deps = [":cublas_shared_library"],
+    %{comment}deps = if_static_cuda(
+        %{comment}[":cublas_static_library"],
+        %{comment}[":cublas_shared_library"],
+    %{comment}) + [":cublasLt"],
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
@@ -36,7 +51,10 @@ cc_library(
 cc_library(
     name = "cublasLt",
     visibility = ["//visibility:public"],
-    %{comment}deps = [":cublasLt_shared_library"],
+    %{comment}deps = if_static_cuda(
+        %{comment}[":cublasLt_static_library"],
+        %{comment}[":cublasLt_shared_library"],
+    %{comment}),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),

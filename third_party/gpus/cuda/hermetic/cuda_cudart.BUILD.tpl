@@ -2,6 +2,7 @@ licenses(["restricted"])  # NVIDIA proprietary license
 load(
      "@local_config_cuda//cuda:build_defs.bzl",
      "if_cuda_newer_than",
+     "if_static_cuda",
 )
 load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
@@ -29,6 +30,24 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libcudart.so.%{libcudart_version}",
 )
+
+cc_import(
+    name = "cudart_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcudart_static.a",
+)
+
+cc_import(
+    name = "culibos_static_library",
+    hdrs = [":headers"],
+    static_library = if_cuda_newer_than("13_0", None, "lib/libculibos.a"),
+)
+
+cc_import(
+    name = "cudadevrt_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcudadevrt.a",
+)
 %{multiline_comment}
 cc_library(
     name = "cuda_driver",
@@ -44,9 +63,10 @@ cc_library(
             %{comment}"@cuda_driver//:nvidia_ptxjitcompiler",
         %{comment}],
         %{comment}"//conditions:default": [":cuda_driver"],
-    %{comment}}) + [
-        %{comment}":cudart_shared_library",
-    %{comment}],
+    %{comment}}) + if_static_cuda(
+        %{comment}[":cudart_static_library", ":cudadevrt_static_library"] + if_cuda_newer_than("13_0", ["@cuda_culibos//:culibos_static_library"], [":culibos_static_library"]),
+        %{comment}[":cudart_shared_library"],
+    %{comment}),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
