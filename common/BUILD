@@ -123,6 +123,19 @@ config_setting(
     },
 )
 
+# Flag for linking static CUDA CUDNN libs
+bool_flag(
+    name = "link_cudnn_static_libs",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_cudnn_static_linking_enabled",
+    flag_values = {
+        ":link_cudnn_static_libs": "True",
+    },
+)
+
 #######################################################
 # Enable SYCL support flags
 

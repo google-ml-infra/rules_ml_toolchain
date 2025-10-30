@@ -48,6 +48,18 @@ def if_static_nvrtc(if_true, if_false = []):
         "//conditions:default": if_false,
     })
 
+# Macros for building CUDNN static code.
+def if_static_cudnn(if_true, if_false = []):
+    """Shorthand for select()'ing on whether we're building with static CUDNN libs.
+
+    Returns a select statement which evaluates to if_true if we're building
+    with static CUDNN enabled.  Otherwise, the select statement evaluates to if_false.
+    """
+    return select({
+        "@rules_ml_toolchain//common:is_cudnn_static_linking_enabled": if_true,
+        "//conditions:default": if_false,
+    })
+
 
 def if_cuda_clang(if_true, if_false = []):
    """Shorthand for select()'ing on wheteher we're building with cuda-clang.

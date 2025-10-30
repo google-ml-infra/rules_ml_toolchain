@@ -1,7 +1,7 @@
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
      "@local_config_cuda//cuda:build_defs.bzl",
-     "if_static_cuda",
+     "if_static_cudnn",
 )
 load(
     "@rules_ml_toolchain//third_party/gpus:nvidia_common_rules.bzl",
@@ -101,8 +101,8 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cudnn",
-    %{comment}alwayslink = if_static_cuda(True, False),
-    %{comment}srcs = if_static_cuda(
+    %{comment}alwayslink = if_static_cudnn(True, False),
+    %{comment}srcs = if_static_cudnn(
       %{comment}[":lib/libcudnn_engines_precompiled_static_v9.a",
       %{comment} ":lib/libcudnn_ops_static_v9.a",
       %{comment} ":lib/libcudnn_cnn_static_v9.a",
@@ -111,7 +111,7 @@ cc_library(
       %{comment} ":lib/libcudnn_graph_static_v9.a",
       %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v9.a",
       %{comment}], []),
-    %{comment}deps = if_static_cuda(
+    %{comment}deps = if_static_cudnn(
       %{comment}[],
       %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
