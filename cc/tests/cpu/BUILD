@@ -14,8 +14,9 @@
 # ==============================================================================
 
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library", "cc_test")
-load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+load("@com_google_protobuf//bazel:proto_library.bzl", "proto_library")
 
 #############################################
 # C
@@ -106,6 +107,10 @@ cc_binary(
     name = "protobuf",
     srcs = ["protobuf.cc"],
     deps = [":protobuf_hello_lib"],
+    linkopts = [
+        "-fopenmp",
+        "-lomp",
+    ],
 )
 
 cc_test(

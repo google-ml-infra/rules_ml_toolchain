@@ -163,23 +163,24 @@ cc_toolchain_import(
     #    "@platforms//os:linux": ["@platforms//cpu:aarch64"],
     #    "//conditions:default": ["@platforms//:incompatible"],
     #}),
-    visibility = ["//visibility:public"],
     deps = [
         ":gcc",
         ":math",
         ":stdc++",
         ":rt",
     ],
+    visibility = ["//visibility:public"],
 )
 
-# This is a group of all the system libraries we need. The actual glibc library is split
+# This is a group of all the system libraries we need. The actual essential libraries is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "glibc",
-    runtime_path = "/lib/aarch64-linux-gnu",
-    visibility = ["//visibility:public"],
+    name = "libs",
     deps = [
         ":dynamic_linker",
         ":libc",
+        ":openmp",
+        ":pthread",
     ],
+    visibility = ["//visibility:public"],
 )

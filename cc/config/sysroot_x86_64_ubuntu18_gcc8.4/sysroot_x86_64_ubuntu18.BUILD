@@ -27,7 +27,7 @@ sysroot_package(
     visibility = ["//visibility:public"],
 )
 
-GCC_VERSION = 9
+GCC_VERSION = 8
 GLIBC_VERSION = "2.27"
 
 # Details about C RunTime (CRT) objects:
@@ -57,8 +57,8 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "includes_c",
     hdrs = glob([
-        "usr/include/c++/*/**",
-        "usr/include/x86_64-linux-gnu/c++/*/**",
+        "usr/include/c++/{gcc_version}/**".format(gcc_version = GCC_VERSION),
+        "usr/include/x86_64-linux-gnu/c++/{gcc_version}/*/**".format(gcc_version = GCC_VERSION),
         "usr/include/c++/{gcc_version}/experimental/**".format(gcc_version = GCC_VERSION),
     ]),
     includes = [
@@ -100,10 +100,18 @@ cc_toolchain_import(
     name = "stdc++",
     additional_libs = [
         "usr/lib/x86_64-linux-gnu/libstdc++.so.6",
-        "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.32",
+        "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25",
     ],
     shared_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.so".format(gcc_version = GCC_VERSION),
     static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.a".format(gcc_version = GCC_VERSION),
+    visibility = ["//visibility:public"],
+)
+
+# Inclusion of libstdc++fs is required because the sysroot utilizes GCC version 8.4.
+# This requirement is obsolete for GCC versions 9 and above.
+cc_toolchain_import(
+    name = "stdc++fs",
+    static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++fs.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
 )
 
@@ -154,9 +162,9 @@ cc_toolchain_import(
     additional_libs = [
         "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/x86_64-linux-gnu/librt.so.1",
-        "usr/lib/x86_64-linux-gnu/librt.so",
-        "usr/lib/x86_64-linux-gnu/librt.a",
     ],
+    shared_library = "usr/lib/x86_64-linux-gnu/librt.so",
+    static_library = "usr/lib/x86_64-linux-gnu/librt.a",
     visibility = ["//visibility:private"],
 )
 
@@ -169,12 +177,23 @@ cc_toolchain_import(
     ],
     shared_library = "usr/lib/x86_64-linux-gnu/libc.so",
     static_library = "usr/lib/x86_64-linux-gnu/libc.a",
+    visibility = ["//visibility:public"],
     deps = [
         ":gcc",
         ":math",
         ":stdc++",
+        ":stdc++fs",
         ":rt",
     ],
+)
+
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/x86_64-linux-gnu/libgomp*",
+        "usr/lib/x86_64-linux-gnu/libomp*",
+    ]),
     visibility = ["//visibility:public"],
 )
 
