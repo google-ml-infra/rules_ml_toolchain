@@ -385,8 +385,8 @@ def cuda_rdc_library(name, hdrs = None, copts = None, linkstatic = True, defines
         name = merged,
         srcs = [pruned, dlink],
         ar = select({
-            "@bazel_tools//src/conditions:linux_x86_64": "@llvm_linux_x86_64//:ar_tool",
-            "@bazel_tools//src/conditions:linux_aarch64": "@llvm_linux_aarch64//:ar_tool"
+            "@bazel_tools//src/conditions:linux_x86_64": "@llvm_linux_x86_64//:llvm-ar",
+            "@bazel_tools//src/conditions:linux_aarch64": "@llvm_linux_aarch64//:llvm-ar"
         }),
         distro_libs = select({
             "@bazel_tools//src/conditions:linux_x86_64": "@llvm_linux_x86_64//:distro_libs",

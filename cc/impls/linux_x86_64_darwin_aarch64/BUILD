@@ -109,6 +109,16 @@ filegroup(
     ],
 )
 
+# buildifier: leave-alone
+filegroup(
+    name = "strip",
+    srcs = [
+        ":wrappers",
+        "@llvm_linux_x86_64//:strip",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
 cc_toolchain_config(
     name = "config",
     archiver = "@llvm_linux_x86_64//:ar_darwin",
@@ -157,6 +167,7 @@ cc_toolchain_config(
     dynamic_library_extension = ".dylib",
     install_name = "@llvm_linux_x86_64//:install_name_tool_darwin",
     linker = "@llvm_linux_x86_64//:ld",
+    strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "aarch64",
     target_libc = "macosx",
     target_system_name = "local",
@@ -170,7 +181,7 @@ cc_toolchain(
     dwp_files = ":all",
     linker_files = ":linker",
     objcopy_files = ":objcopy",
-    strip_files = ":empty",
+    strip_files = ":strip",
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_id_linux_x86_64_darwin_aarch64",

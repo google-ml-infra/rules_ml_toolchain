@@ -96,6 +96,26 @@ filegroup(
     ],
 )
 
+# buildifier: leave-alone
+filegroup(
+    name = "objcopy",
+    srcs = [
+        ":wrappers",
+        "@llvm_darwin_aarch64//:objcopy",
+        "@llvm_darwin_aarch64//:distro_libs",
+    ],
+)
+
+# buildifier: leave-alone
+filegroup(
+    name = "strip",
+    srcs = [
+        ":wrappers",
+        "@llvm_darwin_aarch64//:strip",
+        "@llvm_darwin_aarch64//:distro_libs",
+    ],
+)
+
 cc_toolchain_config(
     name = "config",
     archiver = "@llvm_darwin_aarch64//:ar",
@@ -144,6 +164,7 @@ cc_toolchain_config(
     dynamic_library_extension = ".dylib",
     install_name = "@llvm_darwin_aarch64//:install_name_tool_darwin",
     linker = "@llvm_darwin_aarch64//:ld",
+    strip_tool = "@llvm_darwin_aarch64//:strip",
     target_cpu = "aarch64",
     target_libc = "macosx",
     target_system_name = "local",
@@ -156,8 +177,8 @@ cc_toolchain(
     compiler_files = ":compiler",
     dwp_files = ":all",
     linker_files = ":linker",
-    objcopy_files = ":empty",
-    strip_files = ":empty",
+    objcopy_files = ":objcopy",
+    strip_files = ":strip",
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_id_darwin_aarch64_darwin_aarch64",

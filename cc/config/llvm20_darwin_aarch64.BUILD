@@ -65,6 +65,12 @@ filegroup(
 )
 
 filegroup(
+    name = "strip",
+    srcs = ["bin/llvm-strip"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "install_name_tool_darwin",
     srcs = ["bin/llvm-install-name-tool"],
     visibility = ["//visibility:public"],

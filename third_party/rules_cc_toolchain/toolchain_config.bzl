@@ -137,6 +137,7 @@ def _cc_toolchain_config_impl(ctx):
             "cpp": ctx.file.cc_compiler,
             "ld": ctx.file.linker,
             "ar": ctx.file.archiver,
+            "strip": ctx.file.strip_tool,
             "in": ctx.file.install_name,
         })],
     )
@@ -172,7 +173,7 @@ cc_toolchain_config = rule(
                 "llvm-cov": "wrappers/idler",
                 "nm": "wrappers/idler",
                 "objdump": "wrappers/idler",
-                "strip": "wrappers/idler",
+                "strip": "wrappers/strip",
             },
         ),
         "compiler_features": attr.label_list(
@@ -199,6 +200,10 @@ cc_toolchain_config = rule(
             doc = "The archiver e.g. ar/llvm-ar. Maps to tool path 'ar'.",
             allow_single_file = True,
             mandatory = True,
+        ),
+        "strip_tool": attr.label(
+            doc = "The strip tool e.g. strip. Maps to tool path 'strip'.",
+            allow_single_file = True,
         ),
         "install_name": attr.label(
             doc = "The install name tool for macOS e.g. install_name_tool/llvm-install-name-tool. Maps to tool path 'nmt'.",

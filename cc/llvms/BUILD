@@ -14,7 +14,12 @@
 # ==============================================================================
 
 alias(
-    name = "objcopy_tool",
-    actual = "@llvm_linux_aarch64//:objcopy_tool",
+    name = "llvm-objcopy",
+    actual = select({
+        "@bazel_tools//src/conditions:linux_x86_64": "@llvm_linux_x86_64//:llvm-objcopy",
+        "@bazel_tools//src/conditions:linux_aarch64": "@llvm_linux_aarch64//:llvm-objcopy",
+        "@bazel_tools//src/conditions:darwin_arm64": "@llvm_darwin_aarch64//:llvm-objcopy",
+        "//conditions:default": ":empty",
+    }),
     visibility = ["//visibility:public"],
 )
