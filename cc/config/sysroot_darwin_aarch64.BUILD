@@ -133,13 +133,8 @@ cc_toolchain_import(
 # This is a group of all the system libraries we need. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "glibc",
+    name = "libs",
     #runtime_path = "usr/lib",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
-    visibility = ["//visibility:public"],
     deps = [
         ":system",
         ":libm",
@@ -147,4 +142,5 @@ cc_toolchain_import(
         ":objc",
         ":core_foundation",
     ],
+    visibility = ["//visibility:public"],
 )

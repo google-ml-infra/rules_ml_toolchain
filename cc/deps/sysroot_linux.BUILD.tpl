@@ -44,13 +44,7 @@ alias(
 )
 
 alias(
-    name = "glibc",
-    actual = "@@%{sysroot_repo_name}//:glibc",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "pthread",
-    actual = "@@%{sysroot_repo_name}//:pthread",
+    name = "libs",
+    actual = "@@%{sysroot_repo_name}//:libs",
     visibility = ["//visibility:public"],
 )

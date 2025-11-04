@@ -167,22 +167,34 @@ cc_toolchain_import(
     ],
     shared_library = "usr/lib/x86_64-linux-gnu/libc.so",
     static_library = "usr/lib/x86_64-linux-gnu/libc.a",
-    visibility = ["//visibility:public"],
     deps = [
         ":gcc",
         ":math",
         ":stdc++",
         ":rt",
     ],
+    visibility = ["//visibility:public"],
 )
 
-# This is a group of all the system libraries we need. The actual glibc library is split
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/x86_64-linux-gnu/libgomp*",
+        "usr/lib/x86_64-linux-gnu/libomp*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+# This is a group of all the system libraries we need. The actual essential libraries is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "glibc",
-    visibility = ["//visibility:public"],
+    name = "libs",
     deps = [
         ":dynamic_linker",
         ":libc",
+        ":openmp",
+        ":pthread",
     ],
+    visibility = ["//visibility:public"],
 )
