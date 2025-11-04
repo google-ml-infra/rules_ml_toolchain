@@ -112,6 +112,16 @@ filegroup(
     ],
 )
 
+# buildifier: leave-alone
+filegroup(
+    name = "objcopy",
+    srcs = [
+        ":wrappers",
+        "@llvm_linux_x86_64//:objcopy",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
 cc_toolchain_config(
     name = "config",
     archiver = "@llvm_linux_x86_64//:ar",
@@ -169,7 +179,7 @@ cc_toolchain(
     compiler_files = ":compiler",
     dwp_files = ":all",
     linker_files = ":linker",
-    objcopy_files = ":empty",
+    objcopy_files = ":objcopy",
     strip_files = ":empty",
     supports_param_files = 1,
     toolchain_config = ":config",

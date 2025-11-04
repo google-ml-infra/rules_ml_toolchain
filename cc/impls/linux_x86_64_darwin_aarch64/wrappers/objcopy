@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +15,8 @@
 # limitations under the License.
 # ==============================================================================
 
-package(default_visibility = ["//visibility:public"])
+# allow passing the output of one command as input to the next
+set -o pipefail
 
-filegroup(
-    name = "all",
-    srcs = [
-        "ar",
-        "clang",
-        "clang++",
-        "idler",
-        "ld",
-        "nvcc_wrapper",
-        "objcopy",
-    ],
-    visibility = ["//visibility:public"],
-)
+# run specified tool with all arguments
+$OBJCOPY_PATH $@

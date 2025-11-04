@@ -57,6 +57,18 @@ alias(
 )
 
 alias(
+    name = "objcopy",
+    actual = "@@%{llvm_repo_name}//:objcopy",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "objcopy_tool",
+    actual = "@@%{llvm_repo_name}//:bin/llvm-objcopy",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "install_name_tool_darwin",
     actual = "@@%{llvm_repo_name}//:install_name_tool_darwin",
     visibility = ["//visibility:public"],

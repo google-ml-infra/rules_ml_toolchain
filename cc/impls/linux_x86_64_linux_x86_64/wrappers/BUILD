@@ -23,6 +23,7 @@ filegroup(
         "clang++",
         "idler",
         "ld",
+        "objcopy",
     ],
     visibility = ["//visibility:public"],
 )

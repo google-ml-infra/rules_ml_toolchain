@@ -24,6 +24,7 @@ filegroup(
         "idler",
         "ld",
         "nvcc_wrapper",
+        "objcopy",
     ],
     visibility = ["//visibility:public"],
 )

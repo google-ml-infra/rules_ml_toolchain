@@ -65,6 +65,12 @@ filegroup(
 )
 
 filegroup(
+    name = "objcopy",
+    srcs = ["bin/llvm-objcopy"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "install_name_tool_darwin",
     srcs = ["bin/llvm-install-name-tool"],
     visibility = ["//visibility:public"],
