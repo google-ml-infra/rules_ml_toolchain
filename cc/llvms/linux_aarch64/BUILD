@@ -14,13 +14,7 @@
 # ==============================================================================
 
 alias(
-    name = "linux_x86_64_objcopy_tool",
-    actual = "@llvm_linux_x86_64//:objcopy_tool",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "linux_aarch64_objcopy_tool",
+    name = "objcopy_tool",
     actual = "@llvm_linux_aarch64//:objcopy_tool",
     visibility = ["//visibility:public"],
 )
