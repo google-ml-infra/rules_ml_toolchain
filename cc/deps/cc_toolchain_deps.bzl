@@ -18,8 +18,8 @@ load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//common:tar_extraction_utils.bzl", "tool_archive")
 load("//third_party:repo.bzl", "tf_mirror_urls")
-load("llvm.bzl", "llvm")
-load("sysroot.bzl", "sysroot")
+load("//cc/llvms:llvm.bzl", "llvm")
+load("//cc/sysroots:sysroot.bzl", "sysroot")
 
 def cc_toolchain_deps():
     tool_archive(
@@ -54,7 +54,7 @@ def cc_toolchain_deps():
                 "@sysroot_linux_x86_64_glibc_2_31//:startup_libs": "linux_glibc_2_31",
                 "@sysroot_linux_x86_64_glibc_2_35//:startup_libs": "linux_glibc_2_35",
             },
-            build_file_tpl = Label("sysroot_linux.BUILD.tpl"),
+            build_file_tpl = Label("//cc/sysroots:sysroot_linux.BUILD.tpl"),
         )
 
     if "sysroot_linux_x86_64_glibc_2_27" not in native.existing_rules():
@@ -99,7 +99,7 @@ def cc_toolchain_deps():
                 "@sysroot_linux_aarch64_glibc_2_27//:startup_libs": "linux_glibc_2_27",
                 "@sysroot_linux_aarch64_glibc_2_31//:startup_libs": "linux_glibc_2_31",
             },
-            build_file_tpl = Label("sysroot_linux.BUILD.tpl"),
+            build_file_tpl = Label("//cc/sysroots:sysroot_linux.BUILD.tpl"),
         )
 
     if "sysroot_linux_aarch64_glibc_2_27" not in native.existing_rules():
@@ -146,7 +146,7 @@ def cc_toolchain_deps():
                 "@llvm20_linux_x86_64//:all": "20",
                 "@llvm21_linux_x86_64//:all": "21",
             },
-            build_file_tpl = Label("llvm_linux.BUILD.tpl"),
+            build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
 
     if "llvm18_linux_x86_64" not in native.existing_rules():
@@ -212,7 +212,7 @@ def cc_toolchain_deps():
                 "@llvm18_linux_aarch64//:all": "18",
                 "@llvm20_linux_aarch64//:all": "20",
             },
-            build_file_tpl = Label("llvm_linux.BUILD.tpl"),
+            build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
 
     if "llvm18_linux_aarch64" not in native.existing_rules():
@@ -248,7 +248,7 @@ def cc_toolchain_deps():
                 "@llvm18_darwin_aarch64//:all": "18",
                 "@llvm20_darwin_aarch64//:all": "20",
             },
-            build_file_tpl = Label("llvm_darwin.BUILD.tpl"),
+            build_file_tpl = Label("//cc/llvms:llvm_darwin.BUILD.tpl"),
         )
 
     if "llvm18_darwin_aarch64" not in native.existing_rules():
