@@ -21,7 +21,7 @@ This page addresses common issues and provides solutions to help you get started
 ```
 
 **Solution:**
-Reported error messages are connected to system headers in the /usr/include/ directory and system's GLIBC version.
+Reported error messages are connected to system headers in the /usr/include/ directory and GLIBC version.
 
 While a direct compatibility matrix for NVCC and GLIBC was elusive try to use the cuDNN compatibility table as a 
 reference: [Linux versions for cuDNN](https://docs.nvidia.com/deeplearning/cudnn/backend/latest/reference/support-matrix.html#linux)
