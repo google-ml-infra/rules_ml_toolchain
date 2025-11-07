@@ -117,8 +117,8 @@ filegroup(
     name = "objcopy",
     srcs = [
         ":wrappers",
-        "@llvm_linux_x86_64//:objcopy",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_aarch64//:objcopy",
+        "@llvm_linux_aarch64//:distro_libs",
     ],
 )
 
