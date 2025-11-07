@@ -233,7 +233,6 @@ def cc_toolchain_deps():
             name = "llvm20_linux_aarch64",
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.8/LLVM-20.1.8-Linux-ARM64.tar.xz"),
             sha256 = "b855cc17d935fdd83da82206b7a7cfc680095efd1e9e8182c4a05e761958bef8",
-            mirrored_tar_sha256 = "3c932449de47078a5a5c39499e1d741da6df29e767502803c1c7194022720a07",
             build_file = Label("//cc/config:llvm20_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-Linux-ARM64",
         )
