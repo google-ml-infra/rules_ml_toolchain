@@ -65,12 +65,12 @@ build:linux --repo_env=SYSROOT_DIST=linux_glibc_2_31
 
 Supported versions of LLVM
 
-| Version | Execution OS                               |
-|---------|---------------------------------------|
-| 18      | Linux x86_64 / aarch64, macOS aarch64 |
-| 19      | Linux x86_64                          |
-| 20      | Linux x86_64 / aarch64                |
-| 21      | Linux x86_64                          |
+| Version | Linux x86_64 | Linux aarch64 | macOS aarch64 |
+|---------|--------------|---------------|---------------|
+| 18      | x | x | x             |
+| 19      | x |   |               |
+| 20      | x | x |               |
+| 21      | x |   |               |
 
 Available sysroots
 
@@ -133,3 +133,6 @@ and allows build for such targets:
 
 `bazel build //cc/tests/cpu/... --platforms=//common:macos_aarch64`
 -->
+
+## Troubleshooting
+Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.
