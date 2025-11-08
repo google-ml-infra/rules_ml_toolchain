@@ -130,7 +130,7 @@ filegroup(
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
         "@llvm_linux_aarch64//:distro_libs",
-        "@llvm_linux_x86_64//:asan_ignorelist",
+        "@llvm_linux_aarch64//:asan_ignorelist",
     ],
 )
 
