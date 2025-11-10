@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
 load("//gpu/cuda:enable_cuda_flag.bzl", "enable_cuda_flag")
 
 package(default_visibility = ["//visibility:public"])
@@ -116,4 +116,36 @@ config_setting(
     flag_values = {
         ":enable_sycl": "False",
     },
+)
+
+#######################################################
+# Sanitizer flags
+
+string_flag(
+    name = "sanitize",
+)
+
+config_setting(
+    name = "sanitize_address",
+    flag_values = { "sanitize": "address" },
+)
+
+config_setting(
+    name = "sanitize_undefined",
+    flag_values = { "sanitize": "undefined" },
+)
+
+config_setting(
+    name = "sanitize_thread",
+    flag_values = { "sanitize": "thread" },
+)
+
+config_setting(
+    name = "sanitize_memory",
+    flag_values = { "sanitize": "memory" },
+)
+
+config_setting(
+    name = "sanitize_leak",
+    flag_values = { "sanitize": "leak" },
 )
