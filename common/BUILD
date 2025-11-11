@@ -123,6 +123,7 @@ config_setting(
 
 string_flag(
     name = "sanitize",
+    build_setting_default = "",
 )
 
 config_setting(

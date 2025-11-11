@@ -136,6 +136,9 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:hermetic_libraries",
         ":imports_feature",
 
+        # C++ utilities
+        "//cc/features:sanitizer",
+
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",
         "//third_party/rules_cc_toolchain/features:errors",
