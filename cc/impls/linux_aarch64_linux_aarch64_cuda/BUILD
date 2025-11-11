@@ -96,8 +96,7 @@ cc_toolchain_import(
         "@sysroot_linux_aarch64//:includes_c",
         "@llvm_linux_aarch64//:includes",
         "@sysroot_linux_aarch64//:includes_system",
-        "@sysroot_linux_aarch64//:glibc",
-        "@sysroot_linux_aarch64//:pthread",
+        "@sysroot_linux_aarch64//:libs",
         "@llvm_linux_aarch64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
@@ -131,6 +130,7 @@ filegroup(
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
         "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:asan_ignorelist",
     ],
 )
 

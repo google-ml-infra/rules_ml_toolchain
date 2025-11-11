@@ -169,6 +169,15 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
+    name = "asan",
+    additional_libs = glob([
+        "usr/lib/x86_64-linux-gnu/libasan*",
+        "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libasan*".format(gcc_version = GCC_VERSION),
+    ]),
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
     name = "libc",
     additional_libs = [
         "lib/x86_64-linux-gnu/libc.so.6",
@@ -190,10 +199,12 @@ cc_toolchain_import(
 # This is a group of all the system libraries we need. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "glibc",
+    name = "libs",
     visibility = ["//visibility:public"],
     deps = [
         ":dynamic_linker",
         ":libc",
+        ":pthread",
+        ":asan",
     ],
 )

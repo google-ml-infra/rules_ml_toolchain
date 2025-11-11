@@ -20,6 +20,8 @@ load(
     "cc_toolchain_sysroot_feature",
 )
 
+#load(":sanitizer_feature.bzl", "cc_sanitizer_feature")
+
 package(
     default_visibility = [
         "//cc/impls/darwin_aarch64_darwin_aarch64:__pkg__",
@@ -173,4 +175,26 @@ cc_feature(
 
 cc_feature(
     name = "opt",
+)
+
+# TODO: Remove -g flag
+cc_feature(
+    name = "sanitizer",
+    compiler_flags = select({
+        "//common:sanitize_address": ["-fno-PIE", "-g", "-fsanitize=address", "-mllvm", "-asan-force-dynamic-shadow=1"],
+        "//common:sanitize_undefined": ["-g", "-fsanitize=undefined"],
+        "//common:sanitize_thread": ["-g", "-fsanitize=thread"],
+        "//common:sanitize_memory": ["-g", "-fsanitize=memory"],
+        "//common:sanitize_leak": ["-g", "-fsanitize=leak"],
+        "//conditions:default": [],
+    }),
+    linker_flags = select({
+        "//common:sanitize_address": ["-g", "-lrt", "-l:libasan.a"],
+        "//common:sanitize_undefined": ["-g", "-lrt", "-l:libasan.a"],
+        "//common:sanitize_thread": ["-g", "-lrt", "-l:libasan.a"],
+        "//common:sanitize_memory": ["-g", "-lrt", "-l:libasan.a"],
+        "//common:sanitize_leak": ["-g", "-lrt", "-l:libasan.a"],
+        "//conditions:default": [],
+    }),
+    enabled = True,
 )
