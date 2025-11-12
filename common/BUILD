@@ -15,8 +15,24 @@
 
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("//gpu/cuda:enable_cuda_flag.bzl", "enable_cuda_flag")
+#load(":toolchain_config.bzl", "extended_toolchain")
 
 package(default_visibility = ["//visibility:public"])
+
+constraint_setting(
+    name = "toolchain_mode",
+    default_constraint_value = ":essential",
+)
+
+constraint_value(
+    name = "essential",
+    constraint_setting = ":toolchain_mode",
+)
+
+constraint_value(
+    name = "extended",
+    constraint_setting = ":toolchain_mode",
+)
 
 #######################################################
 # Platforms definition
@@ -25,6 +41,16 @@ platform(
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
+        ":essential",
+    ],
+)
+
+platform(
+    name = "linux_x86_64_ext",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        ":extended",
     ],
 )
 
