@@ -48,6 +48,17 @@ cc_import(
     shared_library = ":fake_libcuda_binary",
 )
 %{multiline_comment}
+filegroup(
+    name = "umd_files",
+    srcs = [
+        %{comment}"lib/libcuda.so.%{libcuda_version}",
+        %{comment}"lib/libcuda.so.1",
+        %{comment}"lib/libcuda.so",
+        %{comment}"lib/libnvidia-ptxjitcompiler.so.%{libcuda_version}",
+        %{comment}"lib/libnvidia-ptxjitcompiler.so.1",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 cc_library(
     name = "nvidia_driver",
@@ -80,7 +91,7 @@ config_setting(
     flag_values = {":include_cuda_umd_libs": "True"},
 )
 
-# DEPRECATED, NO-OP: use the flag --@cuda_driver//:include_cuda_umd_libs instead
+# DEPRECATED: use the flag --@cuda_driver//:include_cuda_umd_libs instead
 # See the instructions in the paragraph 5 of the doc
 # https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/README.md#configure-hermetic-cuda-cudnn-and-nccl
 alias(
