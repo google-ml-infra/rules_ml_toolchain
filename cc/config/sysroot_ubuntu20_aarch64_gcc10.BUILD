@@ -175,7 +175,7 @@ cc_toolchain_import(
 # This is a group of all the system libraries we need. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "libs",
+    name = "syslibs",
     runtime_path = "/lib/aarch64-linux-gnu",
     visibility = ["//visibility:public"],
     deps = [

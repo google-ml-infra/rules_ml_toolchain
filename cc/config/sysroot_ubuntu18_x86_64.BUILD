@@ -151,10 +151,10 @@ cc_toolchain_import(
     ],
     shared_library = "usr/lib/x86_64-linux-gnu/libpthread.so",
     static_library = "usr/lib/x86_64-linux-gnu/libpthread.a",
-    visibility = ["//visibility:public"],
     deps = [
         ":libc",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
@@ -162,9 +162,9 @@ cc_toolchain_import(
     additional_libs = [
         "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/x86_64-linux-gnu/librt.so.1",
-        "usr/lib/x86_64-linux-gnu/librt.so",
-        "usr/lib/x86_64-linux-gnu/librt.a",
     ],
+    shared_library = "usr/lib/x86_64-linux-gnu/librt.so",
+    static_library = "usr/lib/x86_64-linux-gnu/librt.a",
     visibility = ["//visibility:private"],
 )
 
@@ -177,7 +177,6 @@ cc_toolchain_import(
     ],
     shared_library = "usr/lib/x86_64-linux-gnu/libc.so",
     static_library = "usr/lib/x86_64-linux-gnu/libc.a",
-    visibility = ["//visibility:public"],
     deps = [
         ":gcc",
         ":math",
@@ -185,16 +184,36 @@ cc_toolchain_import(
         ":stdc++fs",
         ":rt",
     ],
+    visibility = ["//visibility:public"],
 )
 
-# This is a group of all the system libraries we need. The actual glibc library is split
+# This is a group of essential the system libraries. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "libs",
-    visibility = ["//visibility:public"],
+    name = "syslibs",
     deps = [
         ":dynamic_linker",
         ":libc",
         ":pthread",
     ],
+    visibility = ["//visibility:public"],
+)
+
+#============================================================================================
+# Extra libraries
+#============================================================================================
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/x86_64-linux-gnu/libgomp*",
+        "usr/lib/x86_64-linux-gnu/libomp*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_import(
+    name = "openmp_import",
+    shared_library = "usr/lib/x86_64-linux-gnu/libomp.so.5",
+    visibility = ["//visibility:public"],
 )

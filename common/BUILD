@@ -59,6 +59,16 @@ platform(
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:aarch64",
+        ":essential",
+    ],
+)
+
+platform(
+    name = "linux_aarch64_ext",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+        ":extended",
     ],
 )
 

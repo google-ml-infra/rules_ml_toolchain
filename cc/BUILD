@@ -27,7 +27,7 @@ package(
 
 # Extended
 toolchain(
-    name = "1_linux_x86_64_linux_x86_64_ext",
+    name = "05_linux_x86_64_linux_x86_64_ext",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -42,13 +42,13 @@ toolchain(
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
-    toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain_extended",
+    toolchain = "//cc/impls/linux_x86_64_linux_x86_64_ext:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
 # Essentials
 toolchain(
-    name = "2_linux_x86_64_linux_x86_64",
+    name = "10_linux_x86_64_linux_x86_64",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -71,8 +71,9 @@ toolchain(
 # Tools: Linux aarch64, Sysroot: Linux aarch64
 #=====================================================================
 
+# Extended
 toolchain(
-    name = "linux_aarch64_linux_aarch64",
+    name = "15_linux_aarch64_linux_aarch64",
     exec_compatible_with = [
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
@@ -80,6 +81,28 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
+        "//common:extended",
+    ],
+    target_settings = [
+        "//common:is_cuda_disabled",
+        "//common:is_sycl_disabled",
+        "//common:is_hermetic_cc_enabled",
+    ],
+    toolchain = "//cc/impls/linux_aarch64_linux_aarch64_ext:toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+# Essentials
+toolchain(
+    name = "20_linux_aarch64_linux_aarch64",
+    exec_compatible_with = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:linux",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:linux",
+        "//common:essential",
     ],
     target_settings = [
         "//common:is_cuda_disabled",

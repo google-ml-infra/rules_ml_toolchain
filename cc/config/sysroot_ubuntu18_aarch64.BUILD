@@ -88,7 +88,6 @@ cc_toolchain_import(
         "lib/aarch64-linux-gnu/libgcc_s.so.1",
         "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
     ],
-    runtime_path = "/usr/lib/aarch64-linux-gnu",
     shared_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_s.so".format(gcc_version = GCC_VERSION),
     static_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
@@ -116,10 +115,10 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "dynamic_linker",
     additional_libs = [
+        "lib/ld-linux-aarch64.so.1",
         "lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
         "lib/aarch64-linux-gnu/ld-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
     ],
-    runtime_path = "/lib64",
     shared_library = "usr/lib/aarch64-linux-gnu/libdl.so",
     static_library = "usr/lib/aarch64-linux-gnu/libdl.a",
     deps = [":libc"],
@@ -153,9 +152,9 @@ cc_toolchain_import(
     additional_libs = [
         "lib/aarch64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/aarch64-linux-gnu/librt.so.1",
-        "usr/lib/aarch64-linux-gnu/librt.so",
-        "usr/lib/aarch64-linux-gnu/librt.a",
     ],
+    shared_library = "usr/lib/aarch64-linux-gnu/librt.so",
+    static_library = "usr/lib/aarch64-linux-gnu/librt.a",
     visibility = ["//visibility:private"],
 )
 
@@ -163,15 +162,11 @@ cc_toolchain_import(
     name = "libc",
     additional_libs = [
         "lib/aarch64-linux-gnu/libc.so.6",
+        "lib/aarch64-linux-gnu/libc-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "usr/lib/aarch64-linux-gnu/libc_nonshared.a",
     ],
-    runtime_path = "/usr/lib/gcc/aarch64-linux-gnu/{gcc_version}".format(gcc_version = GCC_VERSION),
     shared_library = "usr/lib/aarch64-linux-gnu/libc.so",
     static_library = "usr/lib/aarch64-linux-gnu/libc.a",
-    #target_compatible_with = select({
-    #    "@platforms//os:linux": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
     deps = [
         ":gcc",
@@ -185,12 +180,31 @@ cc_toolchain_import(
 # This is a group of all the system libraries we need. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "libs",
-    runtime_path = "/lib/aarch64-linux-gnu",
+    name = "syslibs",
     visibility = ["//visibility:public"],
     deps = [
         ":dynamic_linker",
         ":libc",
         ":pthread",
     ],
+)
+
+##############################################################################################
+# Extra libraries
+##############################################################################################
+
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/aarch64-linux-gnu/libgomp*",
+        "usr/lib/aarch64-linux-gnu/libomp*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_import(
+    name = "openmp_import",
+    shared_library = "usr/lib/aarch64-linux-gnu/libomp.so",
+    visibility = ["//visibility:public"],
 )
