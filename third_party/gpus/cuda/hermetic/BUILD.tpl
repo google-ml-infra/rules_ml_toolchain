@@ -326,10 +326,9 @@ selects.config_setting_group(
     ],
 )
 
-cc_library(
-    # This is not yet fully supported, but we need the rule
-    # to make bazel query happy.
+alias(
     name = "nvptxcompiler",
+    actual = "@cuda_nvcc//:nvptxcompiler",
 )
 
 alias(
