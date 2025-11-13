@@ -107,11 +107,11 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "31a285faccb6996c16acde8ef6841841d591f73196dc5b7bdd9cf55b7f0c35a1",
-            mirrored_tar_sha256 = "23989e1c4184b472ffcacf04cfeb7c9e108cb4126aeadb8a326597795b47f175",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4-0.1.0.tar.xz"),
+            sha256 = "6168a4d40caed088a59c7c9f3c99900e1795002e8aaca43522a6391c05988c2e",
+            mirrored_tar_sha256 = "854dce12fa5a92001ac728f6b7a2101b3cdb0356b83e987022aaa7b2a4b77202",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4-0.2.0.tar.xz"),
             build_file = Label("//cc/config:sysroot_ubuntu18_aarch64.BUILD"),
-            strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4-0.1.0",
+            strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4-0.2.0",
         )
 
     if "sysroot_linux_aarch64_glibc_2_31" not in native.existing_rules():
