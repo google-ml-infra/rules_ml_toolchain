@@ -60,7 +60,7 @@ def _rpath_feature(ctx):
                     _iterate_flag_group(
                         iterate_over = "runtime_library_search_directories",
                         flags = [
-                            "-Wl,-rpath,$ORIGIN/../../%{runtime_library_search_directories}",
+                            "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
                         ],
                     ),
                 ],
