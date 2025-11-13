@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_is_configured")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 
@@ -49,7 +50,7 @@ cc_import(
 )
 %{multiline_comment}
 filegroup(
-    name = "umd_files",
+    name = "umd_libs",
     srcs = [
         %{comment}"lib/libcuda.so.%{libcuda_version}",
         %{comment}"lib/libcuda.so.1",
@@ -83,7 +84,7 @@ cc_library(
 # Flag indicating whether we should use hermetic user mode driver.
 bool_flag(
     name = "include_cuda_umd_libs",
-    build_setting_default = True,
+    build_setting_default = if_cuda_is_configured(True, False),
 )
 
 config_setting(
