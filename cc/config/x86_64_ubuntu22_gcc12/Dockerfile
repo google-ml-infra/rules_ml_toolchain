@@ -1,5 +1,5 @@
 # Create docker image from Dockerfile
-# docker build -t sysroot_ubuntu22-x86_64:latest -f ./sysroot_ubuntu22-x86_64.Dockerfile .
+# docker build -t sysroot_ubuntu22-x86_64:latest -f ./Dockerfile .
 
 # Run docker image
 # docker run -it sysroot_ubuntu22-x86_64

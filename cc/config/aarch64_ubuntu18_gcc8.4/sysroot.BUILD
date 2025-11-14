@@ -30,6 +30,9 @@ sysroot_package(
 GCC_VERSION = 8
 GLIBC_VERSION = "2.27"
 
+# Details about C RunTime (CRT) objects:
+# https://docs.oracle.com/cd/E88353_01/html/E37853/crt1.o-7.html
+# https://dev.gentoo.org/~vapier/crt.txt
 CRT_OBJECTS = [
     "crti",
     "crtn",
