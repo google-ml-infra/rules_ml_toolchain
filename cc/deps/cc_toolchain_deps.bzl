@@ -107,8 +107,8 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "6168a4d40caed088a59c7c9f3c99900e1795002e8aaca43522a6391c05988c2e",
-            mirrored_tar_sha256 = "854dce12fa5a92001ac728f6b7a2101b3cdb0356b83e987022aaa7b2a4b77202",
+            sha256 = "d25f482563ced623738ec140c3a59dcab37176ad72ceffed7538f559340f189b",
+            mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4-0.2.0.tar.xz"),
             build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4-0.2.0",
