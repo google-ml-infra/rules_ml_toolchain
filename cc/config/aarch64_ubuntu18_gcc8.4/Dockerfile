@@ -26,7 +26,7 @@ RUN rm -rf /usr/include/aarch64-linux-gnu/c++/7.5.0
 RUN rm -rf /usr/include/aarch64-linux-gnu/c++/7
 RUN rm -rf /usr/lib/gcc/aarch64-linux-gnu/7
 
-# Replace absulte links by relative in /usr/lib/aarch64-linux-gnu/ directory
+# Replace absolute links by relative in /usr/lib/aarch64-linux-gnu/ directory
 WORKDIR /usr/lib/aarch64-linux-gnu
 
 # /usr/lib/aarch64-linux-gnu/libBrokenLocale.so -> /lib/aarch64-linux-gnu/libBrokenLocale.so.1
