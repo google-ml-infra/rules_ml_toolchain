@@ -46,27 +46,6 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-# Target platform: Linux x86_64, Extended toolchain
-toolchain(
-    name = "linux_x86_64_linux_x86_64_ext",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-        "//common:extended",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//cc/impls/linux_x86_64_linux_x86_64_ext:toolchain",
-    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-)
-
 # Target platform: Linux x86_64, CUDA
 toolchain(
     name = "linux_x86_64_linux_x86_64_cuda",
@@ -169,27 +148,6 @@ toolchain(
         "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//cc/impls/linux_aarch64_linux_aarch64:toolchain",
-    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-)
-
-# Target platform: Linux aarch64, Extended toolchain
-toolchain(
-    name = "linux_aarch64_linux_aarch64_ext",
-    exec_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-        "//common:extended",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//cc/impls/linux_aarch64_linux_aarch64_ext:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
