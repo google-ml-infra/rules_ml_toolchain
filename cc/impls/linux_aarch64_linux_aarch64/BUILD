@@ -49,6 +49,7 @@ cc_toolchain_import(
         "@llvm_linux_aarch64//:includes",
         "@sysroot_linux_aarch64//:includes_system",
         "@sysroot_linux_aarch64//:syslibs",
+        "@sysroot_linux_aarch64//:openmp",
     ],
     visibility = ["//visibility:public"],
 )
