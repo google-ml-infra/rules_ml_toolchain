@@ -35,7 +35,6 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
-        "//common:essential",
     ],
     target_settings = [
         "//common:is_cuda_disabled",
@@ -140,7 +139,6 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
-        "//common:essential",
     ],
     target_settings = [
         "//common:is_cuda_disabled",
