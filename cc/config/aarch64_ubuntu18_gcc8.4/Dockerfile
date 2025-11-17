@@ -64,4 +64,6 @@ RUN ln -sfn ../../../lib/aarch64-linux-gnu/libthread_db.so.1 ./libthread_db.so
 # /usr/lib/aarch64-linux-gnu/libutil.so -> /lib/aarch64-linux-gnu/libutil.so.1
 RUN ln -sfn ../../../lib/aarch64-linux-gnu/libutil.so.1 ./libutil.so
 
+COPY libc.so /usr/lib/aarch64-linux-gnu/libc.so
+
 WORKDIR /root
