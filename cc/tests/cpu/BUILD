@@ -233,7 +233,7 @@ cc_test(
     ],
     linkopts = [
         "-fopenmp",
-        "-lomp",
+        "-lomp-imported",
     ],
 )
 
