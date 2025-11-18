@@ -76,10 +76,16 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_aarch64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_aarch64//:startup_libs",
+    toolchain_import = ":startup_libs",
 )
 
 # buildifier: leave-alone
