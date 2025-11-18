@@ -163,8 +163,8 @@ def cc_toolchain_deps():
                 "lib/libtinfo5-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/copyright.txt"],
             },
             remote_file_integrity = {
-                "lib/libtinfo.so.5": "sha256-1VWM1BnI1GvclYBky5f5Y9HqeThmQUwCWQbsFQM1Eu0=",
-                "lib/libtinfo5-copyright.txt": "sha256-1VWM1BnI1GvclYBky5f5Y9HqeThmQUwCWQbsFQM1Eu0=",
+                "lib/libtinfo.so.5": "sha256-Es/8cnQZDKFpOlLM2DA+cZQH5wfIVX3ft+74HyCO+qs=",
+                "lib/libtinfo5-copyright.txt": "sha256-Xo7pAsiQbdt3ef023Jl5ywi1H76/fAsamut4rzgq9ZA=",
             },
         )
 
