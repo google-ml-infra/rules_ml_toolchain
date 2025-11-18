@@ -214,6 +214,6 @@ cc_toolchain_import(
 
 cc_import(
     name = "openmp_import",
-    shared_library = "usr/lib/x86_64-linux-gnu/libomp.so.5",
+    shared_library = "usr/lib/x86_64-linux-gnu/libomp-imported.so.5",
     visibility = ["//visibility:public"],
 )

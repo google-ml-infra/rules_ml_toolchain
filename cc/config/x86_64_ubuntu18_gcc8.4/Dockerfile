@@ -19,7 +19,8 @@ RUN apt-get update
 RUN apt-get -y install \
     build-essential \
     gcc-8 g++-8 \
-    libomp-dev
+    libomp-dev \
+    patchelf
 
 RUN rm -rf /usr/include/c++/7.5.0
 RUN rm -rf /usr/include/c++/7
@@ -71,5 +72,10 @@ RUN ln -sfn ../../../lib/x86_64-linux-gnu/libanl.so.1 ./libanl.so
 RUN ln -sfn ../../../lib/x86_64-linux-gnu/libdl.so.2 ./libdl.so
 # /usr/lib/x86_64-linux-gnu/libmvec.so -> /lib/x86_64-linux-gnu/libmvec.so.1
 RUN ln -sfn ../../../lib/x86_64-linux-gnu/libmvec.so.1 ./libmvec.so
+
+# Patch libomp.so.5 to custom soname for import
+RUN rm libomp.so
+RUN patchelf --set-soname libomp-imported.so.5 libomp.so.5
+RUN mv libomp.so.5 libomp-imported.so.5
 
 WORKDIR /root

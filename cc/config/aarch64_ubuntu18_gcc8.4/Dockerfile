@@ -18,7 +18,8 @@ FROM arm64v8/ubuntu:bionic
 RUN apt-get update && apt-get -y install \
     build-essential \
     gcc-8 g++-8 \
-    libomp-dev
+    libomp-dev \
+    patchelf
 
 RUN rm -rf /usr/include/c++/7.5.0
 RUN rm -rf /usr/include/c++/7
@@ -64,6 +65,9 @@ RUN ln -sfn ../../../lib/aarch64-linux-gnu/libthread_db.so.1 ./libthread_db.so
 # /usr/lib/aarch64-linux-gnu/libutil.so -> /lib/aarch64-linux-gnu/libutil.so.1
 RUN ln -sfn ../../../lib/aarch64-linux-gnu/libutil.so.1 ./libutil.so
 
-COPY libc.so /usr/lib/aarch64-linux-gnu/libc.so
+# Patch libomp.so.5 to custom soname for import
+RUN rm libomp.so
+RUN patchelf --set-soname libomp-imported.so.5 libomp.so.5
+RUN mv libomp.so.5 libomp-imported.so.5
 
 WORKDIR /root
