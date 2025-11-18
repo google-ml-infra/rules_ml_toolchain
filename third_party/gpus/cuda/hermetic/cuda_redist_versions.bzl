@@ -497,8 +497,9 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cudnn": {
         "repo_name": "cuda_cudnn",
         "version_to_template": {
-            "9": "//third_party/gpus/cuda/hermetic:cuda_cudnn9.BUILD.tpl",
-            "8": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "10": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "9": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "8": "//third_party/gpus/cuda/hermetic:cuda_cudnn8.BUILD.tpl",
         },
     },
     "libcublas": {
