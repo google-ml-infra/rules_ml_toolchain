@@ -66,3 +66,9 @@ alias(
     actual = "@@%{sysroot_repo_name}//:openmp_import",
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "openmp_import_lib",
+    actual = "@@%{sysroot_repo_name}//:openmp_import_lib",
+    visibility = ["//visibility:public"],
+)
