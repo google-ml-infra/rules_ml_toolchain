@@ -217,3 +217,9 @@ cc_import(
     shared_library = "usr/lib/x86_64-linux-gnu/libomp-imported.so.5",
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "openmp_import_lib",
+    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-imported.so.5" ],
+    visibility = ["//visibility:public"],
+)

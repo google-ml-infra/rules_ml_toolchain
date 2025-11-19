@@ -192,10 +192,9 @@ cc_toolchain_import(
     ],
 )
 
-##############################################################################################
+#============================================================================================
 # Extra libraries
-##############################################################################################
-
+#============================================================================================
 # Application Programming Interface (API) for shared-memory parallel programming.
 cc_toolchain_import(
     name = "openmp",
@@ -209,5 +208,11 @@ cc_toolchain_import(
 cc_import(
     name = "openmp_import",
     shared_library = "usr/lib/aarch64-linux-gnu/libomp-imported.so.5",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "openmp_import_lib",
+    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-imported.so.5" ],
     visibility = ["//visibility:public"],
 )

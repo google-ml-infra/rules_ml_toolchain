@@ -11,3 +11,12 @@ alias(
     }),
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "openmp_lib",
+    actual = select({
+        "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_import_lib",
+        "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_import_lib",
+    }),
+    visibility = ["//visibility:public"],
+)
