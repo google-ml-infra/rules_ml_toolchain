@@ -207,12 +207,12 @@ cc_toolchain_import(
 
 cc_import(
     name = "openmp_import",
-    shared_library = "usr/lib/aarch64-linux-gnu/libomp-imported.so.5",
+    shared_library = "usr/lib/aarch64-linux-gnu/libomp-imported.so",
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "openmp_import_lib",
-    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-imported.so.5" ],
+    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-imported.so" ],
     visibility = ["//visibility:public"],
 )

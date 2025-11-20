@@ -66,8 +66,8 @@ RUN ln -sfn ../../../lib/aarch64-linux-gnu/libthread_db.so.1 ./libthread_db.so
 RUN ln -sfn ../../../lib/aarch64-linux-gnu/libutil.so.1 ./libutil.so
 
 # Patch libomp.so.5 to custom soname for import
-RUN cp libomp.so.5 libomp-imported.so.5
-RUN patchelf --set-soname libomp-imported.so.5 libomp-imported.so.5
+RUN cp libomp.so.5 libomp-imported.so
+RUN patchelf --set-soname libomp-imported.so.5 libomp-imported.so
 #RUN ln -s ./libomp-imported.so.5 ./libomp-imported.so
 
 WORKDIR /root

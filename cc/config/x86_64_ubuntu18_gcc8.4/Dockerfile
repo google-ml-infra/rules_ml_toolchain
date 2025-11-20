@@ -74,8 +74,8 @@ RUN ln -sfn ../../../lib/x86_64-linux-gnu/libdl.so.2 ./libdl.so
 RUN ln -sfn ../../../lib/x86_64-linux-gnu/libmvec.so.1 ./libmvec.so
 
 # Patch libomp.so.5 to custom soname for import
-RUN cp libomp.so.5 libomp-imported.so.5
-RUN patchelf --set-soname libomp-imported.so.5 libomp-imported.so.5
+RUN cp libomp.so.5 libomp-imported.so
+RUN patchelf --set-soname libomp-imported.so.5 libomp-imported.so
 #RUN ln -s ./libomp-imported.so.5 ./libomp-imported.so
 
 WORKDIR /root
