@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_is_configured")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 
@@ -48,6 +49,17 @@ cc_import(
     shared_library = ":fake_libcuda_binary",
 )
 %{multiline_comment}
+filegroup(
+    name = "umd_libs",
+    srcs = [
+        %{comment}"lib/libcuda.so.%{libcuda_version}",
+        %{comment}"lib/libcuda.so.1",
+        %{comment}"lib/libcuda.so",
+        %{comment}"lib/libnvidia-ptxjitcompiler.so.%{libcuda_version}",
+        %{comment}"lib/libnvidia-ptxjitcompiler.so.1",
+    ],
+    visibility = ["//visibility:public"],
+)
 
 cc_library(
     name = "nvidia_driver",
@@ -72,7 +84,7 @@ cc_library(
 # Flag indicating whether we should use hermetic user mode driver.
 bool_flag(
     name = "include_cuda_umd_libs",
-    build_setting_default = True,
+    build_setting_default = if_cuda_is_configured(True, False),
 )
 
 config_setting(
@@ -80,7 +92,7 @@ config_setting(
     flag_values = {":include_cuda_umd_libs": "True"},
 )
 
-# DEPRECATED, NO-OP: use the flag --@cuda_driver//:include_cuda_umd_libs instead
+# DEPRECATED: use the flag --@cuda_driver//:include_cuda_umd_libs instead
 # See the instructions in the paragraph 5 of the doc
 # https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/README.md#configure-hermetic-cuda-cudnn-and-nccl
 alias(
