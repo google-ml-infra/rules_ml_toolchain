@@ -62,12 +62,12 @@ def cc_toolchain_deps():
         # TODO: !!!!!!!!!!!!!!! Add C++ patch !!!!!!!!!!!!!!!!
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_27",
-            sha256 = "a194c79bba874e6ec5114f1f9ce4b055c69814c3c459276c23330fe788d2dce6",
+            sha256 = "fdcd87dd7ec82e2c30f7e451a7a20ebeb26ee736e36b0dd2d6e75c96d4c3a098",
             #mirrored_tar_sha256 = "18496de0f6eb0dd4cfbab4b618c0a50e8082989779acd048b68e760bf4d5b7d5",
             #urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu18_gcc8.4-0.2.0.tar.xz"),
-            urls = ["https://storage.googleapis.com/ml-sysroot-testing/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"],
+            urls = ["https://storage.googleapis.com/ml-sysroot-testing/x86_64_ubuntu18_gcc8.4-0.2.2.tar.xz"],
             build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
-            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.1",
+            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.2",
         )
 
     if "sysroot_linux_x86_64_glibc_2_31" not in native.existing_rules():
@@ -108,12 +108,12 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "a16b53cbea0342d23327558f6b5fa5c06f75b6cfa4e27aa59af36029ab41de4c",
+            sha256 = "4988aa6a62b6580551d5c5ccc9a5344c93b9a4f3d9d6083b3ab1a4421f71d40d",
             # TODO: Add mirror
             # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
-            urls = ["https://storage.googleapis.com/ml-sysroot-testing/aarch64_ubuntu18_gcc8.4-0.2.1.tar.xz"],
+            urls = ["https://storage.googleapis.com/ml-sysroot-testing/aarch64_ubuntu18_gcc8.4-0.2.2.tar.xz"],
             build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
-            strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.1",
+            strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.2",
         )
 
     if "sysroot_linux_aarch64_glibc_2_31" not in native.existing_rules():
