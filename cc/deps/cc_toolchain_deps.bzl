@@ -108,7 +108,7 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "4988aa6a62b6580551d5c5ccc9a5344c93b9a4f3d9d6083b3ab1a4421f71d40d",
+            sha256 = "59cab70edcf60eb147fa9f7295de892ceee1b87af6b5e15e5c878730e2bf2a29",
             # TODO: Add mirror
             # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
             urls = ["https://storage.googleapis.com/ml-sysroot-testing/aarch64_ubuntu18_gcc8.4-0.2.2.tar.xz"],
