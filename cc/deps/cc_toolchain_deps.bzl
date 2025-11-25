@@ -159,8 +159,8 @@ def cc_toolchain_deps():
             build_file = Label("//cc/config:llvm18_linux_x86_64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
             remote_file_urls = {
-                "lib/libtinfo.so.5": ["https://github.com/yuriit-google/sysroots/raw/f890514a360cd1959c786402a8e794218b1be93f/archives/libtinfo.so.5"],
-                "lib/libtinfo5-copyright.txt": ["https://raw.githubusercontent.com/yuriit-google/sysroots/ba192c408e0f82c6c9a5b92712038edaa64326d6/archives/copyright"],
+                "lib/libtinfo.so.5": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/libtinfo.so.5"],
+                "lib/libtinfo5-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/copyright.txt"],
             },
             remote_file_integrity = {
                 "lib/libtinfo.so.5": "sha256-Es/8cnQZDKFpOlLM2DA+cZQH5wfIVX3ft+74HyCO+qs=",
@@ -211,6 +211,7 @@ def cc_toolchain_deps():
             versions = {
                 "@llvm18_linux_aarch64//:all": "18",
                 "@llvm20_linux_aarch64//:all": "20",
+                "@llvm21_linux_aarch64//:all": "21",
             },
             build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
@@ -235,6 +236,17 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "3c932449de47078a5a5c39499e1d741da6df29e767502803c1c7194022720a07",
             build_file = Label("//cc/config:llvm20_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-Linux-ARM64",
+        )
+
+    if "llvm21_linux_aarch64" not in native.existing_rules():
+        # LLVM 21 Linux aarch64
+        mirrored_http_archive(
+            name = "llvm21_linux_aarch64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.5/LLVM-21.1.5-Linux-ARM64.tar.xz"),
+            sha256 = "c9a1ee5d1a1698a8eb0abda1c1e44c812378aec32f89cc4fbbb41865237359a9",
+            mirrored_tar_sha256 = "559693d758ef8b6adddffbdf19fd69eb631cafed48d09099c9638ff820486f2c",
+            build_file = Label("//cc/config:llvm21_linux_aarch64.BUILD"),
+            strip_prefix = "LLVM-21.1.5-Linux-ARM64",
         )
 
     ################################################################
