@@ -49,17 +49,6 @@ cc_import(
     shared_library = ":fake_libcuda_binary",
 )
 %{multiline_comment}
-filegroup(
-    name = "umd_libs",
-    srcs = [
-        %{comment}"lib/libcuda.so.%{libcuda_version}",
-        %{comment}"lib/libcuda.so.1",
-        %{comment}"lib/libcuda.so",
-        %{comment}"lib/libnvidia-ptxjitcompiler.so.%{libcuda_version}",
-        %{comment}"lib/libnvidia-ptxjitcompiler.so.1",
-    ],
-    visibility = ["//visibility:public"],
-)
 
 cc_library(
     name = "nvidia_driver",
