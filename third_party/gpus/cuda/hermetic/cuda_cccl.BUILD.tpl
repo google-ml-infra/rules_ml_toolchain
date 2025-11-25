@@ -5,14 +5,21 @@ load(
 )
 load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")
 
-cc_library(
-    name = "headers",
-    hdrs = glob([
+filegroup(
+    name = "header_list",
+    srcs = glob([
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/cub/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/cuda/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/nv/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/thrust/**",
     ]),
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/gpus/cuda/include",
     includes = ["include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "")],
     strip_include_prefix = "include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", ""),

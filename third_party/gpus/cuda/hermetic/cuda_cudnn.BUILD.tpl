@@ -5,25 +5,25 @@ load(
 )
 
 %{multiline_comment}
-cc_import( 
+cc_import(
     name = "cudnn_ops",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_ops.so.%{libcudnn_ops_version}",
 )
 
-cc_import( 
+cc_import(
     name = "cudnn_cnn",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_cnn.so.%{libcudnn_cnn_version}",
 )
 
-cc_import( 
+cc_import(
     name = "cudnn_adv",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_adv.so.%{libcudnn_adv_version}",
 )
 
-cc_import( 
+cc_import(
     name = "cudnn_graph",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_graph.so.%{libcudnn_graph_version}",
@@ -55,6 +55,7 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "cudnn",
+    hdrs = [":header_list"],
     %{comment}deps = [
       %{comment}":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
@@ -70,11 +71,17 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "headers",
-    %{comment}hdrs = glob([
+filegroup(
+    name = "header_list",
+    %{comment}srcs = glob([
         %{comment}"include/cudnn*.h",
     %{comment}]),
+)
+
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/gpus/cudnn",
     includes = ["include"],
     strip_include_prefix = "include",

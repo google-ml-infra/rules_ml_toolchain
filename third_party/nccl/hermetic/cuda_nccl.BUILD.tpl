@@ -17,16 +17,22 @@ cc_import(
 %{multiline_comment}
 cc_library(
     name = "nccl",
+    hdrs = [":header_list"],
     %{comment}deps = [":nccl_shared_library"],
     %{comment}linkopts = cuda_rpath_flags("nvidia/nccl/lib"),
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "headers",
-    %{comment}hdrs = glob([
+filegroup(
+    name = "header_list",
+    %{comment}srcs = glob([
         %{comment}"include/nccl*.h",
     %{comment}]),
+)
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/nccl",
     includes = ["include/"],
     strip_include_prefix = "include",
