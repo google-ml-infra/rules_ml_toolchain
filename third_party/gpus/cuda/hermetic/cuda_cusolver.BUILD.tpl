@@ -32,11 +32,18 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "headers",
-    %{comment}hdrs = glob([
+
+filegroup(
+    name = "header_list",
+    %{comment}srcs = glob([
         %{comment}"include/cusolver*.h",
     %{comment}]),
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/gpus/cuda/include",
     includes = ["include"],
     strip_include_prefix = "include",

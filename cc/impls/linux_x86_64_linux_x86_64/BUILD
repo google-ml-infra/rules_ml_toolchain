@@ -190,4 +190,7 @@ cc_toolchain(
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_id",
+    # The crosstool.cppmap needs to be updated when the compiler or the sysroot gets updated.
+    # You can use the cc/gen_crosstool_cppmap.sh tool for that.
+    module_map = "crosstool.cppmap",
 )
