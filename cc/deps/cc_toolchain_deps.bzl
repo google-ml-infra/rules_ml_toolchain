@@ -62,12 +62,12 @@ def cc_toolchain_deps():
         # TODO: !!!!!!!!!!!!!!! Add C++ patch !!!!!!!!!!!!!!!!
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_27",
-            sha256 = "fdcd87dd7ec82e2c30f7e451a7a20ebeb26ee736e36b0dd2d6e75c96d4c3a098",
+            sha256 = "732bf44bb675b307040e8b95b5083c3a947baf417c7a563d7c22dea1e9329837",
             #mirrored_tar_sha256 = "18496de0f6eb0dd4cfbab4b618c0a50e8082989779acd048b68e760bf4d5b7d5",
             #urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu18_gcc8.4-0.2.0.tar.xz"),
-            urls = ["https://storage.googleapis.com/ml-sysroot-testing/x86_64_ubuntu18_gcc8.4-0.2.2.tar.xz"],
+            urls = ["https://storage.googleapis.com/ml-sysroot-testing/x86_64-ubuntu18/stage/x86_64_ubuntu18_gcc8.4-0.2.0.tar.xz"],
             build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
-            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.2",
+            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.0",
         )
 
     if "sysroot_linux_x86_64_glibc_2_31" not in native.existing_rules():
@@ -108,12 +108,12 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "59cab70edcf60eb147fa9f7295de892ceee1b87af6b5e15e5c878730e2bf2a29",
+            sha256 = "09e41e9f83ac391ce06f58fae029803fd91ec6f14f858ee1dae598e2c16f6035",
             # TODO: Add mirror
             # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
-            urls = ["https://storage.googleapis.com/ml-sysroot-testing/aarch64_ubuntu18_gcc8.4-0.2.2.tar.xz"],
+            urls = ["https://storage.googleapis.com/ml-sysroot-testing/aarch64-ubuntu18/stage/aarch64_ubuntu18_gcc8.4-0.2.0.tar.xz"],
             build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
-            strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.2",
+            strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.0",
         )
 
     if "sysroot_linux_aarch64_glibc_2_31" not in native.existing_rules():
