@@ -37,7 +37,6 @@ def _collect_cc_libraries_impl(ctx):
                 if lib.pic_static_library:
                     libs.append(lib.pic_static_library)
                 if lib.dynamic_library:
-                    #print("_collect_cc_libraries_impl: lib.dynamic_library: ", lib.dynamic_library)
                     libs.append(lib.dynamic_library)
 
     # Return the files via the DefaultInfo provider, making them available
