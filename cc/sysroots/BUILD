@@ -2,21 +2,30 @@
 # Not ManyLinux tag compliant libraries for usage in deps attribute
 #=====================================================================
 
-# Alias for OpenMP cc_import
+load(":collect_cc_libraries.bzl", "collect_cc_libraries")
+
 alias(
     name = "openmp",
     actual = select({
         "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_import",
         "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_import",
+
     }),
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "openmp_lib",
-    actual = select({
-        "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_import_lib",
-        "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_import_lib",
-    }),
-    visibility = ["//visibility:public"],
+collect_cc_libraries(
+    name = "openmp_libs",
+    deps = [
+        ":openmp",
+    ]
 )
+
+#alias(
+#    name = "openmp_lib",
+#    actual = select({
+#        "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_import_lib",
+#        "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_import_lib",
+#    }),
+#    visibility = ["//visibility:public"],
+#)
