@@ -74,6 +74,7 @@ cc_library(
 bool_flag(
     name = "include_cuda_umd_libs",
     build_setting_default = if_cuda_is_configured(True, False),
+    visibility = ["//visibility:public"],
 )
 
 config_setting(
