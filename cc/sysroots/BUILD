@@ -18,7 +18,8 @@ collect_cc_libraries(
     name = "openmp_libs",
     deps = [
         ":openmp",
-    ]
+    ],
+    visibility = ["//visibility:public"],
 )
 
 #alias(
