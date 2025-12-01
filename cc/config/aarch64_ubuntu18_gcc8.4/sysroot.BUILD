@@ -213,6 +213,6 @@ cc_import(
 
 filegroup(
     name = "openmp_copyright",
-    srcs = [ "usr/share/doc/libomp-dev/copyright" ],
+    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-copyright" ],
     visibility = ["//visibility:public"],
 )
