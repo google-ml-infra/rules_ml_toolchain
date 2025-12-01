@@ -57,6 +57,9 @@ rm -rf /tmp/$ARCH_NAME/usr/games
 rm -rf /tmp/$ARCH_NAME/usr/sbin
 rm -rf /tmp/$ARCH_NAME/usr/share
 rm -rf /tmp/$ARCH_NAME/usr/src
+rm -rf /tmp/$ARCH_NAME/usr/lib/gold-ld/ld
+rm -rf /tmp/$ARCH_NAME/usr/lib/compat-ld/ld
+rm -rf /tmp/$ARCH_NAME/usr/lib/bfd-plugins/liblto_plugin.so
 
 echo -e "\nCreating /tmp/$ARCH_NAME.tar.xz archive..."
 XZ_OPT="-T8"
