@@ -162,9 +162,9 @@ cc_toolchain_import(
     additional_libs = [
         "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/x86_64-linux-gnu/librt.so.1",
+        "usr/lib/x86_64-linux-gnu/librt.so",
+        "usr/lib/x86_64-linux-gnu/librt.a",
     ],
-    shared_library = "usr/lib/x86_64-linux-gnu/librt.so",
-    static_library = "usr/lib/x86_64-linux-gnu/librt.a",
     visibility = ["//visibility:private"],
 )
 
