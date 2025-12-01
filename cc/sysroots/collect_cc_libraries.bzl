@@ -24,20 +24,22 @@ def _collect_cc_libraries_impl(ctx):
 
     for dep in ctx.attr.deps:
 
-        if not CcInfo in dep:
-            fail("The target '{}' must provide CcInfo.".format(dep.label))
+        if CcInfo in dep:
+            cc_info = dep[CcInfo]
+            if not cc_info.linking_context or not cc_info.linking_context.linker_inputs:
+                continue
 
-        cc_info = dep[CcInfo]
-        if not cc_info.linking_context or not cc_info.linking_context.linker_inputs:
-            continue
-
-        for input in cc_info.linking_context.linker_inputs.to_list():
-            for lib in input.libraries:
-                # Check for PIC static library (.a) or dynamic library (.so)
-                if lib.pic_static_library:
-                    libs.append(lib.pic_static_library)
-                if lib.dynamic_library:
-                    libs.append(lib.dynamic_library)
+            for input in cc_info.linking_context.linker_inputs.to_list():
+                for lib in input.libraries:
+                    # Check for PIC static library (.a) or dynamic library (.so)
+                    if lib.pic_static_library:
+                        libs.append(lib.pic_static_library)
+                    if lib.dynamic_library:
+                        libs.append(lib.dynamic_library)
+        elif DefaultInfo in dep:
+            libs.append(dep[DefaultInfo].files)
+        else:
+            fail("The target '{}' must provide CcInfo or DefaultInfo.".format(dep.label))
 
     # Return the files via the DefaultInfo provider, making them available
     # to other rules that depend on this one.

@@ -182,3 +182,28 @@ cc_toolchain_import(
         ":pthread",
     ],
 )
+
+#============================================================================================
+# Extra libraries
+#============================================================================================
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/x86_64-linux-gnu/libgomp*",
+        "usr/lib/x86_64-linux-gnu/libomp*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_import(
+    name = "openmp_import",
+    shared_library = "usr/lib/x86_64-linux-gnu/libomp-hermetic.so",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "openmp_copyright",
+    srcs = [ "usr/share/doc/libomp-dev/copyright" ],
+    visibility = ["//visibility:public"],
+)

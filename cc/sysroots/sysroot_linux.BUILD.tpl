@@ -68,7 +68,7 @@ alias(
 )
 
 alias(
-    name = "openmp_import_lib",
-    actual = "@@%{sysroot_repo_name}//:openmp_import_lib",
+    name = "openmp_copyright",
+    actual = "@@%{sysroot_repo_name}//:openmp_copyright",
     visibility = ["//visibility:public"],
 )

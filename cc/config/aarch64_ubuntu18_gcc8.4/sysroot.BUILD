@@ -212,7 +212,7 @@ cc_import(
 )
 
 filegroup(
-    name = "openmp_import_lib",
-    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-hermetic.so" ],
+    name = "openmp_copyright",
+    srcs = [ "usr/share/doc/libomp-dev/copyright" ],
     visibility = ["//visibility:public"],
 )
