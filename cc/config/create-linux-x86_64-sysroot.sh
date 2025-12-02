@@ -15,6 +15,11 @@
 # limitations under the License.
 # ==============================================================================
 
+if [ ! -f "./Dockerfile" ]; then
+    echo "Error: The required Dockerfile was not found. Please create a symbolic link to this script under a specific sysroot directory, for example, \"x86_64_ubuntu22_gcc12\" or \"aarch64_ubuntu20_gcc10\" and then run it." >&2
+    exit 1
+fi
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <version>"
 fi
