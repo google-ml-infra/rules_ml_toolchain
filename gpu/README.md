@@ -10,14 +10,18 @@ versions.
 There are three types of hermetic toolkits configurations:
 
 1) Recommended: [Repository rules use redistributions loaded from NVIDIA repositories](#standard-redistributions).
+   
+   For full CUDA toolkit hermeticity, use CUDA User Mode Driver libraries loaded from NVIDIA repositories
+   by setting `--@cuda_driver//:include_cuda_umd_libs=true` (see [instructions](#hermetic-umd)).
+   
 
-2) [Repository rules use redistributions loaded from custom remote locations or
+3) [Repository rules use redistributions loaded from custom remote locations or
 local files](#custom-redistributions).
 
    This option is recommended for testing custom/unreleases redistributions, or
    redistributions previously loaded locally.
 
-3) Not recommended: [Repository rules use locally-installed toolkits](#local-toolkit-installation).
+4) Not recommended: [Repository rules use locally-installed toolkits](#local-toolkit-installation).
 
 
 ## 1) Standard redistributions loaded from NVIDIA repositories
@@ -174,52 +178,54 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    to test executables. The flag is false by default to avoid unwanted coupling
    of Google-released Python wheels to CUDA binaries.
 
-5. The NVIDIA driver contains both the user mode CUDA driver (UMD) and kernel
-   mode driver (KMD) necessary to run the application. Hermetic CUDA  toolchain
-   includes hermetic UMD libs.
+### Configure hermetic CUDA User Mode Driver {#hermetic-umd}
 
-   **The recommended approach is to enable complete CUDA hermeticity, including
-   CUDA UMD libs.**
+The NVIDIA driver contains both the user mode CUDA driver (UMD) and kernel
+mode driver (KMD) necessary to run the application. Hermetic CUDA  toolchain
+includes hermetic UMD libs.
 
-   To enforce complete hermeticity and link in hermetic CUDA UMD, use the flag
-   `--@cuda_driver//:include_cuda_umd_libs`. The default flag value is `false`.
+**The recommended approach is to enable complete CUDA hermeticity, including
+CUDA UMD libs.**
 
-   You can provide it either directly in a shell or in `.bazelrc`:
-   ```
-   test:cuda --@cuda_driver//:include_cuda_umd_libs=true
-   ```
+To enforce complete hermeticity and link in hermetic CUDA UMD, use the flag
+`--@cuda_driver//:include_cuda_umd_libs`. The default flag value is `false`.
 
-   The version of the User Mode Driver is controlled by the environment variable
-   `HERMETIC_CUDA_UMD_VERSION`. If it is not set, the version of
-   the User Mode Driver will be the same as specified in
-   `HERMETIC_CUDA_VERSION`.
+You can provide it either directly in a shell or in `.bazelrc`:
+```
+test:cuda --@cuda_driver//:include_cuda_umd_libs=true
+```
 
-   For example, the combination of the parameters below enables linking NVIDIA
-   Driver version 13.0.0, when one needs to build the target using CUDA toolkit
-   12.9.0.
+The version of the User Mode Driver is controlled by the environment variable
+`HERMETIC_CUDA_UMD_VERSION`. If it is not set, the version of
+the User Mode Driver will be the same as specified in
+`HERMETIC_CUDA_VERSION`.
 
-   ```
-   bazel build --repo_env=HERMETIC_CUDA_VERSION=12.9.0 \
-     --repo_env=HERMETIC_CUDA_UMD_VERSION=13.0.0 \
-     --@cuda_driver//:include_cuda_umd_libs=true \
-     ... \
-     -- \
-     <target>
-   ```
+For example, the combination of the parameters below enables linking NVIDIA
+Driver version 13.0.0, when one needs to build the target using CUDA toolkit
+12.9.0.
 
-   UMD version should be compatible with KMD and CUDA Runtime versions.
+```
+bazel build --repo_env=HERMETIC_CUDA_VERSION=12.9.0 \
+  --repo_env=HERMETIC_CUDA_UMD_VERSION=13.0.0 \
+  --@cuda_driver//:include_cuda_umd_libs=true \
+  ... \
+  -- \
+  <target>
+```
+
+UMD version should be compatible with KMD and CUDA Runtime versions.
 
 
-   - Supported Kernel Mode Driver and User Mode Driver version combinations:
-    
-     combination | result
-     -------- | --------
-     KMD version is higher than UMD version | Not supported
-     KMD version is equal to UMD version   | Supported, no restrictions
-     KMD version is lower than UMD version | Supported, no restrictions
-    
-   - UMD and CUDA Runtime versions compatibility is described in
-     [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
+- Supported Kernel Mode Driver and User Mode Driver version combinations:
+ 
+  combination | result
+  -------- | --------
+  KMD version is higher than UMD version | Not supported
+  KMD version is equal to UMD version   | Supported, no restrictions
+  KMD version is lower than UMD version | Supported, no restrictions
+ 
+- UMD and CUDA Runtime versions compatibility is described in
+  [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
 
 ### Configure hermetic NVSHMEM
 
