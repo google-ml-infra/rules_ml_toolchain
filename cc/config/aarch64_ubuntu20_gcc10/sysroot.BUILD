@@ -27,8 +27,8 @@ sysroot_package(
     visibility = ["//visibility:public"],
 )
 
-GCC_VERSION = 9
-GLIBC_VERSION = "2.27"
+GCC_VERSION = 10
+GLIBC_VERSION = "2.31"
 
 # Details about C RunTime (CRT) objects:
 # https://docs.oracle.com/cd/E88353_01/html/E37853/crt1.o-7.html
@@ -43,7 +43,7 @@ CRT_OBJECTS = [
 [
     cc_toolchain_import(
         name = obj,
-        static_library = "usr/lib/x86_64-linux-gnu/%s.o" % obj,
+        static_library = "usr/lib/aarch64-linux-gnu/%s.o" % obj,
     )
     for obj in CRT_OBJECTS
 ]
@@ -57,13 +57,13 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "includes_c",
     hdrs = glob([
-        "usr/include/c++/*/**",
-        "usr/include/x86_64-linux-gnu/c++/*/**",
+        "usr/include/c++/{gcc_version}/**".format(gcc_version = GCC_VERSION),
+        "usr/include/aarch64-linux-gnu/c++/{gcc_version}/*/**".format(gcc_version = GCC_VERSION),
         "usr/include/c++/{gcc_version}/experimental/**".format(gcc_version = GCC_VERSION),
     ]),
     includes = [
         "usr/include/c++/{gcc_version}".format(gcc_version = GCC_VERSION),
-        "usr/include/x86_64-linux-gnu/c++/{gcc_version}".format(gcc_version = GCC_VERSION),
+        "usr/include/aarch64-linux-gnu/c++/{gcc_version}".format(gcc_version = GCC_VERSION),
         "usr/include/c++/{gcc_version}/backward".format(gcc_version = GCC_VERSION),
         "usr/include/c++/{gcc_version}/experimental".format(gcc_version = GCC_VERSION),
     ],
@@ -74,12 +74,12 @@ cc_toolchain_import(
     name = "includes_system",
     hdrs = glob([
         "usr/local/include/**",
-        "usr/include/x86_64-linux-gnu/**",
+        "usr/include/aarch64-linux-gnu/**",
         "usr/include/**",
     ]),
     includes = [
         "usr/local/include",
-        "usr/include/x86_64-linux-gnu",
+        "usr/include/aarch64-linux-gnu",
         "usr/include",
     ],
     visibility = ["//visibility:public"],
@@ -88,61 +88,54 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "gcc",
     additional_libs = [
-        "lib/x86_64-linux-gnu/libgcc_s.so.1",
-        "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
+        "lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
     ],
-    shared_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libgcc_s.so".format(gcc_version = GCC_VERSION),
-    static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
+    runtime_path = "/usr/lib/aarch64-linux-gnu",
+    shared_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_s.so".format(gcc_version = GCC_VERSION),
+    static_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "stdc++",
     additional_libs = [
-        "usr/lib/x86_64-linux-gnu/libstdc++.so.6",
-        "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.32",
+        "usr/lib/aarch64-linux-gnu/libstdc++.so.6",
+        "usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.28",
     ],
-    shared_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.so".format(gcc_version = GCC_VERSION),
-    static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.a".format(gcc_version = GCC_VERSION),
+    shared_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libstdc++.so".format(gcc_version = GCC_VERSION),
+    static_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libstdc++.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "dynamic_linker",
     additional_libs = [
-        "lib64/ld-linux-x86-64.so.2",
-        "lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
-        "lib/x86_64-linux-gnu/ld-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
+        "lib/ld-linux-aarch64.so.1",
+        "lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        "lib/aarch64-linux-gnu/ld-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
     ],
-    shared_library = "usr/lib/x86_64-linux-gnu/libdl.so",
-    static_library = "usr/lib/x86_64-linux-gnu/libdl.a",
+    shared_library = "usr/lib/aarch64-linux-gnu/libdl.so",
+    static_library = "usr/lib/aarch64-linux-gnu/libdl.a",
     deps = [":libc"],
 )
 
 cc_toolchain_import(
     name = "math",
-    additional_libs = [
-        "lib/x86_64-linux-gnu/libm.so.6",
-        "lib/x86_64-linux-gnu/libmvec-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
-        "lib/x86_64-linux-gnu/libmvec.so.1",
-        "usr/lib/x86_64-linux-gnu/libm-{glibc_version}.a".format(glibc_version = GLIBC_VERSION),
-        "usr/lib/x86_64-linux-gnu/libmvec_nonshared.a",
-        "usr/lib/x86_64-linux-gnu/libmvec.so",
-        "usr/lib/x86_64-linux-gnu/libmvec.a",
-    ],
-    shared_library = "usr/lib/x86_64-linux-gnu/libm.so",
+    additional_libs = ["lib/aarch64-linux-gnu/libm.so.6"],
+    shared_library = "usr/lib/aarch64-linux-gnu/libm.so",
+    static_library = "usr/lib/aarch64-linux-gnu/libm.a",
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "pthread",
     additional_libs = [
-        "lib/x86_64-linux-gnu/libpthread.so.0",
-        "lib/x86_64-linux-gnu/libpthread-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
-        "usr/lib/x86_64-linux-gnu/libpthread_nonshared.a",
+        "lib/aarch64-linux-gnu/libpthread.so.0",
+        "lib/aarch64-linux-gnu/libpthread-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
     ],
-    shared_library = "usr/lib/x86_64-linux-gnu/libpthread.so",
-    static_library = "usr/lib/x86_64-linux-gnu/libpthread.a",
+    shared_library = "usr/lib/aarch64-linux-gnu/libpthread.so",
+    static_library = "usr/lib/aarch64-linux-gnu/libpthread.a",
     visibility = ["//visibility:public"],
     deps = [
         ":libc",
@@ -152,10 +145,10 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "rt",
     additional_libs = [
-        "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
-        "lib/x86_64-linux-gnu/librt.so.1",
-        "usr/lib/x86_64-linux-gnu/librt.so",
-        "usr/lib/x86_64-linux-gnu/librt.a",
+        "lib/aarch64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
+        "lib/aarch64-linux-gnu/librt.so.1",
+        "usr/lib/aarch64-linux-gnu/librt.so",
+        "usr/lib/aarch64-linux-gnu/librt.a",
     ],
     visibility = ["//visibility:private"],
 )
@@ -163,12 +156,12 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "libc",
     additional_libs = [
-        "lib/x86_64-linux-gnu/libc.so.6",
-        "lib/x86_64-linux-gnu/libc-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
-        "usr/lib/x86_64-linux-gnu/libc_nonshared.a",
+        "lib/aarch64-linux-gnu/libc.so.6",
+        "lib/aarch64-linux-gnu/libc-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
+        "usr/lib/aarch64-linux-gnu/libc_nonshared.a",
     ],
-    shared_library = "usr/lib/x86_64-linux-gnu/libc.so",
-    static_library = "usr/lib/x86_64-linux-gnu/libc.a",
+    shared_library = "usr/lib/aarch64-linux-gnu/libc.so",
+    static_library = "usr/lib/aarch64-linux-gnu/libc.a",
     visibility = ["//visibility:public"],
     deps = [
         ":gcc",
@@ -188,4 +181,29 @@ cc_toolchain_import(
         ":libc",
         ":pthread",
     ],
+)
+
+#============================================================================================
+# Extra libraries
+#============================================================================================
+# Application Programming Interface (API) for shared-memory parallel programming.
+cc_toolchain_import(
+    name = "openmp",
+    additional_libs = glob([
+        "usr/lib/aarch64-linux-gnu/libgomp*",
+        "usr/lib/aarch64-linux-gnu/libomp*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_import(
+    name = "openmp_import",
+    shared_library = "usr/lib/aarch64-linux-gnu/libomp-hermetic.so",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "openmp_copyright",
+    srcs = [ "usr/lib/aarch64-linux-gnu/libomp-copyright" ],
+    visibility = ["//visibility:public"],
 )

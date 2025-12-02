@@ -60,8 +60,8 @@ rm -rf /tmp/$ARCH_NAME/usr/src
 # Remove share directory but restore copyright files
 rm -rf /tmp/$ARCH_NAME/usr/share
 mkdir /tmp/$ARCH_NAME/usr/share
-docker cp -r $CONTAINER:/usr/share/common-licenses /tmp/$ARCH_NAME/usr/share/
-docker cp -r $CONTAINER:/usr/share/doc /tmp/$ARCH_NAME/usr/share/
+docker cp $CONTAINER:/usr/share/common-licenses /tmp/$ARCH_NAME/usr/share/
+docker cp $CONTAINER:/usr/share/doc /tmp/$ARCH_NAME/usr/share/
 
 echo -e "\nCreating /tmp/$ARCH_NAME.tar.xz archive..."
 XZ_OPT="-T8"

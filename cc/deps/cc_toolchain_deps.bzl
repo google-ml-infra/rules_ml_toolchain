@@ -76,7 +76,7 @@ def cc_toolchain_deps():
             name = "sysroot_linux_x86_64_glibc_2_31",
             sha256 = "18e7dcfc87e6562c85cad9806db79fd3feb943db3ff98ab8c170e308655dfc99",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu20_gcc10-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu20_x86_64_gcc10.BUILD"),
+            build_file = Label("//cc/config/x86_64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "sysroot_x86_64_ubuntu20_gcc10",
         )
 
@@ -86,7 +86,7 @@ def cc_toolchain_deps():
             name = "sysroot_linux_x86_64_glibc_2_35",
             sha256 = "a24665b464d8d1e2235690dd77f8a5fd2d7f717afe83208635ae1b25ef5874bf",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu22_gcc12-0.0.1.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu22_gcc12/sysroot.BUILD"),
+            build_file = Label("//cc/config/x86_64_ubuntu22_gcc12:sysroot.BUILD"),
             strip_prefix = "sysroot_x86_64_ubuntu22_gcc12-0.0.1",
         )
 
@@ -122,7 +122,7 @@ def cc_toolchain_deps():
             name = "sysroot_linux_aarch64_glibc_2_31",
             sha256 = "3f2b534bf8305f0bc750ef570673fabc04c160e72b5eae5948284edda43d11cc",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu20_gcc10-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu20_aarch64_gcc10.BUILD"),
+            build_file = Label("//cc/config/aarch64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "sysroot_aarch64_ubuntu20_gcc10",
         )
 
