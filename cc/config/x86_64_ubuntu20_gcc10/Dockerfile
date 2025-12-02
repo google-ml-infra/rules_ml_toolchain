@@ -33,22 +33,23 @@ WORKDIR /usr/lib64
 RUN ln -sfn ../lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 ./ld-linux-x86-64.so.2
 
 WORKDIR /usr/lib/x86_64-linux-gnu
-RUN ln -sfn ./libnss_nis.so.2 ./libnss_nis.so
-RUN ln -sfn ./libnss_nisplus.so.2 ./libnss_nisplus.so
-RUN ln -sfn ./libutil.so.1 ./libutil.so
-RUN ln -sfn ./libnsl.so.1 ./libnsl.so
-RUN ln -sfn ./libdl.so.2 ./libdl.so
-RUN ln -sfn ./libcrypt.so.1.1.0 ./libcrypt.so
-RUN ln -sfn ./libanl.so.1 ./libanl.so
-RUN ln -sfn ./libBrokenLocale.so.1 ./libBrokenLocale.so
-RUN ln -sfn ./libpthread.so.0 ./libpthread.so
-
-#
-# Fix /lib64/libmvec.so -> /lib/x86_64-linux-gnu/libmvec.so.1
-#RUN ln -sfn ../../../lib/x86_64-linux-gnu/libmvec.so.1 ./libmvec.so
-# Add /usr/lib/x86_64-linux-gnu/libdl.so -> /usr/lib/x86_64-linux-gnu/libdl.so.2
-#RUN ln -s ./libdl.so.2 ./libdl.so
-
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_nis.so.2 ./libnss_nis.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_nisplus.so.2 ./libnss_nisplus.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libutil.so.1 ./libutil.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnsl.so.1 ./libnsl.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libdl.so.2 ./libdl.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libcrypt.so.1.1.0 ./libcrypt.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libanl.so.1 ./libanl.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libBrokenLocale.so.1 ./libBrokenLocale.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libpthread.so.0 ./libpthread.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libmvec.so.1 ./libmvec.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_compat.so.2 ./libnss_compat.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_compat.so.2 ./libnss_compat.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_files.so.2 ./libnss_files.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_hesiod.so.2 ./libnss_hesiod.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libresolv.so.2 ./libresolv.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/librt.so.1 ./librt.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libthread_db.so.1 ./libthread_db.so
 
 WORKDIR /lib/x86_64-linux-gnu
 

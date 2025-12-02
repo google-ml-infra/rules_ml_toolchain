@@ -26,20 +26,28 @@ RUN rm -rf /usr/include/c++/11
 RUN rm -rf /usr/include/x86_64-linux-gnu/c++/11
 RUN rm -rf /usr/lib/gcc/x86_64-linux-gnu/11
 
-# Fix invalid links
-WORKDIR /lib64
 
-# Fix /lib64/ld-linux-x86-64.so.2 -> /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+WORKDIR /lib64
+# Fix invalid links
 RUN ln -sfn ../lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 ./ld-linux-x86-64.so.2
 
 WORKDIR /usr/lib/x86_64-linux-gnu
-# Fix /lib64/libmvec.so -> /lib/x86_64-linux-gnu/libmvec.so.1
+# Fix invalid links
 RUN ln -sfn ../../../lib/x86_64-linux-gnu/libmvec.so.1 ./libmvec.so
-# Add /usr/lib/x86_64-linux-gnu/libdl.so -> /usr/lib/x86_64-linux-gnu/libdl.so.2
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libanl.so.1 ./libanl.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libBrokenLocale.so.1 ./libBrokenLocale.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libc_malloc_debug.so.0 ./libc_malloc_debug.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libcrypt.so.1 ./libcrypt.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_compat.so.2 ./libnss_compat.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libnss_hesiod.so.2 ./libnss_hesiod.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libresolv.so.2 ./libresolv.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libthread_db.so.1 ./libthread_db.so
+RUN ln -sfn ../../../lib/x86_64-linux-gnu/libtirpc.so.3.0.0 ./libtirpc.so
+# Add links
 RUN ln -s ./libdl.so.2 ./libdl.so
 
 WORKDIR /lib/x86_64-linux-gnu
-# Add /lib/x86_64-linux-gnu/libpthread.so -> /lib/x86_64-linux-gnu/libpthread.so.0
+# Add links
 RUN ln -s ./libpthread.so.0 ./libpthread.so
 
 # Patch libomp.so.5 to custom soname for import
