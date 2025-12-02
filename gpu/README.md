@@ -15,13 +15,13 @@ There are three types of hermetic toolkits configurations:
    by setting `--@cuda_driver//:include_cuda_umd_libs=true` (see [instructions](#configure-hermetic-cuda-user-mode-driver)).
    
 
-3) [Repository rules use redistributions loaded from custom remote locations or
+2) [Repository rules use redistributions loaded from custom remote locations or
 local files](#2-custom-cudacudnnnvshmem-archives-and-nccl-wheels).
 
    This option is recommended for testing custom/unreleases redistributions, or
    redistributions previously loaded locally.
 
-4) Not recommended: [Repository rules use locally-installed toolkits](#3-local-toolkit-installations-used-as-sources-for-hermetic-repositories).
+3) Not recommended: [Repository rules use locally-installed toolkits](#3-local-toolkit-installations-used-as-sources-for-hermetic-repositories).
 
 
 ## 1) Standard redistributions loaded from NVIDIA repositories
