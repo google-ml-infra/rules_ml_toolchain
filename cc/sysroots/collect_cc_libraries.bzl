@@ -54,7 +54,7 @@ collect_cc_libraries = rule(
     attrs = {
         "deps": attr.label_list(
             mandatory = True,
-            providers = [CcInfo, DefaultInfo],
+            providers = [[CcInfo], [DefaultInfo]],
         ),
     },
 )
