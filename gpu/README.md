@@ -186,6 +186,7 @@ mode driver (KMD) necessary to run the application. Hermetic CUDA  toolchain
 includes hermetic UMD libs.
 
 **The recommended approach is to enable complete CUDA hermeticity, including
+CUDA UMD libs. If it is not enabled, the linker will use system-wide
 CUDA UMD libs.**
 
 To enforce complete hermeticity and link in hermetic CUDA UMD, use the flag
@@ -219,11 +220,10 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 
 - Supported Kernel Mode Driver and User Mode Driver version combinations:
  
-  combination | result
+  Driver versions combination | Is supported
   -------- | --------
-  KMD version is higher than UMD version | Not supported
-  KMD version is equal to UMD version   | Supported, no restrictions
-  KMD version is lower than UMD version | Supported, no restrictions
+  KMD > UMD | Not supported
+  KMD <= UMD | Supported, no restrictions
  
 - UMD and CUDA Runtime versions compatibility is described in
   [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
