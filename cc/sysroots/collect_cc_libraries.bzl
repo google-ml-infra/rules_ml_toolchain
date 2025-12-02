@@ -15,14 +15,13 @@
 
 def _collect_cc_libraries_impl(ctx):
     """
-    Implementation function for the collect_cc_import_libraries rule.
-    It extracts the libraries from the CcInfo provider of the targets specified in 'deps'.
+    Implementation function for the collect_cc_libraries rule. It extracts the libraries and other files
+    from the CcInfo or DefaultInfo providers of the targets specified in 'deps'.
     """
-
-    libs = []
-    all_library_files = depset()
+    all_files = depset()
 
     for dep in ctx.attr.deps:
+        dep_files = depset()
 
         if CcInfo in dep:
             cc_info = dep[CcInfo]
@@ -33,18 +32,20 @@ def _collect_cc_libraries_impl(ctx):
                 for lib in input.libraries:
                     # Check for PIC static library (.a) or dynamic library (.so)
                     if lib.pic_static_library:
-                        libs.append(lib.pic_static_library)
+                        dep_files = depset(transitive = [dep_files, depset([lib.pic_static_library])])
                     if lib.dynamic_library:
-                        libs.append(lib.dynamic_library)
+                        dep_files = depset(transitive = [dep_files, depset([lib.dynamic_library])])
         elif DefaultInfo in dep:
-            libs.append(dep[DefaultInfo].files)
+            dep_files = depset(transitive = [dep_files, dep[DefaultInfo].files])
         else:
             fail("The target '{}' must provide CcInfo or DefaultInfo.".format(dep.label))
+
+        all_files = depset(transitive = [all_files, dep_files])
 
     # Return the files via the DefaultInfo provider, making them available
     # to other rules that depend on this one.
     return [
-        DefaultInfo(files = depset(libs, transitive = [depset()])),
+        DefaultInfo(files = all_files),
     ]
 
 collect_cc_libraries = rule(
