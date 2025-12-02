@@ -45,7 +45,6 @@ RUN ln -s ./libpthread.so.0 ./libpthread.so
 # Patch libomp.so.5 to custom soname for import
 RUN cp libomp.so.5 libomp-hermetic.so
 RUN patchelf --set-soname libomp-hermetic.so libomp-hermetic.so
-RUN cp /usr/share/doc/libomp-dev/copyright /usr/lib/x86_64-linux-gnu/libomp-copyright
 
 WORKDIR /root
 

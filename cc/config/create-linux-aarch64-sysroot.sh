@@ -48,18 +48,20 @@ mkdir /tmp/$ARCH_NAME
 
 # Copy needed directories from Docker image
 docker cp $CONTAINER:/lib /tmp/$ARCH_NAME/
-docker cp $CONTAINER:/lib64 /tmp/$ARCH_NAME/
 docker cp $CONTAINER:/usr /tmp/$ARCH_NAME/
+
 # Remove not used directories
 rm -rf /tmp/$ARCH_NAME/lib/cpp
 rm -rf /tmp/$ARCH_NAME/usr/bin
 rm -rf /tmp/$ARCH_NAME/usr/games
 rm -rf /tmp/$ARCH_NAME/usr/sbin
-rm -rf /tmp/$ARCH_NAME/usr/share
 rm -rf /tmp/$ARCH_NAME/usr/src
-rm -rf /tmp/$ARCH_NAME/usr/lib/gold-ld/ld
-rm -rf /tmp/$ARCH_NAME/usr/lib/compat-ld/ld
-rm -rf /tmp/$ARCH_NAME/usr/lib/bfd-plugins/liblto_plugin.so
+
+# Remove share directory but restore copyright files
+rm -rf /tmp/$ARCH_NAME/usr/share
+mkdir /tmp/$ARCH_NAME/usr/share
+docker cp -r $CONTAINER:/usr/share/common-licenses /tmp/$ARCH_NAME/usr/share/
+docker cp -r $CONTAINER:/usr/share/doc /tmp/$ARCH_NAME/usr/share/
 
 echo -e "\nCreating /tmp/$ARCH_NAME.tar.xz archive..."
 XZ_OPT="-T8"
