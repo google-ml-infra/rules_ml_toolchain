@@ -9,23 +9,24 @@ versions.
 
 There are three types of hermetic toolkits configurations:
 
-1) Recommended: [Repository rules use redistributions loaded from NVIDIA repositories](#standard-redistributions).
+1) Recommended: [Repository rules use redistributions loaded from NVIDIA repositories](#supported-hermetic-cuda-cudnn-nvshmem-versions).
    
    For full CUDA toolkit hermeticity, use CUDA User Mode Driver libraries loaded from NVIDIA repositories
-   by setting `--@cuda_driver//:include_cuda_umd_libs=true` (see [instructions](#hermetic-umd)).
+   by setting `--@cuda_driver//:include_cuda_umd_libs=true` (see [instructions](#configure-hermetic-cuda-user-mode-driver)).
    
 
 3) [Repository rules use redistributions loaded from custom remote locations or
-local files](#custom-redistributions).
+local files](#2-custom-cudacudnnnvshmem-archives-and-nccl-wheels).
 
    This option is recommended for testing custom/unreleases redistributions, or
    redistributions previously loaded locally.
 
-4) Not recommended: [Repository rules use locally-installed toolkits](#local-toolkit-installation).
+4) Not recommended: [Repository rules use locally-installed toolkits](#3-local-toolkit-installations-used-as-sources-for-hermetic-repositories).
 
 
 ## 1) Standard redistributions loaded from NVIDIA repositories
-### Supported hermetic CUDA, CUDNN, NVSHMEM versions {#standard-redistributions}
+
+### Supported hermetic CUDA, CUDNN, NVSHMEM versions
 
 The supported CUDA versions are specified in `CUDA_REDIST_JSON_DICT`
 dictionary,
@@ -178,7 +179,7 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    to test executables. The flag is false by default to avoid unwanted coupling
    of Google-released Python wheels to CUDA binaries.
 
-### Configure hermetic CUDA User Mode Driver {#hermetic-umd}
+### Configure hermetic CUDA User Mode Driver
 
 The NVIDIA driver contains both the user mode CUDA driver (UMD) and kernel
 mode driver (KMD) necessary to run the application. Hermetic CUDA  toolchain
@@ -304,7 +305,7 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
     `MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT` dictionaries in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
-## 2) Custom CUDA/CUDNN/NVSHMEM archives and NCCL wheels {#custom-redistributions}
+## 2) Custom CUDA/CUDNN/NVSHMEM archives and NCCL wheels
 
 There are three options that allow usage of custom distributions.
 
@@ -659,14 +660,12 @@ nccl_redist_init_repository(
 )
 ```
 
-## 3) Local toolkit installations used as sources for hermetic repositories {#local-toolkit-installation}
+## 3) Local toolkit installations used as sources for hermetic repositories
 
 > [!WARNING]
 >
-> This feature exists solely to cover the use case when the same person
-> develops both XLA/JAX and CUDA binaries, which is specific to NVIDIA teams.
-> Everyone else, who does not build custom NVIDIA binaries should not be using
-> this feature at all.
+> This feature is exclusively for developers, typically on NVIDIA teams,
+> building both XLA/JAX and CUDA binaries. Other users should not use it.
 
 You can use the local CUDA/CUDNN/NCCL/NVSHMEM paths as a source of
 redistributions. The following additional environment variables are required:
