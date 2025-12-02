@@ -222,8 +222,8 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
  
   Driver versions combination | Is supported
   -------- | --------
-  KMD > UMD | Not supported
-  KMD <= UMD | Supported, no restrictions
+  KMD > UMD | -
+  KMD <= UMD | +
  
 - UMD and CUDA Runtime versions compatibility is described in
   [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
