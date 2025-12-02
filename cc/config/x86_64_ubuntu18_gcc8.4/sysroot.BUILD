@@ -187,7 +187,7 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
-# This is a group of essential the system libraries. The actual glibc library is split
+# This is a group of essential system libraries. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
     name = "syslibs",
