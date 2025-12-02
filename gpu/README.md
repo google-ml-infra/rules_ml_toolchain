@@ -178,6 +178,9 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    mode driver (KMD) necessary to run the application. Hermetic CUDA  toolchain
    includes hermetic UMD libs.
 
+   **The recommended approach is to enable complete CUDA hermeticity, including
+   CUDA UMD libs.**
+
    To enforce complete hermeticity and link in hermetic CUDA UMD, use the flag
    `--@cuda_driver//:include_cuda_umd_libs`. The default flag value is `false`.
 
