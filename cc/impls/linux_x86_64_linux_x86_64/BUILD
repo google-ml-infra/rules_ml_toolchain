@@ -48,8 +48,7 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:includes_c",
         "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_x86_64//:includes_system",
-        "@sysroot_linux_x86_64//:glibc",
-        "@sysroot_linux_x86_64//:pthread",
+        "@sysroot_linux_x86_64//:libs",
         "@llvm_linux_x86_64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
@@ -136,6 +135,9 @@ cc_toolchain_config(
         # Hermetic libraries feature required before import.
         "//third_party/rules_cc_toolchain/features:hermetic_libraries",
         ":imports_feature",
+
+        # C++ utilities
+        "//cc/features:sanitizer",
 
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",
