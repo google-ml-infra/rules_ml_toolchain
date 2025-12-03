@@ -62,7 +62,7 @@ def cc_toolchain_deps():
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_27",
             sha256 = "9a06397f9dc4fe2237d126f964f1a3c942ce0036ba51976ea0d7fce0bc3e2fb7",
-            #mirrored_tar_sha256 = "18496de0f6eb0dd4cfbab4b618c0a50e8082989779acd048b68e760bf4d5b7d5",
+            mirrored_tar_sha256 = "114a7d09078c6a2d29b506033e07442346099847ce6107c78ec3da86388ea4a5",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
             build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.0",
@@ -73,7 +73,7 @@ def cc_toolchain_deps():
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_31",
             sha256 = "a26dc443b20bff6b46324a77fcc112aab484364d39125daff345e142bbdea74c",
-            # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
+            mirrored_tar_sha256 = "fc66481ff952118e2c25f85c6a1fdbad840234fec9971ff5c44b3bd818178aa2",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu20_gcc10-0.2.0.tar.xz"),
             build_file = Label("//cc/config/x86_64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu20_gcc10-0.2.0",
@@ -84,7 +84,7 @@ def cc_toolchain_deps():
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_35",
             sha256 = "cfbb04651bebe18ec949a5df16bde26d4f138344eff1e5bb345c33d428be190e",
-            # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
+            mirrored_tar_sha256 = "4516c5f043360adb9317f513a27a0e4a0d5d93bfeaca4ef039c234612bcf1df9",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu22_gcc12-0.2.0.tar.xz"),
             build_file = Label("//cc/config/x86_64_ubuntu22_gcc12:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu22_gcc12-0.2.0",
@@ -109,7 +109,7 @@ def cc_toolchain_deps():
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
             sha256 = "09e41e9f83ac391ce06f58fae029803fd91ec6f14f858ee1dae598e2c16f6035",
-            # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
+            mirrored_tar_sha256 = "e2d31f97311be6536904e75cbbadca274a9354101a625348acd650395b34c83f",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu18_gcc8.4-0.2.0.tar.xz"),
             build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.0",
@@ -120,7 +120,7 @@ def cc_toolchain_deps():
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_31",
             sha256 = "a6011ddc4629c5fb56642474321a48cd05a28c7569418c8bdb9c5494379cf197",
-            # mirrored_tar_sha256 = "10323d66e60e5a55333afa322bb3b2d1b47d585744a58715314d4953d2baa0fa",
+            mirrored_tar_sha256 = "f4ad4a301f88ab0e2772f5d7c94db5c4c5656fac4c4b901c1b37d01a5742223f",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu20_gcc10-0.2.0.tar.xz"),
             build_file = Label("//cc/config/aarch64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "aarch64_ubuntu20_gcc10-0.2.0",
