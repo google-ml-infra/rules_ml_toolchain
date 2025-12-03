@@ -65,7 +65,7 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "114a7d09078c6a2d29b506033e07442346099847ce6107c78ec3da86388ea4a5",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
             build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
-            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.0",
+            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.1",
             patches = [
                 "//cc/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
             ],
