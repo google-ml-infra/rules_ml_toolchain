@@ -66,6 +66,10 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
             build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.0",
+            patches = [
+                "//cc/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
+            ],
+            patch_args = ["-p1"],
         )
 
     if "sysroot_linux_x86_64_glibc_2_31" not in native.existing_rules():
