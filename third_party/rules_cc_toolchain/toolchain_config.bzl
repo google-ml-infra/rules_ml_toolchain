@@ -32,9 +32,13 @@ load(
     "artifact_name_pattern",
     "env_entry",
     "env_set",
+    "flag_group",
+    "flag_set",
     "feature",
     "tool",
     "tool_path",
+    "variable_with_value",
+    "with_feature_set",
 )
 
 ALL_ACTIONS = [
@@ -58,6 +62,281 @@ ALL_ACTIONS = [
     ACTION_NAMES.cpp_link_static_library,
     ACTION_NAMES.clif_match,
 ]
+
+def _get_link_actions_config(ctx):
+    tools = [
+        tool(ctx.attr.tool_paths["gcc"]),
+    ]
+    action_configs = [action_config(
+        action_name = action,
+        enabled = True,
+        tools = tools,
+        implies = [],
+        flag_sets = _get_shared_flag() +
+            _get_output_execpath_flag() +
+            _get_runtime_library_search_directories_flags() +
+            _get_library_search_directories_flags() +
+            _get_libraries_to_link_flags() +
+            _get_strip_debug_symbols_flag()
+    ) for action in [ACTION_NAMES.cpp_link_dynamic_library, ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        ACTION_NAMES.lto_index_for_dynamic_library, ACTION_NAMES.lto_index_for_nodeps_dynamic_library]]
+
+    action_configs += [action_config(
+             action_name = action,
+             enabled = True,
+             tools = tools,
+             implies = [],
+             flag_sets = _get_output_execpath_flag() +
+                _get_runtime_library_search_directories_flags() +
+                _get_library_search_directories_flags() +
+                _get_libraries_to_link_flags() +
+                _get_strip_debug_symbols_flag()
+         ) for action in [ACTION_NAMES.cpp_link_executable, ACTION_NAMES.lto_index_for_executable]]
+
+    return action_configs
+
+#def _get_sysroot_flags():
+#    # Actions:
+#    #   ACTION_NAMES.preprocess_assemble # NOT ADDED YET!
+#    #   ACTION_NAMES.linkstamp_compile # NOT ADDED YET!
+#    #   ACTION_NAMES.c_compile # NOT ADDED YET!
+#    #   ACTION_NAMES.cpp_compile # NOT ADDED YET!
+#    #   ACTION_NAMES.cpp_header_parsing # NOT ADDED YET!
+#    #   ACTION_NAMES.cpp_module_compile # NOT ADDED YET!
+#    #   ACTION_NAMES.cpp_module_codegen # NOT ADDED YET!
+#    #   ACTION_NAMES.lto_backend # NOT ADDED YET!
+#    #   ACTION_NAMES.clif_match # NOT ADDED YET!
+#    #   ACTION_NAMES.cpp_link_executable
+#    #   ACTION_NAMES.cpp_link_dynamic_library
+#    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+#    #   ACTION_NAMES.lto_index_for_executable
+#    #   ACTION_NAMES.lto_index_for_dynamic_library
+#    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+#    return [flag_set(
+#        flag_groups = [
+#            flag_group(
+#                flags = ["--sysroot=%{sysroot}"],
+#                expand_if_available = "sysroot",
+#            ),
+#        ],
+#    )]
+
+def _get_user_link_flags():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                flags = ["%{user_link_flags}"],
+                iterate_over = "user_link_flags",
+                expand_if_available = "user_link_flags",
+            ),
+        ]
+    )]
+
+def _get_library_search_directories_flags():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                flags = ["-L%{library_search_directories}"],
+                iterate_over = "library_search_directories",
+                expand_if_available = "library_search_directories",
+            ),
+        ],
+    )]
+
+def _get_runtime_library_search_directories_flags():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                iterate_over = "runtime_library_search_directories",
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-Wl,-rpath,$EXEC_ORIGIN/%{runtime_library_search_directories}",
+                        ],
+                        expand_if_true = "is_cc_test",
+                    ),
+                    flag_group(
+                        flags = [
+                            "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
+                        ],
+                        expand_if_false = "is_cc_test",
+                    ),
+                ],
+                expand_if_available =
+                    "runtime_library_search_directories",
+            ),
+        ],
+        with_features = [
+            with_feature_set(features = ["static_link_cpp_runtimes"]),
+        ],
+    ),
+    flag_set(
+        flag_groups = [
+            flag_group(
+                iterate_over = "runtime_library_search_directories",
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
+                        ],
+                    ),
+                ],
+                expand_if_available =
+                    "runtime_library_search_directories",
+            ),
+        ],
+        with_features = [
+            with_feature_set(
+                not_features = ["static_link_cpp_runtimes"],
+            ),
+        ],
+    )]
+
+def _get_strip_debug_symbols_flag():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                flags = ["-Wl,-S"],
+                expand_if_available = "strip_debug_symbols",
+            ),
+        ],
+    )]
+
+def _get_output_execpath_flag():
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                flags = ["-o", "%{output_execpath}"],
+                expand_if_available = "output_execpath",
+            ),
+        ],
+    )]
+
+def _get_shared_flag():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [flag_group(flags = ["-shared"])],
+    )]
+
+def _get_libraries_to_link_flags():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [
+            flag_group(
+                iterate_over = "libraries_to_link",
+                    flag_groups = [
+                    flag_group(
+                        flags = ["-Wl,--start-lib"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "object_file_group",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["-Wl,-whole-archive"],
+                        expand_if_true = "libraries_to_link.is_whole_archive",
+                    ),
+                    flag_group(
+                        flags = ["%{libraries_to_link.object_files}"],
+                        iterate_over = "libraries_to_link.object_files",
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "object_file_group",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["%{libraries_to_link.name}"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "object_file",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["%{libraries_to_link.name}"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "interface_library",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["%{libraries_to_link.name}"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "static_library",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["-l%{libraries_to_link.name}"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "dynamic_library",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["-l:%{libraries_to_link.name}"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "versioned_dynamic_library",
+                        ),
+                    ),
+                    flag_group(
+                        flags = ["-Wl,-no-whole-archive"],
+                        expand_if_true = "libraries_to_link.is_whole_archive",
+                    ),
+                    flag_group(
+                        flags = ["-Wl,--end-lib"],
+                        expand_if_equal = variable_with_value(
+                            name = "libraries_to_link.type",
+                            value = "object_file_group",
+                      ),
+                    ),
+                ],
+                expand_if_available = "libraries_to_link",
+            ),
+            flag_group(
+                flags = ["-Wl,@%{thinlto_param_file}"],
+                expand_if_true = "thinlto_param_file",
+            ),
+        ])]
 
 def _label_to_tool_path_feature(tool_mapping = {}):
     """Creates a feature with an env variable pointing to the label.
@@ -104,16 +383,6 @@ def _create_artifact_name_patterns(ctx):
     return artifact_name_patterns
 
 def _cc_toolchain_config_impl(ctx):
-    action_configs = [action_config(
-        action_name = action,
-        enabled = True,
-        tools = [
-            tool(ctx.attr.tool_paths["ld"]),
-        ],
-        implies = [
-        ],
-    ) for action in ACTION_NAME_GROUPS.all_cc_link_actions]
-
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         host_system_name = "local",
@@ -140,6 +409,7 @@ def _cc_toolchain_config_impl(ctx):
             "strip": ctx.file.strip_tool,
             "in": ctx.file.install_name,
         })],
+        action_configs = _get_link_actions_config(ctx),
     )
 
 cc_toolchain_config = rule(
