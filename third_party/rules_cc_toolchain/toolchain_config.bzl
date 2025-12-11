@@ -76,6 +76,7 @@ def _get_link_actions_config(ctx):
             _get_output_execpath_flag() +
             _get_runtime_library_search_directories_flags() +
             _get_library_search_directories_flags() +
+            #_get_asan_lib_flag() +
             _get_libraries_to_link_flags() +
             _get_strip_debug_symbols_flag()
     ) for action in [ACTION_NAMES.cpp_link_dynamic_library, ACTION_NAMES.cpp_link_nodeps_dynamic_library,
@@ -89,6 +90,7 @@ def _get_link_actions_config(ctx):
              flag_sets = _get_output_execpath_flag() +
                 _get_runtime_library_search_directories_flags() +
                 _get_library_search_directories_flags() +
+                #_get_asan_lib_flag() +
                 _get_libraries_to_link_flags() +
                 _get_strip_debug_symbols_flag()
          ) for action in [ACTION_NAMES.cpp_link_executable, ACTION_NAMES.lto_index_for_executable]]
@@ -249,6 +251,24 @@ def _get_shared_flag():
     #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
     return [flag_set(
         flag_groups = [flag_group(flags = ["-shared"])],
+    )]
+
+def _get_asan_lib_flag():
+    # Actions:
+    #   ACTION_NAMES.cpp_link_executable
+    #   ACTION_NAMES.cpp_link_dynamic_library
+    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
+    #   ACTION_NAMES.lto_index_for_executable
+    #   ACTION_NAMES.lto_index_for_dynamic_library
+    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
+    return [flag_set(
+        flag_groups = [
+            # This flag_group runs before any standard library linking
+            # group (like the one that processes libraries_to_link).
+            flag_group(
+                flags = ["-lasan"],
+            ),
+        ],
     )]
 
 def _get_libraries_to_link_flags():

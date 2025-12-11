@@ -1,0 +1,346 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+load(
+    "@rules_cc//cc:action_names.bzl",
+    "ALL_CC_LINK_ACTION_NAMES",
+    "ACTION_NAMES",
+    "ACTION_NAME_GROUPS",
+    "ALL_CC_COMPILE_ACTION_NAMES",
+    "ALL_CPP_COMPILE_ACTION_NAMES",
+    "CC_LINK_EXECUTABLE_ACTION_NAMES",
+    "DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
+)
+load(
+    "@rules_cc//cc:cc_toolchain_config_lib.bzl",
+    "FeatureInfo",
+    "env_entry",
+    "env_set",
+    "feature",
+    "flag_group",
+    "flag_set",
+    _feature = "feature",
+)
+load(
+    "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
+    "CcToolchainImportInfo",
+)
+
+ALL_ACTIONS = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.cc_flags_make_variable,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.assemble,
+    ACTION_NAMES.preprocess_assemble,
+    ACTION_NAMES.lto_indexing,
+    ACTION_NAMES.lto_backend,
+    ACTION_NAMES.lto_index_for_executable,
+    ACTION_NAMES.lto_index_for_dynamic_library,
+    ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+    ACTION_NAMES.cpp_link_executable,
+    ACTION_NAMES.cpp_link_dynamic_library,
+    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+    ACTION_NAMES.cpp_link_static_library,
+    ACTION_NAMES.clif_match,
+]
+
+def _file_to_library_flag(file):
+    lib_prefix = "lib"
+    if file.basename.startswith(lib_prefix):
+        library_name = file.basename.replace("." + file.extension, "")
+        library_flag = "-l" + library_name[len(lib_prefix):]
+    else:
+        library_flag = file.path
+
+    return library_flag
+
+ASAN_COMMON_LIBS = [
+    "libclang_rt.asan_static.a",
+]
+
+ASAN_EXEC_LIBS = [
+    "libclang_rt.asan.a",
+]
+
+ASAN_EXEC_SYMS = [
+    "libclang_rt.asan.a.syms",
+]
+
+ASAN_IGNORELIST = [
+    "asan_ignorelist.txt",
+]
+
+ASAN_STATIC_COMPILER_FLAGS = [
+    "-fsanitize=address",
+    "-fno-sanitize-memory-param-retval",
+    "-fsanitize-address-use-after-scope",
+    "-fsanitize-address-globals-dead-stripping",
+    "-fno-assume-sane-operator-new",
+]
+
+def _filter_asan_common_libs(flags):
+    return _filter_flags_by_keys(flags, ASAN_COMMON_LIBS)
+
+def _filter_asan_exec_libs(flags):
+    return _filter_flags_by_keys(flags, ASAN_EXEC_LIBS)
+
+def _filter_asan_exec_syms(flags):
+    return _filter_flags_by_keys(flags, ASAN_EXEC_SYMS)
+
+def _get_asan_ignorelist(flags):
+    return _filter_flags_by_keys(flags, ASAN_IGNORELIST)
+
+def _filter_flags_by_keys(flags, keys):
+    libFlags = []
+    for flag in flags:
+        needed = False
+        for key in keys:
+            if flag.endswith(key):
+                needed = True
+                break
+
+        if needed:
+            libFlags.append(flag)
+
+    return libFlags
+
+def _filter_files_by_keys(files, keys):
+    libs = []
+    for lib in files:
+        needed = False
+        for key in keys:
+            if lib.path.endswith(key):
+                needed = True
+                break
+
+        if needed:
+            libs.append(lib)
+
+    return libs
+
+def _import_asan_static_feature_impl(ctx):
+    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+
+    compiler_flags = depset([
+        flag
+        for flag in ASAN_STATIC_COMPILER_FLAGS
+    ]).to_list()
+
+    ignorelist_flags = depset([
+        "-fsanitize-system-ignorelist=" + flag.path
+        for flag in ctx.attr.asan_ignorelist[DefaultInfo].files.to_list()
+    ]).to_list()
+
+    flag_sets = []
+    if compiler_flags:
+        flag_sets.append(flag_set(
+            actions = ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = compiler_flags,
+                ),
+            ],
+        ))
+
+    if ignorelist_flags:
+        flag_sets.append(flag_set(
+            actions = ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = ignorelist_flags,
+                ),
+            ],
+        ))
+
+    linker_dir_flags = depset([
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.static_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.dynamic_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ]).to_list()
+
+    common_linker_flags = depset([
+        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
+        for file_path in _filter_asan_common_libs([
+            file.path
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+    ])]).to_list()
+
+    if common_linker_flags:
+        flag_sets.append(flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES, # + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
+            flag_groups = [
+                flag_group(
+                    flags = linker_dir_flags + common_linker_flags,
+                ),
+            ],
+        ))
+
+    exec_linker_flags = depset([
+        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
+        for file_path in _filter_asan_exec_libs([
+            file.path
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+    ])]).to_list()
+
+    exec_linker_syms_flags = depset(_filter_asan_exec_syms([
+        ("-Wl,--dynamic-list=" + file.path)
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ])).to_list()
+
+    if exec_linker_flags or exec_linker_syms_flags:
+        flag_sets.append(flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = exec_linker_flags + exec_linker_syms_flags,
+                ),
+            ],
+        ))
+
+    library_feature = _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        flag_sets = flag_sets,
+        implies = ctx.attr.implies,
+        provides = ctx.attr.provides,
+    )
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+
+cc_toolchain_import_asan_static_feature = rule(
+    _import_asan_static_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+        "toolchain_import": attr.label(
+            mandatory = True,
+            providers = [CcToolchainImportInfo],
+        ),
+        "asan_ignorelist": attr.label(
+            mandatory = True,
+            providers = [DefaultInfo],
+        ),
+    },
+    provides = [FeatureInfo, DefaultInfo],
+)
+
+ASAN_DYNAMIC_LIBS = [
+    "libasan.so",
+]
+
+ASAN_COMPILER_FLAGS = [
+    "-fsanitize=address",
+    #"-fno-sanitize-memory-param-retval",
+    "-fsanitize-address-use-after-scope",
+    "-fsanitize-address-globals-dead-stripping",        # ?
+    "-fno-assume-sane-operator-new",
+]
+
+def all_link_actions():
+    return [
+        ACTION_NAMES.cpp_link_executable,
+        ACTION_NAMES.cpp_link_dynamic_library,
+        ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+    ]
+
+def _filter_asan_libs(flags):
+    return _filter_files_by_keys(flags, ASAN_DYNAMIC_LIBS)
+
+def _import_asan_feature_impl(ctx):
+    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+
+    compiler_flags = depset([
+        flag
+        for flag in ASAN_COMPILER_FLAGS
+    ]).to_list()
+
+    ignorelist_flags = depset([
+        "-fsanitize-system-ignorelist=" + flag.path
+        for flag in ctx.attr.asan_ignorelist[DefaultInfo].files.to_list()
+    ]).to_list()
+
+    flag_sets = []
+    if compiler_flags:
+        flag_sets.append(flag_set(
+            actions = ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = compiler_flags + ignorelist_flags,
+                ),
+            ],
+        ))
+
+# Very late to set ASAN flag
+#    linker_flags = depset([
+#        _file_to_library_flag(lib)
+#        for lib in _filter_asan_libs([
+#            file
+#            for file in toolchain_import_info
+#                .linking_context.additional_libs.to_list()
+#    ])]).to_list()
+#
+#    if linker_flags:
+#        flag_sets.append(flag_set(
+#            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+#            flag_groups = [
+#                flag_group(
+#                    flags = linker_flags,
+#                ),
+#            ],
+#        ))
+
+    library_feature = _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        flag_sets = flag_sets,
+        implies = ctx.attr.implies,
+        provides = ctx.attr.provides,
+    )
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+
+cc_toolchain_import_asan_feature = rule(
+    _import_asan_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+        "toolchain_import": attr.label(
+            mandatory = True,
+            providers = [CcToolchainImportInfo],
+        ),
+        "asan_ignorelist": attr.label(
+            mandatory = True,
+            providers = [DefaultInfo],
+        ),
+    },
+    provides = [FeatureInfo, DefaultInfo],
+)
