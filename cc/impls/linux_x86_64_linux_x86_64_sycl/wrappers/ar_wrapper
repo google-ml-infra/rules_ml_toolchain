@@ -53,19 +53,24 @@ else
     output_file="$1"
     shift
 
+    ind=0
     for input_file in "$@"; do
         if file "$input_file" | grep -q "current ar archive"; then
-            ar x "$input_file" --output="$tmp_dir"
+            # To avoid overwriting files with the same name,
+            # place the unpacked files in a new directory each time.
+            mkdir -p "$tmp_dir/$ind"
+            ar x "$input_file" --output="$tmp_dir/$ind"
         else
             input_object_file="$input_object_file $input_file"
         fi
+        ind=$((ind + 1))
     done
 fi
 
 if [[ $input_object_file != "" ]]; then
     ar "$ar_flag" "$output_file" $input_object_file
 else
-    ar "$ar_flag" "$output_file" "$tmp_dir"/*
+    ar "$ar_flag" "$output_file" "$tmp_dir"/*/*
 fi
 
 # Remove the temporary directory
