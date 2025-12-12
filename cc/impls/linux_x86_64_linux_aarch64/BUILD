@@ -54,8 +54,7 @@ cc_toolchain_import(
         "@sysroot_linux_aarch64//:includes_c",
         "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_aarch64//:includes_system",
-        "@sysroot_linux_aarch64//:glibc",
-        "@sysroot_linux_aarch64//:pthread",
+        "@sysroot_linux_aarch64//:syslibs",
     ],
     visibility = ["//visibility:public"],
 )

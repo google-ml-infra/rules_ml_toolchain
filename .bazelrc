@@ -37,6 +37,7 @@ build:cuda --@local_config_cuda//cuda:include_cuda_libs=true
 
 # This config is used for building targets with CUDA libraries from stubs.
 build:cuda_libraries_from_stubs --@local_config_cuda//cuda:include_cuda_libs=false
+build:cuda_libraries_from_stubs --@cuda_driver//:include_cuda_umd_libs=false
 
 # Force the linker to set RPATH, not RUNPATH. When resolving dynamic libraries,
 # ld.so prefers in order: RPATH, LD_LIBRARY_PATH, RUNPATH. JAX sets RPATH to

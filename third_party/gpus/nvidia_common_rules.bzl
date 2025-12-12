@@ -61,6 +61,7 @@ def _get_file_name(url):
 
 def _get_orig_repo_name(repository_ctx):
     """Get the repo name used when this repository rule was called"""
+
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
     # we need to extract the original repo name.
     # TODO: migrate to use repository_ctx.original_name with Bazel 8
@@ -255,7 +256,7 @@ def _create_libcuda_symlinks(
                 print("File %s already exists!" % repository_ctx.path(symlink_so_1))  # buildifier: disable=print
             else:
                 repository_ctx.symlink(versioned_lib_path, symlink_so_1)
-            if lib=="cuda":
+            if lib == "cuda":
                 unversioned_symlink = "lib/lib%s.so" % lib
                 if repository_ctx.path(unversioned_symlink).exists:
                     print("File %s already exists!" % repository_ctx.path(unversioned_symlink))  # buildifier: disable=print
@@ -274,6 +275,8 @@ def _create_repository_symlinks(repository_ctx):
         repository_ctx.symlink(target_path, link_name)
 
 def create_version_file(repository_ctx, major_lib_version):
+    if repository_ctx.name == "cuda_driver" and major_lib_version:
+        print("Downloaded hermetic User Mode Driver version is %s" % major_lib_version)  # buildifier: disable=print
     repository_ctx.file(
         "version.bzl",
         "VERSION = \"{}\"".format(major_lib_version),
@@ -608,6 +611,11 @@ def _get_redist_version(repository_ctx, redist_version_env_vars):
     for redist_version_env_var in redist_version_env_vars:
         redist_version = get_env_var(repository_ctx, redist_version_env_var)
         if redist_version:
+            if repository_ctx.name == "cuda_umd_redist_json":
+                print("User Mode Driver for CUDA {} will be downloaded according to the value of {}".format(
+                    redist_version,
+                    redist_version_env_var,
+                ))  # buildifier: disable=print
             break
     return redist_version
 
@@ -714,4 +722,3 @@ def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefi
     if not major_version:
         return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
-

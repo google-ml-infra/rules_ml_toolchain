@@ -19,7 +19,7 @@ load("//gpu/cuda:enable_cuda_flag.bzl", "enable_cuda_flag")
 package(default_visibility = ["//visibility:public"])
 
 #######################################################
-# Platforms definition
+# Platforms definitions and config settings
 platform(
     name = "linux_x86_64",
     constraint_values = [
@@ -40,6 +40,22 @@ platform(
     name = "macos_aarch64",
     constraint_values = [
         "@platforms//os:macos",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+config_setting(
+    name = "is_linux_x86_64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "is_linux_aarch64",
+    constraint_values = [
+        "@platforms//os:linux",
         "@platforms//cpu:aarch64",
     ],
 )

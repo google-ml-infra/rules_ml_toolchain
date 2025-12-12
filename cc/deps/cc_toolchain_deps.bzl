@@ -61,31 +61,37 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_27",
-            sha256 = "7d9300ec03d008e96f0098dfcd4e9974dd64f2d5fccdd0f1a2b2d4af63301a04",
-            mirrored_tar_sha256 = "8680378000cf63647db5421377fbdb6a4fe98e0207b87f7cfec51883bde587aa",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/ubuntu18_x86_64_sysroot_gcc8_patched-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu18_x86_64.BUILD"),
-            strip_prefix = "ubuntu18_x86_64_sysroot_gcc8_patched-0.1.0",
+            sha256 = "9a06397f9dc4fe2237d126f964f1a3c942ce0036ba51976ea0d7fce0bc3e2fb7",
+            mirrored_tar_sha256 = "114a7d09078c6a2d29b506033e07442346099847ce6107c78ec3da86388ea4a5",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
+            build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
+            strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.1",
+            #patches = [
+            #    "//cc/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
+            #],
+            #patch_args = ["-p1"],
         )
 
     if "sysroot_linux_x86_64_glibc_2_31" not in native.existing_rules():
         # C++20, manylinux_2_31, gcc-10
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_31",
-            sha256 = "18e7dcfc87e6562c85cad9806db79fd3feb943db3ff98ab8c170e308655dfc99",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu20_gcc10-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu20_x86_64_gcc10.BUILD"),
-            strip_prefix = "sysroot_x86_64_ubuntu20_gcc10",
+            sha256 = "a26dc443b20bff6b46324a77fcc112aab484364d39125daff345e142bbdea74c",
+            mirrored_tar_sha256 = "fc66481ff952118e2c25f85c6a1fdbad840234fec9971ff5c44b3bd818178aa2",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu20_gcc10-0.2.0.tar.xz"),
+            build_file = Label("//cc/config/x86_64_ubuntu20_gcc10:sysroot.BUILD"),
+            strip_prefix = "x86_64_ubuntu20_gcc10-0.2.0",
         )
 
     if "sysroot_linux_x86_64_glibc_2_35" not in native.existing_rules():
         # C++20 / C++23 partial support, manylinux_2_35, gcc-12
         mirrored_http_archive(
             name = "sysroot_linux_x86_64_glibc_2_35",
-            sha256 = "a24665b464d8d1e2235690dd77f8a5fd2d7f717afe83208635ae1b25ef5874bf",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_x86_64_ubuntu22_gcc12-0.0.1.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu22_x86_64_gcc12.BUILD"),
-            strip_prefix = "sysroot_x86_64_ubuntu22_gcc12-0.0.1",
+            sha256 = "cfbb04651bebe18ec949a5df16bde26d4f138344eff1e5bb345c33d428be190e",
+            mirrored_tar_sha256 = "4516c5f043360adb9317f513a27a0e4a0d5d93bfeaca4ef039c234612bcf1df9",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu22_gcc12-0.2.0.tar.xz"),
+            build_file = Label("//cc/config/x86_64_ubuntu22_gcc12:sysroot.BUILD"),
+            strip_prefix = "x86_64_ubuntu22_gcc12-0.2.0",
         )
 
     ################################################################
@@ -106,21 +112,22 @@ def cc_toolchain_deps():
         # C++17, manylinux_2_27, gcc-8
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_27",
-            sha256 = "31a285faccb6996c16acde8ef6841841d591f73196dc5b7bdd9cf55b7f0c35a1",
-            mirrored_tar_sha256 = "23989e1c4184b472ffcacf04cfeb7c9e108cb4126aeadb8a326597795b47f175",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu18_gcc8.4-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu18_aarch64.BUILD"),
-            strip_prefix = "sysroot_aarch64_ubuntu18_gcc8.4-0.1.0",
+            sha256 = "ef657b4fc199500d0b0208352b3a821a4d5b9c3900367c4dc02627548b4f85f3",
+            mirrored_tar_sha256 = "345e7973f2a1298e13620d13f5bee94ce08afe504892ce5117d59d23a0182a2a",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
+            build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
+            strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.1",
         )
 
     if "sysroot_linux_aarch64_glibc_2_31" not in native.existing_rules():
         # C++20, manylinux_2_31, gcc-10
         mirrored_http_archive(
             name = "sysroot_linux_aarch64_glibc_2_31",
-            sha256 = "3f2b534bf8305f0bc750ef570673fabc04c160e72b5eae5948284edda43d11cc",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/sysroot_aarch64_ubuntu20_gcc10-0.1.0.tar.xz"),
-            build_file = Label("//cc/config:sysroot_ubuntu20_aarch64_gcc10.BUILD"),
-            strip_prefix = "sysroot_aarch64_ubuntu20_gcc10",
+            sha256 = "a6011ddc4629c5fb56642474321a48cd05a28c7569418c8bdb9c5494379cf197",
+            mirrored_tar_sha256 = "f4ad4a301f88ab0e2772f5d7c94db5c4c5656fac4c4b901c1b37d01a5742223f",
+            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu20_gcc10-0.2.0.tar.xz"),
+            build_file = Label("//cc/config/aarch64_ubuntu20_gcc10:sysroot.BUILD"),
+            strip_prefix = "aarch64_ubuntu20_gcc10-0.2.0",
         )
 
     ################################################################
@@ -159,8 +166,8 @@ def cc_toolchain_deps():
             build_file = Label("//cc/config:llvm18_linux_x86_64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
             remote_file_urls = {
-                "lib/libtinfo.so.5": ["https://github.com/yuriit-google/sysroots/raw/f890514a360cd1959c786402a8e794218b1be93f/archives/libtinfo.so.5"],
-                "lib/libtinfo5-copyright.txt": ["https://raw.githubusercontent.com/yuriit-google/sysroots/ba192c408e0f82c6c9a5b92712038edaa64326d6/archives/copyright"],
+                "lib/libtinfo.so.5": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/libtinfo.so.5"],
+                "lib/libtinfo5-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/copyright.txt"],
             },
             remote_file_integrity = {
                 "lib/libtinfo.so.5": "sha256-Es/8cnQZDKFpOlLM2DA+cZQH5wfIVX3ft+74HyCO+qs=",
@@ -211,6 +218,7 @@ def cc_toolchain_deps():
             versions = {
                 "@llvm18_linux_aarch64//:all": "18",
                 "@llvm20_linux_aarch64//:all": "20",
+                "@llvm21_linux_aarch64//:all": "21",
             },
             build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
@@ -235,6 +243,17 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "3c932449de47078a5a5c39499e1d741da6df29e767502803c1c7194022720a07",
             build_file = Label("//cc/config:llvm20_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-Linux-ARM64",
+        )
+
+    if "llvm21_linux_aarch64" not in native.existing_rules():
+        # LLVM 21 Linux aarch64
+        mirrored_http_archive(
+            name = "llvm21_linux_aarch64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.5/LLVM-21.1.5-Linux-ARM64.tar.xz"),
+            sha256 = "c9a1ee5d1a1698a8eb0abda1c1e44c812378aec32f89cc4fbbb41865237359a9",
+            mirrored_tar_sha256 = "559693d758ef8b6adddffbdf19fd69eb631cafed48d09099c9638ff820486f2c",
+            build_file = Label("//cc/config:llvm21_linux_aarch64.BUILD"),
+            strip_prefix = "LLVM-21.1.5-Linux-ARM64",
         )
 
     ################################################################

@@ -69,13 +69,23 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-# Flag indicating if we should enable forward compatibility.
+# Flag indicating whether we should use hermetic user mode driver.
+# It must be enabled for complete CUDA hermeticity.
 bool_flag(
-    name = "enable_forward_compatibility",
+    name = "include_cuda_umd_libs",
     build_setting_default = False,
+    visibility = ["//visibility:public"],
 )
 
 config_setting(
-    name = "forward_compatibility",
-    flag_values = {":enable_forward_compatibility": "True"},
+    name = "cuda_umd_libs",
+    flag_values = {":include_cuda_umd_libs": "True"},
+)
+
+# DEPRECATED: use the flag --@cuda_driver//:include_cuda_umd_libs instead
+# See the instructions in the paragraph 5 of the doc
+# https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/README.md#configure-hermetic-cuda-cudnn-and-nccl
+alias(
+    name = "enable_forward_compatibility",
+    actual = ":include_cuda_umd_libs",
 )

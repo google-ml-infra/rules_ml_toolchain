@@ -272,6 +272,18 @@ CUDNN_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.14.0.json",
         "fe58e8e9559ef5c61ab7a9954472d16acdcbad3b099004296ae410d25982830d",
     ],
+    "9.15.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.15.0.json",
+        "2396ed88435a0f6b400db53ac229f49aa2425282994a186e867ea367c20fd352",
+    ],
+    "9.15.1": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.15.1.json",
+        "8c9897222c644528a25e0bd4d04d5ee9b9cb57995307c176d4dce28c25e415ef",
+    ],
+    "9.16.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.16.0.json",
+        "c95167877ac0ded30a29accc9d337a5e60cd70d1a01a3492de56624b39eab868",
+    ],
 }
 
 MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
@@ -358,6 +370,10 @@ MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
     "9.13.0": [
         "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.13.0_tar.json",
         "b2fe96612070231275461fc84bceccc094d193546a107c8a2cda4fa322628a1f",
+    ],
+    "9.14.0": [
+        "https://storage.googleapis.com/mirror.tensorflow.org/developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.14.0_tar.json",
+        "a08067b3dabdd3066640a8189f63260a4fb1b8eddce893e8a484188ab4ec4ebf",
     ],
 }
 
@@ -497,8 +513,9 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cudnn": {
         "repo_name": "cuda_cudnn",
         "version_to_template": {
-            "9": "//third_party/gpus/cuda/hermetic:cuda_cudnn9.BUILD.tpl",
-            "8": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "10": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "9": "//third_party/gpus/cuda/hermetic:cuda_cudnn.BUILD.tpl",
+            "8": "//third_party/gpus/cuda/hermetic:cuda_cudnn8.BUILD.tpl",
         },
     },
     "libcublas": {

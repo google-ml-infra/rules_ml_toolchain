@@ -54,8 +54,8 @@ cc_toolchain_import(
         "@sysroot_linux_aarch64//:includes_c",
         "@llvm_linux_aarch64//:includes",
         "@sysroot_linux_aarch64//:includes_system",
-        "@sysroot_linux_aarch64//:glibc",
-        "@sysroot_linux_aarch64//:pthread",
+        "@sysroot_linux_aarch64//:syslibs",
+        "@sysroot_linux_aarch64//:openmp",
     ],
     visibility = ["//visibility:public"],
 )
@@ -81,7 +81,7 @@ filegroup(
 filegroup(
     name = "compiler",
     srcs = [
-        ":all",
+        ":imports",
         ":wrappers",
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
@@ -117,8 +117,8 @@ filegroup(
     name = "objcopy",
     srcs = [
         ":wrappers",
-        "@llvm_linux_x86_64//:objcopy",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_aarch64//:objcopy",
+        "@llvm_linux_aarch64//:distro_libs",
     ],
 )
 

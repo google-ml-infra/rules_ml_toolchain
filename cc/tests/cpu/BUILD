@@ -223,6 +223,20 @@ py_test(
 )
 
 #############################################
+# OpenMP
+cc_test(
+    name = "openmp_test",
+    srcs = ["openmp_test.cc"],
+    deps = [
+        "//cc/sysroots:openmp",
+        "@gtest//:gtest_main",
+    ],
+    linkopts = [
+        "-fopenmp",
+    ],
+)
+
+#############################################
 # Tests Suite
 test_suite(
     name = "all",
@@ -232,5 +246,6 @@ test_suite(
         ":echoclient_test",
         ":protobuf_test",
         ":protoclient_tool_test",
+        ":openmp_test",
     ],
 )

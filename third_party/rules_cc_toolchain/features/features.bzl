@@ -26,6 +26,7 @@ load(
     "ACTION_NAME_GROUPS",
     "ALL_CC_COMPILE_ACTION_NAMES",
     "ALL_CPP_COMPILE_ACTION_NAMES",
+    "ALL_CC_LINK_ACTION_NAMES",
     "CC_LINK_EXECUTABLE_ACTION_NAMES",
     "DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
 )
@@ -350,31 +351,42 @@ cc_toolchain_import_feature = rule(
 )
 
 def _sysroot_feature(ctx):
+    flag_sets = [
+        flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
+                      DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
+                      ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "--target=" + ctx.attr.target,
+                    ],
+                ),
+            ],
+        ),
+    ]
+
+    flag_sets += [
+        flag_set(
+            actions =   ALL_CC_LINK_ACTION_NAMES +
+                        ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "--sysroot",
+                        ctx.attr.sysroot.label.workspace_root,
+                    ],
+                ),
+            ],
+        ),
+    ]
+
     return _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
         provides = ctx.attr.provides,
         implies = ["sysroot"] + [label.name for label in ctx.attr.implies],
-        flag_sets = [
-            flag_set(
-                actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
-                          DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
-                          ALL_CC_COMPILE_ACTION_NAMES,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "--sysroot",
-                            ctx.attr.sysroot.label.workspace_root,
-                        ],
-                    ),
-                    flag_group(
-                        flags = [
-                            "--target=" + ctx.attr.target,
-                        ],
-                    ),
-                ],
-            ),
-        ],
+        flag_sets = flag_sets,
     )
 
 cc_toolchain_sysroot_feature = rule(

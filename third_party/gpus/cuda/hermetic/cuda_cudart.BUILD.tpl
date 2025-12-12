@@ -39,7 +39,7 @@ cc_library(
 cc_library(
     name = "cudart",
     %{comment}deps = select({
-        %{comment}"@cuda_driver//:forward_compatibility": [
+        %{comment}"@cuda_driver//:cuda_umd_libs": [
             %{comment}"@cuda_driver//:nvidia_driver",
             %{comment}"@cuda_driver//:nvidia_ptxjitcompiler",
         %{comment}],

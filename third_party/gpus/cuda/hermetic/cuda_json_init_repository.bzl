@@ -38,7 +38,14 @@ load(
     _cudnn_redistributions = "CUDNN_REDISTRIBUTIONS",
 )
 
-CUDA_REDISTRIBUTIONS = _cuda_redistributions
+load(
+    "@cuda_umd_redist_json//:distributions.bzl",
+    _cuda_umd_redistributions = "CUDA_UMD_REDISTRIBUTIONS",
+)
+
+_cuda_redistributions_updated = dict(_cuda_redistributions, nvidia_driver = _cuda_umd_redistributions.get("nvidia_driver", {}))
+
+CUDA_REDISTRIBUTIONS = _cuda_redistributions_updated
 
 CUDNN_REDISTRIBUTIONS = _cudnn_redistributions
 """,
@@ -77,6 +84,20 @@ def cuda_json_init_repository(
         use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
     )
 
+    json_init_repository(
+        name = "cuda_umd_redist_json",
+        toolkit_name = "CUDA_UMD",
+        json_dict = cuda_json_dict,
+        mirrored_tars_json_dict = mirrored_tars_cuda_json_dict,
+        redist_version_env_vars = [
+            "HERMETIC_CUDA_UMD_VERSION",
+            "HERMETIC_CUDA_VERSION",
+            "TF_CUDA_VERSION",
+        ],
+        local_path_env_var = "LOCAL_CUDA_PATH",
+        use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
+    )
+
     # This repository is needed to combine the CUDA and CUDNN redistributions.
     _combined_redist_json(
         name = "cuda_redist_json",
@@ -88,4 +109,9 @@ def cuda_json_init_repository_wrapper(
         cudnn_json_dict,
         mirrored_tars_cuda_json_dict,
         mirrored_tars_cudnn_json_dict):
-    cuda_json_init_repository(cuda_json_dict, cudnn_json_dict, mirrored_tars_cuda_json_dict, mirrored_tars_cudnn_json_dict)
+    cuda_json_init_repository(
+        cuda_json_dict,
+        cudnn_json_dict,
+        mirrored_tars_cuda_json_dict,
+        mirrored_tars_cudnn_json_dict,
+    )

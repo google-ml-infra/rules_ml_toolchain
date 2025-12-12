@@ -22,9 +22,10 @@ package(
 )
 
 #=====================================================================
-# Tools: Linux x86_64, Sysroot: Linux x86_64
+# Executor platform: Linux x86_64
 #=====================================================================
 
+# Target platform: Linux x86_64, Essential (Default) toolchain
 toolchain(
     name = "linux_x86_64_linux_x86_64",
     exec_compatible_with = [
@@ -44,33 +45,7 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-#=====================================================================
-# Tools: Linux aarch64, Sysroot: Linux aarch64
-#=====================================================================
-
-toolchain(
-    name = "linux_aarch64_linux_aarch64",
-    exec_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//cc/impls/linux_aarch64_linux_aarch64:toolchain",
-    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-)
-
-#=====================================================================
-# Tools: Linux x86_64, Sysroot: Linux x86_64, CUDA
-#=====================================================================
-
+# Target platform: Linux x86_64, CUDA
 toolchain(
     name = "linux_x86_64_linux_x86_64_cuda",
     exec_compatible_with = [
@@ -90,14 +65,11 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-#=====================================================================
-# Tools: Linux aarch64, Sysroot: Linux aarch64, CUDA
-#=====================================================================
-
+# Target platform: Linux aarch64
 toolchain(
-    name = "linux_aarch64_linux_aarch64_cuda",
+    name = "linux_x86_64_linux_aarch64",
     exec_compatible_with = [
-        "@platforms//cpu:aarch64",
+        "@platforms//cpu:x86_64",
         "@platforms//os:linux",
     ],
     target_compatible_with = [
@@ -105,18 +77,35 @@ toolchain(
         "@platforms//os:linux",
     ],
     target_settings = [
-        "//common:is_cuda_enabled",
+        "//common:is_cuda_disabled",
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
-    toolchain = "//cc/impls/linux_aarch64_linux_aarch64_cuda:toolchain",
+    toolchain = "//cc/impls/linux_x86_64_linux_aarch64:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-#=====================================================================
-# Tools: Linux x86_64, Sysroot: Linux x86_64, SYCL
-#=====================================================================
+# Target platform: Darwin aarch64
+toolchain(
+    name = "linux_x86_64_darwin_aarch64",
+    exec_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:macos",
+    ],
+    target_settings = [
+        "//common:is_cuda_disabled",
+        "//common:is_sycl_disabled",
+        "//common:is_hermetic_cc_enabled",
+    ],
+    toolchain = "//cc/impls/linux_x86_64_darwin_aarch64:toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
 
+# Target platform: Linux x86_64, SYCL
 toolchain(
     name = "linux_x86_64_linux_x86_64_sycl",
     exec_compatible_with = [
@@ -137,13 +126,14 @@ toolchain(
 )
 
 #=====================================================================
-# Tools: Linux x86_64, Sysroot: Linux aarch64
+# Executor platform: aarch64
 #=====================================================================
 
+# Target platform: Linux aarch64, Essential (Default) toolchain
 toolchain(
-    name = "linux_x86_64_linux_aarch64",
+    name = "linux_aarch64_linux_aarch64",
     exec_compatible_with = [
-        "@platforms//cpu:x86_64",
+        "@platforms//cpu:aarch64",
         "@platforms//os:linux",
     ],
     target_compatible_with = [
@@ -155,38 +145,35 @@ toolchain(
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
-    toolchain = "//cc/impls/linux_x86_64_linux_aarch64:toolchain",
+    toolchain = "//cc/impls/linux_aarch64_linux_aarch64:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-#=====================================================================
-# Tools: Linux x86_64, Sysroot: macOS aarch64
-#=====================================================================
-
-# buildifier: leave-alone
+# Target platform: Linux aarch64, CUDA
 toolchain(
-    name = "linux_x86_64_darwin_aarch64",
+    name = "linux_aarch64_linux_aarch64_cuda",
     exec_compatible_with = [
-        "@platforms//cpu:x86_64",
+        "@platforms//cpu:aarch64",
         "@platforms//os:linux",
     ],
     target_compatible_with = [
         "@platforms//cpu:aarch64",
-        "@platforms//os:macos",
+        "@platforms//os:linux",
     ],
     target_settings = [
-        "//common:is_cuda_disabled",
+        "//common:is_cuda_enabled",
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
-    toolchain = "//cc/impls/linux_x86_64_darwin_aarch64:toolchain",
+    toolchain = "//cc/impls/linux_aarch64_linux_aarch64_cuda:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
 #=====================================================================
-# Tools: macOS aarch64, Sysroot: macOS aarch64
+# Executor platform: macOS aarch64
 #=====================================================================
 
+# Target platform: macOS aarch64
 # buildifier: leave-alone
 toolchain(
     name = "darwin_aarch64_darwin_aarch64",
