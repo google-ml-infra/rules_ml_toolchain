@@ -429,7 +429,7 @@ def _cc_toolchain_config_impl(ctx):
             "strip": ctx.file.strip_tool,
             "in": ctx.file.install_name,
         })],
-        action_configs = _get_link_actions_config(ctx),
+        #action_configs = _get_link_actions_config(ctx),
     )
 
 cc_toolchain_config = rule(

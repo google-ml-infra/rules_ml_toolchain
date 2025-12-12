@@ -20,7 +20,7 @@
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
-load("//cc/features:features.bzl", "cc_toolchain_import_asan_feature")
+load("//cc/features:features.bzl", "cc_toolchain_import_asan_feature", "cc_toolchain_import_asan_static_feature")
 
 package(
     default_visibility = [
@@ -66,14 +66,15 @@ cc_toolchain_import(
     name = "asan",
     deps = [
         "@llvm_linux_x86_64//:libclang_rt",
-        "@llvm_linux_x86_64//:libclang_rt_asan",
+        "@llvm_linux_x86_64//:rt_asan",
     ],
 )
 
-cc_toolchain_import_asan_feature(
+cc_toolchain_import_asan_static_feature(
     name = "asan_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_x86_64//:syslibs",
+    #toolchain_import = "@sysroot_linux_x86_64//:syslibs",      # Dynamic library linking
+    toolchain_import = "asan",
     asan_ignorelist = "@llvm_linux_x86_64//:asan_ignorelist",
 )
 
@@ -92,12 +93,12 @@ filegroup(
 filegroup(
     name = "compiler",
     srcs = [
+        ":asan",
         ":imports",
         ":wrappers",
         "@llvm_linux_x86_64//:clang",
         "@llvm_linux_x86_64//:clang++",
         "@llvm_linux_x86_64//:distro_libs",
-        "@llvm_linux_x86_64//:asan_ignorelist",
     ],
 )
 

@@ -132,7 +132,7 @@ filegroup(
 )
 
 cc_toolchain_import(
-    name = "libclang_rt_asan",
+    name = "rt_asan",
     additional_libs = [
         "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan.a".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan_static.a".format(clang_version = CLANG_VERSION),

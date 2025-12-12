@@ -15,10 +15,10 @@
 
 load(
     "@rules_cc//cc:action_names.bzl",
-    "ALL_CC_LINK_ACTION_NAMES",
     "ACTION_NAMES",
     "ACTION_NAME_GROUPS",
     "ALL_CC_COMPILE_ACTION_NAMES",
+    "ALL_CC_LINK_ACTION_NAMES",
     "ALL_CPP_COMPILE_ACTION_NAMES",
     "CC_LINK_EXECUTABLE_ACTION_NAMES",
     "DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
@@ -86,12 +86,16 @@ ASAN_IGNORELIST = [
     "asan_ignorelist.txt",
 ]
 
-ASAN_STATIC_COMPILER_FLAGS = [
+ASAN_COMPILER_FLAGS = [
     "-fsanitize=address",
-    "-fno-sanitize-memory-param-retval",
+    #"-fno-sanitize-memory-param-retval",
     "-fsanitize-address-use-after-scope",
-    "-fsanitize-address-globals-dead-stripping",
+    "-fsanitize-address-globals-dead-stripping",  # ?
     "-fno-assume-sane-operator-new",
+]
+
+ASAN_LINKER_FLAGS = [
+    "-fsanitize=address",
 ]
 
 def _filter_asan_common_libs(flags):
@@ -139,7 +143,7 @@ def _import_asan_static_feature_impl(ctx):
 
     compiler_flags = depset([
         flag
-        for flag in ASAN_STATIC_COMPILER_FLAGS
+        for flag in ASAN_COMPILER_FLAGS
     ]).to_list()
 
     ignorelist_flags = depset([
@@ -188,14 +192,16 @@ def _import_asan_static_feature_impl(ctx):
             file.path
             for file in toolchain_import_info
                 .linking_context.additional_libs.to_list()
-    ])]).to_list()
+        ])
+    ]).to_list()
 
     if common_linker_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES, # + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,  # + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
             flag_groups = [
                 flag_group(
-                    flags = linker_dir_flags + common_linker_flags,
+                    #flags = ASAN_LINKER_FLAGS + linker_dir_flags + common_linker_flags,
+                    flags = ASAN_LINKER_FLAGS,
                 ),
             ],
         ))
@@ -206,7 +212,8 @@ def _import_asan_static_feature_impl(ctx):
             file.path
             for file in toolchain_import_info
                 .linking_context.additional_libs.to_list()
-    ])]).to_list()
+        ])
+    ]).to_list()
 
     exec_linker_syms_flags = depset(_filter_asan_exec_syms([
         ("-Wl,--dynamic-list=" + file.path)
@@ -256,14 +263,6 @@ ASAN_DYNAMIC_LIBS = [
     "libasan.so",
 ]
 
-ASAN_COMPILER_FLAGS = [
-    "-fsanitize=address",
-    #"-fno-sanitize-memory-param-retval",
-    "-fsanitize-address-use-after-scope",
-    "-fsanitize-address-globals-dead-stripping",        # ?
-    "-fno-assume-sane-operator-new",
-]
-
 def all_link_actions():
     return [
         ACTION_NAMES.cpp_link_executable,
@@ -298,24 +297,25 @@ def _import_asan_feature_impl(ctx):
             ],
         ))
 
-# Very late to set ASAN flag
-#    linker_flags = depset([
-#        _file_to_library_flag(lib)
-#        for lib in _filter_asan_libs([
-#            file
-#            for file in toolchain_import_info
-#                .linking_context.additional_libs.to_list()
-#    ])]).to_list()
-#
-#    if linker_flags:
-#        flag_sets.append(flag_set(
-#            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
-#            flag_groups = [
-#                flag_group(
-#                    flags = linker_flags,
-#                ),
-#            ],
-#        ))
+    # Very late to set ASAN flag
+    linker_flags = depset([
+        _file_to_library_flag(lib)
+        for lib in _filter_asan_libs([
+            file
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+        ])
+    ]).to_list()
+
+    if linker_flags:
+        flag_sets.append(flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = linker_flags,
+                ),
+            ],
+        ))
 
     library_feature = _feature(
         name = ctx.label.name,

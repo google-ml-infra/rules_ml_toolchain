@@ -9,6 +9,14 @@ common:clang_local --noincompatible_enable_cc_toolchain_resolution
 build:clang_local --@rules_ml_toolchain//common:enable_hermetic_cc=False
 build:clang_local --repo_env USE_HERMETIC_CC_TOOLCHAIN=0
 
+# Use linux_clang_local flag for local clang testing
+common:linux_clang_local --config=clang_local
+common:linux_clang_local --host_crosstool_top="@local_config_cuda//crosstool:toolchain"
+common:linux_clang_local --crosstool_top="@local_config_cuda//crosstool:toolchain"
+
+common:asan --copt=-fsanitize=address
+common:asan --linkopt=-fsanitize=address
+
 # Disable clang extention that rejects type definitions within offsetof.
 # This was added in clang-16 by https://reviews.llvm.org/D133574.
 # Can be removed once upb is updated, since a type definition is used within
