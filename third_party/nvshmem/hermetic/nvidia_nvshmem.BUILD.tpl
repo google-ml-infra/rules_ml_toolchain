@@ -46,7 +46,7 @@ genrule(
 )
 
 cc_binary(
-    name = "fake_nvshmem_bootstrap_uid_binary",
+    name = "nvshmem_bootstrap_uid.so",
     srcs = [":fake_nvshmem_bootstrap_uid_cc"],
     linkopts = ["-Wl,-soname,nvshmem_bootstrap_uid.so"],
     linkshared = True,
@@ -54,7 +54,7 @@ cc_binary(
 
 cc_import(
     name = "fake_nvshmem_bootstrap_uid",
-    shared_library = ":fake_nvshmem_bootstrap_uid_binary",
+    shared_library = ":nvshmem_bootstrap_uid.so",
 )
 %{multiline_comment}
 cc_library(
