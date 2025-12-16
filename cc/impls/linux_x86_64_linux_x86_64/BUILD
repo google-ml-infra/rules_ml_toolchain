@@ -112,6 +112,7 @@ filegroup(
         "@llvm_linux_x86_64//:clang",
         "@llvm_linux_x86_64//:clang++",
         "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:asan_ignorelist",
     ],
 )
 
