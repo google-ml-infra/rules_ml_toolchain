@@ -25,7 +25,9 @@ package(
 # Executor platform: Linux x86_64
 #=====================================================================
 
-# Target platform: Linux x86_64, Essential (Default) toolchain
+# Target platform: Linux x86_64,
+
+# Essentials
 toolchain(
     name = "linux_x86_64_linux_x86_64",
     exec_compatible_with = [
@@ -35,6 +37,7 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
+        "//common:essential",
     ],
     target_settings = [
         "//common:is_cuda_disabled",
@@ -42,6 +45,27 @@ toolchain(
         "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+# Toolchain with sanitizer
+toolchain(
+    name = "linux_x86_64_linux_x86_64_with_sanitizer",
+    exec_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+        "//common:with_sanitizer",
+    ],
+    target_settings = [
+        "//common:is_cuda_disabled",
+        "//common:is_sycl_disabled",
+        "//common:is_hermetic_cc_enabled",
+    ],
+    toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain_with_sanitizer",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 

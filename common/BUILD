@@ -18,6 +18,21 @@ load("//gpu/cuda:enable_cuda_flag.bzl", "enable_cuda_flag")
 
 package(default_visibility = ["//visibility:public"])
 
+constraint_setting(
+    name = "toolchain_mode",
+    default_constraint_value = ":essential",
+)
+
+constraint_value(
+    name = "essential",
+    constraint_setting = ":toolchain_mode",
+)
+
+constraint_value(
+    name = "with_sanitizer",
+    constraint_setting = ":toolchain_mode",
+)
+
 #######################################################
 # Platforms definitions and config settings
 platform(
@@ -25,6 +40,16 @@ platform(
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
+        ":essential",
+    ],
+)
+
+platform(
+    name = "linux_x86_64_with_sanitizer",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        ":with_sanitizer",
     ],
 )
 

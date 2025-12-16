@@ -197,11 +197,12 @@ def _import_asan_static_feature_impl(ctx):
 
     if common_linker_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,  # + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
             flag_groups = [
                 flag_group(
+                    flags = linker_dir_flags + common_linker_flags,
                     #flags = ASAN_LINKER_FLAGS + linker_dir_flags + common_linker_flags,
-                    flags = ASAN_LINKER_FLAGS,
+                    #flags = ASAN_LINKER_FLAGS,
                 ),
             ],
         ))
@@ -223,7 +224,7 @@ def _import_asan_static_feature_impl(ctx):
 
     if exec_linker_flags or exec_linker_syms_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES,
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES, # + DYNAMIC_LIBRARY_LINK_ACTION_NAMES ,
             flag_groups = [
                 flag_group(
                     flags = exec_linker_flags + exec_linker_syms_flags,
