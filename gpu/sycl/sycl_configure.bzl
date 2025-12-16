@@ -108,7 +108,7 @@ def _sycl_configure_impl(ctx):
         },
     )
 
-    ctx.file("sycl/BUILD", ctx.read(ctx.attr.build_defs_tpl))
+    ctx.file("sycl/BUILD", ctx.read(ctx.attr.build_file))
 
     ctx.file("BUILD", "")
 
