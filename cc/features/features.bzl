@@ -141,33 +141,34 @@ def _filter_files_by_keys(files, keys):
 def _import_asan_static_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
 
+    flag_sets = []
+
+    #    ignorelist_flags = depset([
+    #        "-fsanitize-system-ignorelist=" + flag.path
+    #        for flag in ctx.attr.asan_ignorelist[DefaultInfo].files.to_list()
+    #    ]).to_list()
+    #
+    #    if ignorelist_flags:
+    #        flag_sets.append(flag_set(
+    #            actions = ALL_CC_COMPILE_ACTION_NAMES,
+    #            flag_groups = [
+    #                flag_group(
+    #                    flags = ignorelist_flags,
+    #                ),
+    #            ],
+    #        ))
+
     compiler_flags = depset([
         flag
         for flag in ASAN_COMPILER_FLAGS
     ]).to_list()
 
-    ignorelist_flags = depset([
-        "-fsanitize-system-ignorelist=" + flag.path
-        for flag in ctx.attr.asan_ignorelist[DefaultInfo].files.to_list()
-    ]).to_list()
-
-    flag_sets = []
     if compiler_flags:
         flag_sets.append(flag_set(
             actions = ALL_CC_COMPILE_ACTION_NAMES,
             flag_groups = [
                 flag_group(
                     flags = compiler_flags,
-                ),
-            ],
-        ))
-
-    if ignorelist_flags:
-        flag_sets.append(flag_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES,
-            flag_groups = [
-                flag_group(
-                    flags = ignorelist_flags,
                 ),
             ],
         ))
