@@ -50,7 +50,7 @@ toolchain(
 
 # Toolchain with sanitizer
 toolchain(
-    name = "linux_x86_64_linux_x86_64_with_sanitizer",
+    name = "linux_x86_64_linux_x86_64_with_sanitizers",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -58,14 +58,14 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
-        "//common:with_sanitizer",
+        "//common:with_sanitizers",
     ],
     target_settings = [
         "//common:is_cuda_disabled",
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
-    toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain_with_sanitizer",
+    toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain_with_sanitizers",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 

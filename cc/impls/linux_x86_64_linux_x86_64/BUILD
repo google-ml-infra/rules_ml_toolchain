@@ -224,7 +224,7 @@ cc_toolchain(
 
 # Essential toolchain
 cc_toolchain_config(
-    name = "config_with_sanitizer",
+    name = "config_with_sanitizers",
     archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
@@ -277,7 +277,7 @@ cc_toolchain_config(
 )
 
 cc_toolchain(
-    name = "toolchain_with_sanitizer",
+    name = "toolchain_with_sanitizers",
     all_files = ":all",
     ar_files = ":ar",
     compiler_files = ":compiler",
@@ -286,6 +286,6 @@ cc_toolchain(
     objcopy_files = ":objcopy",
     strip_files = ":strip",
     supports_param_files = 1,
-    toolchain_config = ":config_with_sanitizer",
-    toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_with_sanitizer_id",
+    toolchain_config = ":config_with_sanitizers",
+    toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_with_sanitizers_id",
 )

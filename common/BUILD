@@ -29,7 +29,7 @@ constraint_value(
 )
 
 constraint_value(
-    name = "with_sanitizer",
+    name = "with_sanitizers",
     constraint_setting = ":toolchain_mode",
 )
 
@@ -45,11 +45,11 @@ platform(
 )
 
 platform(
-    name = "linux_x86_64_with_sanitizer",
+    name = "linux_x86_64_with_sanitizers",
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
-        ":with_sanitizer",
+        ":with_sanitizers",
     ],
 )
 
