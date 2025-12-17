@@ -30,39 +30,11 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/nvshmem_transport_ibrc.so.%{nvshmem_transport_ibrc_version}",
 )
-
-# Workaround for adding nvshmem_bootstrap_uid library symlink to cc_binaries.
-cc_import(
-    name = "nvshmem_bootstrap_uid_so",
-    shared_library = "lib/nvshmem_bootstrap_uid.so",
-)
-
-# Workaround for adding nvshmem_bootstrap_uid.so to NEEDED section
-# of cc_binaries.
-genrule(
-    name = "fake_nvshmem_bootstrap_uid_cc",
-    outs = ["nvshmem_bootstrap_uid.cc"],
-    cmd = "echo '' > $@",
-)
-
-cc_binary(
-    name = "fake_nvshmem_bootstrap_uid_binary",
-    srcs = [":fake_nvshmem_bootstrap_uid_cc"],
-    linkopts = ["-Wl,-soname,nvshmem_bootstrap_uid.so"],
-    linkshared = True,
-)
-
-cc_import(
-    name = "fake_nvshmem_bootstrap_uid",
-    shared_library = ":fake_nvshmem_bootstrap_uid_binary",
-)
 %{multiline_comment}
 cc_library(
     name = "nvshmem",
     %{comment}deps = [
       %{comment}":nvshmem_host_shared_library",
-      %{comment}":nvshmem_bootstrap_uid_so",
-      %{comment}":fake_nvshmem_bootstrap_uid",
       %{comment}":nvshmem_bootstrap_uid_shared_library",
       %{comment}":nvshmem_transport_ibrc_shared_library",
     %{comment}],
