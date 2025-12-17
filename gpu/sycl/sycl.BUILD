@@ -17,4 +17,5 @@
 alias(
     name = "sycl_headers",
     actual = "@@oneapi//:headers"
+    visibility = ["//visibility:public"],
 )
