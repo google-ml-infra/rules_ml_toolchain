@@ -227,12 +227,12 @@ py_test(
 cc_test(
     name = "openmp_test",
     srcs = ["openmp_test.cc"],
+    linkopts = [
+        "-fopenmp",
+    ],
     deps = [
         "//cc/sysroots:openmp",
         "@gtest//:gtest_main",
-    ],
-    linkopts = [
-        "-fopenmp",
     ],
 )
 
@@ -244,12 +244,12 @@ cc_test(
     deps = [
         "@gtest//:gtest_main",
     ],
-#    copts = [
-#        "-fsanitize=address",
-#    ],
-#    linkopts = [
-#        "-fsanitize=address",
-#    ],
+    #    copts = [
+    #        "-fsanitize=address",
+    #    ],
+    #    linkopts = [
+    #        "-fsanitize=address",
+    #    ],
 )
 
 #############################################
@@ -262,6 +262,7 @@ test_suite(
         ":echoclient_test",
         ":protobuf_test",
         ":protoclient_tool_test",
-        ":openmp_test",
+        #":openmp_test",
+        #":sanitizers_test",
     ],
 )

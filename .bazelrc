@@ -16,6 +16,7 @@ common:linux_clang_local --crosstool_top="@local_config_cuda//crosstool:toolchai
 
 common:asan --copt=-fsanitize=address
 common:asan --linkopt=-fsanitize=address
+common:asan --strip=never
 
 # Disable clang extention that rejects type definitions within offsetof.
 # This was added in clang-16 by https://reviews.llvm.org/D133574.

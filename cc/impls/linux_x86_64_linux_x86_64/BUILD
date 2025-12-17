@@ -158,50 +158,53 @@ filegroup(
     ],
 )
 
+FEATURES_ESSENTIAL = [
+    # Hermetic libraries feature required before import.
+    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+    ":imports_feature",
+
+    # Toolchain configuration
+    "//third_party/rules_cc_toolchain/features:warnings",
+    "//third_party/rules_cc_toolchain/features:errors",
+    "//third_party/rules_cc_toolchain/features:reproducible",
+    "//third_party/rules_cc_toolchain/features:language",
+    "//third_party/rules_cc_toolchain/features:use_lld",
+    "//cc/features:sysroot_linux_x86_64",
+    ":startup_libs_feature",
+    "//third_party/rules_cc_toolchain/features:coverage",
+    #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
+
+    # PIC / PIE flags
+    "//third_party/rules_cc_toolchain/features:supports_pic",
+    "//third_party/rules_cc_toolchain/features:position_independent_code",
+    "//third_party/rules_cc_toolchain/features:position_independent_executable",
+
+    # Optimization flags
+    "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
+    "//third_party/rules_cc_toolchain/features:opt",
+    "//cc/features:constants_merge",
+    "//cc/features:asserts_disable",
+    "//cc/features:detect_issues",
+    "//cc/features:detect_issues_ext",
+
+    # C++ standard configuration
+    "//third_party/rules_cc_toolchain/features:c++11",
+    "//third_party/rules_cc_toolchain/features:c++14",
+    "//third_party/rules_cc_toolchain/features:c++17",
+
+    #
+    "//cc/features:allow_shlib_undefined",
+    "//cc/features:supports_dynamic_linker",
+    "//cc/features:supports_start_end_lib_feature",
+]
+
 cc_toolchain_config(
     name = "config",
     archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
-    compiler_features = [
-        # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-        ":imports_feature",
-
-        # Toolchain configuration
-        "//third_party/rules_cc_toolchain/features:warnings",
-        "//third_party/rules_cc_toolchain/features:errors",
-        "//third_party/rules_cc_toolchain/features:reproducible",
-        "//third_party/rules_cc_toolchain/features:language",
-        "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_x86_64",
-        ":startup_libs_feature",
-        "//third_party/rules_cc_toolchain/features:coverage",
-        #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
-
-        # PIC / PIE flags
-        "//third_party/rules_cc_toolchain/features:supports_pic",
-        "//third_party/rules_cc_toolchain/features:position_independent_code",
-        "//third_party/rules_cc_toolchain/features:position_independent_executable",
-
-        # Optimization flags
-        "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
-        "//cc/features:constants_merge",
-        "//cc/features:asserts_disable",
-        "//third_party/rules_cc_toolchain/features:dbg",
-        "//third_party/rules_cc_toolchain/features:opt",
-        "//cc/features:detect_issues",
-        "//cc/features:detect_issues_ext",
-
-        # C++ standard configuration
-        "//third_party/rules_cc_toolchain/features:c++11",
-        "//third_party/rules_cc_toolchain/features:c++14",
-        "//third_party/rules_cc_toolchain/features:c++17",
-
-        #
-        "//cc/features:allow_shlib_undefined",
-        "//cc/features:supports_dynamic_linker",
-        "//cc/features:supports_start_end_lib_feature",
+    compiler_features = FEATURES_ESSENTIAL + [
+        "//third_party/rules_cc_toolchain/features:dbg_disable",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
@@ -223,52 +226,15 @@ cc_toolchain(
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_id",
 )
 
-# Essential toolchain
+# Toolchain with sanitizers
 cc_toolchain_config(
     name = "config_with_sanitizers",
     archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
-    compiler_features = [
-        # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-        ":asan_feature",  # ASan should come first in initial library list
-        ":imports_feature",
-
-        # Toolchain configuration
-        "//third_party/rules_cc_toolchain/features:warnings",
-        "//third_party/rules_cc_toolchain/features:errors",
-        "//third_party/rules_cc_toolchain/features:reproducible",
-        "//third_party/rules_cc_toolchain/features:language",
-        "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_x86_64",
-        ":startup_libs_feature",
-        "//third_party/rules_cc_toolchain/features:coverage",
-        #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
-
-        # PIC / PIE flags
-        "//third_party/rules_cc_toolchain/features:supports_pic",
-        "//third_party/rules_cc_toolchain/features:position_independent_code",
-        "//third_party/rules_cc_toolchain/features:position_independent_executable",
-
-        # Optimization flags
-        "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
-        "//cc/features:constants_merge",
-        "//cc/features:asserts_disable",
+    compiler_features = FEATURES_ESSENTIAL + [
+        ":asan_feature",
         "//third_party/rules_cc_toolchain/features:dbg",
-        "//third_party/rules_cc_toolchain/features:opt",
-        "//cc/features:detect_issues",
-        "//cc/features:detect_issues_ext",
-
-        # C++ standard configuration
-        "//third_party/rules_cc_toolchain/features:c++11",
-        "//third_party/rules_cc_toolchain/features:c++14",
-        "//third_party/rules_cc_toolchain/features:c++17",
-
-        #
-        "//cc/features:allow_shlib_undefined",
-        "//cc/features:supports_dynamic_linker",
-        "//cc/features:supports_start_end_lib_feature",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
