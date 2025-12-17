@@ -253,10 +253,11 @@ cc_toolchain_import_asan_static_feature = rule(
             mandatory = True,
             providers = [CcToolchainImportInfo],
         ),
-        "asan_ignorelist": attr.label(
-            mandatory = True,
-            providers = [DefaultInfo],
-        ),
+        # Don't need to add ASAN ignore list (works by default)
+        #"asan_ignorelist": attr.label(
+        #    mandatory = True,
+        #    providers = [DefaultInfo],
+        #),
     },
     provides = [FeatureInfo, DefaultInfo],
 )

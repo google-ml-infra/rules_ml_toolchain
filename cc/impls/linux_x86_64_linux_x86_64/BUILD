@@ -17,7 +17,7 @@
 # Tools: Linux x86_64, Sysroot: Linux x86_64
 # ==============================================================================
 
-load("//cc/features:features.bzl", "cc_toolchain_import_asan_feature", "cc_toolchain_import_asan_static_feature")
+load("//cc/features:features.bzl", "cc_toolchain_import_asan_static_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -85,10 +85,8 @@ cc_toolchain_import(
 
 cc_toolchain_import_asan_static_feature(
     name = "asan_feature",
-    asan_ignorelist = "@llvm_linux_x86_64//:asan_ignorelist",
     enabled = True,
-    #toolchain_import = "@sysroot_linux_x86_64//:syslibs",      # Dynamic library linking
-    toolchain_import = "asan",
+    toolchain_import = ":asan",
 )
 
 # buildifier: leave-alone
@@ -159,8 +157,7 @@ filegroup(
 )
 
 FEATURES_ESSENTIAL = [
-    # Hermetic libraries feature required before import.
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+    "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
     ":imports_feature",
 
     # Toolchain configuration
@@ -187,12 +184,12 @@ FEATURES_ESSENTIAL = [
     "//cc/features:detect_issues",
     "//cc/features:detect_issues_ext",
 
-    # C++ standard configuration
+    # C++ standard flags
     "//third_party/rules_cc_toolchain/features:c++11",
     "//third_party/rules_cc_toolchain/features:c++14",
     "//third_party/rules_cc_toolchain/features:c++17",
 
-    #
+    # Other flags
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
