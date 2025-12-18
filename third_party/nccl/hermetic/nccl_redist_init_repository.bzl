@@ -140,9 +140,9 @@ def nccl_redist_init_repository(
         for arch in OS_ARCH_DICT.values():
             if arch in nccl_wheels.keys():
                 for nccl_version, nccl_wheel in nccl_wheels[arch].items():
-                    cuda_version_to_arch_key = "%s-%s-nccl-%s" % (cuda_version, arch, nccl_version)
-                    nccl_artifacts_dict["sha256_dict"][cuda_version_to_arch_key] = nccl_wheel.get("sha256", "")
-                    nccl_artifacts_dict["url_dict"][cuda_version_to_arch_key] = nccl_wheel["url"]
+                    nccl_artifact_key = "%s-%s-nccl-%s" % (cuda_version, arch, nccl_version)
+                    nccl_artifacts_dict["sha256_dict"][nccl_artifact_key] = nccl_wheel.get("sha256", "")
+                    nccl_artifacts_dict["url_dict"][nccl_artifact_key] = nccl_wheel["url"]
     repo_data = redist_versions_to_build_templates["cuda_nccl"]
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
