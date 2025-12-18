@@ -73,7 +73,7 @@ def _use_downloaded_nccl_wheel(repository_ctx):
              " Please provide a supported version in HERMETIC_CUDA_VERSION" +
              " and HERMETIC_NCCL_VERSION environment variables or add NCCL" +
              " distribution for CUDA version={version}, OS={arch}" +
-             " and NCCL={ncc_version}.")
+             " and NCCL={nccl_version}.")
                 .format(
                 supported_versions = supported_versions,
                 version = cuda_version,
