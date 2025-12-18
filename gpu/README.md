@@ -41,9 +41,9 @@ dictionary,
 [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
 The `.bazelrc` files of individual projects have `HERMETIC_CUDA_VERSION`,
-`HERMETIC_CUDNN_VERSION`, `HERMETIC_NVSHMEM_VERSION` environment variables set
-to the versions used by default when `--config=cuda` is specified in Bazel
-command options.
+`HERMETIC_CUDNN_VERSION`, `HERMETIC_NCLL_VERSION`, `HERMETIC_NVSHMEM_VERSION`
+environment variables set to the versions used by default when `--config=cuda`
+is specified in Bazel command options.
 
 ### Environment variables controlling the hermetic CUDA/CUDNN/NVSHMEM versions
 
@@ -57,18 +57,21 @@ Three ways to set the environment variables for Bazel commands:
 # Add an entry to your `.bazelrc` file
 build:cuda --repo_env=HERMETIC_CUDA_VERSION="12.8.0"
 build:cuda --repo_env=HERMETIC_CUDNN_VERSION="9.8.0"
+build:cude --repo_env=HERMETIC_NCLL_VERSION="2.27.7"
 build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # OR pass it directly to your specific build command
 bazel build --config=cuda <target> \
 --repo_env=HERMETIC_CUDA_VERSION="12.8.0" \
 --repo_env=HERMETIC_CUDNN_VERSION="9.8.0" \
+--repo_evn=HERMETIC_NCLL_VERSION="2.27.7" \
 --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # If .bazelrc doesn't have corresponding entries and the environment variables
 # are not passed to bazel command, you can set them globally in your shell:
 export HERMETIC_CUDA_VERSION="12.8.0"
 export HERMETIC_CUDNN_VERSION="9.8.0"
+export HERMETIC_NCLL_VERSION="2.27.7"
 export HERMETIC_NVSHMEM_VERSION="3.2.5"
 ```
 
@@ -254,7 +257,15 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 
    ```
 
-2. To select specific version of hermetic NVSHMEM, set the
+2. To select specific version of hermetic NCLL, set the
+   `HERMETIC_NCCL_VERFSION` environment variable. Use only supported versions.
+   You may set the environment
+   variables directly in your shell or in `.bazelrc` file as shown below:
+   ```
+   build:cuda --repo_env=HERMETIC_NCCL_VERFSION="2.27.7"
+   ```   
+
+3. To select specific version of hermetic NVSHMEM, set the
    `HERMETIC_NVSHMEM_VERSION` environment variable. Use only supported versions.
    You may set the environment
    variables directly in your shell or in `.bazelrc` file as shown below:
@@ -281,7 +292,7 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
     if needed.
 
 2.  For each Google ML project create a separate pull request with updated
-    `HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`,
+    `HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`, `HERMETIC_NCLL_VERSION`,
     `HERMETIC_NVSHMEM_VERSION` in `.bazelrc` file.
 
     The PR presubmit job executions will launch bazel tests and download
