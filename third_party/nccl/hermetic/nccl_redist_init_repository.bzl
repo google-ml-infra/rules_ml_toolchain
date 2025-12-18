@@ -61,8 +61,10 @@ def _use_downloaded_nccl_wheel(repository_ctx):
             )
     else:
         arch = OS_ARCH_DICT[repository_ctx.os.arch]
-    dict_key = "{cuda_version}-{arch}-nccl-{nccl_version}".format(
-        cuda_version = cuda_version,
+
+    cuda_major_version = cuda_version.split(".")[0]
+    dict_key = "cuda{cuda_major_version}-{arch}-nccl-{nccl_version}".format(
+        cuda_major_version = cuda_major_version,
         arch = arch,
         nccl_version = nccl_version,
     )
@@ -72,11 +74,11 @@ def _use_downloaded_nccl_wheel(repository_ctx):
             ("The supported NCCL versions are {supported_versions}." +
              " Please provide a supported version in HERMETIC_CUDA_VERSION" +
              " and HERMETIC_NCCL_VERSION environment variables or add NCCL" +
-             " distribution for CUDA version={version}, OS={arch}" +
+             " distribution for CUDA major version={version}, OS={arch}" +
              " and NCCL={nccl_version}.")
                 .format(
                 supported_versions = supported_versions,
-                version = cuda_version,
+                version = cuda_major_version,
                 arch = arch,
                 nccl_version = nccl_version,
             ),
@@ -136,11 +138,11 @@ def nccl_redist_init_repository(
     # buildifier: disable=function-docstring-args
     """Initializes NCCL repository."""
     nccl_artifacts_dict = {"sha256_dict": {}, "url_dict": {}}
-    for cuda_version, nccl_wheels in cuda_nccl_wheels.items():
+    for cuda_major_version, nccl_wheels in cuda_nccl_wheels.items():
         for arch in OS_ARCH_DICT.values():
             if arch in nccl_wheels.keys():
                 for nccl_version, nccl_wheel in nccl_wheels[arch].items():
-                    nccl_artifact_key = "%s-%s-nccl-%s" % (cuda_version, arch, nccl_version)
+                    nccl_artifact_key = "cuda%s-%s-nccl-%s" % (cuda_major_version, arch, nccl_version)
                     nccl_artifacts_dict["sha256_dict"][nccl_artifact_key] = nccl_wheel.get("sha256", "")
                     nccl_artifacts_dict["url_dict"][nccl_artifact_key] = nccl_wheel["url"]
     repo_data = redist_versions_to_build_templates["cuda_nccl"]

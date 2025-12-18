@@ -466,9 +466,12 @@ CUDA_11_NCCL_WHEEL_DICT = {
     },
 }
 
+# A mapping from CUDA major version to supported NCCL wheels.
 CUDA_NCCL_WHEELS = {
-    "11.8": CUDA_11_NCCL_WHEEL_DICT,
-} | {v: CUDA_12_NCCL_WHEEL_DICT for v in CUDA_REDIST_JSON_DICT.keys() if v.startswith("12")} | {v: CUDA_13_NCCL_WHEEL_DICT for v in CUDA_REDIST_JSON_DICT.keys() if v.startswith("13")}
+    "11": CUDA_11_NCCL_WHEEL_DICT,
+    "12": CUDA_12_NCCL_WHEEL_DICT,
+    "13": CUDA_13_NCCL_WHEEL_DICT,
+}
 
 # Ensures PTX version compatibility w/ Clang & ptxas in cuda_configure.bzl
 PTX_VERSION_DICT = {
