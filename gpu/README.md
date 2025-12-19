@@ -57,7 +57,7 @@ Three ways to set the environment variables for Bazel commands:
 # Add an entry to your `.bazelrc` file
 build:cuda --repo_env=HERMETIC_CUDA_VERSION="12.8.0"
 build:cuda --repo_env=HERMETIC_CUDNN_VERSION="9.8.0"
-build:cude --repo_env=HERMETIC_NCLL_VERSION="2.27.7"
+build:cuda --repo_env=HERMETIC_NCLL_VERSION="2.27.7"
 build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # OR pass it directly to your specific build command
