@@ -64,7 +64,7 @@ build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 bazel build --config=cuda <target> \
 --repo_env=HERMETIC_CUDA_VERSION="12.8.0" \
 --repo_env=HERMETIC_CUDNN_VERSION="9.8.0" \
---repo_evn=HERMETIC_NCLL_VERSION="2.27.7" \
+--repo_env=HERMETIC_NCLL_VERSION="2.27.7" \
 --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # If .bazelrc doesn't have corresponding entries and the environment variables
