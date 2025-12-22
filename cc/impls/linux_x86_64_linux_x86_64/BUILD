@@ -17,7 +17,7 @@
 # Tools: Linux x86_64, Sysroot: Linux x86_64
 # ==============================================================================
 
-load("//cc/features:features.bzl", "cc_toolchain_import_asan_static_feature")
+load("//cc/features:features.bzl", "cc_toolchain_import_asan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -81,12 +81,6 @@ cc_toolchain_import(
         "@llvm_linux_x86_64//:libclang_rt",
         "@llvm_linux_x86_64//:rt_asan",
     ],
-)
-
-cc_toolchain_import_asan_static_feature(
-    name = "asan_feature",
-    enabled = True,
-    toolchain_import = ":asan",
 )
 
 # buildifier: leave-alone
@@ -201,7 +195,7 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL + [
-        "//third_party/rules_cc_toolchain/features:dbg_disable",
+        "//third_party/rules_cc_toolchain/features:dbg_off",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
@@ -224,6 +218,16 @@ cc_toolchain(
 )
 
 # Toolchain with sanitizers
+cc_toolchain_import_asan_feature(
+    name = "asan_feature",
+    enabled = True,
+#    enabled = select({
+#        "//common:is_asan_enabled": True,
+#        "//conditions:default": False,
+#    }),
+    toolchain_import = ":asan",
+)
+
 cc_toolchain_config(
     name = "config_with_sanitizers",
     archiver = "@llvm_linux_x86_64//:ar",

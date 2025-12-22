@@ -152,7 +152,7 @@ cc_feature(
 )
 
 cc_feature(
-    name = "dbg_disable",
+    name = "dbg_off",
     compiler_flags = [
         "-g0",
     ],
