@@ -33,6 +33,9 @@ load(
     "env_entry",
     "env_set",
     "feature",
+    "feature_set",
+    "flag_group",
+    "flag_set",
     "tool",
     "tool_path",
 )
@@ -103,6 +106,128 @@ def _create_artifact_name_patterns(ctx):
 
     return artifact_name_patterns
 
+def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
+    """Returns features for layering check and header parsing."""
+
+    extra_module_map_flags = [
+        "-fmodule-map-file=" + file.path
+        for label in extra_module_maps
+        for file in label.files.to_list()
+    ]
+
+    return [
+        feature(
+            name = "module_map_home_cwd",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["-Xclang=-fmodule-map-file-home-is-cwd"],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        feature(
+            name = "use_module_maps",
+            requires = [
+              feature_set(
+                features = [
+                  "module_maps",
+                ],
+              ),
+            ],
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-fmodule-name=%{module_name}",
+                                "-fmodule-map-file=%{module_map_file}",
+                            ] + extra_flags_per_feature.get("use_module_maps", []),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        feature(
+            name = "module_maps",
+            enabled = True,
+            implies = [
+              "module_map_home_cwd",
+            ],
+        ),
+        feature(
+            name = "layering_check",
+            enabled = False,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(flags = [
+                            "-fmodules-strict-decluse",
+                            "-Wprivate-header",
+                        ]),
+                        # This list contains all of the module map dependencies
+                        # that are known to Blaze.
+                        flag_group(
+                            flags = [
+                                "-fmodule-map-file=%{dependent_module_map_files}",
+                            ],
+                            iterate_over = "dependent_module_map_files",
+                        ),
+                    ] + (
+                        # This must appear after the dependent_module_map_files
+                        # flags, because these files contain "crosstool.foo"
+                        # modules that extend the "crosstool" module, and thus
+                        # must appear after the file defining the top-level
+                        # "crosstool" module.  That file is provided to the
+                        # cc_toolchain rule as the "module_map" attribute, and
+                        # thus appears in the dependent_module_map_files list.
+                        [flag_group(flags = extra_module_map_flags)] if extra_module_map_flags else []
+                    ),
+                ),
+            ],
+            implies = ["use_module_maps"],
+        ),
+        feature(
+            name = "parse_headers",
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.cpp_header_parsing,
+                    ],
+                    flag_groups = [
+                        flag_group(flags = [
+                            "-xc++-header",
+                            "-fsyntax-only",
+                        ]),
+                    ],
+                ),
+            ],
+        ),
+        feature(name = "compiler_param_file"),
+        feature(name = "validates_layering_check_in_textual_hdrs", enabled = True),
+    ]
+
 def _cc_toolchain_config_impl(ctx):
     action_configs = [action_config(
         action_name = action,
@@ -139,7 +264,7 @@ def _cc_toolchain_config_impl(ctx):
             "ar": ctx.file.archiver,
             "strip": ctx.file.strip_tool,
             "in": ctx.file.install_name,
-        })],
+        })] + _get_layering_features({}),
     )
 
 cc_toolchain_config = rule(
