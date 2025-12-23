@@ -61,6 +61,12 @@ cc_toolchain_import_feature(
     toolchain_import = ":imports",
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_x86_64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 # buildifier: leave-alone
 filegroup(
     name = "all",
