@@ -308,13 +308,12 @@ def use_local_redist_path(repository_ctx, local_redist_path, dirs):
 
 def _download_redistribution(
         repository_ctx,
-        arch_key,
+        version_key,
         path_prefix,
         mirrored_tar_path_prefix):
     # buildifier: disable=function-docstring-args
     """Downloads and extracts NVIDIA redistribution."""
-    (url, sha256) = repository_ctx.attr.url_dict[arch_key]
-
+    (url, sha256) = repository_ctx.attr.url_dict[version_key]
     # If url is not relative, then appending prefix is not needed.
     if not (url.startswith("http") or url.startswith("file:///")):
         if url.endswith(".tar"):
@@ -334,7 +333,7 @@ def _download_redistribution(
     if repository_ctx.attr.override_strip_prefix:
         strip_prefix = repository_ctx.attr.override_strip_prefix
     else:
-        strip_prefix = archive_name
+        strip_prefix = "cccl-" + archive_name if repository_ctx.name == "cuda_cccl" else archive_name
     if url.endswith(".tar.xz") or url.endswith(".tar"):
         extract_tar_with_hermetic_tar_tool(repository_ctx, file_name, strip_prefix)
     else:
@@ -374,18 +373,7 @@ def _use_downloaded_redistribution(repository_ctx):
     # buildifier: disable=function-docstring-args
     """ Downloads redistribution and initializes hermetic repository."""
     major_version = ""
-    redist_version = _get_redist_version(
-        repository_ctx,
-        repository_ctx.attr.redist_version_env_vars,
-    )
     cuda_version = get_cuda_version(repository_ctx)
-
-    if not redist_version:
-        # If no toolkit version is found, comment out cc_import targets.
-        create_dummy_build_file(repository_ctx)
-        create_version_file(repository_ctx, major_version)
-        return
-
     if len(repository_ctx.attr.url_dict) == 0:
         print("{} is not found in redistributions list.".format(
             _get_orig_repo_name(repository_ctx),
@@ -393,28 +381,41 @@ def _use_downloaded_redistribution(repository_ctx):
         create_dummy_build_file(repository_ctx)
         create_version_file(repository_ctx, major_version)
         return
+    version_key = _get_redist_version(
+        repository_ctx,
+        repository_ctx.attr.redist_version_env_vars,
+    )
+
+    if not version_key:
+        if repository_ctx.name == "cuda_cccl" and cuda_version:
+            print("One of the following env vars is not provided: %s" % repository_ctx.attr.redist_version_env_vars)  # buildifier: disable=print
+        create_dummy_build_file(repository_ctx)
+        create_version_file(repository_ctx, major_version)
+        return
 
     # Download archive only when GPU config is used.
-    arch_key = OS_ARCH_DICT[_get_platform_architecture(repository_ctx)]
-    if arch_key not in repository_ctx.attr.url_dict.keys():
-        arch_key = "cuda{version}_{arch}".format(
-            version = cuda_version.split(".")[0],
-            arch = arch_key,
-        )
-    if arch_key not in repository_ctx.attr.url_dict.keys():
+    elif repository_ctx.name != "cuda_cccl":
+        version_key = OS_ARCH_DICT[_get_platform_architecture(repository_ctx)]
+        if version_key not in repository_ctx.attr.url_dict.keys():
+            version_key = "cuda{version}_{arch}".format(
+                version = cuda_version.split(".")[0],
+                arch = version_key,
+            )
+
+    if version_key not in repository_ctx.attr.url_dict.keys():
         fail(
-            ("{dist_name}: The supported platforms are {supported_platforms}." +
-             " Platform {platform} is not supported.")
+            ("{dist_name}: The supported versions are {supported_versions}." +
+             " Version {version} is not supported.")
                 .format(
-                supported_platforms = repository_ctx.attr.url_dict.keys(),
-                platform = arch_key,
+                supported_versions = repository_ctx.attr.url_dict.keys(),
+                version = version_key,
                 dist_name = _get_orig_repo_name(repository_ctx),
             ),
         )
 
     _download_redistribution(
         repository_ctx,
-        arch_key,
+        version_key,
         repository_ctx.attr.redist_path_prefix,
         repository_ctx.attr.mirrored_tar_redist_path_prefix,
     )

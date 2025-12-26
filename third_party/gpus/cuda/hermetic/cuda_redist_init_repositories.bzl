@@ -22,6 +22,7 @@ load(
 )
 load(
     "//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
+    "CUDA_CCCL_ARCHIVE_DICT",
     "CUDA_REDIST_PATH_PREFIX",
     "CUDNN_REDIST_PATH_PREFIX",
     "MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX",
@@ -76,9 +77,13 @@ def cuda_redist_init_repositories(
     creates distributions.bzl file with "CUDA_REDISTRIBUTIONS" constant that is
     used in this macro."""
     for redist_name, _ in redist_versions_to_build_templates.items():
+        redist_version_env_vars = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"]
         if redist_name in ["cudnn", "cuda_nccl"]:
             continue
-        if redist_name in cuda_redistributions.keys():
+        if redist_name == "cuda_cccl":
+            url_dict = CUDA_CCCL_ARCHIVE_DICT
+            redist_version_env_vars = ["HERMETIC_CCCL_VERSION"]
+        elif redist_name in cuda_redistributions.keys():
             url_dict = get_redistribution_urls(cuda_redistributions[redist_name])
         else:
             url_dict = {}
@@ -91,10 +96,10 @@ def cuda_redist_init_repositories(
             versions = versions,
             build_templates = templates,
             url_dict = url_dict,
-            redist_path_prefix = cuda_redist_path_prefix,
-            mirrored_tar_redist_path_prefix = mirrored_tar_cuda_redist_path_prefix,
-            redist_version_env_vars = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"],
-            local_path_env_var = "LOCAL_CUDA_PATH",
+            redist_path_prefix = "" if redist_name == "cuda_cccl" else cuda_redist_path_prefix,
+            mirrored_tar_redist_path_prefix = "" if redist_name == "cuda_cccl" else mirrored_tar_cuda_redist_path_prefix,
+            redist_version_env_vars = redist_version_env_vars,
+            local_path_env_var = "LOCAL_CCCL_PATH" if redist_name == "cuda_cccl" else "LOCAL_CUDA_PATH",
             use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
             target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
             local_source_dirs = ["include", "lib", "bin", "nvvm"],
