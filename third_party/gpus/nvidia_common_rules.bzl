@@ -61,10 +61,11 @@ def _get_file_name(url):
 
 def _get_orig_repo_name(repository_ctx):
     """Get the repo name used when this repository rule was called"""
-
+    if hasattr(repository_ctx, "original_name") and repository_ctx.original_name:
+        # For bazel 8 and above.
+        return repository_ctx.original_name
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
     # we need to extract the original repo name.
-    # TODO: migrate to use repository_ctx.original_name with Bazel 8
     return repository_ctx.name.split("~")[-1]
 
 def get_archive_name(url):
