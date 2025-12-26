@@ -424,6 +424,18 @@ MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
 }
 
 CUDA_CCCL_ARCHIVE_DICT = {
+    "2.4.0": [
+        "https://github.com/NVIDIA/cccl/archive/1c009d23abf3e6c13d5e1f0ee54222c43b2c1785.tar.gz",
+        "ed9146ceea8fbe8e69577b049e03bd01031376988646c24fcd7ee60bcbd350ff",
+    ],
+    "2.8.3": [
+        "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+        "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+    ],
+    "3.0.2": [
+        "https://github.com/NVIDIA/cccl/archive/9c40ed11560fa8ffd21abe4cdc8dc3ce875e48e3.tar.gz",
+        "2d1459011caac91fe793e1bfb858a91b0ac1f857ad69e5b9d79c1f6ba93ab7cd",
+    ],
     "3.1.3": [
         "https://github.com/NVIDIA/cccl/archive/d69eb55e0a0f6d55ca2af4c4edb2c7055c003993.tar.gz",
         "0cae083df9eb138612037e84e3edb3ad4b7cd00abdb8767a2669979160d139e5",
@@ -435,14 +447,6 @@ CUDA_CCCL_ARCHIVE_DICT = {
     "3.2.0-rc2": [
         "https://github.com/NVIDIA/cccl/archive/e504c21d8b94a9c209020268f7b73e44adf9ac6a.tar.gz",
         "46c222c0599247c0193fcf891be9b1032ab2cbed925f0a1651de687eb8b70b6d",
-    ],
-    "3.0.2": [
-        "https://github.com/NVIDIA/cccl/archive/9c40ed11560fa8ffd21abe4cdc8dc3ce875e48e3.tar.gz",
-        "2d1459011caac91fe793e1bfb858a91b0ac1f857ad69e5b9d79c1f6ba93ab7cd",
-    ],
-    "2.8.3": [
-        "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
-        "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
     ],
 }
 
