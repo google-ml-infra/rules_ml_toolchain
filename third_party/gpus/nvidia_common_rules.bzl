@@ -374,13 +374,7 @@ def _use_downloaded_redistribution(repository_ctx):
     """ Downloads redistribution and initializes hermetic repository."""
     major_version = ""
     cuda_version = get_cuda_version(repository_ctx)
-    if len(repository_ctx.attr.url_dict) == 0:
-        print("{} is not found in redistributions list.".format(
-            _get_orig_repo_name(repository_ctx),
-        ))  # buildifier: disable=print
-        create_dummy_build_file(repository_ctx)
-        create_version_file(repository_ctx, major_version)
-        return
+
     version_key = _get_redist_version(
         repository_ctx,
         repository_ctx.attr.redist_version_env_vars,
@@ -389,6 +383,14 @@ def _use_downloaded_redistribution(repository_ctx):
     if not version_key:
         if repository_ctx.name == "cuda_cccl" and cuda_version:
             print("One of the following env vars is not provided: %s" % repository_ctx.attr.redist_version_env_vars)  # buildifier: disable=print
+        create_dummy_build_file(repository_ctx)
+        create_version_file(repository_ctx, major_version)
+        return
+
+    if len(repository_ctx.attr.url_dict) == 0:
+        print("{} is not found in redistributions list.".format(
+            _get_orig_repo_name(repository_ctx),
+        ))  # buildifier: disable=print
         create_dummy_build_file(repository_ctx)
         create_version_file(repository_ctx, major_version)
         return
