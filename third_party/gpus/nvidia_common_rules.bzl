@@ -64,6 +64,7 @@ def _get_orig_repo_name(repository_ctx):
     if hasattr(repository_ctx, "original_name") and repository_ctx.original_name:
         # For bazel 8 and above.
         return repository_ctx.original_name
+
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
     # we need to extract the original repo name.
     return repository_ctx.name.split("~")[-1]
@@ -309,12 +310,14 @@ def use_local_redist_path(repository_ctx, local_redist_path, dirs):
 
 def _download_redistribution(
         repository_ctx,
-        version_key,
+        redist_version,
         path_prefix,
-        mirrored_tar_path_prefix):
+        mirrored_tar_path_prefix,
+        is_github_cccl_version):
     # buildifier: disable=function-docstring-args
     """Downloads and extracts NVIDIA redistribution."""
-    (url, sha256) = repository_ctx.attr.url_dict[version_key]
+    (url, sha256) = repository_ctx.attr.url_dict[redist_version]
+
     # If url is not relative, then appending prefix is not needed.
     if not (url.startswith("http") or url.startswith("file:///")):
         if url.endswith(".tar"):
@@ -333,8 +336,10 @@ def _download_redistribution(
     )
     if repository_ctx.attr.override_strip_prefix:
         strip_prefix = repository_ctx.attr.override_strip_prefix
+    elif is_github_cccl_version:
+        strip_prefix = "cccl-" + archive_name
     else:
-        strip_prefix = "cccl-" + archive_name if repository_ctx.name == "cuda_cccl" else archive_name
+        strip_prefix = archive_name
     if url.endswith(".tar.xz") or url.endswith(".tar"):
         extract_tar_with_hermetic_tar_tool(repository_ctx, file_name, strip_prefix)
     else:
@@ -370,20 +375,21 @@ def _get_platform_architecture(repository_ctx):
             return "{}-{}".format(_TEGRA, host_arch)
     return host_arch
 
+def _is_github_cccl_version(repo_name, cuda_version, redist_version):
+    return repo_name == "cuda_cccl" and redist_version != cuda_version
+
 def _use_downloaded_redistribution(repository_ctx):
     # buildifier: disable=function-docstring-args
     """ Downloads redistribution and initializes hermetic repository."""
     major_version = ""
     cuda_version = get_cuda_version(repository_ctx)
 
-    version_key = _get_redist_version(
+    redist_version = _get_redist_version(
         repository_ctx,
         repository_ctx.attr.redist_version_env_vars,
     )
 
-    if not version_key:
-        if repository_ctx.name == "cuda_cccl" and cuda_version:
-            print("One of the following env vars is not provided: %s" % repository_ctx.attr.redist_version_env_vars)  # buildifier: disable=print
+    if not redist_version:
         create_dummy_build_file(repository_ctx)
         create_version_file(repository_ctx, major_version)
         return
@@ -396,49 +402,77 @@ def _use_downloaded_redistribution(repository_ctx):
         create_version_file(repository_ctx, major_version)
         return
 
-    # Download archive only when GPU config is used.
-    elif repository_ctx.name != "cuda_cccl":
-        version_key = OS_ARCH_DICT[_get_platform_architecture(repository_ctx)]
-        if version_key not in repository_ctx.attr.url_dict.keys():
-            version_key = "cuda{version}_{arch}".format(
+    is_github_cccl_version = _is_github_cccl_version(
+        repository_ctx.name,
+        cuda_version,
+        redist_version,
+    )
+    if not is_github_cccl_version:
+        redist_version = OS_ARCH_DICT[_get_platform_architecture(repository_ctx)]
+        if redist_version not in repository_ctx.attr.url_dict.keys():
+            redist_version = "cuda{version}_{arch}".format(
                 version = cuda_version.split(".")[0],
-                arch = version_key,
+                arch = redist_version,
             )
 
-    if version_key not in repository_ctx.attr.url_dict.keys():
+    if redist_version not in repository_ctx.attr.url_dict.keys():
         fail(
             ("{dist_name}: The supported versions are {supported_versions}." +
              " Version {version} is not supported.")
                 .format(
                 supported_versions = repository_ctx.attr.url_dict.keys(),
-                version = version_key,
+                version = redist_version,
                 dist_name = _get_orig_repo_name(repository_ctx),
             ),
         )
 
-    _download_redistribution(
-        repository_ctx,
-        version_key,
-        repository_ctx.attr.redist_path_prefix,
-        repository_ctx.attr.mirrored_tar_redist_path_prefix,
-    )
-
     lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
-    major_version = get_major_library_version(
-        repository_ctx,
-        lib_name_to_version_dict,
-    )
+
+    if is_github_cccl_version:
+        # HERMETIC_CCCL_VERSION was provided, hence we should use github
+        _download_redistribution(
+            repository_ctx,
+            redist_version,
+            "",
+            "",
+            is_github_cccl_version,
+        )
+
+        lib_name_to_redist_version = "github"
+
+        create_version_file(
+            repository_ctx,
+            edist_version.split(".")[0],
+        )
+    else:
+        _download_redistribution(
+            repository_ctx,
+            redist_version,
+            repository_ctx.attr.redist_path_prefix,
+            repository_ctx.attr.mirrored_tar_redist_path_prefix,
+            is_github_cccl_version,
+        )
+
+        lib_name_to_redist_version = get_major_library_version(
+            repository_ctx,
+            lib_name_to_version_dict,
+        )
+
+        create_version_file(
+            repository_ctx,
+            lib_name_to_redist_version,
+        )
+
     create_build_file(
         repository_ctx,
         lib_name_to_version_dict,
-        major_version,
+        lib_name_to_redist_version,
     )
     _create_libcuda_symlinks(
         repository_ctx,
         lib_name_to_version_dict,
     )
     _create_repository_symlinks(repository_ctx)
-    create_version_file(repository_ctx, major_version)
 
 def _redist_repo_impl(repository_ctx):
     local_redist_path = get_env_var(repository_ctx, repository_ctx.attr.local_path_env_var)

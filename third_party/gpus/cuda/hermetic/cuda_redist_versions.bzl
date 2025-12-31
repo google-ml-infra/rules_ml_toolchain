@@ -641,7 +641,10 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_cccl": {
         "repo_name": "cuda_cccl",
         "version_to_template": {
-            "3": "//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+            "13": "//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+            "12": "//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+            "11": "//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+            "github": "//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
         },
     },
     "cuda_crt": {
