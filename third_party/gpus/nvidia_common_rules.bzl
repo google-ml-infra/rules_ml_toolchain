@@ -442,7 +442,7 @@ def _use_downloaded_redistribution(repository_ctx):
 
         create_version_file(
             repository_ctx,
-            edist_version.split(".")[0],
+            redist_version.split(".")[0],
         )
     else:
         _download_redistribution(
