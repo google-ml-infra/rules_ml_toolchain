@@ -231,6 +231,31 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 - UMD and CUDA Runtime versions compatibility is described in
   [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
 
+### How to use custom CCCL version from Github
+
+CUDA redistribution JSON file has a link to a snapshot of some random point in
+the upstream CCCL. By default, hermetic CUDA repository rules use that link to
+download CCCL redistribution with the headers.
+
+There is an option to use newer CCCL version from
+[Github](https://github.com/NVIDIA/cccl).
+
+```
+# Add an entry to your `.bazelrc` file
+build:cuda --repo_env=HERMETIC_CCCL_VERSION="2.28.3"
+
+# OR pass it directly to your specific build command
+bazel build --config=cuda <target> \
+--repo_env=HERMETIC_CCCL_VERSION="2.28.3"
+
+# If .bazelrc doesn't have corresponding entry and the environment variable
+# is not passed to bazel command, you can set it globally in your shell:
+export HERMETIC_CCCL_VERSION="2.28.3"
+```
+
+Available versions are listed in the dictionary `CUDA_CCCL_GITHUB_VERSIONS` in
+[third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+
 ### Configure hermetic NVSHMEM
 
 1. In the downstream project dependent on `rules_ml_toolchain`, add the
@@ -258,11 +283,11 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
    ```
 
 2. To select specific version of hermetic NCCL, set the
-   `HERMETIC_NCCL_VERFSION` environment variable. Use only supported versions.
+   `HERMETIC_NCCL_VERSION` environment variable. Use only supported versions.
    You may set the environment
    variables directly in your shell or in `.bazelrc` file as shown below:
    ```
-   build:cuda --repo_env=HERMETIC_NCCL_VERFSION="2.27.7"
+   build:cuda --repo_env=HERMETIC_NCCL_VERSION="2.27.7"
    ```   
 
 3. To select specific version of hermetic NVSHMEM, set the
@@ -273,13 +298,17 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
    build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
    ```
 
-### Upgrade hermetic CUDA/CUDNN/NCCL/NVSHMEM version
+### Upgrade hermetic CUDA/CCCL/CUDNN/NCCL/NVSHMEM version
 
 1.  Create and submit a pull request with updated `CUDA_REDIST_JSON_DICT`,
     `CUDNN_REDIST_JSON_DICT`, `NVSHMEM_REDIST_JSON_DICT` dictionaries in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
     Update `CUDA_NCCL_WHEELS` in
+    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
+    if needed.
+
+    Update `CUDA_CCCL_GITHUB_VERSIONS` in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
     if needed.
 
@@ -749,4 +778,3 @@ The structure of the folders inside NVSHMEM dir should be the following:
     lib/
     bin/
 ```
-
