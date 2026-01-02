@@ -423,7 +423,7 @@ MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
     ],
 }
 
-CUDA_CCCL_ARCHIVE_DICT = {
+CUDA_CCCL_GITHUB_VERSIONS = {
     "2.4.0": [
         "https://github.com/NVIDIA/cccl/archive/1c009d23abf3e6c13d5e1f0ee54222c43b2c1785.tar.gz",
         "ed9146ceea8fbe8e69577b049e03bd01031376988646c24fcd7ee60bcbd350ff",
