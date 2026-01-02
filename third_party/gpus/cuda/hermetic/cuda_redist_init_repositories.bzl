@@ -80,17 +80,18 @@ def cuda_redist_init_repositories(
         redist_version_env_vars = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"]
         if redist_name in ["cudnn", "cuda_nccl"]:
             continue
-        if redist_name == "cuda_cccl":
-            url_dict = CUDA_CCCL_ARCHIVE_DICT | get_redistribution_urls(
-                cuda_redistributions[redist_name],
-            )
-            redist_version_env_vars = [
-                "HERMETIC_CCCL_VERSION",
-                "HERMETIC_CUDA_VERSION",
-                "TF_CUDA_VERSION",
-            ]
-        elif redist_name in cuda_redistributions.keys():
-            url_dict = get_redistribution_urls(cuda_redistributions[redist_name])
+        if redist_name in cuda_redistributions.keys():
+            if redist_name == "cuda_cccl":
+                url_dict = CUDA_CCCL_ARCHIVE_DICT | get_redistribution_urls(
+                    cuda_redistributions[redist_name],
+                )
+                redist_version_env_vars = [
+                    "HERMETIC_CCCL_VERSION",
+                    "HERMETIC_CUDA_VERSION",
+                    "TF_CUDA_VERSION",
+                ]
+            else:
+                url_dict = get_redistribution_urls(cuda_redistributions[redist_name])
         else:
             url_dict = {}
         repo_data = redist_versions_to_build_templates[redist_name]
