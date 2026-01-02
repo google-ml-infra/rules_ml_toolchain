@@ -426,8 +426,6 @@ def _use_downloaded_redistribution(repository_ctx):
             ),
         )
 
-    lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
-
     if is_github_cccl_version:
         # HERMETIC_CCCL_VERSION was provided, hence we should use github
         _download_redistribution(
@@ -438,6 +436,7 @@ def _use_downloaded_redistribution(repository_ctx):
             is_github_cccl_version,
         )
 
+        lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
         lib_name_to_redist_version = "github"
 
         create_version_file(
@@ -453,6 +452,7 @@ def _use_downloaded_redistribution(repository_ctx):
             is_github_cccl_version,
         )
 
+        lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
         lib_name_to_redist_version = get_major_library_version(
             repository_ctx,
             lib_name_to_version_dict,
