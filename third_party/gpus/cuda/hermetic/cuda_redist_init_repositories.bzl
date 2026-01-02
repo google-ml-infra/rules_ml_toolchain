@@ -78,6 +78,7 @@ def cuda_redist_init_repositories(
     used in this macro."""
     for redist_name, _ in redist_versions_to_build_templates.items():
         redist_version_env_vars = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"]
+        url_dict = {}
         if redist_name in ["cudnn", "cuda_nccl"]:
             continue
         if redist_name in cuda_redistributions.keys():
@@ -92,8 +93,6 @@ def cuda_redist_init_repositories(
                 ]
             else:
                 url_dict = get_redistribution_urls(cuda_redistributions[redist_name])
-        else:
-            url_dict = {}
         repo_data = redist_versions_to_build_templates[redist_name]
         versions, templates = get_version_and_template_lists(
             repo_data["version_to_template"],
