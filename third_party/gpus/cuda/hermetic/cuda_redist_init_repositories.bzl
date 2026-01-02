@@ -22,7 +22,7 @@ load(
 )
 load(
     "//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
-    "CUDA_CCCL_ARCHIVE_DICT",
+    "CUDA_CCCL_GITHUB_VERSIONS",
     "CUDA_REDIST_PATH_PREFIX",
     "CUDNN_REDIST_PATH_PREFIX",
     "MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX",
@@ -83,7 +83,7 @@ def cuda_redist_init_repositories(
             continue
         if redist_name in cuda_redistributions.keys():
             if redist_name == "cuda_cccl":
-                url_dict = CUDA_CCCL_ARCHIVE_DICT | get_redistribution_urls(
+                url_dict = CUDA_CCCL_GITHUB_VERSIONS | get_redistribution_urls(
                     cuda_redistributions[redist_name],
                 )
                 redist_version_env_vars = [
