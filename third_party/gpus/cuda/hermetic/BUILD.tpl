@@ -49,17 +49,35 @@ config_setting(
 # All clients including TensorFlow should use these directives.
 cc_library(
     name = "cuda_headers",
-    hdrs = [
-        "cuda/cuda_config.h",
-    ],
+    hdrs = ["cuda/cuda_config.h"],
     include_prefix = "third_party/gpus",
     includes = [
         ".",  # required to include cuda/cuda/cuda_config.h as cuda/config.h
     ],
+    # For the layering check to work we need to re-export all the headers from
+    # the subtargets. We still also need them in the dependencies for setting
+    # up the right include paths with the include prefixes.
+    textual_hdrs = [
+            "@cuda_cudart//:header_list",
+            "@cuda_cublas//:header_list",
+            "@cuda_profiler_api//:header_list",
+            "@cuda_cccl//:header_list",
+            "@cuda_nvrtc//:header_list",
+            "@cuda_nvtx//:header_list",
+            "@cuda_nvcc//:header_list",
+            "@cuda_cusolver//:header_list",
+            "@cuda_cufft//:header_list",
+            "@cuda_cusparse//:header_list",
+            "@cuda_curand//:header_list",
+            "@cuda_cupti//:header_list",
+            "@cuda_nvml//:header_list",
+            "@cuda_nvjitlink//:header_list",
+           ] + (["@cuda_crt://header_list"] if _cudart_version and int(_cudart_version)>=13 else []),
     deps = [":cudart_headers",
             ":cublas_headers",
             ":profiler_api_headers",
             ":cccl_headers",
+            ":nvrtc_headers",
             ":nvtx_headers",
             ":nvcc_headers",
             ":cusolver_headers",

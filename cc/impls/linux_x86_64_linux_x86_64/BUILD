@@ -20,6 +20,7 @@
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
+load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 
 package(
     default_visibility = [
@@ -184,7 +185,7 @@ cc_toolchain_config(
     target_system_name = "local",
 )
 
-cc_toolchain(
+cc_toolchain_with_cppmap(
     name = "toolchain",
     all_files = ":all",
     ar_files = ":ar",
