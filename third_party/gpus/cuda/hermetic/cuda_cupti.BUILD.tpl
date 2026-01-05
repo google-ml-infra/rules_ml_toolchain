@@ -27,9 +27,9 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "headers",
-    %{comment}hdrs = glob([
+filegroup(
+    name = "header_list",
+    %{comment}srcs = glob([
         %{comment}"include/Openacc/**",
         %{comment}"include/Openmp/**",
         %{comment}"include/cuda_stdint.h",
@@ -72,6 +72,12 @@ cc_library(
         %{comment}["include/cupti_pmsampling.h",
         %{comment}"include/cupti_profiler_host.h"],
     %{comment}),
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/gpus/cuda/extras/CUPTI/include",
     includes = ["include/"],
     strip_include_prefix = "include",

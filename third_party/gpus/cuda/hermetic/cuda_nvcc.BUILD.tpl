@@ -84,9 +84,9 @@ cuda_nvcc_feature(
     ],
 )
 
-cc_library(
-    name = "headers",
-    %{comment}hdrs = glob([
+filegroup(
+    name = "header_list",
+    %{comment}srcs = glob([
         %{comment}"include/fatbinary_section.h",
         %{comment}"include/nvPTXCompiler.h",
     %{comment}]) + if_cuda_newer_than(
@@ -94,6 +94,12 @@ cc_library(
         %{comment}if_true = [],
         %{comment}if_false = glob(["include/crt/**"]),
     %{comment}),
+    visibility = ["@local_config_cuda//cuda:__pkg__"],
+)
+
+cc_library(
+    name = "headers",
+    hdrs = [":header_list"],
     include_prefix = "third_party/gpus/cuda/include",
     includes = ["include"],
     strip_include_prefix = "include",
