@@ -18,6 +18,7 @@ load(
     "//third_party/gpus:nvidia_common_rules.bzl",
     "get_redistribution_urls",
     "get_version_and_template_lists",
+    "get_custom_build_template",
     "redist_init_repository",
 )
 load(
@@ -33,7 +34,8 @@ def cudnn_redist_init_repository(
         cudnn_redistributions,
         cudnn_redist_path_prefix = CUDNN_REDIST_PATH_PREFIX,
         mirrored_tar_cudnn_redist_path_prefix = MIRRORED_TAR_CUDNN_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     # buildifier: disable=function-docstring-args
     """Initializes CUDNN repository.
 
@@ -49,9 +51,11 @@ def cudnn_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
+    custom_build_template = get_custom_build_template(custom_build_templates, "cuda_cudnn")
     redist_init_repository(
         name = repo_data["repo_name"],
         versions = versions,
+        custom_build_template = custom_build_template,
         build_templates = templates,
         url_dict = url_dict,
         redist_path_prefix = cudnn_redist_path_prefix,
@@ -67,7 +71,8 @@ def cuda_redist_init_repositories(
         cuda_redistributions,
         cuda_redist_path_prefix = CUDA_REDIST_PATH_PREFIX,
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     # buildifier: disable=function-docstring-args
     """Initializes CUDA repositories.
 
@@ -86,9 +91,11 @@ def cuda_redist_init_repositories(
         versions, templates = get_version_and_template_lists(
             repo_data["version_to_template"],
         )
+        custom_build_template = get_custom_build_template(custom_build_templates, redist_name)
         redist_init_repository(
             name = repo_data["repo_name"],
             versions = versions,
+            custom_build_template = custom_build_template,
             build_templates = templates,
             url_dict = url_dict,
             redist_path_prefix = cuda_redist_path_prefix,
@@ -110,20 +117,24 @@ def cudnn_redist_init_repository_wrapper(
         cudnn_redistributions,
         cudnn_redist_path_prefix = CUDNN_REDIST_PATH_PREFIX,
         mirrored_tar_cudnn_redist_path_prefix = MIRRORED_TAR_CUDNN_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     cudnn_redist_init_repository(
         cudnn_redistributions,
         cudnn_redist_path_prefix,
         mirrored_tar_cudnn_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+        custom_build_templates)
 
 # TODO(yuriit): Remove after moving to //gpu/cuda package
 def cuda_redist_init_repositories_wrapper(
         cuda_redistributions,
         cuda_redist_path_prefix = CUDA_REDIST_PATH_PREFIX,
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     cuda_redist_init_repositories(cuda_redistributions,
         cuda_redist_path_prefix,
         mirrored_tar_cuda_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+        custom_build_templates)

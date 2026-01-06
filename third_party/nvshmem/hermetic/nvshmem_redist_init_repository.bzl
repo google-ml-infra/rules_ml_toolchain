@@ -19,6 +19,7 @@ load(
     "get_redistribution_urls",
     "get_version_and_template_lists",
     "redist_init_repository",
+    "get_custom_build_template",
 )
 load(
     "//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
@@ -31,7 +32,8 @@ def nvshmem_redist_init_repository(
         nvshmem_redistributions,
         nvshmem_redist_path_prefix = NVSHMEM_REDIST_PATH_PREFIX,
         mirrored_tar_nvshmem_redist_path_prefix = MIRRORED_TAR_NVSHMEM_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     # buildifier: disable=function-docstring-args
     """Initializes NVSHMEM repository."""
     if "libnvshmem" in nvshmem_redistributions.keys():
@@ -42,9 +44,11 @@ def nvshmem_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
+    custom_build_template = get_custom_build_template(custom_build_templates, "nvidia_nvshmem")
     redist_init_repository(
         name = repo_data["repo_name"],
         versions = versions,
+        custom_build_template = custom_build_template,
         build_templates = templates,
         url_dict = url_dict,
         redist_path_prefix = nvshmem_redist_path_prefix,
@@ -61,9 +65,11 @@ def nvshmem_redist_init_repository_wrapper(
     nvshmem_redistributions,
     nvshmem_redist_path_prefix,
     mirrored_tar_nvshmem_redist_path_prefix,
-    redist_versions_to_build_templates):
+    redist_versions_to_build_templates,
+    custom_build_templates = {}):
     nvshmem_redist_init_repository(
         nvshmem_redistributions,
         nvshmem_redist_path_prefix,
         mirrored_tar_nvshmem_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+        custom_build_templates = custom_build_templates)

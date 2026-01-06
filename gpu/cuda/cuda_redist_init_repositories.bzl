@@ -34,19 +34,23 @@ def cudnn_redist_init_repository(
         cudnn_redistributions,
         cudnn_redist_path_prefix = CUDNN_REDIST_PATH_PREFIX,
         mirrored_tar_cudnn_redist_path_prefix = MIRRORED_TAR_CUDNN_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     cudnn_redist_init_repository_wrapper(
         cudnn_redistributions,
         cudnn_redist_path_prefix,
         mirrored_tar_cudnn_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+        custom_build_templates)
 
 def cuda_redist_init_repositories(
         cuda_redistributions,
         cuda_redist_path_prefix = CUDA_REDIST_PATH_PREFIX,
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        custom_build_templates = {}):
     cuda_redist_init_repositories_wrapper(cuda_redistributions,
         cuda_redist_path_prefix,
         mirrored_tar_cuda_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+        custom_build_templates)
