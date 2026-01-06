@@ -207,7 +207,6 @@ cc_toolchain_import(
         ":pthread",
         ":asan",
     ],
-    runtime_path = "/usr/local/google/home/yuriit/.cache/bazel/_bazel_yuriit/5b3680a279bde3bbeb84b5ac96ea39b1/external/sysroot_linux_x86_64_glibc_2_27/usr/lib/x86_64-linux-gnu",
     visibility = ["//visibility:public"],
 )
 

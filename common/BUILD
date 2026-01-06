@@ -169,5 +169,5 @@ string_flag(
 
 config_setting(
     name = "is_asan_enabled",
-    flag_values = { "sanitize": "address" },
+    flag_values = { ":sanitize": "address" },
 )

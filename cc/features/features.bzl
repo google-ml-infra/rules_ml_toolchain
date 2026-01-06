@@ -88,9 +88,10 @@ ASAN_IGNORELIST = [
 
 ASAN_COMPILER_FLAGS = [
     "-fsanitize=address",
-    #"-fno-sanitize-memory-param-retval",
+    "-fno-omit-frame-pointer",
+    "-fno-sanitize-memory-param-retval",
     "-fsanitize-address-use-after-scope",
-    "-fsanitize-address-globals-dead-stripping",  # ?
+    "-fsanitize-address-globals-dead-stripping",
     "-fno-assume-sane-operator-new",
 ]
 
@@ -142,21 +143,6 @@ def _import_asan_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
 
     flag_sets = []
-
-    #    ignorelist_flags = depset([
-    #        "-fsanitize-system-ignorelist=" + flag.path
-    #        for flag in ctx.attr.asan_ignorelist[DefaultInfo].files.to_list()
-    #    ]).to_list()
-    #
-    #    if ignorelist_flags:
-    #        flag_sets.append(flag_set(
-    #            actions = ALL_CC_COMPILE_ACTION_NAMES,
-    #            flag_groups = [
-    #                flag_group(
-    #                    flags = ignorelist_flags,
-    #                ),
-    #            ],
-    #        ))
 
     compiler_flags = depset([
         flag
@@ -223,7 +209,7 @@ def _import_asan_feature_impl(ctx):
 
     if exec_linker_flags or exec_linker_syms_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES, # + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
             flag_groups = [
                 flag_group(
                     flags = exec_linker_flags + exec_linker_syms_flags,

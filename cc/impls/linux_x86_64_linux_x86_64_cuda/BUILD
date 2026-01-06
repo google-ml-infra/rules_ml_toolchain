@@ -261,13 +261,39 @@ cc_toolchain(
 )
 
 # Toolchain with sanitizers
+
+# Separate tools for additional diagnostics; can be removed in the future
+CUDA_WITH_SANITIZER_TOOLS = if_cuda_hermetic_clang(
+    {
+        "gcc": "wrappers/clang-with-sanitizer",
+        "cpp": "wrappers/clang++",
+        "ld": "wrappers/ld",
+        "ar": "wrappers/ar",
+        "gcov": "wrappers/idler",
+        "llvm-cov": "wrappers/idler",
+        "nm": "wrappers/idler",
+        "objdump": "wrappers/idler",
+        "strip": "wrappers/idler",
+    },
+    {
+        "gcc": "wrappers/nvcc_wrapper",
+        "cpp": "wrappers/clang++",
+        "ld": "wrappers/ld",
+        "ar": "wrappers/ar",
+        "gcov": "wrappers/idler",
+        "llvm-cov": "wrappers/idler",
+        "nm": "wrappers/idler",
+        "objdump": "wrappers/idler",
+        "strip": "wrappers/idler",
+    },
+)
+
 cc_toolchain_import_asan_feature(
     name = "asan_feature",
-    enabled = True,
-#    enabled = select({
-#        "//common:is_asan_enabled": True,
-#        "//conditions:default": False,
-#    }),
+    enabled = select({
+        "//common:is_asan_enabled": True,
+        "//conditions:default": False,
+    }),
     toolchain_import = ":asan",
 )
 
@@ -284,7 +310,7 @@ cc_toolchain_config(
     strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
-    tool_paths = CUDA_TOOLS,
+    tool_paths = CUDA_WITH_SANITIZER_TOOLS,
 )
 
 cc_toolchain(

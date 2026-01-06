@@ -36,19 +36,6 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-# TODO: Remove custom tools
-EXTENDED_TOOLS = {
-    "gcc": "wrappers/clang-extended",
-    "cpp": "wrappers/clang++",
-    "ld": "wrappers/ld",
-    "ar": "wrappers/ar",
-    "gcov": "wrappers/idler",
-    "llvm-cov": "wrappers/idler",
-    "nm": "wrappers/idler",
-    "objdump": "wrappers/idler",
-    "strip": "wrappers/idler",
-}
-
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
@@ -64,7 +51,7 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:includes_system",
         "@sysroot_linux_x86_64//:syslibs",
         "@sysroot_linux_x86_64//:openmp",
-        "@llvm_linux_x86_64//:libclang_rt",  # TODO: Set only according to //common... flag
+        "@llvm_linux_x86_64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
 )
@@ -218,13 +205,26 @@ cc_toolchain(
 )
 
 # Toolchain with sanitizers
+
+# Separate tools for additional diagnostics; can be removed in the future
+SANITIZER_TOOLS = {
+    "gcc": "wrappers/clang-with-sanitizer",
+    "cpp": "wrappers/clang++",
+    "ld": "wrappers/ld",
+    "ar": "wrappers/ar",
+    "gcov": "wrappers/idler",
+    "llvm-cov": "wrappers/idler",
+    "nm": "wrappers/idler",
+    "objdump": "wrappers/idler",
+    "strip": "wrappers/idler",
+}
+
 cc_toolchain_import_asan_feature(
     name = "asan_feature",
-    enabled = True,
-#    enabled = select({
-#        "//common:is_asan_enabled": True,
-#        "//conditions:default": False,
-#    }),
+    enabled = select({
+        "//common:is_asan_enabled": True,
+        "//conditions:default": False,
+    }),
     toolchain_import = ":asan",
 )
 
@@ -241,7 +241,7 @@ cc_toolchain_config(
     strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
-    tool_paths = EXTENDED_TOOLS,
+    tool_paths = SANITIZER_TOOLS,
 )
 
 cc_toolchain(
