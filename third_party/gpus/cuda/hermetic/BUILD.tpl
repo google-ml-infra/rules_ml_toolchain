@@ -72,7 +72,7 @@ cc_library(
             "@cuda_cupti//:header_list",
             "@cuda_nvml//:header_list",
             "@cuda_nvjitlink//:header_list",
-           ] + (["@cuda_crt://header_list"] if _cudart_version and int(_cudart_version)>=13 else []),
+           ] + (["@cuda_crt//:header_list"] if _cudart_version and int(_cudart_version)>=13 else []),
     deps = [":cudart_headers",
             ":cublas_headers",
             ":profiler_api_headers",
