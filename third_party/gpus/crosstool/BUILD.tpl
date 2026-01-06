@@ -34,6 +34,20 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
+toolchain(
+    name = "toolchain-linux-aarch64",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+    toolchain = ":cc-compiler-local",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
 cc_toolchain_suite(
     name = "toolchain",
     toolchains = {
