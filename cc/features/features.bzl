@@ -82,10 +82,6 @@ ASAN_EXEC_SYMS = [
     "libclang_rt.asan.a.syms",
 ]
 
-ASAN_IGNORELIST = [
-    "asan_ignorelist.txt",
-]
-
 ASAN_COMPILER_FLAGS = [
     "-fsanitize=address",
     "-fno-omit-frame-pointer",
@@ -108,9 +104,6 @@ def _filter_asan_exec_libs(flags):
 def _filter_asan_exec_syms(flags):
     return _filter_flags_by_keys(flags, ASAN_EXEC_SYMS)
 
-def _get_asan_ignorelist(flags):
-    return _filter_flags_by_keys(flags, ASAN_IGNORELIST)
-
 def _filter_flags_by_keys(flags, keys):
     libFlags = []
     for flag in flags:
@@ -124,20 +117,6 @@ def _filter_flags_by_keys(flags, keys):
             libFlags.append(flag)
 
     return libFlags
-
-def _filter_files_by_keys(files, keys):
-    libs = []
-    for lib in files:
-        needed = False
-        for key in keys:
-            if lib.path.endswith(key):
-                needed = True
-                break
-
-        if needed:
-            libs.append(lib)
-
-    return libs
 
 def _import_asan_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
@@ -207,9 +186,13 @@ def _import_asan_feature_impl(ctx):
             .linking_context.additional_libs.to_list()
     ])).to_list()
 
+    linker_actions = list(CC_LINK_EXECUTABLE_ACTION_NAMES)
+    if ctx.attr.dynamic_lib_treat_as_executable:
+        linker_actions += DYNAMIC_LIBRARY_LINK_ACTION_NAMES
+
     if exec_linker_flags or exec_linker_syms_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES, # + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+            actions = linker_actions,
             flag_groups = [
                 flag_group(
                     flags = exec_linker_flags + exec_linker_syms_flags,
@@ -236,6 +219,9 @@ cc_toolchain_import_asan_feature = rule(
         "toolchain_import": attr.label(
             mandatory = True,
             providers = [CcToolchainImportInfo],
+        ),
+        "dynamic_lib_treat_as_executable": attr.bool(
+            default = False,
         ),
     },
     provides = [FeatureInfo, DefaultInfo],

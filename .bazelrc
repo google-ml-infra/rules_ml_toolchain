@@ -31,8 +31,15 @@ build:clang --copt=-Qunused-arguments
 # Error on struct/class mismatches, since this causes link failures on Windows.
 build:clang --copt=-Werror=mismatched-tags
 
+# A separate toolchain configuration is provided to support sanitizers (ASan)
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --@rules_ml_toolchain//common:sanitize=address
+# By default, the AddressSanitizer (ASan) runtime is split: libclang_rt.asan_static.a is linked into all binaries,
+# while libclang_rt.asan.a is reserved exclusively for executables. However, this standard linking logic fails
+# for shared libraries used within a py_binary environment. Such libraries require the full set of ASan symbols
+# to be present within the library itself to function correctly when loaded by the Python interpreter.
+# Set the following parameter to True if all set of all symbols should be added to dynamic library.
+common:asan --@rules_ml_toolchain//common:asan_dynamic_lib_as_executable=True
 common:asan --strip=never
 
 # Configs for CUDA
