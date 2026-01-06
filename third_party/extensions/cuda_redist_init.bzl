@@ -39,6 +39,7 @@ def _cuda_redist_init_ext_impl(mctx):
         custom_build_templates = custom_build_templates,
     )
 
+# TODO(ybaturina): add missing features from workspace mode
 cuda_redist_init_ext = module_extension(
     implementation = _cuda_redist_init_ext_impl,
     tag_classes = {
