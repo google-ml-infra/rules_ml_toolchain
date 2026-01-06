@@ -64,6 +64,7 @@ def _get_orig_repo_name(repository_ctx):
     if hasattr(repository_ctx, "original_name") and repository_ctx.original_name:
         # For bazel 8 and above.
         return repository_ctx.original_name
+
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
     # we need to extract the original repo name.
     return repository_ctx.name.split("~")[-1]
@@ -514,7 +515,7 @@ def get_redistribution_urls(dist_info):
             url_dict[_REDIST_ARCH_DICT[arch]] = [
                 dist_info[arch_key]["relative_path"],
                 dist_info[arch_key].get("sha256", ""),
-                dist_info[arch_key].get("strip_prefix", "")
+                dist_info[arch_key].get("strip_prefix", ""),
             ]
             continue
 
@@ -522,7 +523,7 @@ def get_redistribution_urls(dist_info):
             url_dict[_REDIST_ARCH_DICT[arch]] = [
                 dist_info[arch_key]["full_path"],
                 dist_info[arch_key].get("sha256", ""),
-                dist_info[arch_key].get("strip_prefix", "")
+                dist_info[arch_key].get("strip_prefix", ""),
             ]
             continue
 

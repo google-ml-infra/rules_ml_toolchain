@@ -170,6 +170,8 @@ def nccl_redist_init_repository_wrapper(
         cuda_nccl_wheels,
         redist_versions_to_build_templates,
         custom_build_templates = {}):
-    nccl_redist_init_repository(cuda_nccl_wheels,
+    nccl_redist_init_repository(
+        cuda_nccl_wheels,
         redist_versions_to_build_templates,
-        custom_build_templates)
+        custom_build_templates,
+    )

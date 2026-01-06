@@ -16,9 +16,9 @@
 
 load(
     "//third_party/gpus:nvidia_common_rules.bzl",
+    "get_custom_build_template",
     "get_redistribution_urls",
     "get_version_and_template_lists",
-    "get_custom_build_template",
     "redist_init_repository",
 )
 load(
@@ -124,7 +124,8 @@ def cudnn_redist_init_repository_wrapper(
         cudnn_redist_path_prefix,
         mirrored_tar_cudnn_redist_path_prefix,
         redist_versions_to_build_templates,
-        custom_build_templates)
+        custom_build_templates,
+    )
 
 # TODO(yuriit): Remove after moving to //gpu/cuda package
 def cuda_redist_init_repositories_wrapper(
@@ -133,8 +134,10 @@ def cuda_redist_init_repositories_wrapper(
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
         redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
         custom_build_templates = {}):
-    cuda_redist_init_repositories(cuda_redistributions,
+    cuda_redist_init_repositories(
+        cuda_redistributions,
         cuda_redist_path_prefix,
         mirrored_tar_cuda_redist_path_prefix,
         redist_versions_to_build_templates,
-        custom_build_templates)
+        custom_build_templates,
+    )

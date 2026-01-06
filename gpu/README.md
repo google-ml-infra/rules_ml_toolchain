@@ -10,13 +10,13 @@ versions.
 There are three types of hermetic toolkits configurations:
 
 1) Recommended: [Repository rules use redistributions loaded from NVIDIA repositories](#supported-hermetic-cuda-cudnn-nvshmem-versions).
-   
+
    For full CUDA toolkit hermeticity, use CUDA User Mode Driver libraries loaded from NVIDIA repositories
    by setting `--@cuda_driver//:include_cuda_umd_libs=true` (see [instructions](#configure-hermetic-cuda-user-mode-driver)).
-   
+
 
 2) [Repository rules use redistributions loaded from custom remote locations or
-local files](#2-custom-cudacudnnnvshmem-archives-and-nccl-wheels).
+   local files](#2-custom-cudacudnnnvshmem-archives-and-nccl-wheels).
 
    This option is recommended for testing custom/unreleases redistributions, or
    redistributions previously loaded locally.
@@ -141,12 +141,12 @@ is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https:
    build:cuda --repo_env TF_NEED_CUDA=1
    build:cuda --@rules_ml_toolchain//common:enable_cuda
    ```
-   
+
    To use Clang compiler for CUDA targets, set
    `--@local_config_cuda//:cuda_compiler=clang`, for NVCC compiler set
-  `--@local_config_cuda//:cuda_compiler=nvcc` and `TF_NVCC_CLANG` environment
+   `--@local_config_cuda//:cuda_compiler=nvcc` and `TF_NVCC_CLANG` environment
    variable.
-   
+
    ```
    build:build_cuda_with_clang --@local_config_cuda//:cuda_compiler=clang
 
@@ -222,39 +222,14 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 
 
 - Supported Kernel Mode Driver and User Mode Driver version combinations:
- 
+
   Driver versions combination | Is supported
-  -------- | --------
+    -------- | --------
   KMD > UMD | -
   KMD <= UMD | +
- 
+
 - UMD and CUDA Runtime versions compatibility is described in
   [NVIDIA documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#id6).
-
-### How to use custom CCCL version from Github
-
-CUDA redistribution JSON file has a link to a snapshot of some random point in
-the upstream CCCL. By default, hermetic CUDA repository rules use that link to
-download CCCL redistribution with the headers.
-
-There is an option to use newer CCCL version from
-[Github](https://github.com/NVIDIA/cccl).
-
-```
-# Add an entry to your `.bazelrc` file
-build:cuda --repo_env=HERMETIC_CCCL_VERSION="2.28.3"
-
-# OR pass it directly to your specific build command
-bazel build --config=cuda <target> \
---repo_env=HERMETIC_CCCL_VERSION="2.28.3"
-
-# If .bazelrc doesn't have corresponding entry and the environment variable
-# is not passed to bazel command, you can set it globally in your shell:
-export HERMETIC_CCCL_VERSION="2.28.3"
-```
-
-Available versions are listed in the dictionary `CUDA_CCCL_GITHUB_VERSIONS` in
-[third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
 ### Configure hermetic NVSHMEM
 
@@ -298,17 +273,13 @@ Available versions are listed in the dictionary `CUDA_CCCL_GITHUB_VERSIONS` in
    build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
    ```
 
-### Upgrade hermetic CUDA/CCCL/CUDNN/NCCL/NVSHMEM version
+### Upgrade hermetic CUDA/CUDNN/NCCL/NVSHMEM version
 
 1.  Create and submit a pull request with updated `CUDA_REDIST_JSON_DICT`,
     `CUDNN_REDIST_JSON_DICT`, `NVSHMEM_REDIST_JSON_DICT` dictionaries in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
     Update `CUDA_NCCL_WHEELS` in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
-    if needed.
-
-    Update `CUDA_CCCL_GITHUB_VERSIONS` in
     [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
     if needed.
 
@@ -358,19 +329,23 @@ The JSON files contain paths to individual redistributions for different OS
 architectures.
 
 1. Create `cuda_redist.json` and/or `cudnn_redist.json` and/or
-`nvshmem_redist.json` files.
+   `nvshmem_redist.json` files.
 
    `cuda_redist.json` show follow the format below:
 
    ```
    {
       "cuda_cccl": {
-         "linux-x86_64": {
-            "relative_path": "cuda_cccl-linux-x86_64-12.4.99-archive.tar.xz",
-         },
-         "linux-sbsa": {
-            "relative_path": "cuda_cccl-linux-sbsa-12.4.99-archive.tar.xz",
-         }
+          "linux-x86_64": {
+              "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+              "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+              "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+        },
+        "linux-sbsa": {
+              "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+              "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+              "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+        },
       },
    }
    ```
@@ -413,8 +388,10 @@ architectures.
    }
    ```
 
-   The `relative_path` field can be replaced with `full_path` for the full URLs
-   and absolute local paths starting with `file:///`.
+   Note that `sha_256` and `strip_prefix` are optional.
+
+   `full_path` should be used for the full URLs  and absolute local paths
+   starting with `file:///`.
 
 2. In the downstream project dependent on `rules_ml_toolchain`, update the
    hermetic cuda JSON repository call in `WORKSPACE` file. Both web links and
@@ -478,12 +455,16 @@ dependencies in Google ML projects.
    ```
    _CUSTOM_CUDA_REDISTRIBUTIONS = {
       "cuda_cccl": {
-         "linux-x86_64": {
-            "relative_path": "cuda_cccl-linux-x86_64-12.4.99-archive.tar.xz",
-         },
-         "linux-sbsa": {
-            "relative_path": "cuda_cccl-linux-sbsa-12.4.99-archive.tar.xz",
-         }
+          "linux-x86_64": {
+              "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+              "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+              "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+          },
+          "linux-sbsa": {
+              "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+              "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+              "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+          },
       },
    }
    ```
@@ -526,14 +507,25 @@ dependencies in Google ML projects.
    }
    ```
 
-   The `relative_path` field can be replaced with `full_path` for the full URLs
-   and absolute local paths starting with `file:///`.
+   Note that `sha_256` and `strip_prefix` are optional.
+
+   `full_path` should be used for the full URLs  and absolute local paths
+   starting with `file:///`.
 
 2. In the same `WORKSPACE` file, pass the created dictionaries to the repository
-   rule. If the dictionaries contain relative paths to distributions, the path
+   rule.
+
+   If the dictionaries contain relative paths to distributions, the path
    prefix should be updated in `cuda_redist_init_repositories()`,
    `cudnn_redist_init_repository()` and `nvshmem_redist_init_repository()`
    calls.
+
+   If custom redistribution BUILD files differ from those in
+   `REDIST_VERSIONS_TO_BUILD_TEMPLATES`, new BUILD files can be provided in
+   `custom_build_templates` parameter of `cuda_redist_init_repositories()`,
+   `cudnn_redist_init_repository()` and `nvshmem_redist_init_repository()`
+   calls.
+
    ```
    register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64_cuda")
    register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64_cuda")
@@ -551,7 +543,9 @@ dependencies in Google ML projects.
    )
    cuda_redist_init_repositories(
       cuda_redistributions = _CUSTOM_CUDA_REDISTRIBUTIONS,
-      cuda_redist_path_prefix = "file:///home/usr/Downloads/dists/",
+      custom_build_templates = {
+          "cuda_cccl": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+      },
    )
    cudnn_redist_init_repository(
       cudnn_redistributions = _CUSTOM_CUDNN_REDISTRIBUTIONS,
@@ -619,13 +613,17 @@ _CUDNN_JSON_DICT = {
 
 _CUDA_DIST_DICT = {
    "cuda_cccl": {
-      "linux-x86_64": {
-            "relative_path": "cuda_cccl-linux-x86_64-12.4.99-archive.tar.xz",
-      },
-      "linux-sbsa": {
-            "relative_path": "cuda_cccl-linux-sbsa-12.4.99-archive.tar.xz",
-      },
-   },
+        "linux-x86_64": {
+            "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+            "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+            "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+        },
+        "linux-sbsa": {
+            "full_path": "https://github.com/NVIDIA/cccl/archive/0d328e06c9fc78a216ec70df4917f7230a9c77e3.tar.gz",
+            "sha256": "c45dddfcebfc2d719e0c4cc6a874a4b50a751b90daba139699d3fc11708cf0ef",
+            "strip_prefix": "cccl-0d328e06c9fc78a216ec70df4917f7230a9c77e3",
+        },
+    },,
    "libcusolver": {
       "linux-x86_64": {
             "full_path": "file:///usr/Downloads/dists/libcusolver-linux-x86_64-11.6.0.99-archive.tar.xz",
@@ -684,9 +682,12 @@ load(
    "cuda_redist_init_repositories",
    "cudnn_redist_init_repository",
 )
-cudnn_redist_init_repositories(
+cuda_redist_init_repositories(
    cuda_redistributions = CUDA_REDISTRIBUTIONS | _CUDA_DIST_DICT,
    cuda_redist_path_prefix = "file:///usr/Downloads/dists/",
+   custom_build_templates = {
+       "cuda_cccl": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+   },
 )
 cudnn_redist_init_repository(
    cudnn_redistributions = CUDNN_REDISTRIBUTIONS | _CUDNN_DIST_DICT,

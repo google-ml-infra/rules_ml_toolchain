@@ -16,10 +16,10 @@
 
 load(
     "//third_party/gpus:nvidia_common_rules.bzl",
+    "get_custom_build_template",
     "get_redistribution_urls",
     "get_version_and_template_lists",
     "redist_init_repository",
-    "get_custom_build_template",
 )
 load(
     "//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
@@ -62,14 +62,15 @@ def nvshmem_redist_init_repository(
 
 # TODO(yuriit): Remove this function after moving to //gpu/nvshmem
 def nvshmem_redist_init_repository_wrapper(
-    nvshmem_redistributions,
-    nvshmem_redist_path_prefix,
-    mirrored_tar_nvshmem_redist_path_prefix,
-    redist_versions_to_build_templates,
-    custom_build_templates = {}):
+        nvshmem_redistributions,
+        nvshmem_redist_path_prefix,
+        mirrored_tar_nvshmem_redist_path_prefix,
+        redist_versions_to_build_templates,
+        custom_build_templates = {}):
     nvshmem_redist_init_repository(
         nvshmem_redistributions,
         nvshmem_redist_path_prefix,
         mirrored_tar_nvshmem_redist_path_prefix,
         redist_versions_to_build_templates,
-        custom_build_templates = custom_build_templates)
+        custom_build_templates = custom_build_templates,
+    )
