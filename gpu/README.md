@@ -26,7 +26,7 @@ local files](#2-custom-cudacudnnnvshmem-archives-and-nccl-wheels).
 
 ## 1) Standard redistributions loaded from NVIDIA repositories
 
-### Supported hermetic CUDA, CUDNN, NVSHMEM versions
+### Supported hermetic CUDA, CUDNN, NCCL, NVSHMEM versions
 
 The supported CUDA versions are specified in `CUDA_REDIST_JSON_DICT`
 dictionary,
@@ -41,14 +41,14 @@ dictionary,
 [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
 
 The `.bazelrc` files of individual projects have `HERMETIC_CUDA_VERSION`,
-`HERMETIC_CUDNN_VERSION`, `HERMETIC_NVSHMEM_VERSION` environment variables set
-to the versions used by default when `--config=cuda` is specified in Bazel
-command options.
+`HERMETIC_CUDNN_VERSION`, `HERMETIC_NCCL_VERSION`, `HERMETIC_NVSHMEM_VERSION`
+environment variables set to the versions used by default when `--config=cuda`
+is specified in Bazel command options.
 
-### Environment variables controlling the hermetic CUDA/CUDNN/NVSHMEM versions
+### Environment variables controlling the hermetic CUDA/CUDNN/NCCL/NVSHMEM versions
 
-`HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`, `HERMETIC_NVSHMEM_VERSION`
-environment variables should consist of major, minor and
+`HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`, `HERMETIC_NVSHMEM_VERSION`,
+`HERMETIC_NCCL_VERSION` environment variables should consist of major, minor and
 patch redistribution version, e.g. `12.8.0`.
 
 Three ways to set the environment variables for Bazel commands:
@@ -57,18 +57,21 @@ Three ways to set the environment variables for Bazel commands:
 # Add an entry to your `.bazelrc` file
 build:cuda --repo_env=HERMETIC_CUDA_VERSION="12.8.0"
 build:cuda --repo_env=HERMETIC_CUDNN_VERSION="9.8.0"
+build:cuda --repo_env=HERMETIC_NCCL_VERSION="2.27.7"
 build:cuda --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # OR pass it directly to your specific build command
 bazel build --config=cuda <target> \
 --repo_env=HERMETIC_CUDA_VERSION="12.8.0" \
 --repo_env=HERMETIC_CUDNN_VERSION="9.8.0" \
+--repo_env=HERMETIC_NCCL_VERSION="2.27.7" \
 --repo_env=HERMETIC_NVSHMEM_VERSION="3.2.5"
 
 # If .bazelrc doesn't have corresponding entries and the environment variables
 # are not passed to bazel command, you can set them globally in your shell:
 export HERMETIC_CUDA_VERSION="12.8.0"
 export HERMETIC_CUDNN_VERSION="9.8.0"
+export HERMETIC_NCCL_VERSION="2.27.7"
 export HERMETIC_NVSHMEM_VERSION="3.2.5"
 ```
 
@@ -254,7 +257,15 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 
    ```
 
-2. To select specific version of hermetic NVSHMEM, set the
+2. To select specific version of hermetic NCCL, set the
+   `HERMETIC_NCCL_VERFSION` environment variable. Use only supported versions.
+   You may set the environment
+   variables directly in your shell or in `.bazelrc` file as shown below:
+   ```
+   build:cuda --repo_env=HERMETIC_NCCL_VERFSION="2.27.7"
+   ```   
+
+3. To select specific version of hermetic NVSHMEM, set the
    `HERMETIC_NVSHMEM_VERSION` environment variable. Use only supported versions.
    You may set the environment
    variables directly in your shell or in `.bazelrc` file as shown below:
@@ -281,7 +292,7 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
     if needed.
 
 2.  For each Google ML project create a separate pull request with updated
-    `HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`,
+    `HERMETIC_CUDA_VERSION`, `HERMETIC_CUDNN_VERSION`, `HERMETIC_NCCL_VERSION`,
     `HERMETIC_NVSHMEM_VERSION` in `.bazelrc` file.
 
     The PR presubmit job executions will launch bazel tests and download
@@ -612,11 +623,13 @@ _CUDNN_DIST_DICT = {
 }
 
 _NCCL_WHEEL_DICT = {
-   "12.4.0": {
-      "x86_64-unknown-linux-gnu": {
-            "url": "https://files.pythonhosted.org/packages/38/00/d0d4e48aef772ad5aebcf70b73028f88db6e5640b36c38e90445b7a57c45/nvidia_nccl_cu12-2.19.3-py3-none-manylinux1_x86_64.whl",
-      },
-   },
+    "14": {
+        "x86_64-unknown-linux-gnu": {
+            "2.21.5": {
+                "url": "https://files.pythonhosted.org/packages/ac/9a/8b6a28b3b87d5fddab0e92cd835339eb8fbddaa71ae67518c8c1b3d05bae/nvidia_nccl_cu11-2.21.5-py3-none-manylinux2014_x86_64.whl",
+            },
+        },
+    },
 }
 
 load(

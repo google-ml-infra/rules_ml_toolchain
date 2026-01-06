@@ -39,6 +39,7 @@ def _use_downloaded_nccl_wheel(repository_ctx):
     # buildifier: disable=function-docstring-args
     """ Downloads NCCL wheel and inits hermetic NCCL repository."""
     cuda_version = get_cuda_version(repository_ctx)
+    nccl_version = get_env_var(repository_ctx, "HERMETIC_NCCL_VERSION")
     major_version = ""
     if not cuda_version:
         # If no CUDA version is found, comment out cc_import targets.
@@ -60,21 +61,26 @@ def _use_downloaded_nccl_wheel(repository_ctx):
             )
     else:
         arch = OS_ARCH_DICT[repository_ctx.os.arch]
-    dict_key = "{cuda_version}-{arch}".format(
-        cuda_version = cuda_version,
+
+    cuda_major_version = cuda_version.split(".")[0]
+    dict_key = "cuda{cuda_major_version}-{arch}-nccl-{nccl_version}".format(
+        cuda_major_version = cuda_major_version,
         arch = arch,
+        nccl_version = nccl_version,
     )
     supported_versions = repository_ctx.attr.url_dict.keys()
     if dict_key not in supported_versions:
         fail(
             ("The supported NCCL versions are {supported_versions}." +
              " Please provide a supported version in HERMETIC_CUDA_VERSION" +
-             " environment variable or add NCCL distribution for" +
-             " CUDA version={version}, OS={arch}.")
+             " and HERMETIC_NCCL_VERSION environment variables or add NCCL" +
+             " distribution for CUDA major version={version}, OS={arch}" +
+             " and NCCL={nccl_version}.")
                 .format(
                 supported_versions = supported_versions,
-                version = cuda_version,
+                version = cuda_major_version,
                 arch = arch,
+                nccl_version = nccl_version,
             ),
         )
     sha256 = repository_ctx.attr.sha256_dict[dict_key]
@@ -132,12 +138,13 @@ def nccl_redist_init_repository(
     # buildifier: disable=function-docstring-args
     """Initializes NCCL repository."""
     nccl_artifacts_dict = {"sha256_dict": {}, "url_dict": {}}
-    for cuda_version, nccl_wheel_info in cuda_nccl_wheels.items():
+    for cuda_major_version, nccl_wheels in cuda_nccl_wheels.items():
         for arch in OS_ARCH_DICT.values():
-            if arch in nccl_wheel_info.keys():
-                cuda_version_to_arch_key = "%s-%s" % (cuda_version, arch)
-                nccl_artifacts_dict["sha256_dict"][cuda_version_to_arch_key] = nccl_wheel_info[arch].get("sha256", "")
-                nccl_artifacts_dict["url_dict"][cuda_version_to_arch_key] = nccl_wheel_info[arch]["url"]
+            if arch in nccl_wheels.keys():
+                for nccl_version, nccl_wheel in nccl_wheels[arch].items():
+                    nccl_artifact_key = "cuda%s-%s-nccl-%s" % (cuda_major_version, arch, nccl_version)
+                    nccl_artifacts_dict["sha256_dict"][nccl_artifact_key] = nccl_wheel.get("sha256", "")
+                    nccl_artifacts_dict["url_dict"][nccl_artifact_key] = nccl_wheel["url"]
     repo_data = redist_versions_to_build_templates["cuda_nccl"]
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],

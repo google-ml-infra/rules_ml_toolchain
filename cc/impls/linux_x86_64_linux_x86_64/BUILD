@@ -21,6 +21,7 @@ load("//cc/features:features.bzl", "cc_toolchain_import_asan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
+load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 
 package(
     default_visibility = [
@@ -36,10 +37,16 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_x86_64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_x86_64//:startup_libs",
+    toolchain_import = ":startup_libs",
 )
 
 # buildifier: leave-alone
@@ -190,7 +197,7 @@ cc_toolchain_config(
     target_system_name = "local",
 )
 
-cc_toolchain(
+cc_toolchain_with_cppmap(
     name = "toolchain",
     all_files = ":all",
     ar_files = ":ar",
