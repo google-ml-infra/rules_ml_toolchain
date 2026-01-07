@@ -520,11 +520,13 @@ dependencies in Google ML projects.
    `cudnn_redist_init_repository()` and `nvshmem_redist_init_repository()`
    calls.
 
-   If custom redistribution BUILD files differ from those in
-   `REDIST_VERSIONS_TO_BUILD_TEMPLATES`, new BUILD files can be provided in
-   `custom_build_templates` parameter of `cuda_redist_init_repositories()`,
-   `cudnn_redist_init_repository()` and `nvshmem_redist_init_repository()`
-   calls.
+   There is an option to customize BUILD templates when the custom
+   redistributions have different folder structure than default ones.
+   Note that `source_dirs` is mandatory, it's used for the scenarios described
+   [here](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/README.md#3-local-toolkit-installations-used-as-sources-for-hermetic-repositories).
+
+   If the templates for the scenarios above are different, you need to provide
+   them in `version_to_templates` under `local` key.
 
    ```
    register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64_cuda")
@@ -541,11 +543,29 @@ dependencies in Google ML projects.
       "cuda_redist_init_repositories",
       "cudnn_redist_init_repository",
    )
+   
+   _CCCL_BUILD_TEMPLATES = {
+        "cuda_cccl": {
+            "repo_name": "cuda_cccl",
+            "version_to_template": {
+                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+            },
+            "local": {
+                "source_dirs": ["include", "lib"],
+                "version_to_template": {
+                    "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                    "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                    "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                },
+            },
+        },
+   }
+   
    cuda_redist_init_repositories(
       cuda_redistributions = _CUSTOM_CUDA_REDISTRIBUTIONS,
-      custom_build_templates = {
-          "cuda_cccl": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-      },
+      redist_versions_to_build_templates = _CCCL_BUILD_TEMPLATES,
    )
    cudnn_redist_init_repository(
       cudnn_redistributions = _CUSTOM_CUDNN_REDISTRIBUTIONS,
@@ -634,6 +654,25 @@ _CUDA_DIST_DICT = {
    },
 }
 
+_CCCL_BUILD_TEMPLATES = {
+    "cuda_cccl": {
+        "repo_name": "cuda_cccl",
+        "version_to_template": {
+            "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+            "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+            "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+        },
+        "local": {
+            "source_dirs": ["include", "lib"],
+            "version_to_template": {
+                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+            },
+        },
+    },
+}
+
 _CUDNN_DIST_DICT = {
    "cudnn": {
       "linux-x86_64": {
@@ -682,12 +721,14 @@ load(
    "cuda_redist_init_repositories",
    "cudnn_redist_init_repository",
 )
+load(
+    "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
+    "REDIST_VERSIONS_TO_BUILD_TEMPLATES",
+)
 cuda_redist_init_repositories(
    cuda_redistributions = CUDA_REDISTRIBUTIONS | _CUDA_DIST_DICT,
    cuda_redist_path_prefix = "file:///usr/Downloads/dists/",
-   custom_build_templates = {
-       "cuda_cccl": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-   },
+   redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES | _CCCL_BUILD_TEMPLATES,
 )
 cudnn_redist_init_repository(
    cudnn_redistributions = CUDNN_REDISTRIBUTIONS | _CUDNN_DIST_DICT,
