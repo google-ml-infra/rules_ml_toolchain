@@ -52,7 +52,7 @@ def _get_dist_key(ctx):
     if not oneapi_version:
         oneapi_version = "2025.1"
     if not os_id:
-        os_id = "ubuntu22.04"
+        os_id = "ubuntu_24.10"
 
     return "{}_{}".format(os_id, oneapi_version)
 
