@@ -102,6 +102,10 @@ CUDA_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.2.json",
         "fce66717a81c510ffeb89ecc3e79849ab34af3b80139f750876d9033e31d71c2",
     ],
+    "13.1.0": [
+        "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.1.0.json",
+        "55304d9d831bb095d9594aab276f96d2f0e30919f4cc1b3f6ca78cdb5f643e11",
+    ],
 }
 
 MIRRORED_TARS_CUDA_REDIST_JSON_DICT = {
