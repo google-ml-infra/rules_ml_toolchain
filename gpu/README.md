@@ -565,6 +565,7 @@ dependencies in Google ML projects.
    
    cuda_redist_init_repositories(
       cuda_redistributions = _CUSTOM_CUDA_REDISTRIBUTIONS,
+      cuda_redist_path_prefix = "file:///home/usr/Downloads/dists/",
       redist_versions_to_build_templates = _CCCL_BUILD_TEMPLATES,
    )
    cudnn_redist_init_repository(
