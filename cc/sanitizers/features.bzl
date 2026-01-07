@@ -85,7 +85,6 @@ ASAN_EXEC_SYMS = [
 ASAN_COMPILER_FLAGS = [
     "-fsanitize=address",
     "-fno-omit-frame-pointer",
-    "-fno-sanitize-memory-param-retval",
     "-fsanitize-address-use-after-scope",
     "-fsanitize-address-globals-dead-stripping",
     "-fno-assume-sane-operator-new",
