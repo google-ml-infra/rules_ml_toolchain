@@ -50,7 +50,7 @@ def cudnn_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
-    local_templates = get_local_templates(repo_data["local"], templates)    
+    local_templates = get_local_templates(repo_data["local"], templates)
     local_source_dirs = repo_data["local"]["source_dirs"]
     redist_init_repository(
         name = repo_data["repo_name"],

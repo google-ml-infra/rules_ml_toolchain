@@ -30,4 +30,5 @@ def nccl_redist_init_repository(
         redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
     nccl_redist_init_repository_wrapper(
         cuda_nccl_wheels,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+    )

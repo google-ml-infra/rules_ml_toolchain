@@ -213,7 +213,7 @@ def create_build_file(
     build_template = _get_build_template(
         repository_ctx,
         major_lib_version.split(".")[0],
-        is_local_redist
+        is_local_redist,
     )
     repository_ctx.template(
         "BUILD",
@@ -735,4 +735,3 @@ def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefi
     if not major_version:
         return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
-
