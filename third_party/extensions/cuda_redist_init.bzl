@@ -26,25 +26,14 @@ load(
 )
 
 def _cuda_redist_init_ext_impl(mctx):
-    custom_build_templates = {}
-    for mod in mctx.modules:
-        for custom_build_template in mod.tags.custom_build_templates:
-            custom_build_templates.update(custom_build_template.templates)
     cuda_redist_init_repositories(
         cuda_redistributions = CUDA_REDISTRIBUTIONS,
-        custom_build_templates = custom_build_templates,
     )
     cudnn_redist_init_repository(
         cudnn_redistributions = CUDNN_REDISTRIBUTIONS,
-        custom_build_templates = custom_build_templates,
     )
 
 # TODO(ybaturina): add missing features from workspace mode
 cuda_redist_init_ext = module_extension(
     implementation = _cuda_redist_init_ext_impl,
-    tag_classes = {
-        "custom_build_templates": tag_class(attrs = {
-            "templates": attr.string_dict(),
-        }),
-    },
 )

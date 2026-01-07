@@ -146,9 +146,10 @@ def get_lib_name_to_version_dict(repository_ctx):
     return lib_name_to_version_dict
 
 def create_dummy_build_file(repository_ctx, cuda_version, is_local_redist, use_comment_symbols = True):
-    build_template = repository_ctx.attr.build_templates[0]
-    if not is_local_redist:
-        build_template = repository_ctx.attr.custom_build_template or build_template
+    if is_local_redist:
+        build_template = repository_ctx.attr.local_build_templates[0]
+    else:
+        build_template = repository_ctx.attr.build_templates[0]
     repository_ctx.template(
         "BUILD",
         build_template,
@@ -159,12 +160,15 @@ def create_dummy_build_file(repository_ctx, cuda_version, is_local_redist, use_c
         },
     )
 
-def _get_build_template(repository_ctx, major_lib_version):
+def _get_build_template(repository_ctx, major_lib_version, is_local_redist):
     template = None
     for i in range(0, len(repository_ctx.attr.versions)):
         for dist_version in repository_ctx.attr.versions[i].split(","):
             if dist_version == major_lib_version:
-                template = repository_ctx.attr.build_templates[i]
+                if is_local_redist:
+                    template = repository_ctx.attr.local_build_templates[i]
+                else:
+                    template = repository_ctx.attr.build_templates[i]
                 break
     if not template:
         fail("No build template found for {} version {}".format(
@@ -192,9 +196,10 @@ def create_build_file(
     # buildifier: disable=function-docstring-args
     """Creates a BUILD file for the repository."""
     if len(major_lib_version) == 0:
-        build_template = repository_ctx.attr.build_templates[0]
-        if not is_local_redist:
-            build_template = repository_ctx.attr.custom_build_template or build_template
+        if is_local_redist:
+            build_template = repository_ctx.attr.local_build_templates[0]
+        else:
+            build_template = repository_ctx.attr.build_templates[0]
         build_template_content = repository_ctx.read(build_template)
 
         create_dummy_build_file(
@@ -208,9 +213,8 @@ def create_build_file(
     build_template = _get_build_template(
         repository_ctx,
         major_lib_version.split(".")[0],
+        is_local_redist
     )
-    if not is_local_redist:
-        build_template = repository_ctx.attr.custom_build_template or build_template
     repository_ctx.template(
         "BUILD",
         build_template,
@@ -446,8 +450,8 @@ _redist_repo = repository_rule(
     attrs = {
         "url_dict": attr.string_list_dict(mandatory = True),
         "versions": attr.string_list(mandatory = True),
-        "custom_build_template": attr.label(),
         "build_templates": attr.label_list(mandatory = True),
+        "local_build_templates": attr.label_list(mandatory = True),
         "redist_path_prefix": attr.string(),
         "mirrored_tar_redist_path_prefix": attr.string(mandatory = False),
         "redist_version_env_vars": attr.string_list(mandatory = True),
@@ -472,6 +476,7 @@ def redist_init_repository(
         name,
         versions,
         build_templates,
+        local_build_templates,
         url_dict,
         redist_path_prefix,
         mirrored_tar_redist_path_prefix,
@@ -480,8 +485,7 @@ def redist_init_repository(
         use_tar_file_env_var,
         target_arch_env_var,
         local_source_dirs,
-        repository_symlinks = {},
-        custom_build_template = None):
+        repository_symlinks = {}):
     # buildifier: disable=function-docstring-args
     """Initializes repository for individual NVIDIA redistribution."""
     _redist_repo(
@@ -489,7 +493,7 @@ def redist_init_repository(
         url_dict = url_dict,
         versions = versions,
         build_templates = build_templates,
-        custom_build_template = custom_build_template,
+        local_build_templates = local_build_templates,
         redist_path_prefix = redist_path_prefix,
         mirrored_tar_redist_path_prefix = mirrored_tar_redist_path_prefix,
         redist_version_env_vars = redist_version_env_vars,
@@ -554,6 +558,15 @@ def get_version_and_template_lists(version_to_template):
         version_list.append(",".join(versions))
         template_list.append(Label(template))
     return (version_list, template_list)
+
+def get_local_templates(local_repo_data, templates):
+    if "version_to_template" in local_repo_data:
+        _, local_templates = get_version_and_template_lists(
+            local_repo_data["version_to_template"],
+        )
+    else:
+        local_templates = templates
+    return local_templates
 
 def _get_json_file_content(
         repository_ctx,
@@ -723,9 +736,3 @@ def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefi
         return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
 
-def get_custom_build_template(custom_build_templates, redist_name):
-    custom_build_template = custom_build_templates.get(redist_name, None)
-    if custom_build_template:
-        return Label(custom_build_template)
-    else:
-        return None

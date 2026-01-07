@@ -23,9 +23,9 @@ load(
     "create_version_file",
     "get_archive_name",
     "get_cuda_version",
-    "get_custom_build_template",
     "get_env_var",
     "get_lib_name_to_version_dict",
+    "get_local_templates",
     "get_major_library_version",
     "get_version_and_template_lists",
     "use_local_redist_path",
@@ -120,7 +120,7 @@ def _use_downloaded_nccl_wheel(repository_ctx):
 def _cuda_nccl_repo_impl(repository_ctx):
     local_nccl_path = get_env_var(repository_ctx, "LOCAL_NCCL_PATH")
     if local_nccl_path:
-        use_local_redist_path(repository_ctx, local_nccl_path, ["include", "lib"])
+        use_local_redist_path(repository_ctx, local_nccl_path, repository_ctx.attr.local_source_dirs)
     else:
         _use_downloaded_nccl_wheel(repository_ctx)
 
@@ -130,16 +130,16 @@ cuda_nccl_repo = repository_rule(
         "sha256_dict": attr.string_dict(mandatory = True),
         "url_dict": attr.string_dict(mandatory = True),
         "versions": attr.string_list(mandatory = True),
-        "custom_build_template": attr.label(),
         "build_templates": attr.label_list(mandatory = True),
+        "local_build_templates": attr.label_list(mandatory = True),
         "strip_prefix": attr.string(),
+        "local_source_dirs": attr.string_list(mandatory = True),
     },
 )
 
 def nccl_redist_init_repository(
         cuda_nccl_wheels = CUDA_NCCL_WHEELS,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
-        custom_build_templates = {}):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
     # buildifier: disable=function-docstring-args
     """Initializes NCCL repository."""
     nccl_artifacts_dict = {"sha256_dict": {}, "url_dict": {}}
@@ -154,24 +154,24 @@ def nccl_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
-    custom_build_template = get_custom_build_template(custom_build_templates, "cuda_nccl")
+    local_templates = get_local_templates(repo_data["local"], templates)
+    local_source_dirs = repo_data["local"]["source_dirs"]
     cuda_nccl_repo(
         name = repo_data["repo_name"],
         sha256_dict = nccl_artifacts_dict["sha256_dict"],
         url_dict = nccl_artifacts_dict["url_dict"],
         versions = versions,
-        custom_build_template = custom_build_template,
         build_templates = templates,
+        local_build_templates = local_templates,
         strip_prefix = "nvidia/nccl",
+        local_source_dirs = local_source_dirs,
     )
 
 # TODO(yuriit): Remove after moving to //gpu/nccl package
 def nccl_redist_init_repository_wrapper(
         cuda_nccl_wheels,
-        redist_versions_to_build_templates,
-        custom_build_templates = {}):
+        redist_versions_to_build_templates):
     nccl_redist_init_repository(
         cuda_nccl_wheels,
         redist_versions_to_build_templates,
-        custom_build_templates,
     )

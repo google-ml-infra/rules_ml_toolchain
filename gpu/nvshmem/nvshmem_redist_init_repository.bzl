@@ -31,12 +31,10 @@ def nvshmem_redist_init_repository(
         nvshmem_redistributions,
         nvshmem_redist_path_prefix = NVSHMEM_REDIST_PATH_PREFIX,
         mirrored_tar_nvshmem_redist_path_prefix = MIRRORED_TAR_NVSHMEM_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES,
-        custom_build_templates = {}):
+        redist_versions_to_build_templates = NVSHMEM_REDIST_VERSIONS_TO_BUILD_TEMPLATES):
 
         nvshmem_redist_init_repository_wrapper(
             nvshmem_redistributions,
             nvshmem_redist_path_prefix,
             mirrored_tar_nvshmem_redist_path_prefix,
-            redist_versions_to_build_templates,
-            custom_build_templates)
+            redist_versions_to_build_templates)
