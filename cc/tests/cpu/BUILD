@@ -220,6 +220,9 @@ py_test(
     srcs = ["protoclient_tool_test.py"],
     data = [":protoclient.so"],
     deps = [],
+    tags = [
+        "noasan",
+    ],
 )
 
 #############################################
