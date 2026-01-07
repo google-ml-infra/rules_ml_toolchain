@@ -89,6 +89,7 @@ ASAN_COMPILER_FLAGS = [
     "-fsanitize-address-use-after-scope",
     "-fsanitize-address-globals-dead-stripping",
     "-fno-assume-sane-operator-new",
+    "-fno-common",  # for backward compatibility with old toolchain sanitizer configuration
 ]
 
 ASAN_LINKER_FLAGS = [
