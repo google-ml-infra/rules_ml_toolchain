@@ -163,7 +163,7 @@ def _import_asan_feature_impl(ctx):
 
     if common_linker_flags:
         flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES + [ACTION_NAMES.cpp_link_nodeps_dynamic_library],
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
             flag_groups = [
                 flag_group(
                     flags = linker_dir_flags + common_linker_flags,
