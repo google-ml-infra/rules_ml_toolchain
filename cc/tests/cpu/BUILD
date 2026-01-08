@@ -199,6 +199,7 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@pybind11",
     ],
+    features = ["pybind_extension_asan_feature"],
 )
 
 genrule(

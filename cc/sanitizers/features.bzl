@@ -29,6 +29,7 @@ load(
     "env_entry",
     "env_set",
     "feature",
+    "feature_set",
     "flag_group",
     "flag_set",
     _feature = "feature",
@@ -214,7 +215,6 @@ cc_toolchain_import_asan_feature = rule(
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),
-        "requires": attr.string_list(),
         "implies": attr.string_list(),
         "toolchain_import": attr.label(
             mandatory = True,
@@ -222,6 +222,68 @@ cc_toolchain_import_asan_feature = rule(
         ),
         "dynamic_lib_treat_as_executable": attr.bool(
             default = False,
+        ),
+    },
+    provides = [FeatureInfo, DefaultInfo],
+)
+
+def _import_pybind_extension_asan_feature_impl(ctx):
+    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+    print("_import_pybind_extension_asan_feature_impl function")
+
+    flag_sets = []
+
+    exec_linker_flags = depset([
+        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
+        for file_path in _filter_asan_exec_libs([
+            file.path
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+        ])
+    ]).to_list()
+
+    exec_linker_syms_flags = depset(_filter_asan_exec_syms([
+        ("-Wl,--dynamic-list=" + file.path)
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ])).to_list()
+
+    if exec_linker_flags or exec_linker_syms_flags:
+        flag_sets.append(flag_set(
+            actions = DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = exec_linker_flags + exec_linker_syms_flags,
+                ),
+            ],
+        ))
+
+    requires = [
+        feature_set(features = [feature_name])
+        for feature_name in ctx.attr.requires
+    ]
+
+    library_feature = _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        flag_sets = flag_sets,
+        implies = ctx.attr.implies,
+        requires = requires,
+        provides = ctx.attr.provides,
+    )
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+
+
+cc_toolchain_import_pybind_extension_asan_feature = rule(
+    _import_pybind_extension_asan_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+        "toolchain_import": attr.label(
+            mandatory = True,
+            providers = [CcToolchainImportInfo],
         ),
     },
     provides = [FeatureInfo, DefaultInfo],
