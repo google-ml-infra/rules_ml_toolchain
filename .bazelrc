@@ -14,10 +14,6 @@ common:linux_clang_local --config=clang_local
 common:linux_clang_local --host_crosstool_top="@local_config_cuda//crosstool:toolchain"
 common:linux_clang_local --crosstool_top="@local_config_cuda//crosstool:toolchain"
 
-common:asan_clang_local --copt=-fsanitize=address
-common:asan_clang_local --linkopt=-fsanitize=address
-common:asan_clang_local --strip=never
-
 # Disable clang extention that rejects type definitions within offsetof.
 # This was added in clang-16 by https://reviews.llvm.org/D133574.
 # Can be removed once upb is updated, since a type definition is used within
@@ -31,13 +27,15 @@ build:clang --copt=-Qunused-arguments
 # Error on struct/class mismatches, since this causes link failures on Windows.
 build:clang --copt=-Werror=mismatched-tags
 
-# ASan works only for Linux x86_64
+# Hermetic ASan configuration example. Hermetic ASan works only for Linux x86_64
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --@rules_ml_toolchain//common:sanitize=address
 common:asan --strip=never
-common:asan --copt -DADDRESS_SANITIZER
-common:asan --copt -O1
-common:asan --copt -g
+
+# Non-hermetic ASan configuration
+common:asan_clang_local --copt=-fsanitize=address
+common:asan_clang_local --linkopt=-fsanitize=address
+common:asan_clang_local --strip=never
 
 # Configs for CUDA
 build:cuda --repo_env TF_NEED_CUDA=1
