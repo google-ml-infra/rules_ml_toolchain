@@ -327,7 +327,7 @@ cc_toolchain_config(
     tool_paths = CUDA_WITH_SANITIZER_TOOLS,
 )
 
-cc_toolchain_with_cppmap(
+cc_toolchain(
     name = "toolchain_with_sanitizers",
     all_files = ":all",
     ar_files = ":ar",
