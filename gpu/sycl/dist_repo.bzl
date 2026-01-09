@@ -49,8 +49,10 @@ def _get_os(ctx):
 def _get_dist_key(ctx):
     oneapi_version = _get_oneapi_version(ctx)
     os_id = _get_os(ctx)
-    if not oneapi_version or not os_id:
-        fail("ONEAPI_VERSION and OS must be set via --repo_env for hermetic build")
+    if not oneapi_version:
+        oneapi_version = "2025.1"
+    if not os_id:
+        os_id = "ubuntu_24.10"
 
     return "{}_{}".format(os_id, oneapi_version)
 

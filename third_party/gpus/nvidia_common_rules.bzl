@@ -64,6 +64,7 @@ def _get_orig_repo_name(repository_ctx):
     if hasattr(repository_ctx, "original_name") and repository_ctx.original_name:
         # For bazel 8 and above.
         return repository_ctx.original_name
+
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
     # we need to extract the original repo name.
     return repository_ctx.name.split("~")[-1]
@@ -144,35 +145,30 @@ def get_lib_name_to_version_dict(repository_ctx):
                 lib_name_to_version_dict[minor_version_key] = lib_version
     return lib_name_to_version_dict
 
-def create_dummy_build_file(repository_ctx, use_comment_symbols = True):
+def create_dummy_build_file(repository_ctx, cuda_version, is_local_redist, use_comment_symbols = True):
+    if is_local_redist:
+        build_template = repository_ctx.attr.local_build_templates[0]
+    else:
+        build_template = repository_ctx.attr.build_templates[0]
     repository_ctx.template(
         "BUILD",
-        repository_ctx.attr.build_templates[0],
+        build_template,
         {
             "%{multiline_comment}": "'''" if use_comment_symbols else "",
             "%{comment}": "#" if use_comment_symbols else "",
+            "%{version_of_cuda}": cuda_version or "",
         },
     )
 
-def create_cuda_nvcc_build_file(repository_ctx, use_comment_symbols = True):
-    cuda_version = (get_env_var(repository_ctx, "HERMETIC_CUDA_VERSION") or
-                    get_env_var(repository_ctx, "TF_CUDA_VERSION"))
-    repository_ctx.template(
-        "BUILD",
-        repository_ctx.attr.build_templates[0],
-        {
-            "%{multiline_comment}": "'''" if use_comment_symbols else "",
-            "%{comment}": "#" if use_comment_symbols else "",
-            "%{version_of_cuda}": cuda_version,
-        },
-    )
-
-def _get_build_template(repository_ctx, major_lib_version):
+def _get_build_template(repository_ctx, major_lib_version, is_local_redist):
     template = None
     for i in range(0, len(repository_ctx.attr.versions)):
         for dist_version in repository_ctx.attr.versions[i].split(","):
             if dist_version == major_lib_version:
-                template = repository_ctx.attr.build_templates[i]
+                if is_local_redist:
+                    template = repository_ctx.attr.local_build_templates[i]
+                else:
+                    template = repository_ctx.attr.build_templates[i]
                 break
     if not template:
         fail("No build template found for {} version {}".format(
@@ -193,30 +189,31 @@ def get_major_library_version(repository_ctx, lib_name_to_version_dict):
 
 def create_build_file(
         repository_ctx,
+        cuda_version,
         lib_name_to_version_dict,
-        major_lib_version):
+        major_lib_version,
+        is_local_redist):
     # buildifier: disable=function-docstring-args
     """Creates a BUILD file for the repository."""
     if len(major_lib_version) == 0:
-        build_template_content = repository_ctx.read(
-            repository_ctx.attr.build_templates[0],
-        )
-
-        if _get_orig_repo_name(repository_ctx) == "cuda_nvcc":
-            create_cuda_nvcc_build_file(
-                repository_ctx,
-                use_comment_symbols = True if "_version}" in build_template_content else False,
-            )
+        if is_local_redist:
+            build_template = repository_ctx.attr.local_build_templates[0]
         else:
-            create_dummy_build_file(
-                repository_ctx,
-                use_comment_symbols = True if "_version}" in build_template_content else False,
-            )
+            build_template = repository_ctx.attr.build_templates[0]
+        build_template_content = repository_ctx.read(build_template)
+
+        create_dummy_build_file(
+            repository_ctx,
+            cuda_version,
+            is_local_redist = is_local_redist,
+            use_comment_symbols = True if "_version}" in build_template_content else False,
+        )
 
         return
     build_template = _get_build_template(
         repository_ctx,
         major_lib_version.split(".")[0],
+        is_local_redist,
     )
     repository_ctx.template(
         "BUILD",
@@ -298,8 +295,10 @@ def use_local_redist_path(repository_ctx, local_redist_path, dirs):
     )
     create_build_file(
         repository_ctx,
+        get_cuda_version(repository_ctx),
         lib_name_to_version_dict,
         major_version,
+        is_local_redist = True,
     )
     _create_libcuda_symlinks(
         repository_ctx,
@@ -314,7 +313,7 @@ def _download_redistribution(
         mirrored_tar_path_prefix):
     # buildifier: disable=function-docstring-args
     """Downloads and extracts NVIDIA redistribution."""
-    (url, sha256) = repository_ctx.attr.url_dict[arch_key]
+    (url, sha256, custom_strip_prefix) = repository_ctx.attr.url_dict[arch_key]
 
     # If url is not relative, then appending prefix is not needed.
     if not (url.startswith("http") or url.startswith("file:///")):
@@ -332,8 +331,8 @@ def _download_redistribution(
         output = file_name,
         sha256 = sha256,
     )
-    if repository_ctx.attr.override_strip_prefix:
-        strip_prefix = repository_ctx.attr.override_strip_prefix
+    if custom_strip_prefix:
+        strip_prefix = custom_strip_prefix
     else:
         strip_prefix = archive_name
     if url.endswith(".tar.xz") or url.endswith(".tar"):
@@ -383,7 +382,7 @@ def _use_downloaded_redistribution(repository_ctx):
 
     if not redist_version:
         # If no toolkit version is found, comment out cc_import targets.
-        create_dummy_build_file(repository_ctx)
+        create_dummy_build_file(repository_ctx, cuda_version, is_local_redist = False)
         create_version_file(repository_ctx, major_version)
         return
 
@@ -391,7 +390,7 @@ def _use_downloaded_redistribution(repository_ctx):
         print("{} is not found in redistributions list.".format(
             _get_orig_repo_name(repository_ctx),
         ))  # buildifier: disable=print
-        create_dummy_build_file(repository_ctx)
+        create_dummy_build_file(repository_ctx, cuda_version, is_local_redist = False)
         create_version_file(repository_ctx, major_version)
         return
 
@@ -427,8 +426,10 @@ def _use_downloaded_redistribution(repository_ctx):
     )
     create_build_file(
         repository_ctx,
+        cuda_version,
         lib_name_to_version_dict,
         major_version,
+        is_local_redist = False,
     )
     _create_libcuda_symlinks(
         repository_ctx,
@@ -450,7 +451,7 @@ _redist_repo = repository_rule(
         "url_dict": attr.string_list_dict(mandatory = True),
         "versions": attr.string_list(mandatory = True),
         "build_templates": attr.label_list(mandatory = True),
-        "override_strip_prefix": attr.string(),
+        "local_build_templates": attr.label_list(mandatory = True),
         "redist_path_prefix": attr.string(),
         "mirrored_tar_redist_path_prefix": attr.string(mandatory = False),
         "redist_version_env_vars": attr.string_list(mandatory = True),
@@ -475,6 +476,7 @@ def redist_init_repository(
         name,
         versions,
         build_templates,
+        local_build_templates,
         url_dict,
         redist_path_prefix,
         mirrored_tar_redist_path_prefix,
@@ -483,7 +485,6 @@ def redist_init_repository(
         use_tar_file_env_var,
         target_arch_env_var,
         local_source_dirs,
-        override_strip_prefix = "",
         repository_symlinks = {}):
     # buildifier: disable=function-docstring-args
     """Initializes repository for individual NVIDIA redistribution."""
@@ -492,7 +493,7 @@ def redist_init_repository(
         url_dict = url_dict,
         versions = versions,
         build_templates = build_templates,
-        override_strip_prefix = override_strip_prefix,
+        local_build_templates = local_build_templates,
         redist_path_prefix = redist_path_prefix,
         mirrored_tar_redist_path_prefix = mirrored_tar_redist_path_prefix,
         redist_version_env_vars = redist_version_env_vars,
@@ -518,6 +519,7 @@ def get_redistribution_urls(dist_info):
             url_dict[_REDIST_ARCH_DICT[arch]] = [
                 dist_info[arch_key]["relative_path"],
                 dist_info[arch_key].get("sha256", ""),
+                dist_info[arch_key].get("strip_prefix", ""),
             ]
             continue
 
@@ -525,6 +527,7 @@ def get_redistribution_urls(dist_info):
             url_dict[_REDIST_ARCH_DICT[arch]] = [
                 dist_info[arch_key]["full_path"],
                 dist_info[arch_key].get("sha256", ""),
+                dist_info[arch_key].get("strip_prefix", ""),
             ]
             continue
 
@@ -536,7 +539,7 @@ def get_redistribution_urls(dist_info):
             url_dict["{cuda_version}_{arch}".format(
                 cuda_version = cuda_version,
                 arch = _REDIST_ARCH_DICT[arch],
-            )] = [data[path_key], data.get("sha256", "")]
+            )] = [data[path_key], data.get("sha256", ""), data.get("strip_prefix", "")]
     return url_dict
 
 def get_version_and_template_lists(version_to_template):
@@ -555,6 +558,15 @@ def get_version_and_template_lists(version_to_template):
         version_list.append(",".join(versions))
         template_list.append(Label(template))
     return (version_list, template_list)
+
+def get_local_templates(local_repo_data, templates):
+    if "version_to_template" in local_repo_data:
+        _, local_templates = get_version_and_template_lists(
+            local_repo_data["version_to_template"],
+        )
+    else:
+        local_templates = templates
+    return local_templates
 
 def _get_json_file_content(
         repository_ctx,
