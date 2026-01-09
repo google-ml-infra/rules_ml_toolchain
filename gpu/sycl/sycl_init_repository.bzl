@@ -22,7 +22,7 @@ load(
     "REDIST_DICT",
 )
 load(
-    "//third_party/gpus:nvidia_common_rules.bzl",
+    "//gpu:nvidia_common_rules.bzl",
     "get_redistribution_urls",
     "get_version_and_template_lists",
 )

@@ -18,13 +18,13 @@ use_repo(pybind11_internal_configure, "pybind11")
 ##############################################################
 # CUDA
 
-cuda_configure_ext = use_extension("//third_party/extensions:cuda_configure.bzl", "cuda_configure_ext")
+cuda_configure_ext = use_extension("//extensions:cuda_configure.bzl", "cuda_configure_ext")
 use_repo(cuda_configure_ext, "local_config_cuda")
 
-cuda_json_ext = use_extension("//third_party/extensions:cuda_json.bzl", "cuda_json_ext")
+cuda_json_ext = use_extension("//extensions:cuda_json.bzl", "cuda_json_ext")
 use_repo(cuda_json_ext, "cuda_redist_json")
 
-cuda_redist_init_ext = use_extension("//third_party/extensions:cuda_redist_init.bzl", "cuda_redist_init_ext")
+cuda_redist_init_ext = use_extension("//extensions:cuda_redist_init.bzl", "cuda_redist_init_ext")
 use_repo(
     cuda_redist_init_ext,
     "cuda_cccl",
@@ -51,22 +51,22 @@ use_repo(
 ##############################################################
 # NCCL configuration
 
-nccl_redist = use_extension("//third_party/extensions:nccl_redist.bzl", "nccl_redist_ext")
+nccl_redist = use_extension("//extensions:nccl_redist.bzl", "nccl_redist_ext")
 use_repo(nccl_redist, "cuda_nccl")
 
-nccl_configure = use_extension("//third_party/extensions:nccl_configure.bzl", "nccl_configure_ext")
+nccl_configure = use_extension("//extensions:nccl_configure.bzl", "nccl_configure_ext")
 use_repo(nccl_configure, "local_config_nccl")
 
 ##############################################################
 # SYCL configuration
 
-sycl_configure = use_extension("//third_party/extensions:sycl_configure.bzl", "sycl_configure_ext")
+sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configure_ext")
 use_repo(sycl_configure, "local_config_sycl")
 
 ##############################################################
 # Hermetic toolchain configuration
 
-toolchain = use_extension("//third_party/extensions:toolchain.bzl", "toolchain_ext")
+toolchain = use_extension("//extensions:toolchain.bzl", "toolchain_ext")
 use_repo(
     toolchain,
     "llvm18_linux_aarch64",
