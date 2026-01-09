@@ -227,9 +227,8 @@ cc_toolchain_import_asan_feature = rule(
     provides = [FeatureInfo, DefaultInfo],
 )
 
-def _import_pybind_extension_asan_feature_impl(ctx):
+def _import_asan_runtime_closure_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
-    print("_import_pybind_extension_asan_feature_impl function")
 
     flag_sets = []
 
@@ -274,8 +273,8 @@ def _import_pybind_extension_asan_feature_impl(ctx):
     return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
 
 
-cc_toolchain_import_pybind_extension_asan_feature = rule(
-    _import_pybind_extension_asan_feature_impl,
+cc_toolchain_import_asan_runtime_closure_feature = rule(
+    _import_asan_runtime_closure_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),

@@ -20,7 +20,7 @@
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_pybind_extension_asan_feature")
+    "cc_toolchain_import_asan_runtime_closure_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -241,8 +241,8 @@ cc_toolchain_import_asan_feature(
     toolchain_import = ":asan",
 )
 
-cc_toolchain_import_pybind_extension_asan_feature(
-    name = "pybind_extension_asan_feature",
+cc_toolchain_import_asan_runtime_closure_feature(
+    name = "asan_runtime_closure_feature",
     requires = ["asan_feature"],
     toolchain_import = ":asan",
 )
@@ -254,7 +254,7 @@ cc_toolchain_config(
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL + [
         ":asan_feature",
-        ":pybind_extension_asan_feature",
+        ":asan_runtime_closure_feature",
         "//third_party/rules_cc_toolchain/features:dbg",
     ],
     linker = "@llvm_linux_x86_64//:ld",
