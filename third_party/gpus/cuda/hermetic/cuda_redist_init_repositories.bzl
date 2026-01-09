@@ -16,6 +16,7 @@
 
 load(
     "//third_party/gpus:nvidia_common_rules.bzl",
+    "get_local_templates",
     "get_redistribution_urls",
     "get_version_and_template_lists",
     "redist_init_repository",
@@ -49,10 +50,13 @@ def cudnn_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
+    local_templates = get_local_templates(repo_data["local"], templates)
+    local_source_dirs = repo_data["local"]["source_dirs"]
     redist_init_repository(
         name = repo_data["repo_name"],
         versions = versions,
         build_templates = templates,
+        local_build_templates = local_templates,
         url_dict = url_dict,
         redist_path_prefix = cudnn_redist_path_prefix,
         mirrored_tar_redist_path_prefix = mirrored_tar_cudnn_redist_path_prefix,
@@ -60,7 +64,7 @@ def cudnn_redist_init_repository(
         local_path_env_var = "LOCAL_CUDNN_PATH",
         use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
         target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
-        local_source_dirs = ["include", "lib"],
+        local_source_dirs = local_source_dirs,
     )
 
 def cuda_redist_init_repositories(
@@ -86,10 +90,13 @@ def cuda_redist_init_repositories(
         versions, templates = get_version_and_template_lists(
             repo_data["version_to_template"],
         )
+        local_templates = get_local_templates(repo_data["local"], templates)
+        local_source_dirs = repo_data["local"]["source_dirs"]
         redist_init_repository(
             name = repo_data["repo_name"],
             versions = versions,
             build_templates = templates,
+            local_build_templates = local_templates,
             url_dict = url_dict,
             redist_path_prefix = cuda_redist_path_prefix,
             mirrored_tar_redist_path_prefix = mirrored_tar_cuda_redist_path_prefix,
@@ -97,7 +104,7 @@ def cuda_redist_init_repositories(
             local_path_env_var = "LOCAL_CUDA_PATH",
             use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
             target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
-            local_source_dirs = ["include", "lib", "bin", "nvvm"],
+            local_source_dirs = local_source_dirs,
             repository_symlinks = {
                 Label("@cuda_cudart//:include/cuda.h"): "include/cuda.h",
                 Label("@cuda_nvdisasm//:bin/nvdisasm"): "bin/nvdisasm",
@@ -115,7 +122,8 @@ def cudnn_redist_init_repository_wrapper(
         cudnn_redistributions,
         cudnn_redist_path_prefix,
         mirrored_tar_cudnn_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+    )
 
 # TODO(yuriit): Remove after moving to //gpu/cuda package
 def cuda_redist_init_repositories_wrapper(
@@ -123,7 +131,9 @@ def cuda_redist_init_repositories_wrapper(
         cuda_redist_path_prefix = CUDA_REDIST_PATH_PREFIX,
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
         redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
-    cuda_redist_init_repositories(cuda_redistributions,
+    cuda_redist_init_repositories(
+        cuda_redistributions,
         cuda_redist_path_prefix,
         mirrored_tar_cuda_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+    )

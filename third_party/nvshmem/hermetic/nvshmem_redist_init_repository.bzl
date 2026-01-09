@@ -16,6 +16,7 @@
 
 load(
     "//third_party/gpus:nvidia_common_rules.bzl",
+    "get_local_templates",
     "get_redistribution_urls",
     "get_version_and_template_lists",
     "redist_init_repository",
@@ -42,9 +43,12 @@ def nvshmem_redist_init_repository(
     versions, templates = get_version_and_template_lists(
         repo_data["version_to_template"],
     )
+    local_templates = get_local_templates(repo_data["local"], templates)
+    local_source_dirs = repo_data["local"]["source_dirs"]
     redist_init_repository(
         name = repo_data["repo_name"],
         versions = versions,
+        local_build_templates = local_templates,
         build_templates = templates,
         url_dict = url_dict,
         redist_path_prefix = nvshmem_redist_path_prefix,
@@ -53,17 +57,18 @@ def nvshmem_redist_init_repository(
         local_path_env_var = "LOCAL_NVSHMEM_PATH",
         use_tar_file_env_var = "USE_NVSHMEM_TAR_ARCHIVE_FILES",
         target_arch_env_var = "NVSHMEM_REDIST_TARGET_PLATFORM",
-        local_source_dirs = ["include", "lib", "bin"],
+        local_source_dirs = local_source_dirs,
     )
 
 # TODO(yuriit): Remove this function after moving to //gpu/nvshmem
 def nvshmem_redist_init_repository_wrapper(
-    nvshmem_redistributions,
-    nvshmem_redist_path_prefix,
-    mirrored_tar_nvshmem_redist_path_prefix,
-    redist_versions_to_build_templates):
+        nvshmem_redistributions,
+        nvshmem_redist_path_prefix,
+        mirrored_tar_nvshmem_redist_path_prefix,
+        redist_versions_to_build_templates):
     nvshmem_redist_init_repository(
         nvshmem_redistributions,
         nvshmem_redist_path_prefix,
         mirrored_tar_nvshmem_redist_path_prefix,
-        redist_versions_to_build_templates)
+        redist_versions_to_build_templates,
+    )

@@ -33,6 +33,7 @@ def _cuda_redist_init_ext_impl(mctx):
         cudnn_redistributions = CUDNN_REDISTRIBUTIONS,
     )
 
+# TODO(ybaturina): add missing features from workspace mode
 cuda_redist_init_ext = module_extension(
     implementation = _cuda_redist_init_ext_impl,
 )
