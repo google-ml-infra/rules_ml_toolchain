@@ -180,7 +180,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
         "//cc/features:constants_merge",
         "//cc/features:asserts_disable",
-        "//third_party/rules_cc_toolchain/features:dbg",
+        "//third_party/rules_cc_toolchain/features:dbg_off",
         "//third_party/rules_cc_toolchain/features:opt",
         "//cc/features:detect_issues",
         #"//cc/features:detect_issues_ext",   # Non-hermetic builds don't include these flags

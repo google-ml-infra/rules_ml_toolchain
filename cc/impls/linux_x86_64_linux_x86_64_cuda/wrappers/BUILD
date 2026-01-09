@@ -20,6 +20,7 @@ filegroup(
     srcs = [
         "ar",
         "clang",
+        "clang-with-sanitizer",     # Separate tool for additional diagnostic; can be removed in the future releases
         "clang++",
         "idler",
         "ld",

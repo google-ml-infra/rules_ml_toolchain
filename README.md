@@ -80,6 +80,9 @@ Available sysroots
 | linux_glibc_2_31 | x86_64, aarch64 | GCC 10  | 2.31  | C++20                 | Ubuntu 20.04 |
 | linux_glibc_2_35 | x86_64          | GCC 12  | 2.35  | C++23 partial support | Ubuntu 22.04 |
 
+## Configure sanitizers
+For detailed instructions on how to configure and use sanitizers [click this link](cc/sanitizers).
+
 ## Run rules_ml_toolchain tests
 ### CPU hermetic tests
 Project supports CPU hermetic builds on:
