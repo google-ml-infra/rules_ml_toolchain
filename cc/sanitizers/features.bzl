@@ -187,13 +187,9 @@ def _import_asan_feature_impl(ctx):
             .linking_context.additional_libs.to_list()
     ])).to_list()
 
-    linker_actions = list(CC_LINK_EXECUTABLE_ACTION_NAMES)
-    if ctx.attr.dynamic_lib_treat_as_executable:
-        linker_actions += DYNAMIC_LIBRARY_LINK_ACTION_NAMES
-
     if exec_linker_flags or exec_linker_syms_flags:
         flag_sets.append(flag_set(
-            actions = linker_actions,
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES,
             flag_groups = [
                 flag_group(
                     flags = exec_linker_flags + exec_linker_syms_flags,
@@ -219,9 +215,6 @@ cc_toolchain_import_asan_feature = rule(
         "toolchain_import": attr.label(
             mandatory = True,
             providers = [CcToolchainImportInfo],
-        ),
-        "dynamic_lib_treat_as_executable": attr.bool(
-            default = False,
         ),
     },
     provides = [FeatureInfo, DefaultInfo],

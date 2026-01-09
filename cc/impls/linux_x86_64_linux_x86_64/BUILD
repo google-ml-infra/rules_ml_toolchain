@@ -234,10 +234,6 @@ cc_toolchain_import_asan_feature(
         "//common:is_asan_enabled": True,
         "//conditions:default": False,
     }),
-    dynamic_lib_treat_as_executable = select({
-        "//common:is_asan_dynamic_lib_treat_as_executable": True,
-        "//conditions:default": False,
-    }),
     toolchain_import = ":asan",
 )
 

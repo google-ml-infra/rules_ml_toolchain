@@ -171,13 +171,3 @@ config_setting(
     name = "is_asan_enabled",
     flag_values = { ":sanitize": "address" },
 )
-
-bool_flag(
-    name = "asan_dynamic_lib_as_executable",
-    build_setting_default = False,
-)
-
-config_setting(
-    name = "is_asan_dynamic_lib_treat_as_executable",
-    flag_values = { ":asan_dynamic_lib_as_executable": "True" },
-)
