@@ -218,8 +218,9 @@ FEATURES_ESSENTIAL = [
     # Optimization flags
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
     "//cc/features:constants_merge",
-    "//cc/features:asserts_disable",
-    "//third_party/rules_cc_toolchain/features:opt",
+    "//cc/features:dbg",
+    "//cc/features:fastbuild",
+    "//cc/features:opt",
     "//cc/features:detect_issues",
     #"//cc/features:detect_issues_ext",   # Non-hermetic builds don't include these flags
 
@@ -239,9 +240,7 @@ cc_toolchain_config(
     archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
-    compiler_features = FEATURES_ESSENTIAL + [
-        "//third_party/rules_cc_toolchain/features:dbg",
-    ],
+    compiler_features = FEATURES_ESSENTIAL,
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
@@ -314,7 +313,6 @@ cc_toolchain_config(
     compiler_features = FEATURES_ESSENTIAL + [
         ":asan_feature",
         ":asan_runtime_closure_feature",
-        "//third_party/rules_cc_toolchain/features:dbg",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",

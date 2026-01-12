@@ -72,14 +72,6 @@ cc_feature(
     enabled = True,
 )
 
-cc_feature(
-    name = "asserts_disable",
-    compiler_flags = [
-        "-DNDEBUG",
-    ],
-    enabled = True,
-)
-
 # Required when building with clang>=19, see jax-ml/jax#27091
 cc_feature(
     name = "clang19",
@@ -174,6 +166,7 @@ cc_feature(
     ],
     #implies = ["generate_pdb_file"],
     provides = ["compilation_mode"],
+    expand_if_not_available = "opt",
 )
 
 cc_feature(
@@ -181,6 +174,7 @@ cc_feature(
     compiler_flags = [
         "-g0",
         "-O2",
+        "-DNDEBUG",
     ],
     provides = ["compilation_mode"],
 )
