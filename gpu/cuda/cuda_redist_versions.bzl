@@ -670,9 +670,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_cccl": {
         "repo_name": "cuda_cccl",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
-            "12": "//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
-            "11": "//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
+            "any": "//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "lib"],
@@ -681,7 +679,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_crt": {
         "repo_name": "cuda_crt",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_crt.BUILD.tpl",
+            "any": "//gpu/cuda/build_templates:cuda_crt.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include"],
@@ -690,9 +688,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_nvcc": {
         "repo_name": "cuda_nvcc",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_nvcc.BUILD.tpl",
-            "12": "//gpu/cuda/build_templates:cuda_nvcc.BUILD.tpl",
-            "11": "//gpu/cuda/build_templates:cuda_nvcc.BUILD.tpl",
+            "any": "//gpu/cuda/build_templates:cuda_nvcc.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "bin", "nvvm"],
@@ -701,7 +697,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "libnvvm": {
         "repo_name": "cuda_nvvm",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_nvvm.BUILD",
+            "any": "//gpu/cuda/build_templates:cuda_nvvm.BUILD",
         },
         "local": {
             "source_dirs": ["nvvm"],
@@ -710,8 +706,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_nvdisasm": {
         "repo_name": "cuda_nvdisasm",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_nvdisasm.BUILD",
-            "12": "//gpu/cuda/build_templates:cuda_nvdisasm.BUILD",
+            "any": "//gpu/cuda/build_templates:cuda_nvdisasm.BUILD",
         },
         "local": {
             "source_dirs": ["bin"],
@@ -731,9 +726,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_nvprune": {
         "repo_name": "cuda_nvprune",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_nvprune.BUILD",
-            "12": "//gpu/cuda/build_templates:cuda_nvprune.BUILD",
-            "11": "//gpu/cuda/build_templates:cuda_nvprune.BUILD",
+            "any": "//gpu/cuda/build_templates:cuda_nvprune.BUILD",
         },
         "local": {
             "source_dirs": ["bin"],
@@ -742,9 +735,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_profiler_api": {
         "repo_name": "cuda_profiler_api",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_profiler.BUILD.tpl",
-            "12": "//gpu/cuda/build_templates:cuda_profiler.BUILD.tpl",
-            "11": "//gpu/cuda/build_templates:cuda_profiler.BUILD.tpl",
+            "any": "//gpu/cuda/build_templates:cuda_profiler.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include"],
@@ -753,9 +744,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_nvtx": {
         "repo_name": "cuda_nvtx",
         "version_to_template": {
-            "13": "//gpu/cuda/build_templates:cuda_nvtx.BUILD.tpl",
-            "12": "//gpu/cuda/build_templates:cuda_nvtx.BUILD.tpl",
-            "11": "//gpu/cuda/build_templates:cuda_nvtx.BUILD.tpl",
+            "any": "//gpu/cuda/build_templates:cuda_nvtx.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "lib"],
