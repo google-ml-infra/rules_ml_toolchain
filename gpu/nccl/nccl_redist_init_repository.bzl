@@ -14,7 +14,7 @@
 
 """Hermetic NCCL repositories initialization. Consult the WORKSPACE on how to use it."""
 
-load("//third_party:repo.bzl", "tf_mirror_urls")
+load("//common:repo.bzl", "tf_mirror_urls")
 load(
     "//gpu:nvidia_common_rules.bzl",
     "OS_ARCH_DICT",

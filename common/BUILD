@@ -50,6 +50,7 @@ config_setting(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],
+    visibility = ["//visibility:public"],
 )
 
 config_setting(
@@ -58,6 +59,27 @@ config_setting(
         "@platforms//os:linux",
         "@platforms//cpu:aarch64",
     ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "is_linux_armhf",
+    constraint_values =
+        [
+            "@platforms//cpu:armv7e-mf",
+            "@platforms//os:linux",
+        ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "is_linux_ppc64le",
+    constraint_values =
+        [
+            "@platforms//cpu:ppc64le",
+            "@platforms//os:linux",
+        ],
+    visibility = ["//visibility:public"],
 )
 
 #######################################################

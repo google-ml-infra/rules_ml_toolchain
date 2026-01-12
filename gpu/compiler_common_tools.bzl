@@ -1,7 +1,7 @@
 """Common compiler functions. """
 
 load(
-    "//third_party/remote_config:common.bzl",
+    "//common:common.bzl",
     "err_out",
     "raw_exec",
     "realpath",

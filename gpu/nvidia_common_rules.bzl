@@ -15,7 +15,7 @@
 """Common rules and functions for hermetic NVIDIA repositories."""
 
 load("//common:tar_extraction_utils.bzl", "extract_tar_with_hermetic_tar_tool")
-load("//third_party:repo.bzl", "tf_mirror_urls")
+load("//common:repo.bzl", "tf_mirror_urls")
 
 OS_ARCH_DICT = {
     "amd64": "x86_64-unknown-linux-gnu",

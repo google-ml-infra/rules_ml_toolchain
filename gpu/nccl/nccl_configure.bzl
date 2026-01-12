@@ -21,7 +21,7 @@ load(
     "use_cuda_redistributions",
 )
 load(
-    "//third_party/remote_config:common.bzl",
+    "//common:common.bzl",
     "get_cpu_value",
     "get_host_environ",
 )

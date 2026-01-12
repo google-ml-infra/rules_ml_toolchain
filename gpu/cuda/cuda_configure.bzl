@@ -71,7 +71,7 @@ load(
     "PTX_VERSION_DICT",
 )
 load(
-    "//third_party/remote_config:common.bzl",
+    "//common:common.bzl",
     "execute",
     "get_bash_bin",
     "get_cpu_value",

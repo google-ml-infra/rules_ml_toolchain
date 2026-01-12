@@ -17,7 +17,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//common:tar_extraction_utils.bzl", "tool_archive")
-load("//third_party:repo.bzl", "tf_mirror_urls")
+load("//common:repo.bzl", "tf_mirror_urls")
 load("//cc/llvms:llvm.bzl", "llvm")
 load("//cc/sysroots:sysroot.bzl", "sysroot")
 
