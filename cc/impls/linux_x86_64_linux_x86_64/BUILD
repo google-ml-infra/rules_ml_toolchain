@@ -191,7 +191,7 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL + [
-        "//third_party/rules_cc_toolchain/features:dbg_off",
+        "//third_party/rules_cc_toolchain/features:dbg",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",

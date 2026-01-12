@@ -134,31 +134,6 @@ cc_feature(
     ],
 )
 
-# Compilation modes.
-cc_feature(
-    name = "opt",
-    compiler_flags = [
-        "-O2",
-    ],
-    provides = ["compilation_mode"],
-)
-
-cc_feature(
-    name = "dbg",
-    compiler_flags = [
-        "-g",
-    ],
-    enabled = True,
-)
-
-cc_feature(
-    name = "dbg_off",
-    compiler_flags = [
-        "-g0",
-    ],
-    enabled = True,
-)
-
 cc_feature(
     name = "use_lld",
     enabled = True,

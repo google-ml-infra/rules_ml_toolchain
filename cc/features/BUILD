@@ -166,11 +166,30 @@ cc_feature(
 #    implies = ["generate_pdb_file"],
 #)
 
+# Compilation modes
 cc_feature(
     name = "fastbuild",
+    compiler_flags = [
+        "-O0",
+    ],
     #implies = ["generate_pdb_file"],
+    provides = ["compilation_mode"],
 )
 
 cc_feature(
     name = "opt",
+    compiler_flags = [
+        "-g0",
+        "-O2",
+    ],
+    provides = ["compilation_mode"],
+)
+
+cc_feature(
+    name = "dbg",
+    compiler_flags = [
+        "-g",
+        "-O0",
+    ],
+    provides = ["compilation_mode"],
 )
