@@ -17,10 +17,13 @@
 # Tools: Linux x86_64, Sysroot: Linux x86_64
 # ==============================================================================
 
+load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
+load("//cc/sanitizers:features.bzl",
+    "cc_toolchain_import_asan_feature",
+    "cc_toolchain_import_asan_runtime_closure_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
-load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 
 package(
     default_visibility = [
@@ -36,10 +39,16 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_x86_64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_x86_64//:startup_libs",
+    toolchain_import = ":startup_libs",
 )
 
 # buildifier: leave-alone
@@ -62,10 +71,12 @@ cc_toolchain_import_feature(
     toolchain_import = ":imports",
 )
 
-alias(
-    name = "startup_libs",
-    actual = "@sysroot_linux_x86_64//:startup_libs",
-    visibility = ["//visibility:public"],
+cc_toolchain_import(
+    name = "asan",
+    deps = [
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:rt_asan",
+    ],
 )
 
 # buildifier: leave-alone
@@ -83,6 +94,7 @@ filegroup(
 filegroup(
     name = "compiler",
     srcs = [
+        ":asan",
         ":imports",
         ":wrappers",
         "@llvm_linux_x86_64//:clang",
@@ -134,50 +146,52 @@ filegroup(
     ],
 )
 
+FEATURES_ESSENTIAL = [
+    "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
+    ":imports_feature",
+
+    # Toolchain configuration
+    "//third_party/rules_cc_toolchain/features:warnings",
+    "//third_party/rules_cc_toolchain/features:errors",
+    "//third_party/rules_cc_toolchain/features:reproducible",
+    "//third_party/rules_cc_toolchain/features:language",
+    "//third_party/rules_cc_toolchain/features:use_lld",
+    "//cc/features:sysroot_linux_x86_64",
+    ":startup_libs_feature",
+    "//third_party/rules_cc_toolchain/features:coverage",
+    #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
+
+    # PIC / PIE flags
+    "//third_party/rules_cc_toolchain/features:supports_pic",
+    "//third_party/rules_cc_toolchain/features:position_independent_code",
+    "//third_party/rules_cc_toolchain/features:position_independent_executable",
+
+    # Optimization flags
+    "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
+    "//third_party/rules_cc_toolchain/features:opt",
+    "//cc/features:constants_merge",
+    "//cc/features:asserts_disable",
+    "//cc/features:detect_issues",
+    "//cc/features:detect_issues_ext",
+
+    # C++ standard flags
+    "//third_party/rules_cc_toolchain/features:c++11",
+    "//third_party/rules_cc_toolchain/features:c++14",
+    "//third_party/rules_cc_toolchain/features:c++17",
+
+    # Other flags
+    "//cc/features:allow_shlib_undefined",
+    "//cc/features:supports_dynamic_linker",
+    "//cc/features:supports_start_end_lib_feature",
+]
+
 cc_toolchain_config(
     name = "config",
     archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
-    compiler_features = [
-        # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-        ":imports_feature",
-
-        # Toolchain configuration
-        "//third_party/rules_cc_toolchain/features:warnings",
-        "//third_party/rules_cc_toolchain/features:errors",
-        "//third_party/rules_cc_toolchain/features:reproducible",
-        "//third_party/rules_cc_toolchain/features:language",
-        "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_x86_64",
-        ":startup_libs_feature",
-        "//third_party/rules_cc_toolchain/features:coverage",
-        #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
-
-        # PIC / PIE flags
-        "//third_party/rules_cc_toolchain/features:supports_pic",
-        "//third_party/rules_cc_toolchain/features:position_independent_code",
-        "//third_party/rules_cc_toolchain/features:position_independent_executable",
-
-        # Optimization flags
-        "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
-        "//cc/features:constants_merge",
-        "//cc/features:asserts_disable",
-        "//third_party/rules_cc_toolchain/features:dbg",
-        "//third_party/rules_cc_toolchain/features:opt",
-        "//cc/features:detect_issues",
-        "//cc/features:detect_issues_ext",
-
-        # C++ standard configuration
-        "//third_party/rules_cc_toolchain/features:c++11",
-        "//third_party/rules_cc_toolchain/features:c++14",
-        "//third_party/rules_cc_toolchain/features:c++17",
-
-        #
-        "//cc/features:allow_shlib_undefined",
-        "//cc/features:supports_dynamic_linker",
-        "//cc/features:supports_start_end_lib_feature",
+    compiler_features = FEATURES_ESSENTIAL + [
+        "//third_party/rules_cc_toolchain/features:dbg_off",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
@@ -197,4 +211,65 @@ cc_toolchain_with_cppmap(
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_id",
+)
+
+# Toolchain with sanitizers
+
+# Separate tools for additional diagnostics; can be removed in the future
+SANITIZER_TOOLS = {
+    "gcc": "wrappers/clang-with-sanitizer",
+    "cpp": "wrappers/clang++",
+    "ld": "wrappers/ld",
+    "ar": "wrappers/ar",
+    "gcov": "wrappers/idler",
+    "llvm-cov": "wrappers/idler",
+    "nm": "wrappers/idler",
+    "objdump": "wrappers/idler",
+    "strip": "wrappers/idler",
+}
+
+cc_toolchain_import_asan_feature(
+    name = "asan_feature",
+    enabled = select({
+        "//common:is_asan_enabled": True,
+        "//conditions:default": False,
+    }),
+    toolchain_import = ":asan",
+)
+
+cc_toolchain_import_asan_runtime_closure_feature(
+    name = "asan_runtime_closure_feature",
+    requires = ["asan_feature"],
+    toolchain_import = ":asan",
+)
+
+cc_toolchain_config(
+    name = "config_with_sanitizers",
+    archiver = "@llvm_linux_x86_64//:ar",
+    c_compiler = "@llvm_linux_x86_64//:clang",
+    cc_compiler = "@llvm_linux_x86_64//:clang++",
+    compiler_features = FEATURES_ESSENTIAL + [
+        ":asan_feature",
+        ":asan_runtime_closure_feature",
+        "//third_party/rules_cc_toolchain/features:dbg",
+    ],
+    linker = "@llvm_linux_x86_64//:ld",
+    strip_tool = "@llvm_linux_x86_64//:strip",
+    target_cpu = "x86_64",
+    target_system_name = "local",
+    tool_paths = SANITIZER_TOOLS,
+)
+
+cc_toolchain(
+    name = "toolchain_with_sanitizers",
+    all_files = ":all",
+    ar_files = ":ar",
+    compiler_files = ":compiler",
+    dwp_files = ":all",
+    linker_files = ":linker",
+    objcopy_files = ":objcopy",
+    strip_files = ":strip",
+    supports_param_files = 1,
+    toolchain_config = ":config_with_sanitizers",
+    toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_with_sanitizers_id",
 )

@@ -169,6 +169,16 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
+    name = "asan",
+    additional_libs = [
+        "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libasan.so".format(gcc_version = GCC_VERSION),
+        "usr/lib/x86_64-linux-gnu/libasan.so.5",
+        "usr/lib/x86_64-linux-gnu/libasan.so.5.0.0",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
     name = "libc",
     additional_libs = [
         "lib/x86_64-linux-gnu/libc.so.6",
@@ -195,6 +205,7 @@ cc_toolchain_import(
         ":dynamic_linker",
         ":libc",
         ":pthread",
+        ":asan",
     ],
     visibility = ["//visibility:public"],
 )
