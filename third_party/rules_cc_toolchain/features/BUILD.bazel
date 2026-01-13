@@ -146,6 +146,14 @@ cc_feature(
 cc_feature(
     name = "dbg",
     compiler_flags = [
+        "-g",
+    ],
+    enabled = True,
+)
+
+cc_feature(
+    name = "dbg_off",
+    compiler_flags = [
         "-g0",
     ],
     enabled = True,

@@ -199,6 +199,7 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@pybind11",
     ],
+    features = ["asan_runtime_closure_feature"],
 )
 
 genrule(
@@ -220,6 +221,9 @@ py_test(
     srcs = ["protoclient_tool_test.py"],
     data = [":protoclient.so"],
     deps = [],
+    tags = [
+        "noasan",
+    ],
 )
 
 #############################################
@@ -227,12 +231,12 @@ py_test(
 cc_test(
     name = "openmp_test",
     srcs = ["openmp_test.cc"],
+    linkopts = [
+        "-fopenmp",
+    ],
     deps = [
         "//cc/sysroots:openmp",
         "@gtest//:gtest_main",
-    ],
-    linkopts = [
-        "-fopenmp",
     ],
 )
 
