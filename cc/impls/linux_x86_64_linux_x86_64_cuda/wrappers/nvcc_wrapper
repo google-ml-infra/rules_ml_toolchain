@@ -30,8 +30,8 @@ DESCRIPTION:
 
 NOTES:
   Changes to the contents of this file must be propagated from
-  //third_party/gpus/crosstool/crosstool_wrapper_is_not_gcc to
-  //third_party/gpus/crosstool/v*/*/clang/bin/crosstool_wrapper_is_not_gcc
+  //gpu/cuda/legacy/crosstool/crosstool_wrapper_is_not_gcc to
+  //gpu/cuda/legacy/crosstool/v*/*/clang/bin/crosstool_wrapper_is_not_gcc
 """
 
 __author__ = 'keveman@google.com (Manjunath Kudlur)'

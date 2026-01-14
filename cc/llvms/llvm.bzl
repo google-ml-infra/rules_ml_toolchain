@@ -14,7 +14,7 @@
 # ==============================================================================
 
 load(
-    "//third_party/remote_config:common.bzl",
+    "//common:common.bzl",
     "get_host_environ",
 )
 

@@ -1,4 +1,4 @@
-# Copyright 2025 The TensorFlow Authors. All rights reserved.
+# Copyright 2025 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""DEPRECATED: use //gpu:nvidia_common_rules.bzl instead."""
+"""CUDA module extension."""
 
-load("//gpu:nvidia_common_rules.bzl", _cuda_rpath_flags = "cuda_rpath_flags")
+load(
+    "//gpu/cuda:cuda_configure.bzl",
+    "cuda_configure",
+)
 
-# This function is kept only for the backwards-compatibility purposes.
-# TODO(ybaturina): remove the file when all ML projects use new repo structure.
-def cuda_rpath_flags(relpath):
-    return _cuda_rpath_flags(relpath)
+cuda_configure_ext = module_extension(
+    implementation = lambda mctx: cuda_configure(name = "local_config_cuda")
+)
