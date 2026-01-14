@@ -89,14 +89,6 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "asan_ignorelist",
-    srcs = [
-        "lib/clang/{clang_version}/share/asan_ignorelist.txt".format(clang_version = CLANG_VERSION),
-    ],
-    visibility = ["//visibility:public"],
-)
-
 cc_toolchain_import(
     name = "includes",
     hdrs = glob([
@@ -125,6 +117,30 @@ cc_toolchain_import(
     }),
     visibility = ["//visibility:public"],
 )
+
+#============================================================================================
+# ASAN
+
+filegroup(
+    name = "asan_ignorelist",
+    srcs = [
+        "lib/clang/{clang_version}/share/asan_ignorelist.txt".format(clang_version = CLANG_VERSION),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "rt_asan",
+    additional_libs = [
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan_static.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan.a.syms".format(clang_version = CLANG_VERSION),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+#============================================================================================
+# CUDA
 
 # Use when build CUDA by Clang (NVCC doesn't need it)
 cc_library(
