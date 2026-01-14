@@ -724,7 +724,7 @@ def json_init_repository(
 # various pywrap libs within the 'python' subdir.
 def cuda_rpath_flags(relpath):
     return select({
-        "@rules_ml_toolchain//gpu:enable_cuda_rpath": [
+        "@rules_ml_toolchain//common:enable_cuda_rpath": [
             "-Wl,-rpath='$$ORIGIN/../../" + relpath + "'",
             "-Wl,-rpath='$$ORIGIN/../" + relpath + "'",
         ],

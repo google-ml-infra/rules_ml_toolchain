@@ -756,9 +756,9 @@ cuda_configure = repository_rule(
         "cuda_build_tpl": attr.label(default = Label("//gpu/cuda:BUILD.tpl")),
         "cuda_config_tpl": attr.label(default = Label("//gpu/cuda:cuda_config.h.tpl")),
         "cuda_config_py_tpl": attr.label(default = Label("//gpu/cuda:cuda_config.py.tpl")),
-        "crosstool_wrapper_driver_is_not_gcc_tpl": attr.label(default = Label("//gpu/cuda/crosstool:clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl")),
-        "crosstool_build_tpl": attr.label(default = Label("//gpu/cuda/crosstool:BUILD.tpl")),
-        "cc_toolchain_config_tpl": attr.label(default = Label("//gpu/cuda/crosstool:cc_toolchain_config.bzl.tpl")),
+        "crosstool_wrapper_driver_is_not_gcc_tpl": attr.label(default = Label("//gpu/cuda/legacy/crosstool:clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl")),
+        "crosstool_build_tpl": attr.label(default = Label("//gpu/cuda/legacy/crosstool:BUILD.tpl")),
+        "cc_toolchain_config_tpl": attr.label(default = Label("//gpu/cuda/legacy/crosstool:cc_toolchain_config.bzl.tpl")),
     },
 )
 

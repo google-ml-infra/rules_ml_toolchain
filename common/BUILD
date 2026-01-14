@@ -159,6 +159,19 @@ config_setting(
     flag_values = {":enable_cuda": "False"},
 )
 
+# Config setting for CUDA stub rpaths.
+bool_flag(
+    name = "cuda_rpath",
+    build_setting_default = True,
+)
+
+config_setting(
+    name = "enable_cuda_rpath",
+    flag_values = {
+        ":cuda_rpath": "True",
+        "@local_config_cuda//:enable_cuda": "True"
+    },
+)
 #######################################################
 # Enable SYCL support flags
 
