@@ -45,7 +45,7 @@ bazel test --test_tag_filters=-noasan \
     --config=cuda_libraries_from_stubs \
     //cc/tests/gpu:all
 ```
-## Errors and Troubleshooting
+## Troubleshooting
 
 ### Linker error `undefined symbol: __asan_*`
 
