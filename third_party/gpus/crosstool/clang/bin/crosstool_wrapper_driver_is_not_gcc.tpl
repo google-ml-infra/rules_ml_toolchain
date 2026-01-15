@@ -48,6 +48,10 @@ CPU_COMPILER = ('%{cpu_compiler}')
 HOST_COMPILER_PATH = ('%{host_compiler_path}')
 
 NVCC_PATH = '%{nvcc_path}'
+if "TF_NVCC_COMPILER_PATH" in os.environ:
+  NVCC_PATH = os.environ["TF_NVCC_COMPILER_PATH"]
+  print("gpus/crosstool: Forcing NVCC from: " + NVCC_PATH)
+
 PREFIX_DIR = os.path.dirname(HOST_COMPILER_PATH)
 USE_CLANG_COMPILER = '%{use_clang_compiler}'
 NVCC_VERSION = '%{cuda_version}'
@@ -180,6 +184,14 @@ def InvokeNvcc(argv, log=False):
   m_options = ''.join([' -m' + m for m in m_options if m in ['32', '64']])
   m_host_options = ''.join([' -m' + m for m in m_options if m not in ['32', '64']])
   host_compiler_options = ' '.join([host_compiler_options, m_host_options])
+
+  shared_defines = ' -D_Nullable= -D_Nonnull= -DTF_USE_ABSL_LOG=0 '
+  shared_defines += ' -DABSL_LOG_LOG_H_ -DABSL_LOG_CHECK_H_ '
+  clang_only_flags = ' -Wno-unused-command-line-argument '
+  host_compiler_options += shared_defines + clang_only_flags
+  nvcc_compiler_options += shared_defines
+
+
   include_options = GetOptionValue(argv, '-I')
   out_file = GetOptionValue(argv, '-o')
   depfiles = GetOptionValue(argv, '-MF')
@@ -315,6 +327,8 @@ def main():
   cpu_compiler_flags = [flag for flag in sys.argv[1:]
                              if not flag.startswith(('--cuda_log'))]
 
+  cpu_compiler_flags.append('-Wno-unused-command-line-argument')
+  cpu_compiler_flags.append('-DTF_USE_ABSL_LOG=0')
   return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)
 
 if __name__ == '__main__':

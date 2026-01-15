@@ -32,6 +32,9 @@ CPU_COMPILER = ('%{cpu_compiler}')
 GCC_HOST_COMPILER_PATH = ('%{gcc_host_compiler_path}')
 
 NVCC_PATH = '%{nvcc_path}'
+if "TF_NVCC_COMPILER_PATH" in os.environ:
+  NVCC_PATH = os.environ["TF_NVCC_COMPILER_PATH"]
+  print("gpus/crosstool: Forcing NVCC from: " + NVCC_PATH)
 NVCC_VERSION = '%{cuda_version}'
 NVCC_TEMP_DIR = "%{nvcc_tmp_dir}"
 
@@ -136,10 +139,13 @@ def InvokeNvcc(argv, log=False):
 
   # The rest of the unrecognized options should be passed to host compiler
   host_compiler_options = [option for option in argv if option not in (src_files + out_file)]
-
+  host_compiler_options.append('-D_Nullable=')
+  host_compiler_options.append('-D_Nonnull=')
+  host_compiler_options.append('-Wno-unused-command-line-argument')
   m_options = ["-m64"]
 
   nvccopts = ['-D_FORCE_INLINES']
+  nvccopts += ['-D_Nullable=', '-D_Nonnull=']
   compute_capabilities, argv = GetOptionValue(argv, "--cuda-gpu-arch")
   for capability in compute_capabilities:
     capability = capability[len('sm_'):]
