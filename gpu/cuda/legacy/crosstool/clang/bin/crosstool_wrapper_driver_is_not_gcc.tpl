@@ -48,6 +48,11 @@ CPU_COMPILER = ('%{cpu_compiler}')
 HOST_COMPILER_PATH = ('%{host_compiler_path}')
 
 NVCC_PATH = '%{nvcc_path}'
+
+if "TF_NVCC_COMPILER_PATH" in os.environ:
+  NVCC_PATH = os.environ["TF_NVCC_COMPILER_PATH"]
+  print("gpus/crosstool: Forcing NVCC from: " + NVCC_PATH)
+
 PREFIX_DIR = os.path.dirname(HOST_COMPILER_PATH)
 USE_CLANG_COMPILER = '%{use_clang_compiler}'
 NVCC_VERSION = '%{cuda_version}'
