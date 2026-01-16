@@ -290,6 +290,9 @@ def cc_toolchain_deps():
             strip_prefix = "LLVM-20.1.8-macOS-ARM64",
         )
 
+def get_workspace():
+    return Label("//:BUILD").workspace_name
+
 def is_sanitizer_supported(exec_and_target, backend = None):
     is_linux_x86_64 = (exec_and_target == "linux_x86_64_linux_x86_64")
     is_supported_backend = (backend == None or backend == "cuda")
@@ -299,12 +302,11 @@ def is_sanitizer_supported(exec_and_target, backend = None):
 def is_cuda_backend_supported(exec_and_target):
     return exec_and_target == "linux_x86_64_linux_x86_64" or exec_and_target == "linux_aarch64_linux_aarch64"
 
-
 def is_sycl_backend_supported(exec_and_target):
     return exec_and_target == "linux_x86_64_linux_x86_64"
 
 def cc_toolchain_register(
-    exec_and_target_list = ["linux_x86_64_linux_x86_64"],
+    exec_and_target_list = [],
     backends = [],
     with_sanitizers = False):
     """Dynamically registers toolchains based on platform pairs and backends.
@@ -314,21 +316,23 @@ def cc_toolchain_register(
         backends: List of backends to enable (e.g., ["cuda", "sycl"]).
         with_sanitizers: Boolean, whether to include sanitizer-enabled toolchains.
     """
+    cc_toolchain_deps()
+
     toolchains = []
 
     for base in exec_and_target_list:
-        toolchains.append("@rules_ml_toolchain//cc:{}".format(base))
+        toolchains.append("@{}//cc:{}".format(get_workspace(), base))
         if is_sanitizer_supported(base):
-            toolchains.append("@rules_ml_toolchain//cc:{}_with_sanitizers".format(base))
+            toolchains.append("@{}//cc:{}_with_sanitizers".format(get_workspace(), base))
 
         if "cuda" in backends and is_cuda_backend_supported(base):
             cuda_base = "{}_cuda".format(base)
-            toolchains.append("@rules_ml_toolchain//cc:{}".format(cuda_base))
+            toolchains.append("@{}//cc:{}".format(get_workspace(), cuda_base))
 
             if is_sanitizer_supported(base, "cuda"):
-                toolchains.append("@rules_ml_toolchain//cc:{}_with_sanitizers".format(cuda_base))
+                toolchains.append("@{}//cc:{}_with_sanitizers".format(get_workspace(), cuda_base))
         elif "sycl" in backends and is_sycl_backend_supported(base):
             sycl_base = "{}_sycl".format(base)
-            toolchains.append("@rules_ml_toolchain//cc:{}".format(sycl_base))
+            toolchains.append("@{}//cc:{}".format(get_workspace(), sycl_base))
 
     native.register_toolchains(*toolchains)

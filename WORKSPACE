@@ -129,9 +129,7 @@ http_archive(
 ##############################################################
 # Hermetic toolchain configuration
 
-load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps", "cc_toolchain_register")
-
-cc_toolchain_deps()
+load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_register")
 
 # Register needed toolchains
 # cc_toolchain_register(...)
