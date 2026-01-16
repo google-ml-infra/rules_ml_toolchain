@@ -135,6 +135,8 @@ load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_register")
 # cc_toolchain_register(...)
 # or
 # register_toolchains("//cc/...")
+
+# The following example demonstrates how to use the cc_toolchain_register(...) function
 cc_toolchain_register(
     exec_and_target_list = [
         "linux_x86_64_linux_x86_64",
