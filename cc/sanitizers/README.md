@@ -45,5 +45,36 @@ bazel test --test_tag_filters=-noasan \
     --config=cuda_libraries_from_stubs \
     //cc/tests/gpu:all
 ```
+## Troubleshooting
 
+### Linker error `undefined symbol: __asan_*`
+
+This error means you have compiled your C++ code with AddressSanitizer (ASAN) enabled, 
+but the linker cannot find the necessary ASAN runtime libraries when trying to load the module.
+
+#### Why this happens
+When you compile with -fsanitize=address, the compiler inserts calls to special functions 
+like `__asan_option_detect_stack_use_after_return` or other. These functions live in the ASAN 
+runtime library (libasan).
+
+In a standard executable, the linker pulls these in automatically. However, a pybind11 module 
+is a shared object (.so).
+
+#### How to Fix It
+
+To resolve this error when using ASAN with a Bazel `cc_binary(linkshared = True)` (used as pybind11 extension), 
+you should modify your build target to include `asan_runtime_closure_feature` feature.
+Please see the following example:
+
+```
+cc_binary(
+    name = "pybind_extension",
+    srcs = [...],
+    linkshared = True,
+    deps = [
+        "@pybind11",
+    ],
+    features = ["asan_runtime_closure_feature"],
+)
+```
 
