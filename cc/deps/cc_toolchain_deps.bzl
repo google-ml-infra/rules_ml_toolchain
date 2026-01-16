@@ -331,7 +331,8 @@ def cc_toolchain_register(
 
             if is_sanitizer_supported(base, "cuda"):
                 toolchains.append("@{}//cc:{}_with_sanitizers".format(get_workspace(), cuda_base))
-        elif "sycl" in backends and is_sycl_backend_supported(base):
+
+        if "sycl" in backends and is_sycl_backend_supported(base):
             sycl_base = "{}_sycl".format(base)
             toolchains.append("@{}//cc:{}".format(get_workspace(), sycl_base))
 
