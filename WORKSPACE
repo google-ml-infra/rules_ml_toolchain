@@ -129,28 +129,11 @@ http_archive(
 ##############################################################
 # Hermetic toolchain configuration
 
-load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_register")
+load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
-# Register needed toolchains
-# cc_toolchain_register(...)
-# or
-# register_toolchains("//cc/...")
+cc_toolchain_deps()
 
-# The following example demonstrates how to use the cc_toolchain_register(...) function
-cc_toolchain_register(
-    exec_and_target_list = [
-        "linux_x86_64_linux_x86_64",
-        "linux_x86_64_linux_aarch64",
-        "linux_x86_64_darwin_aarch64",
-        "linux_aarch64_linux_aarch64",
-        "darwin_aarch64_darwin_aarch64",
-    ],
-    backends = [
-        "cuda",
-        "sycl",
-    ],
-    with_sanitizers = True
-)
+register_toolchains("//cc/...")
 
 ##############################################################
 # CUDA
