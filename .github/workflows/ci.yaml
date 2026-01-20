@@ -1,0 +1,29 @@
+name: CI Tests
+
+# This tells GitHub WHEN to run the script
+on:
+  pull_request:
+    branches: [ "main", "develop" ] # Run when a PR targets these branches
+
+jobs:
+  test-logic:
+    runs-on: ubuntu-latest # The type of virtual machine to use
+
+    steps:
+      # 1. Pull the code from your PR branch onto the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up the environment (e.g., install Node.js)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Install your project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Run your actual test command
+      - name: Run Tests
+        run: npm test
