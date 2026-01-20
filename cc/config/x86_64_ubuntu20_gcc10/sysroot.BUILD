@@ -73,12 +73,12 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "includes_system",
     hdrs = glob([
-        "usr/local/include/**",
+        #"usr/local/include/**",            # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
         "usr/include/x86_64-linux-gnu/**",
         "usr/include/**",
     ]),
     includes = [
-        "usr/local/include",
+        #"usr/local/include",               # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
         "usr/include/x86_64-linux-gnu",
         "usr/include",
     ],
