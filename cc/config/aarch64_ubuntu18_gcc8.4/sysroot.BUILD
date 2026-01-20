@@ -78,7 +78,7 @@ cc_toolchain_import(
         "usr/include/**",
     ]),
     includes = [
-        "usr/local/include",                # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
+        #"usr/local/include",                # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
         "usr/include/aarch64-linux-gnu",
         "usr/include",
     ],
