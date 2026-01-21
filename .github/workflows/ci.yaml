@@ -18,15 +18,15 @@ on:
   # Enable remote connections.
   # Step 1: Add a workflow dispatch to enable halting.
   # See go/ml-github-actions:connect#enable-workflow-dispatch.
-  workflow_dispatch:
-    inputs:
-      halt-for-connection:
-        description: 'Should this workflow run wait for a remote connection?'
-        type: choice
-        default: 'yes'
-        options:
-          - 'yes'
-          - 'no'
+  #workflow_dispatch:
+  #  inputs:
+  #    halt-for-connection:
+  #      description: 'Should this workflow run wait for a remote connection?'
+  #      type: choice
+  #      default: 'yes'
+  #      options:
+  #        - 'yes'
+  #        - 'no'
   pull_request:
     branches:
       - main
