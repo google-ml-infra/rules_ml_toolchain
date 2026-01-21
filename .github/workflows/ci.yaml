@@ -6,7 +6,7 @@ on:
     branches: [ "main" ] # Run when a PR targets these branches
 
 jobs:
-  test-logic:
+  run-tests:
     runs-on: linux-x86-n4-64 # The type of virtual machine to use
     container:
       image: index.docker.io/library/ubuntu@sha256:b359f1067efa76f37863778f7b6d0e8d911e3ee8efa807ad01fbf5dc1ef9006b # ratchet:ubuntu:24.04
