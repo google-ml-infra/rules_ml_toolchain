@@ -1,20 +1,84 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: CI - CPU Tests
 
-# This tells GitHub WHEN to run the script
 on:
+  # Enable remote connections.
+  # Step 1: Add a workflow dispatch to enable halting.
+  # See go/ml-github-actions:connect#enable-workflow-dispatch.
+  workflow_dispatch:
+    inputs:
+      halt-for-connection:
+        description: 'Should this workflow run wait for a remote connection?'
+        type: choice
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
   pull_request:
-    branches: [ "main" ] # Run when a PR targets these branches
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  # Don't cancel in-progress jobs for main branch
+  cancel-in-progress: ${{ github.ref != 'main' }}
 
 jobs:
-  run-tests:
-    runs-on: linux-x86-n4-64 # The type of virtual machine to use
-    container:
-      image: index.docker.io/library/ubuntu@sha256:b359f1067efa76f37863778f7b6d0e8d911e3ee8efa807ad01fbf5dc1ef9006b # ratchet:ubuntu:24.04
+  run_tests:
+    name: "Presubmit on ${{ matrix.job_info.runner }}"
+    # Available self-hosted runners: b/450276164#comment2
     strategy:
-      fail-fast: false
+      matrix:
+        job_info: [
+          {
+            runner: "linux-x86-n2-16",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build:latest",
+          },
+        ]
+    # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
+    # workflow is required.
+    # See go/ml-github-actions/getting_started/using_runners.md#supported-runner-scale-set.
+    runs-on: ${{ matrix.job_info.runner }}
+    container:
+      image: ${{ matrix.job_info.container }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Linux x86_64 tests
-        run: bazel test //cc/tests/cpu:all
+      - run: echo "Start running tests."
+      # Enable remote connections.
+      # Step 2: Add a waiting step.
+      # See go/ml-github-actions:connect#add-waiting-step.
+      - name: Wait For Connection
+        uses: google-ml-infra/actions/ci_connection@9f8d7d8d9954430d0fef4a8cce2cb4e3844c200d
+        with:
+          halt-dispatch-input: ${{ inputs.halt-for-connection }}
+      # Clone the GitHub repository to runner's environment $GITHUB_WORKSPACE, making its files
+      # accessible for workflow to use. Otherwise, the workflow cannot find the files (e.g. ls -lR
+      # will return "total 0").
+      - uses: actions/checkout@v5
+      # Run Bazel build.
+      # The flags used here for `bazel build` need to be the same as that used for `bazel test`
+      # below. Otherwise, the remote cache benefits of the build step are lost and the test step has
+      # to redo that work.
+      - run: bazel build //cc/tests/cpu:all
+      # Run Bazel test.
+      # The flags used here for `bazel test` need to be the same as that used for `bazel build`
+      # above. Otherwise, the remote cache benefits of the build step are lost and the test step has
+      # to redo that work.
+      - run: bazel test //cc/tests/cpu:all
