@@ -23,7 +23,7 @@ on:
       halt-for-connection:
         description: 'Should this workflow run wait for a remote connection?'
         type: choice
-        default: 'yes'
+        default: 'no'
         options:
           - 'yes'
           - 'no'
@@ -76,7 +76,4 @@ jobs:
       # The flags used here for `bazel test` need to be the same as that used for `bazel build`
       # above. Otherwise, the remote cache benefits of the build step are lost and the test step has
       # to redo that work.
-      - name: Run test command
-        env:
-          RULES_PYTHON_ALLOW_ROOT_USER: "1"
-        run: bazel test //cc/tests/cpu:all
+      - run: bazel test //cc/tests/cpu:all
