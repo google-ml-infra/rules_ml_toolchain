@@ -72,13 +72,11 @@ jobs:
       # accessible for workflow to use. Otherwise, the workflow cannot find the files (e.g. ls -lR
       # will return "total 0").
       - uses: actions/checkout@v5
-      # Run Bazel build.
-      # The flags used here for `bazel build` need to be the same as that used for `bazel test`
-      # below. Otherwise, the remote cache benefits of the build step are lost and the test step has
-      # to redo that work.
-      - run: bazel build //cc/tests/cpu:all
       # Run Bazel test.
       # The flags used here for `bazel test` need to be the same as that used for `bazel build`
       # above. Otherwise, the remote cache benefits of the build step are lost and the test step has
       # to redo that work.
-      - run: bazel test //cc/tests/cpu:all
+      - name: Run test command
+        env:
+          RULES_PYTHON_ALLOW_ROOT_USER: "1"
+        run: bazel test //cc/tests/cpu:all
