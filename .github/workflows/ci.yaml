@@ -42,8 +42,12 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'main' }}
 
 jobs:
-  run_tests:
+  run-tests:
     name: "Presubmit on ${{ matrix.job_info.runner }}"
+    defaults:
+      run:
+        # Explicitly set the shell to bash
+        shell: bash
     # Available self-hosted runners: b/450276164#comment2
     strategy:
       matrix:
