@@ -23,7 +23,7 @@ on:
       halt-for-connection:
         description: 'Should this workflow run wait for a remote connection?'
         type: choice
-        default: 'no'
+        default: 'yes'
         options:
           - 'yes'
           - 'no'
@@ -64,14 +64,19 @@ jobs:
       # Enable remote connections.
       # Step 2: Add a waiting step.
       # See go/ml-github-actions:connect#add-waiting-step.
-      - name: Wait For Connection
-        uses: google-ml-infra/actions/ci_connection@9f8d7d8d9954430d0fef4a8cce2cb4e3844c200d
-        with:
-          halt-dispatch-input: ${{ inputs.halt-for-connection }}
+      #- name: Wait For Connection
+      #  uses: google-ml-infra/actions/ci_connection@9f8d7d8d9954430d0fef4a8cce2cb4e3844c200d
+      #  with:
+      #    halt-dispatch-input: ${{ inputs.halt-for-connection }}
       # Clone the GitHub repository to runner's environment $GITHUB_WORKSPACE, making its files
       # accessible for workflow to use. Otherwise, the workflow cannot find the files (e.g. ls -lR
       # will return "total 0").
       - uses: actions/checkout@v5
+      # Run Bazel build.
+      # The flags used here for `bazel build` need to be the same as that used for `bazel test`
+      # below. Otherwise, the remote cache benefits of the build step are lost and the test step has
+      # to redo that work.
+      - run: bazel build //cc/tests/cpu:all
       # Run Bazel test.
       # The flags used here for `bazel test` need to be the same as that used for `bazel build`
       # above. Otherwise, the remote cache benefits of the build step are lost and the test step has
