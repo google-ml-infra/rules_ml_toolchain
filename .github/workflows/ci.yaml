@@ -84,5 +84,4 @@ jobs:
       - name: Run tests
         env:
           RULES_PYTHON_ALLOW_ROOT_USER: "1"
-        run: bazel test --action_env=RULES_PYTHON_ALLOW_ROOT_USER=1 //cc/tests/cpu:all
-        
+        run: bazel test --action_env=RULES_PYTHON_ALLOW_ROOT_USER=1 --repo_env=RULES_PYTHON_ALLOW_ROOT_USER=1 //cc/tests/cpu:all
