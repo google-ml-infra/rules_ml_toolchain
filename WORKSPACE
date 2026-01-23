@@ -20,21 +20,29 @@ workspace(
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-### rules_cc
 http_archive(
-    name = "rules_cc",
-    urls = ["https://github.com/bazelbuild/rules_cc/archive/refs/tags/0.1.0.tar.gz"],
-    strip_prefix = "rules_cc-0.1.0",
-    sha256 = "4b12149a041ddfb8306a8fd0e904e39d673552ce82e4296e96fac9cbf0780e59",
+    name = "bazel_features",
+    sha256 = "ba1282c1aa1d1fffdcf994ab32131d7c7551a9bc960fbf05f42d55a1b930cbfb",
+    strip_prefix = "bazel_features-1.15.0",
+    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.15.0/bazel_features-v1.15.0.tar.gz",
+)
+
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+bazel_features_deps()
+
+http_archive(
+    name = "rules_java",
+    sha256 = "a9690bc00c538246880d5c83c233e4deb83fe885f54c21bb445eb8116a180b83",
+    urls = ["https://github.com/bazelbuild/rules_java/releases/download/7.12.2/rules_java-7.12.2.tar.gz"],
 )
 
 ### bazel_skylib
 http_archive(
     name = "bazel_skylib",
-    sha256 = "74d544d96f4a5bb630d465ca8bbcfe231e3594e5aae57e1edbf17a6eb3ca2506",
+    sha256 = "fa01292859726603e3cd3a0f3f29625e68f4d2b165647c72908045027473e933",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.8.0/bazel-skylib-1.8.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.8.0/bazel-skylib-1.8.0.tar.gz",
     ],
 )
 
@@ -51,33 +59,32 @@ http_archive(
     ],
 )
 
-### com_google_protobuf
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "f645e6e42745ce922ca5388b1883ca583bafe4366cc74cf35c3c9299005136e2",
-    strip_prefix = "protobuf-5.28.3",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.28.3.zip"],
+# Initialize hermetic Python
+load("//py:python_init_rules.bzl", "python_init_rules")
+
+python_init_rules()
+
+load("//py:python_init_repositories.bzl", "python_init_repositories")
+
+python_init_repositories(
+    requirements = {
+        "3.11": "//:requirements_lock_3_11.txt",
+        "3.12": "//:requirements_lock_3_12.txt",
+    },
 )
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("//py:python_init_toolchains.bzl", "python_init_toolchains")
 
-# Cross compilation error with older version. Details: https://github.com/bulletphysics/bullet3/issues/4607
-http_archive(
-    name = "zlib",
-    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
-    sha256 = "38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
-    strip_prefix = "zlib-1.3.1",
-    urls = [
-        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.xz",
-        "https://zlib.net/zlib-1.3.1.tar.xz",
-    ],
-)
+python_init_toolchains(python_version = "3.11")
+
+load("//py:python_configure.bzl", "python_configure")
+python_configure(name = "local_config_python")
 
 http_archive(
     name = "com_google_absl",
-    sha256 = "733726b8c3a6d39a4120d7e45ea8b41a434cdacde401cba500f14236c49b39dc",
-    strip_prefix = "abseil-cpp-20240116.2",
-    urls = ["https://github.com/abseil/abseil-cpp/releases/download/20240116.2/abseil-cpp-20240116.2.tar.gz"],
+    sha256 = "d1abe9da2003e6cbbd7619b0ced3e52047422f4f4ac6c66a9bef5d2e99fea837",
+    strip_prefix = "abseil-cpp-d38452e1ee03523a208362186fd42248ff2609f6",
+    urls = ["https://github.com/abseil/abseil-cpp/archive/d38452e1ee03523a208362186fd42248ff2609f6.tar.gz"],
 )
 
 http_archive(
@@ -94,26 +101,20 @@ http_archive(
     urls = ["https://github.com/pybind/pybind11/archive/v2.13.4.tar.gz"],
 )
 
-http_archive(
-    name = "rules_python",
-    sha256 = "fa7dd2c6b7d63b3585028dd8a90a6cf9db83c33b250959c2ee7b583a6c130e12",
-    strip_prefix = "rules_python-1.6.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/1.6.0/rules_python-1.6.0.tar.gz",
-)
-
-load("//py:python_init_repositories.bzl", "python_init_repositories")
-
-python_init_repositories(
-    requirements = {
-        "3.11": "//:requirements_lock_3_11.txt",
-        "3.12": "//:requirements_lock_3_12.txt",
-    },
-)
-
-load("//py:python_configure.bzl", "python_configure")
-python_configure(name = "local_config_python")
-
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
+
+# Cross compilation error with older version. Details: https://github.com/bulletphysics/bullet3/issues/4607
+http_archive(
+    name = "zlib",
+    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+    sha256 = "38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
+    strip_prefix = "zlib-1.3.1",
+    urls = [
+        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.xz",
+        "https://zlib.net/zlib-1.3.1.tar.xz",
+    ],
+)
 
 http_archive(
     name = "gtest",
