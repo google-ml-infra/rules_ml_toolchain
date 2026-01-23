@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "Presubmit on ${{ matrix.job_info.runner }}"
+    name: "CPU Linux x86_64 -> Linux x86_64 tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -51,6 +51,7 @@ jobs:
     runs-on: ${{ matrix.job_info.runner }}
     container:
       image: ${{ matrix.job_info.container }}
+      options: --user root
     steps:
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
