@@ -51,7 +51,7 @@ jobs:
     runs-on: ${{ matrix.job_info.runner }}
     container:
       image: ${{ matrix.job_info.container }}
-      options: --user root
+      options: --user 1001:127
     steps:
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
