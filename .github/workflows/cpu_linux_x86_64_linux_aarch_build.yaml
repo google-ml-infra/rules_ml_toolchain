@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CPU Linux x86_64 -> Linux x86_64 tests
+name: CPU Linux x86_64 -> Linux aarch64 tests
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CPU Linux x86_64 -> Linux x86_64 tests ${{ matrix.job_info.runner }}"
+    name: "CPU Linux x86_64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -54,4 +54,4 @@ jobs:
     steps:
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
-      - run: bazel test //cc/tests/cpu:all
+      - run: bazel build --platforms=//common:linux_aarch64 //cc/tests/cpu:all
