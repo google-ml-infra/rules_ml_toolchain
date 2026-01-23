@@ -42,7 +42,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "gcr.io/bazel-public/bazel:7.7.0",
+            container: "gcr.io/bazel-public/bazel:7.7.0-user",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
@@ -51,7 +51,6 @@ jobs:
     runs-on: ${{ matrix.job_info.runner }}
     container:
       image: ${{ matrix.job_info.container }}
-      options: --user 1001:127
     steps:
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
