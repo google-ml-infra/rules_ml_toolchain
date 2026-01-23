@@ -19,6 +19,7 @@ jobs:
       prerelease: false
       release_files: rules_ml_toolchain-*.tar.gz
       tag_name: ${{ github.ref_name }}
+      bazel_test_command: bazel test --config=bzlmod //cc/tests/cpu:all
   publish:
     needs: release
     uses: ./.github/workflows/publish.yaml
