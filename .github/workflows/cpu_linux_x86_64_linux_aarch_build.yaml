@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CPU Linux x86_64 -> Linux aarch64 tests
+name: CPU Linux x86_64 -> Linux aarch64 build
 
 on:
   pull_request:
@@ -31,12 +31,11 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CPU Linux x86_64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
+    name: "CPU Linux x86_64 -> Linux aarch64 build ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
         shell: bash
-    # Available self-hosted runners: b/450276164#comment2
     strategy:
       matrix:
         job_info: [
