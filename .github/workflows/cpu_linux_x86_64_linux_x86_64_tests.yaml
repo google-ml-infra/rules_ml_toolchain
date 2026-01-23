@@ -42,7 +42,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "gcr.io/bazel-public/bazel:7.7.0",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:c1acc9b18c41e86b545f6f0df6c2d1f95eb0bd55ba3f795d73df0c1e16c9d503",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
@@ -51,12 +51,7 @@ jobs:
     runs-on: ${{ matrix.job_info.runner }}
     container:
       image: ${{ matrix.job_info.container }}
-      options: --user root
     steps:
-      - name: Pre-fix System Permissions
-        run: |
-            chown -R root:root /__w/_temp
-            chmod -R 777 /__w/_temp
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
       - run: bazel test --action_env=RULES_PYTHON_ALLOW_ROOT_USER=1 --repo_env=RULES_PYTHON_ALLOW_ROOT_USER=1 //cc/tests/cpu:all
