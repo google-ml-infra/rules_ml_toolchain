@@ -19,11 +19,8 @@ load(
     "cuda_configure",
 )
 
-<<<<<<< HEAD:extensions/cuda_configure.bzl
-cuda_configure_ext = module_extension(
-    implementation = lambda mctx: cuda_configure(name = "local_config_cuda")
-=======
-def _cuda_extension_impl(mctx):
+def _cuda_configure_ext_impl(mctx):
+    """Implementation of the cuda_configure_ext module extension."""
     # Collect configure tag attributes from all modules.
     # Later modules override earlier ones for each attribute.
     kwargs = {}
@@ -199,15 +196,15 @@ _configure_tag = tag_class(
     doc = "Configure the CUDA toolchain with custom settings.",
 )
 
-cuda_extension = module_extension(
-    implementation = _cuda_extension_impl,
+cuda_configure_ext = module_extension(
+    implementation = _cuda_configure_ext_impl,
     tag_classes = {"configure": _configure_tag},
     doc = """CUDA module extension for configuring the hermetic CUDA toolchain.
 
 Usage in MODULE.bazel:
 
 ```starlark
-cuda = use_extension("//third_party/extensions:cuda_extension.bzl", "cuda_extension")
+cuda = use_extension("//extensions:cuda_configure.bzl", "cuda_configure_ext")
 
 # Optional: Override specific configuration settings
 cuda.configure(
@@ -217,5 +214,4 @@ cuda.configure(
 use_repo(cuda, "local_config_cuda")
 ```
 """,
->>>>>>> fdb1339 (Update the cuda extension rule for bazel 8):third_party/extensions/cuda_extension.bzl
 )
