@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - CPU Tests
+name: CPU Linux x86_64 -> Linux x86_64 tests
 
 on:
   pull_request:
@@ -42,7 +42,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build:latest",
+            container: "gcr.io/bazel-public/bazel:7.7.0",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
