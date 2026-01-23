@@ -26,7 +26,7 @@ register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
 \`\`\`
 
-# Using WORKSPACE, add to your \`WORKSPACE\` file:
+## Using WORKSPACE, add to your \`WORKSPACE\` file:
 
 \`\`\`starlark
 http_archive(
