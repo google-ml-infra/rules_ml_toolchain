@@ -23,9 +23,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 ### rules_cc
 http_archive(
     name = "rules_cc",
-    sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
-    strip_prefix = "rules_cc-0.0.9",
-    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
+    urls = ["https://github.com/bazelbuild/rules_cc/archive/refs/tags/0.1.0.tar.gz"],
+    strip_prefix = "rules_cc-0.1.0",
+    sha256 = "4b12149a041ddfb8306a8fd0e904e39d673552ce82e4296e96fac9cbf0780e59",
 )
 
 ### bazel_skylib
@@ -96,26 +96,22 @@ http_archive(
 
 http_archive(
     name = "rules_python",
-    strip_prefix = "rules_python-0.34.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.34.0/rules_python-0.34.0.tar.gz",
+    sha256 = "fa7dd2c6b7d63b3585028dd8a90a6cf9db83c33b250959c2ee7b583a6c130e12",
+    strip_prefix = "rules_python-1.6.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/1.6.0/rules_python-1.6.0.tar.gz",
 )
 
-load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
+load("//py:python_init_repositories.bzl", "python_init_repositories")
 
-py_repositories()
-
-python_register_toolchains(
-    name = "python",
-    python_version = "3.12",
+python_init_repositories(
+    requirements = {
+        "3.11": "//:requirements_lock_3_11.txt",
+        "3.12": "//:requirements_lock_3_12.txt",
+    },
 )
 
-load("@pybind11_bazel//:python_configure.bzl", "python_configure")
-load("@python//:defs.bzl", "interpreter")
-
-python_configure(
-    name = "local_config_python",
-    python_interpreter_target = interpreter,
-)
+load("//py:python_configure.bzl", "python_configure")
+python_configure(name = "local_config_python")
 
 protobuf_deps()
 
