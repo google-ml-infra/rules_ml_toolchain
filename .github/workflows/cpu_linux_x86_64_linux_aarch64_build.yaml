@@ -51,6 +51,10 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
+
+      - run: echo "Building / running tests..."
       - run: bazel build --platforms=//common:linux_aarch64 //cc/tests/cpu:all
+
+      - run: echo "Bzlmod. Building / running tests..."
+      - run: bazel build --platforms=//common:linux_aarch64 --config=bzlmod //cc/tests/cpu:all

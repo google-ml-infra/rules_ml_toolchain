@@ -51,6 +51,9 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
+      - run: echo "Building / running tests..."
       - run: bazel test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 //cc/tests/cpu:all
+
+      - run: echo "Bzlmod. Building / running tests..."
+      - run: bazel test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 --config=bzlmod //cc/tests/cpu:all
