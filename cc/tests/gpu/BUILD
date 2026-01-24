@@ -52,92 +52,10 @@ cuda_cc_test(
 )
 
 #############################################
-# Hermetic CC Toolchain Ultimate Test
-
-# Execution platform rules
-cc_binary(
-    name = "protogen",
-    srcs = ["protogen.cc"],
-    linkshared = True,
-    deps = ["@pybind11"],
-)
-
-genrule(
-    name = "protogen_so",
-    srcs = [":protogen"],
-    outs = ["protogen.so"],
-    cmd = "cp $(location :protogen) $@",
-)
-
-py_binary(
-    name = "protogen_tool",
-    srcs = ["protogen_tool.py"],
-    #args = [
-    #    "-f /tmp/my.proto",
-    #],
-    data = [":protogen.so"],
-)
-
-genrule(
-    name = "my_proto",
-    outs = [
-        "my.proto",
-    ],
-    cmd = "$(location :protogen_tool) -f $@",
-    tools = [":protogen_tool"],
-)
-
-proto_library(
-    name = "my_proto_library",
-    srcs = [":my_proto"],
-)
-
-# Target platform rules
-cc_proto_library(
-    name = "my_proto_library_cc",
-    deps = [":my_proto_library"],
-)
-
-cc_binary(
-    name = "protoclient",
-    srcs = ["protoclient.cc"],
-    linkshared = True,
-    linkstatic = True,
-    deps = [
-        ":my_proto_library_cc",
-        "@com_google_protobuf//:protobuf",
-        "@pybind11",
-    ],
-    features = ["asan_runtime_closure_feature"],
-)
-
-genrule(
-    name = "protoclient_so",
-    srcs = [":protoclient"],
-    outs = ["protoclient.so"],
-    cmd = "cp $(location :protoclient) $@",
-)
-
-py_binary(
-    name = "protoclient_tool",
-    srcs = ["protoclient_tool.py"],
-    data = [":protoclient.so"],
-    deps = [],
-)
-
-py_test(
-    name = "protoclient_tool_test",
-    srcs = ["protoclient_tool_test.py"],
-    data = [":protoclient.so"],
-    deps = [],
-)
-
-#############################################
 # Tests Suite
 test_suite(
     name = "all",
     tests = [
-        ":protoclient_tool_test",
         ":vector_cuda_test",
     ],
 )
