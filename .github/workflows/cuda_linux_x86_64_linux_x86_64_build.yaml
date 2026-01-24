@@ -53,6 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: echo "Clang building..."
-      - run: bazel build //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda_clang_local --config=cuda_libraries_from_stubs
+      - run: bazel build //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs
       - run: echo "NVCC building..."
       - run: bazel build //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs
