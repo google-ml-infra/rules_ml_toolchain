@@ -53,4 +53,4 @@ jobs:
     steps:
       - run: echo "Start building / running tests..."
       - uses: actions/checkout@v5
-      - run: bazel test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 //cc/tests/cpu:all
+      - run: bazel test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 //cc/tests/cpu:all
