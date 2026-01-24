@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: ASAN Linux x86_64 -> Linux x86_64. Min LLVM/sysroot tests
+name: ASAN Linux x86_64 -> Linux x86_64. Max LLVM/sysroot tests
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CPU Linux x86_64 -> Linux x86_64. Min LLVM/sysroot tests ${{ matrix.job_info.runner }}"
+    name: "CPU Linux x86_64 -> Linux x86_64. Max LLVM/sysroot tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -53,8 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: echo "Building / running ASAN tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan //cc/sanitizers/tests:all
+      - run: echo "Building / running ASAN tests (max LLVM / sysroot)..."
+      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 //cc/sanitizers/tests:all
 
-      - run: echo "Bzlmod. Building / running tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan --config=bzlmod //cc/sanitizers/tests:all
+      - run: echo "Bzlmod. Building / running tests (max LLVM / sysroot)..."
+      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 --config=bzlmod //cc/sanitizers/tests:all
