@@ -20,17 +20,16 @@ on:
         type: string
 jobs:
   publish:
-    uses: MichaelHudgins/publish-to-bcr/.github/workflows/publish.yaml@e5228a53eedcfb005e348aa66e8694fa832e9703
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.1.0
     with:
       tag_name: ${{ inputs.tag_name }}
       # GitHub repository which is a fork of the upstream where the Pull Request will be opened.
       registry_fork: Google-ML-Infra-Bazel/bazel-central-registry
       draft: false
-      # Disable attestation until we can switch to the official bazel-contrib/publish-to-bcr workflow.
-      attest: false
+      attest: true
       environment: ${{ inputs.environment }}
     permissions:
-      # attestations: write
+      attestations: write
       contents: write
       id-token: write
     secrets:
