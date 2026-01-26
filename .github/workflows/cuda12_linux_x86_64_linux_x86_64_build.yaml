@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CUDA Linux aarch64 -> Linux aarch64 tests
+name: CUDA 12 Linux x86_64 -> Linux x86_64 tests
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CPU Linux aarch64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
+    name: "GPU Linux x86_64 -> Linux x86_64 tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -40,8 +40,8 @@ jobs:
       matrix:
         job_info: [
           {
-            runner: "linux-arm64-c4a-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build-arm64:latest",
+            runner: "linux-x86-n2-16",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:c1acc9b18c41e86b545f6f0df6c2d1f95eb0bd55ba3f795d73df0c1e16c9d503",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
@@ -53,14 +53,25 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: echo "Clang building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: echo "Clang 18 building..."
+      - run: | 
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda \
+            --config=cuda_libraries_from_stubs \
+            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            //cc/tests/gpu:all
 
       - run: echo "NVCC building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
 
-      - run: echo "Bzlmod. Clang building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: echo "Bzlmod. Clang 18 building..."
+      - run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda \
+            --config=cuda_libraries_from_stubs \
+            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            --config=bzlmod \
+            //cc/tests/gpu:all
 
       - run: echo "Bzlmod. NVCC building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
