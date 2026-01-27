@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CUDA 12 Linux aarch64 -> Linux aarch64 tests
+name: CI - Bazel GPU tests
 
 on:
   pull_request:
@@ -62,7 +62,7 @@ jobs:
             //cc/tests/gpu:all
 
       - run: echo "NVCC building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
 
       - run: echo "Bzlmod. Clang building..."
       - run: |
@@ -74,4 +74,4 @@ jobs:
             //cc/tests/gpu:all
 
       - run: echo "Bzlmod. NVCC building..."
-      - run: bazel build --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
