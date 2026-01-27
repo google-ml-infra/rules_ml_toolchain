@@ -1,6 +1,7 @@
 
 #############################################
 # Sanitizers
+# TODO: Add one more test with feature '-asan'
 cc_test(
     name = "sanitizers_test",
     srcs = ["sanitizers_test.cc"],

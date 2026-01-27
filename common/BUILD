@@ -193,16 +193,3 @@ config_setting(
         ":enable_sycl": "False",
     },
 )
-
-#######################################################
-# Sanitizer flags
-
-string_flag(
-    name = "sanitize",
-    build_setting_default = "",
-)
-
-config_setting(
-    name = "is_asan_enabled",
-    flag_values = { ":sanitize": "address" },
-)

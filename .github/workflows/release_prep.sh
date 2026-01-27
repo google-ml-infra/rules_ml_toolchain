@@ -13,6 +13,7 @@ readonly ARCHIVE="${PREFIX}.tar.gz"
 
 # NB: configuration for 'git archive' is in /.gitattributes
 git archive --format=tar --prefix=${PREFIX}/ ${TAG} | gzip > $ARCHIVE
+SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
 
 # The stdout of this program will be used as the top of the release notes for this release.
 cat << EOF
@@ -20,5 +21,32 @@ cat << EOF
 
 \`\`\`starlark
 bazel_dep(name = "rules_ml_toolchain", version = "${TAG}")
+
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
 \`\`\`
+
+## Using WORKSPACE, add to your \`WORKSPACE\` file:
+
+\`\`\`starlark
+http_archive(
+    name = "rules_ml_toolchain",
+    sha256 = "${SHA}",
+    strip_prefix = "${PREFIX}",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/releases/download/${TAG}/${ARCHIVE}",
+    ],
+)
+
+load(
+    "@rules_ml_toolchain//cc/deps:cc_toolchain_deps.bzl",
+    "cc_toolchain_deps",
+)
+
+cc_toolchain_deps()
+
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+\`\`\`
+
 EOF

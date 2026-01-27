@@ -116,7 +116,7 @@ cc_toolchain_import_feature(
 )
 
 cc_toolchain_import(
-    name = "asan",
+    name = "asan_import",
     deps = [
         "@llvm_linux_x86_64//:libclang_rt",
         "@llvm_linux_x86_64//:rt_asan",
@@ -139,7 +139,7 @@ filegroup(
 filegroup(
     name = "compiler",
     srcs = [
-        ":asan",
+        ":asan_import",
         ":cuda_nvcc",
         ":imports",
         ":wrappers",
@@ -291,18 +291,14 @@ CUDA_WITH_SANITIZER_TOOLS = if_cuda_hermetic_clang(
 )
 
 cc_toolchain_import_asan_feature(
-    name = "asan_feature",
-    enabled = select({
-        "//common:is_asan_enabled": True,
-        "//conditions:default": False,
-    }),
-    toolchain_import = ":asan",
+    name = "asan",
+    toolchain_import = ":asan_import",
 )
 
 cc_toolchain_import_asan_runtime_closure_feature(
-    name = "asan_runtime_closure_feature",
-    requires = ["asan_feature"],
-    toolchain_import = ":asan",
+    name = "asan_runtime_closure",
+    requires = ["asan"],
+    toolchain_import = ":asan_import",
 )
 
 cc_toolchain_config(
@@ -311,8 +307,8 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL + [
-        ":asan_feature",
-        ":asan_runtime_closure_feature",
+        ":asan",
+        ":asan_runtime_closure",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",

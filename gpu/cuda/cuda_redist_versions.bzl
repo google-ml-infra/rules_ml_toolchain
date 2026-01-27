@@ -106,6 +106,10 @@ CUDA_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.1.0.json",
         "55304d9d831bb095d9594aab276f96d2f0e30919f4cc1b3f6ca78cdb5f643e11",
     ],
+    "13.1.1": [
+        "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.1.1.json",
+        "97cf605ccc4751825b1865f4af571c9b50dd29ffd13e9a38b296a9ecb1f0d422",
+    ],
 }
 
 MIRRORED_TARS_CUDA_REDIST_JSON_DICT = {
@@ -530,6 +534,7 @@ PTX_VERSION_DICT = {
         "12.8": "8.7",
         "12.9": "8.8",
         "13.0": "9.0",
+        "13.1": "9.1",
     },
 }
 
@@ -537,6 +542,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "nvidia_driver": {
         "repo_name": "cuda_driver",
         "version_to_template": {
+            "590": "//gpu/cuda/build_templates:cuda_driver.BUILD.tpl",
             "580": "//gpu/cuda/build_templates:cuda_driver.BUILD.tpl",
             "575": "//gpu/cuda/build_templates:cuda_driver.BUILD.tpl",
             "570": "//gpu/cuda/build_templates:cuda_driver.BUILD.tpl",
