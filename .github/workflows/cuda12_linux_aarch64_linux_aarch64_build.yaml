@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - Bazel CUDA12 build
+name: CI - Bazel GPU build
 
 on:
   pull_request:
