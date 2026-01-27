@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - CPU ASAN Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot
+name: ASAN Linux x86_64 -> Linux x86_64. Max LLVM/sysroot tests
 
 on:
   pull_request:
@@ -30,16 +30,26 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'main' }}
 
 jobs:
-  get-runner:
-    uses: ./.github/workflows/runner-linux-x86-64.yaml
-
   run-tests:
-    name: "CPU ASAN Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot"
-    needs: get-runner
-    if: always()
-    runs-on: ${{ needs.get-runner.outputs.runner }}
+    name: "CPU Linux x86_64 -> Linux x86_64. Max LLVM/sysroot tests ${{ matrix.job_info.runner }}"
+    defaults:
+      run:
+        # Explicitly set the shell to bash
+        shell: bash
+    strategy:
+      matrix:
+        job_info: [
+          {
+            runner: "linux-x86-n2-16",
+            container: "gcr.io/bazel-public/bazel:7.7.0",
+          },
+        ]
+    # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
+    # workflow is required.
+    # See go/ml-github-actions/getting_started/using_runners.md#supported-runner-scale-set.
+    runs-on: ${{ matrix.job_info.runner }}
     container:
-      image: ${{ needs.get-runner.outputs.container }}
+      image: ${{ matrix.job_info.container }}
     steps:
       - uses: actions/checkout@v5
 
