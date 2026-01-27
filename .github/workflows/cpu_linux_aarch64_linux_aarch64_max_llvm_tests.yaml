@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - Bazel CPU tests
+name: CI - CPU Linux aarch64 -> Linux aarch64 tests. Max LLVM/sysroot
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "Linux aarch64 -> Linux aarch64. Max LLVM/sysroot tests ${{ matrix.job_info.runner }}"
+    name: "CPU Linux aarch64 -> Linux aarch64 tests. Max LLVM/sysroot. Runner ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
