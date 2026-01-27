@@ -12,28 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Linux x86_64 runner workflow
 on:
   workflow_call:
-
-env:
-  JOB_CONFIG: |
-    [
-      {
-        "runner": "linux-x86-n2-16",
-        "container": "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:c1acc9b18c41e86b545f6f0df6c2d1f95eb0bd55ba3f795d73df0c1e16c9d503"
-      }
-    ]
-
-jobs:
-  execute-build:
-    runs-on: ${{ matrix.job_info.runner }}
-    container:
-      image: ${{ matrix.job_info.container }}
-    strategy:
-      matrix:
-        job_info: ${{ fromJSON(env.JOB_CONFIG) }}
-#      steps:
-#        - name: Checkout
-#          uses: actions/checkout@v4
-#        - run: echo "Running build on ${{ matrix.job_info.runner }}"
+    outputs:
+      runner:
+        value: "linux-x86-n2-16"
+      container:
+        value: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:c1acc9b18c41e86b545f6f0df6c2d1f95eb0bd55ba3f795d73df0c1e16c9d503"

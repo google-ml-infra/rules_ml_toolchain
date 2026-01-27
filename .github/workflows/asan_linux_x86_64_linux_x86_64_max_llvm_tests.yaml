@@ -34,10 +34,12 @@ jobs:
     uses: ./.github/workflows/runner-linux-x86-64.yaml
 
   run-tests:
-    name: "CPU ASAN Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot. Runner ${{ matrix.job_info.runner }}"
+    name: "CPU ASAN Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot"
     needs: get-runner
     if: always()
-    runs-on: ${{ matrix.job_info.runner }}
+    runs-on: ${{ needs.get-runner.outputs.runner }}
+    container:
+      image: ${{ needs.get-runner.outputs.container }}
     steps:
       - uses: actions/checkout@v5
 
