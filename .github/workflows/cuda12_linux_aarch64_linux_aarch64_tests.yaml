@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CPU Linux aarch64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
+    name: "CUDA 12 Linux aarch64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
