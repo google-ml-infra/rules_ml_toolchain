@@ -63,7 +63,7 @@ is a shared object (.so).
 #### How to Fix It
 
 To resolve this error when using ASAN with a Bazel `cc_binary(linkshared = True)` (used as pybind11 extension), 
-you should modify your build target to include `asan_runtime_closure_feature` feature.
+you should modify your build target to include `asan_runtime_closure` feature.
 Please see the following example:
 
 ```
@@ -74,7 +74,7 @@ cc_binary(
     deps = [
         "@pybind11",
     ],
-    features = ["asan_runtime_closure_feature"],
+    features = ["asan_runtime_closure"],
 )
 ```
 
