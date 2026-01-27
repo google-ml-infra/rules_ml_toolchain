@@ -41,7 +41,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:c1acc9b18c41e86b545f6f0df6c2d1f95eb0bd55ba3f795d73df0c1e16c9d503",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build:latest",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
