@@ -53,6 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: echo "NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs //cc/tests/gpu:all
       - run: echo "Bzlmod. NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
