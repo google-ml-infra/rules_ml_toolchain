@@ -29,7 +29,7 @@ build:clang --copt=-Werror=mismatched-tags
 
 # Hermetic ASan configuration example. Hermetic ASan works only for Linux x86_64
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
-common:asan --@rules_ml_toolchain//common:sanitize=address
+common:asan --features=asan
 common:asan --strip=never
 
 # Non-hermetic ASan configuration

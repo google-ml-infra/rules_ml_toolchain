@@ -8,8 +8,8 @@ The following configuration provides a baseline for integrating ASan into ML pro
 ```
 # A separate toolchain configuration is provided to support sanitizer
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
-# Specify the desired sanitizer type; currently, only AddressSanitizer (ASAN) is supported
-common:asan --@rules_ml_toolchain//common:sanitize=address
+# Enable ASan (AddressSanitizer) feature
+common:asan --features=asan
 ```
 
 ### Tests for verifying AddressSanitizer (ASan) functionality
@@ -63,7 +63,7 @@ is a shared object (.so).
 #### How to Fix It
 
 To resolve this error when using ASAN with a Bazel `cc_binary(linkshared = True)` (used as pybind11 extension), 
-you should modify your build target to include `asan_runtime_closure_feature` feature.
+you should modify your build target to include `asan_runtime_closure` feature.
 Please see the following example:
 
 ```
@@ -74,7 +74,7 @@ cc_binary(
     deps = [
         "@pybind11",
     ],
-    features = ["asan_runtime_closure_feature"],
+    features = ["asan_runtime_closure"],
 )
 ```
 
