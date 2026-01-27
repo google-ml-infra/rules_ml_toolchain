@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - Bazel GPU build
+name: CUDA 12 Linux aarch64 -> Linux aarch64 build
 
 on:
   pull_request:
