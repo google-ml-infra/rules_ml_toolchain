@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI - Bazel GPU build
+name: CI - Bazel CUDA12 build
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CUDA 12 Linux aarch64 -> Linux aarch64 ${{ matrix.job_info.runner }}"
+    name: "Linux aarch64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -52,19 +52,16 @@ jobs:
       image: ${{ matrix.job_info.container }}
     steps:
       - uses: actions/checkout@v5
-
-      - run: echo "Clang building..."
-      - run: |
+      - run: echo "Clang 18 building..."
+      - run: | 
           bazel build --config=build_cuda_with_clang \
             --config=cuda \
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             //cc/tests/gpu:all
-
       - run: echo "NVCC building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
-
-      - run: echo "Bzlmod. Clang building..."
+      - run: echo "Bzlmod. Clang 18 building..."
       - run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda \
@@ -72,6 +69,5 @@ jobs:
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --config=bzlmod \
             //cc/tests/gpu:all
-
       - run: echo "Bzlmod. NVCC building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
