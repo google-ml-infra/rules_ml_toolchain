@@ -8,8 +8,8 @@ The following configuration provides a baseline for integrating ASan into ML pro
 ```
 # A separate toolchain configuration is provided to support sanitizer
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
-# Specify the desired sanitizer type; currently, only AddressSanitizer (ASAN) is supported
-common:asan --@rules_ml_toolchain//common:sanitize=address
+# Enable ASan (AddressSanitizer) feature
+common:asan --features=asan
 ```
 
 ### Tests for verifying AddressSanitizer (ASan) functionality
