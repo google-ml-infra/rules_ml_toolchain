@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   run-tests:
-    name: "CUDA 13 Linux aarch64 -> Linux aarch64 tests ${{ matrix.job_info.runner }}"
+    name: "CUDA 13 Linux aarch64 -> Linux aarch64 ${{ matrix.job_info.runner }}"
     defaults:
       run:
         # Explicitly set the shell to bash
@@ -52,9 +52,7 @@ jobs:
       image: ${{ matrix.job_info.container }}
     steps:
       - uses: actions/checkout@v5
-
       - run: echo "NVCC building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
-
       - run: echo "Bzlmod. NVCC building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
