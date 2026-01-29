@@ -548,16 +548,13 @@ dependencies in Google ML projects.
         "cuda_cccl": {
             "repo_name": "cuda_cccl",
             "version_to_template": {
-                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+                "any": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
             },
             "local": {
                 "source_dirs": ["include", "lib"],
+                "local_path_env_var": "LOCAL_CCCL_PATH",
                 "version_to_template": {
-                    "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                    "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                    "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                    "any": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
                 },
             },
         },
@@ -659,17 +656,14 @@ _CCCL_BUILD_TEMPLATES = {
     "cuda_cccl": {
         "repo_name": "cuda_cccl",
         "version_to_template": {
-            "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-            "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-            "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+            "any": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "lib"],
+            "local_path_env_var": "LOCAL_CCCL_PATH",
             "version_to_template": {
-                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-            },
+                "any": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+             },
         },
     },
 }
