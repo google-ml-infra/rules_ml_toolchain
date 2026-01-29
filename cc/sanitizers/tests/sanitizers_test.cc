@@ -20,16 +20,14 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 #include "gtest/gtest.h"
 
-int cause_asan_error() {
-    std::vector<int> data(10);
-
-    std::cout << "Attempting to write to element 10 (valid range 0-9)..." << std::endl;
-
-    // ERROR: Access element at index 10.
-    std::cout << "Trying to extract 10th element " << data[10] << std::endl;
-    return 0;
+void trigger_use_after_free() {
+    int* ptr = new int(12);
+    delete ptr;
+    std::cout << *ptr << std::endl; // Error: Use after free
 }
 
 TEST(SanitizersTest, SanitizersTest) {
-    EXPECT_EQ(0, cause_asan_error());
+    EXPECT_DEATH({
+        trigger_use_after_free();
+    }, "AddressSanitizer: heap-use-after-free");
 }
