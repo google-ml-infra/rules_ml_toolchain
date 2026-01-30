@@ -19,26 +19,19 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 #include "gtest/gtest.h"
 
-int cause_tsan_error() {
-    std::vector<int> shared_data;
+// This function purposefully causes a data race
+void trigger_tsan_race() {
+    int counter = 0;
 
-    // Thread A: Adds an element
-    std::thread t1([&]() {
-        shared_data.push_back(42);
-    });
-
-    // Thread B: Adds another element simultaneously
-    std::thread t2([&]() {
-        shared_data.push_back(100);
-    });
+    std::thread t1([&]() { counter++; });
+    std::thread t2([&]() { counter++; });
 
     t1.join();
     t2.join();
-
-    std::cout << "Vector size: " << shared_data.size() << std::endl;
-    return 0;
 }
 
 TEST(SanitizersTest, SanitizersTest) {
-    EXPECT_EQ(0, cause_tsan_error());
+    EXPECT_DEATH({
+       trigger_tsan_race();
+    }, "ThreadSanitizer: data race");
 }

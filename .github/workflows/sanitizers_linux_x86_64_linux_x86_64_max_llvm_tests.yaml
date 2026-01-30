@@ -54,7 +54,13 @@ jobs:
       - uses: actions/checkout@v5
 
       - run: echo "Building / running ASAN tests (max LLVM / sysroot)..."
-      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 //cc/sanitizers/tests:all
+      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 //cc/sanitizers/tests:asan_test
 
       - run: echo "Bzlmod. Building / running tests (max LLVM / sysroot)..."
-      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 --config=bzlmod //cc/sanitizers/tests:all
+      - run: bazel test --config=asan --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 --config=bzlmod //cc/sanitizers/tests:asan_test
+
+      - run: echo "Building / running TSan tests (max LLVM / sysroot)..."
+      - run: bazel test --config=tsan --config=tsan_test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 //cc/sanitizers/tests:tsan_test
+
+      - run: echo "Bzlmod. Building / running TSan tests (max LLVM / sysroot)..."
+      - run: bazel test --config=tsan --config=tsan_test --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 --config=bzlmod //cc/sanitizers/tests:tsan_test

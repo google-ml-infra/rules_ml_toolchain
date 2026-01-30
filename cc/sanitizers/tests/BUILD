@@ -29,13 +29,3 @@ cc_test(
 #        "-fsanitize=thread",
 #    ],
 )
-
-#############################################
-# Tests Suite
-test_suite(
-    name = "all",
-    tests = [
-        ":asan_test",
-        ":tsan_test",
-    ],
-)

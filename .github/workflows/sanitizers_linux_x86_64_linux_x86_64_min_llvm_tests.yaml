@@ -53,8 +53,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: echo "Building / running ASAN tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan //cc/sanitizers/tests:all
+      - run: echo "Building / running ASan tests (min LLVM / sysroot)..."
+      - run: bazel test --config=asan //cc/sanitizers/tests:asan_test
 
-      - run: echo "Bzlmod. Building / running tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan --config=bzlmod //cc/sanitizers/tests:all
+      - run: echo "Bzlmod. Building / running ASan tests (min LLVM / sysroot)..."
+      - run: bazel test --config=asan --config=bzlmod //cc/sanitizers/tests:asan_test
+
+      - run: echo "Building / running TSan tests (min LLVM / sysroot)..."
+      - run: bazel test --config=tsan --config=tsan_test //cc/sanitizers/tests:tsan_test
+
+      - run: echo "Bzlmod. Building / running TSan tests (min LLVM / sysroot)..."
+      - run: bazel test --config=tsan --config=tsan_test --config=bzlmod //cc/sanitizers/tests:tsan_test
