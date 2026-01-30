@@ -14,7 +14,8 @@
 # ==============================================================================
 
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 #############################################
@@ -227,9 +228,6 @@ py_test(
     srcs = ["protoclient_tool_test.py"],
     data = [":protoclient.so"],
     deps = [],
-    tags = [
-        "noasan",
-    ],
 )
 
 #############################################
