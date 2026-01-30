@@ -32,10 +32,20 @@ common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --features=asan
 common:asan --strip=never
 
+# Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
+common:tsan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
+common:tsan --features=tsan
+common:tsan --strip=never
+
 # Non-hermetic ASan configuration
 common:asan_clang_local --copt=-fsanitize=address
 common:asan_clang_local --linkopt=-fsanitize=address
 common:asan_clang_local --strip=never
+
+# Non-hermetic TSan configuration
+common:tsan_clang_local --copt=-fsanitize=thread
+common:tsan_clang_local --linkopt=-fsanitize=thread
+common:tsan_clang_local --strip=never
 
 # Configs for CUDA
 build:cuda --repo_env TF_NEED_CUDA=1

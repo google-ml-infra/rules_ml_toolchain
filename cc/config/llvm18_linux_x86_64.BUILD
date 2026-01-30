@@ -121,7 +121,7 @@ cc_toolchain_import(
 )
 
 #============================================================================================
-# ASAN
+# Sanitizers
 
 filegroup(
     name = "asan_ignorelist",
@@ -137,6 +137,17 @@ cc_toolchain_import(
         "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan.a".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan_static.a".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan.a.syms".format(clang_version = CLANG_VERSION),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "rt_tsan",
+    additional_libs = [
+        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.tsan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.tsan.a.syms".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.tsan_cxx.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.tsan_cxx.a.syms".format(clang_version = CLANG_VERSION),
     ],
     visibility = ["//visibility:public"],
 )

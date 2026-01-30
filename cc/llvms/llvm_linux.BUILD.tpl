@@ -100,6 +100,12 @@ alias(
 )
 
 alias(
+    name = "rt_tsan",
+    actual = "@@%{llvm_repo_name}//:rt_tsan",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "includes",
     actual = "@@%{llvm_repo_name}//:includes",
     visibility = ["//visibility:public"],

@@ -3,8 +3,8 @@
 # Sanitizers
 # TODO: Add one more test with feature '-asan'
 cc_test(
-    name = "sanitizers_test",
-    srcs = ["sanitizers_test.cc"],
+    name = "asan_test",
+    srcs = ["asan_test.cc"],
     deps = [
         "@gtest//:gtest_main",
     ],
@@ -16,11 +16,26 @@ cc_test(
     #    ],
 )
 
+cc_test(
+    name = "tsan_test",
+    srcs = ["tsan_test.cc"],
+    deps = [
+        "@gtest//:gtest_main",
+    ],
+#    copts = [
+#        "-fsanitize=thread",
+#    ],
+#    linkopts = [
+#        "-fsanitize=thread",
+#    ],
+)
+
 #############################################
 # Tests Suite
 test_suite(
     name = "all",
     tests = [
-        ":sanitizers_test",
+        ":asan_test",
+        ":tsan_test",
     ],
 )
