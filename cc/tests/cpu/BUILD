@@ -30,7 +30,6 @@ cc_binary(
 cc_binary(
     name = "hello_world",
     srcs = ["hello_world.cc"],
-    features = ["tsan"],
 )
 
 cc_test(
@@ -201,12 +200,7 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@pybind11",
     ],
-copts = ["-fsanitize=thread"],
-    linkopts = ["-fsanitize=thread"],
-    #features = [
-    #    "asan_runtime_closure",
-    #    "tsan_runtime_closure",
-    #],
+    features = ["asan_runtime_closure_feature"],
 )
 
 genrule(
