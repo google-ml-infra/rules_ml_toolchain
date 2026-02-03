@@ -92,6 +92,7 @@ def cuda_redist_init_repositories(
         )
         local_templates = get_local_templates(repo_data["local"], templates)
         local_source_dirs = repo_data["local"]["source_dirs"]
+        local_path_env_var = repo_data["local"].get("local_path_env_var") or "LOCAL_CUDA_PATH"
         redist_init_repository(
             name = repo_data["repo_name"],
             versions = versions,
@@ -101,7 +102,7 @@ def cuda_redist_init_repositories(
             redist_path_prefix = cuda_redist_path_prefix,
             mirrored_tar_redist_path_prefix = mirrored_tar_cuda_redist_path_prefix,
             redist_version_env_vars = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"],
-            local_path_env_var = "LOCAL_CUDA_PATH",
+            local_path_env_var = local_path_env_var,
             use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
             target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
             local_source_dirs = local_source_dirs,

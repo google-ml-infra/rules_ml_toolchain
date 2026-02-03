@@ -30,15 +30,15 @@ There are three types of hermetic toolkits configurations:
 
 The supported CUDA versions are specified in `CUDA_REDIST_JSON_DICT`
 dictionary,
-[third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+[gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl).
 
 The supported CUDNN versions are specified in `CUDNN_REDIST_JSON_DICT`
 dictionary,
-[third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+[gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl).
 
 The supported NVSHMEM versions are specified in `NVSHMEM_REDIST_JSON_DICT`
 dictionary,
-[third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+[gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl).
 
 The `.bazelrc` files of individual projects have `HERMETIC_CUDA_VERSION`,
 `HERMETIC_CUDNN_VERSION`, `HERMETIC_NCCL_VERSION`, `HERMETIC_NVSHMEM_VERSION`
@@ -81,7 +81,7 @@ hermetic CUDA/CUDNN repository rules will look up `TF_CUDA_VERSION` and
 compatibility with non-hermetic CUDA/CUDNN repository rules.
 
 The mapping between CUDA version and NCCL distribution version to be downloaded
-is specified in [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
+is specified in [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl)
 
 ### Configure hermetic CUDA, CUDNN and NCCL
 
@@ -277,18 +277,18 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 
 1.  Create and submit a pull request with updated `CUDA_REDIST_JSON_DICT`,
     `CUDNN_REDIST_JSON_DICT`, `NVSHMEM_REDIST_JSON_DICT` dictionaries in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+    [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl).
 
     Update `CUDA_NCCL_WHEELS` in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
+    [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl)
     if needed.
 
     Update `REDIST_VERSIONS_TO_BUILD_TEMPLATES` in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
+    [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl)
     if needed.
 
     Update `PTX_VERSION_DICT` in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl)
+    [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl)
     if needed.
 
 2.  For each Google ML project create a separate pull request with updated
@@ -314,7 +314,7 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
     `MIRRORED_TARS_CUDA_REDIST_JSON_DICT`,
     `MIRRORED_TARS_CUDNN_REDIST_JSON_DICT`,
     `MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT` dictionaries in
-    [third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/third_party/gpus/cuda/hermetic/cuda_redist_versions.bzl).
+    [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml-infra/rules_ml_toolchain/blob/main/gpu/cuda/cuda_redist_versions.bzl).
 
 ## 2) Custom CUDA/CUDNN/NVSHMEM archives and NCCL wheels
 
@@ -548,16 +548,13 @@ dependencies in Google ML projects.
         "cuda_cccl": {
             "repo_name": "cuda_cccl",
             "version_to_template": {
-                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+                "any": "@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl_github.BUILD.tpl",
             },
             "local": {
                 "source_dirs": ["include", "lib"],
+                "local_path_env_var": "LOCAL_CCCL_PATH",
                 "version_to_template": {
-                    "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                    "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                    "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
+                    "any": "@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
                 },
             },
         },
@@ -659,17 +656,14 @@ _CCCL_BUILD_TEMPLATES = {
     "cuda_cccl": {
         "repo_name": "cuda_cccl",
         "version_to_template": {
-            "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-            "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
-            "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl_github.BUILD.tpl",
+            "any": "@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl_github.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "lib"],
+            "local_path_env_var": "LOCAL_CCCL_PATH",
             "version_to_template": {
-                "13": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                "12": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-                "11": "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_cccl.BUILD.tpl",
-            },
+                "any": "@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl",
+             },
         },
     },
 }
@@ -723,7 +717,7 @@ load(
    "cudnn_redist_init_repository",
 )
 load(
-    "@rules_ml_toolchain//third_party/gpus/cuda/hermetic:cuda_redist_versions.bzl",
+    "@rules_ml_toolchain//gpu/cuda:cuda_redist_versions.bzl",
     "REDIST_VERSIONS_TO_BUILD_TEMPLATES",
 )
 cuda_redist_init_repositories(
