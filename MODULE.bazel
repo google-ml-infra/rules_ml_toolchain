@@ -2,7 +2,7 @@ module(
     name = "rules_ml_toolchain"
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
 bazel_dep(name = "protobuf", version = "32.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_proto", version = "6.0.0-rc1")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
@@ -19,47 +19,11 @@ pybind11_internal_configure = use_extension(
 use_repo(pybind11_internal_configure, "pybind11")
 
 ##############################################################
-# Python toolchain and pypi dependencies
+# Python toolchain dependencies
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.defaults(python_version = "3.11")
-python.toolchain(python_version = "3.11")
-use_repo(python, "pythons_hub")
-
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.whl_mods(
-    additive_build_content = """
-load("@rules_cc//cc:cc_library.bzl", "cc_library")
-cc_library(
-    name = "numpy_headers_2",
-    hdrs = glob(["site-packages/numpy/_core/include/**/*.h"]),
-    strip_include_prefix="site-packages/numpy/_core/include/",
-)
-cc_library(
-    name = "numpy_headers_1",
-    hdrs = glob(["site-packages/numpy/core/include/**/*.h"]),
-    strip_include_prefix="site-packages/numpy/core/include/",
-)
-cc_library(
-    name = "numpy_headers",
-    deps = [":numpy_headers_2", ":numpy_headers_1"],
-)
-""",
-    hub_name = "pypi_mods",
-    whl_name = "numpy",
-)
-pip.parse(
-    extra_hub_aliases = {
-        "numpy": ["numpy_headers"],
-    },
-    hub_name = "xla_pypi",
-    python_version = "3.11",
-    requirements_lock = "//:requirements_lock_3_11.txt",
-    whl_modifications = {
-        "@pypi_mods//:numpy.json": "numpy",
-    },
-)
-use_repo(pip, "pypi_mods", pypi = "xla_pypi")
+python.defaults(python_version = "3.13")
+python.toolchain(python_version = "3.13")
 
 python_version_ext = use_extension("//extensions:python_version.bzl", "python_version_ext")
 use_repo(python_version_ext, "python_version_repo")
