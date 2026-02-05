@@ -32,15 +32,11 @@ build:clang --copt=-Werror=mismatched-tags
 common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --features=asan
 common:asan --strip=never
-# TODO: How to make it work with different versions of LLVM?
-common:asan --test_env="TSAN_OPTIONS="external_symbolizer_path=../../external/llvm18_linux_x86_64/bin/llvm-symbolizer"
 
 # Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
 common:tsan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:tsan --features=tsan
 common:tsan --strip=never
-# TODO: How to make it work with different versions of LLVM?
-common:tsan_test --test_env="TSAN_OPTIONS="external_symbolizer_path=../../external/llvm18_linux_x86_64/bin/llvm-symbolizer"
 
 # We need successfully finished tests to check that TSan works. Only for this purpose we add TSan options 'halt_on_error=1:exitcode=66'
 # TODO: How to make it work with different versions of LLVM?
