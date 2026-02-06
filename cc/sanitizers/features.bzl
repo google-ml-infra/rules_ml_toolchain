@@ -71,6 +71,23 @@ def _file_to_library_flag(file):
 
     return library_flag
 
+def _filter_flags_by_keys(flags, keys):
+    libFlags = []
+    for flag in flags:
+        needed = False
+        for key in keys:
+            if flag.endswith(key):
+                needed = True
+                break
+
+        if needed:
+            libFlags.append(flag)
+
+    return libFlags
+
+# =============================================================================================================
+# ASAN section
+
 ASAN_COMMON_LIBS = [
     "libclang_rt.asan_static.a",
 ]
@@ -104,20 +121,6 @@ def _filter_asan_exec_libs(flags):
 
 def _filter_asan_exec_syms(flags):
     return _filter_flags_by_keys(flags, ASAN_EXEC_SYMS)
-
-def _filter_flags_by_keys(flags, keys):
-    libFlags = []
-    for flag in flags:
-        needed = False
-        for key in keys:
-            if flag.endswith(key):
-                needed = True
-                break
-
-        if needed:
-            libFlags.append(flag)
-
-    return libFlags
 
 def _import_asan_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
@@ -268,6 +271,196 @@ def _import_asan_runtime_closure_feature_impl(ctx):
 
 cc_toolchain_import_asan_runtime_closure_feature = rule(
     _import_asan_runtime_closure_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+        "toolchain_import": attr.label(
+            mandatory = True,
+            providers = [CcToolchainImportInfo],
+        ),
+    },
+    provides = [FeatureInfo, DefaultInfo],
+)
+
+#==============================================================================================================
+# TSAN
+
+
+TSAN_CC_ENTRIES = [
+    "libclang_rt.tsan.a",
+    "libclang_rt.tsan.a.syms",
+]
+
+TSAN_CXX_ENTRIES = [
+    "libclang_rt.tsan_cxx.a",
+    "libclang_rt.tsan_cxx.a.syms",
+]
+
+TSAN_COMPILER_FLAGS = [
+    "-fsanitize=thread",
+    "-fno-sanitize-memory-param-retval",
+    "-fno-sanitize-address-use-odr-indicator",
+]
+
+TSAN_LINKER_FLAGS = [
+    "-fsanitize=thread",
+]
+
+def _get_tsan_cc_libs(flags):
+    return _filter_flags_by_keys(flags, TSAN_CC_ENTRIES)
+
+def _get_tsan_cxx_libs(flags):
+    return _filter_flags_by_keys(flags, TSAN_CXX_ENTRIES)
+
+def _import_tsan_feature_impl(ctx):
+    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+
+    flag_sets = []
+
+    compiler_flags = depset([
+        flag
+        for flag in TSAN_COMPILER_FLAGS
+    ]).to_list()
+
+    if compiler_flags:
+        flag_sets.append(flag_set(
+            actions = [
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.c_compile,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = compiler_flags,
+                ),
+            ],
+        ))
+
+    linker_dir_flags = depset([
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.static_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.dynamic_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ]).to_list()
+
+    linker_flags = depset([
+        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
+        for file_path in _filter_flags_by_keys([
+            file.path
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+        ], ["libclang_rt.tsan.a"])
+    ]).to_list()
+
+    linker_syms_flags = depset(_filter_flags_by_keys([
+        ("-Wl,--dynamic-list=" + file.path)
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ], ["libclang_rt.tsan.a.syms"])).to_list()
+
+    if linker_flags or linker_syms_flags:
+        flag_sets.append(flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    # TSAN_LINKER_FLAGS
+                    flags = linker_dir_flags + linker_flags + linker_syms_flags,
+                ),
+            ],
+        ))
+
+    library_feature = _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        flag_sets = flag_sets,
+        implies = ctx.attr.implies,
+        provides = ctx.attr.provides,
+    )
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+
+cc_toolchain_import_tsan_feature = rule(
+    _import_tsan_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "implies": attr.string_list(),
+        "toolchain_import": attr.label(
+            mandatory = True,
+            providers = [CcToolchainImportInfo],
+        ),
+    },
+    provides = [FeatureInfo, DefaultInfo],
+)
+
+def _import_tsan_runtime_closure_feature_impl(ctx):
+    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+    flag_sets = []
+
+    linker_dir_flags = depset([
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.static_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.dynamic_libraries.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ]).to_list()
+
+    linker_flags = depset([
+        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
+        for file_path in _filter_flags_by_keys([
+            file.path
+            for file in toolchain_import_info
+                .linking_context.additional_libs.to_list()
+        ], ["libclang_rt.tsan.a"])
+    ]).to_list()
+
+    linker_syms_flags = depset(_filter_flags_by_keys([
+        ("-Wl,--dynamic-list=" + file.path)
+        for file in toolchain_import_info
+            .linking_context.additional_libs.to_list()
+    ], ["libclang_rt.tsan.a.syms"])).to_list()
+
+    if linker_dir_flags or linker_flags or linker_syms_flags:
+        flag_sets.append(flag_set(
+            actions = DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = linker_dir_flags + linker_flags + linker_syms_flags,
+                ),
+            ],
+        ))
+
+    requires = [
+        feature_set(features = [feature_name])
+        for feature_name in ctx.attr.requires
+    ]
+
+    library_feature = _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        flag_sets = flag_sets,
+        implies = ctx.attr.implies,
+        requires = requires,
+        provides = ctx.attr.provides,
+    )
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+
+
+cc_toolchain_import_tsan_runtime_closure_feature = rule(
+    _import_tsan_runtime_closure_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),

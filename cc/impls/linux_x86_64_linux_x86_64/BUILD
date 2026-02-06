@@ -20,7 +20,8 @@
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_asan_runtime_closure_feature")
+    "cc_toolchain_import_asan_runtime_closure_feature",
+    "cc_toolchain_import_tsan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -79,6 +80,14 @@ cc_toolchain_import(
     ],
 )
 
+cc_toolchain_import(
+    name = "tsan_import",
+    deps = [
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:rt_tsan",
+    ],
+)
+
 # buildifier: leave-alone
 filegroup(
     name = "all",
@@ -95,6 +104,7 @@ filegroup(
     name = "compiler",
     srcs = [
         ":asan_import",
+        ":tsan_import",
         ":imports",
         ":wrappers",
         "@llvm_linux_x86_64//:clang",
@@ -238,6 +248,11 @@ cc_toolchain_import_asan_runtime_closure_feature(
     toolchain_import = ":asan_import",
 )
 
+cc_toolchain_import_tsan_feature(
+    name = "tsan",
+    toolchain_import = ":tsan_import",
+)
+
 cc_toolchain_config(
     name = "config_with_sanitizers",
     archiver = "@llvm_linux_x86_64//:ar",
@@ -246,6 +261,7 @@ cc_toolchain_config(
     compiler_features = FEATURES_ESSENTIAL + [
         ":asan",
         ":asan_runtime_closure",
+        ":tsan",
     ],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",

@@ -33,10 +33,24 @@ common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --features=asan
 common:asan --strip=never
 
+# Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
+common:tsan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
+common:tsan --features=tsan
+common:tsan --strip=never
+
+# We need successfully finished tests to check that TSan works. Only for this purpose we add TSan options 'halt_on_error=1:exitcode=66'
+# TODO: How to make it work with different versions of LLVM?
+common:tsan_test --test_env="TSAN_OPTIONS="halt_on_error=1:exitcode=66:external_symbolizer_path=../../external/llvm18_linux_x86_64/bin/llvm-symbolizer"
+
 # Non-hermetic ASan configuration
 common:asan_clang_local --copt=-fsanitize=address
 common:asan_clang_local --linkopt=-fsanitize=address
 common:asan_clang_local --strip=never
+
+# Non-hermetic TSan configuration
+common:tsan_clang_local --copt=-fsanitize=thread
+common:tsan_clang_local --linkopt=-fsanitize=thread
+common:tsan_clang_local --strip=never
 
 # Configs for CUDA
 common:cuda_v12 --repo_env=HERMETIC_CUDA_VERSION="12.9.1"
