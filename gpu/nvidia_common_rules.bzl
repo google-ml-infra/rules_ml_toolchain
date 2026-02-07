@@ -230,7 +230,7 @@ def _create_symlinks(repository_ctx, local_path, dirs):
             path = local_path,
             dir = dir,
         )
-        if not repository_ctx.path(local_path).exists:
+        if not repository_ctx.path(dir_path).exists:
             fail("%s directory doesn't exist!" % dir_path)
         repository_ctx.symlink(dir_path, dir)
 
