@@ -14,8 +14,8 @@
 
 """Common rules and functions for hermetic NVIDIA repositories."""
 
-load("//common:tar_extraction_utils.bzl", "extract_tar_with_hermetic_tar_tool")
 load("//common:repo.bzl", "tf_mirror_urls")
+load("//common:tar_extraction_utils.bzl", "extract_tar_with_hermetic_tar_tool")
 
 OS_ARCH_DICT = {
     "amd64": "x86_64-unknown-linux-gnu",
@@ -735,3 +735,66 @@ def cuda_lib_header_prefix(major_version, wanted_major_version, new_header_prefi
     if not major_version:
         return old_header_prefix
     return new_header_prefix if int(major_version) >= wanted_major_version else old_header_prefix
+
+def flatten_dict_for_string_dict(data, sep = ";", max_operations = 50000):
+    """
+    Flattens a nested dict for attr.string_dict iteratively.
+    Leaf values are JSON encoded to preserve their structure and type.
+    Fails if values are not JSON encodable.
+    """
+    items = {}
+    if type(data) != "dict":
+        return items
+
+    # Stack stores tuples of (dictionary_to_process, current_key_prefix)
+    stack = [(data, "")]
+
+    for i in range(max_operations):
+        if not stack:
+            # Stack is empty, all items processed
+            break
+
+        current_data, prefix = stack.pop(0)  # Use pop(0) for FIFO-like stack processing
+
+        if type(current_data) != "dict":
+            continue
+
+        # Process keys in a consistent order
+        keys = sorted(current_data.keys())
+        for k in keys:
+            v = current_data[k]
+            new_key = prefix + sep + k if prefix else k
+            if type(v) == "dict":
+                # Add nested dicts to the stack to be processed
+                stack.append((v, new_key))
+            else:
+                # Leaf value: JSON encode to handle lists, numbers, booleans, strings.
+                # This will fail if v is not JSON serializable.
+                items[new_key] = json.encode(v)
+
+    if i == max_operations and stack:
+        fail("Dictionary flattening incomplete, max_operations ({}) reached. " +
+             "The dictionary might be too large or complex. " +
+             "Consider increasing max_operations.".format(max_operations))
+
+    return items
+
+def unflatten_dict_from_string_dict(data, sep = ";"):
+    """
+    Reconstructs a nested dict from the flattened string_dict structure.
+    Leaf values are JSON decoded to restore their original type and structure.
+    Fails if values are not valid JSON.
+    """
+    result = {}
+    for key, val in data.items():
+        parts = key.split(sep)
+        d = result
+        for part in parts[:-1]:
+            if part not in d:
+                d[part] = {}
+            d = d[part]
+
+        # JSON decode to restore original type (list, string, number, etc.)
+        # This will fail if val is not valid JSON.
+        d[parts[-1]] = json.decode(val)
+    return result
