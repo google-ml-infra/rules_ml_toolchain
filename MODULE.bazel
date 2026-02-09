@@ -31,29 +31,30 @@ use_repo(python_version_ext, "python_version_repo")
 ##############################################################
 # CUDA
 
-CCCL_DIST_DICT = {
- "cuda_cccl;linux-sbsa;full_path": "\"https://github.com/NVIDIA/cccl/releases/download/v2.8.5/cccl-src-v2.8.5.tar.gz\"",
- "cuda_cccl;linux-sbsa;sha256": "\"631cb620e78904fb30f4ef6e033efb7716af1934bc170dce9cbbf4cc48777ca2\"",
- "cuda_cccl;linux-sbsa;strip_prefix": "\"cccl-src-v2.8.5\"",
- "cuda_cccl;linux-x86_64;full_path": "\"https://github.com/NVIDIA/cccl/releases/download/v2.8.5/cccl-src-v2.8.5.tar.gz\"",
- "cuda_cccl;linux-x86_64;sha256": "\"631cb620e78904fb30f4ef6e033efb7716af1934bc170dce9cbbf4cc48777ca2\"",
- "cuda_cccl;linux-x86_64;strip_prefix": "\"cccl-src-v2.8.5\""
-}
-CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES = {
-  "cuda_cccl;repo_name": "\"cuda_cccl\"",
-  "cuda_cccl;local;source_dirs": "[\"include\",\"lib\"]",
-  "cuda_cccl;version_to_template;any": "\"@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl_github.BUILD.tpl\"",
-  "cuda_cccl;local;version_to_template;any": "\"@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl\""
-}
+# The constants below can be used for local testing of repo rule parameters.
+# CCCL_DIST_DICT = {
+#  "cuda_cccl;linux-sbsa;full_path": "\"https://github.com/NVIDIA/cccl/releases/download/v2.8.5/cccl-src-v2.8.5.tar.gz\"",
+#  "cuda_cccl;linux-sbsa;sha256": "\"631cb620e78904fb30f4ef6e033efb7716af1934bc170dce9cbbf4cc48777ca2\"",
+#  "cuda_cccl;linux-sbsa;strip_prefix": "\"cccl-src-v2.8.5\"",
+#  "cuda_cccl;linux-x86_64;full_path": "\"https://github.com/NVIDIA/cccl/releases/download/v2.8.5/cccl-src-v2.8.5.tar.gz\"",
+#  "cuda_cccl;linux-x86_64;sha256": "\"631cb620e78904fb30f4ef6e033efb7716af1934bc170dce9cbbf4cc48777ca2\"",
+#  "cuda_cccl;linux-x86_64;strip_prefix": "\"cccl-src-v2.8.5\""
+# }
+# CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES = {
+#   "cuda_cccl;repo_name": "\"cuda_cccl\"",
+#   "cuda_cccl;local;source_dirs": "[\"include\",\"lib\"]",
+#   "cuda_cccl;version_to_template;any": "\"@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl_github.BUILD.tpl\"",
+#   "cuda_cccl;local;version_to_template;any": "\"@rules_ml_toolchain//gpu/cuda/build_templates:cuda_cccl.BUILD.tpl\""
+# }
 
 cuda_json_ext = use_extension("//extensions:cuda_json.bzl", "cuda_json_ext")
 use_repo(cuda_json_ext, "cuda_redist_json")
 
 cuda_redist_init_ext = use_extension("//extensions:cuda_redist_init.bzl", "cuda_redist_init_ext")
-cuda_redist_init_ext.configure(
-    cuda_redistributions = CCCL_DIST_DICT,
-    redist_versions_to_build_templates = CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES,
-)
+# cuda_redist_init_ext.configure(
+#     cuda_redistributions = CCCL_DIST_DICT,
+#     redist_versions_to_build_templates = CCCL_GITHUB_VERSIONS_TO_BUILD_TEMPLATES,
+# )
 use_repo(
     cuda_redist_init_ext,
     "cuda_cccl",
