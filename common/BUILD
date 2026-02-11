@@ -42,6 +42,11 @@ platform(
         "@platforms//cpu:x86_64",
         ":essential",
     ],
+    exec_properties = {
+        "container-image": "docker://us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:ea67e8453d8b09c2ba48853da5e79efef4b65804b4a48dfae4b4da89ffd38405",
+        "OSFamily": "Linux",
+        "Pool": "default",
+    },
 )
 
 platform(
@@ -51,6 +56,11 @@ platform(
         "@platforms//cpu:x86_64",
         ":with_sanitizers",
     ],
+    exec_properties = {
+        "container-image": "docker://us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:ea67e8453d8b09c2ba48853da5e79efef4b65804b4a48dfae4b4da89ffd38405",
+        "OSFamily": "Linux",
+        "Pool": "default",
+    },
 )
 
 platform(
