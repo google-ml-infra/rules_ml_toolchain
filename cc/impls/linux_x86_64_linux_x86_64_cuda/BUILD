@@ -22,7 +22,6 @@ load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_asan_runtime_closure_feature",
     "cc_toolchain_import_tsan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
@@ -130,6 +129,16 @@ cc_toolchain_import(
         "@llvm_linux_x86_64//:libclang_rt",
         "@llvm_linux_x86_64//:rt_tsan",
     ],
+)
+
+cc_toolchain_import_asan_feature(
+    name = "asan",
+    toolchain_import = ":asan_import",
+)
+
+cc_toolchain_import_asan_feature(
+    name = "tsan",
+    toolchain_import = ":tsan_import",
 )
 
 # buildifier: leave-alone
@@ -243,6 +252,10 @@ FEATURES_ESSENTIAL = [
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
+
+    # Sanitizers
+    ":asan",
+    ":tsan",
 ]
 
 cc_toolchain_config(
@@ -272,77 +285,3 @@ cc_toolchain_with_cppmap(
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_id",
 )
 
-# Toolchain with sanitizers
-
-# Separate tools for additional diagnostics; can be removed in the future
-CUDA_WITH_SANITIZER_TOOLS = if_cuda_hermetic_clang(
-    {
-        "gcc": "wrappers/clang-with-sanitizer",
-        "cpp": "wrappers/clang++",
-        "ld": "wrappers/ld",
-        "ar": "wrappers/ar",
-        "gcov": "wrappers/idler",
-        "llvm-cov": "wrappers/idler",
-        "nm": "wrappers/idler",
-        "objdump": "wrappers/idler",
-        "strip": "wrappers/idler",
-    },
-    {
-        "gcc": "wrappers/nvcc_wrapper",
-        "cpp": "wrappers/clang++",
-        "ld": "wrappers/ld",
-        "ar": "wrappers/ar",
-        "gcov": "wrappers/idler",
-        "llvm-cov": "wrappers/idler",
-        "nm": "wrappers/idler",
-        "objdump": "wrappers/idler",
-        "strip": "wrappers/idler",
-    },
-)
-
-cc_toolchain_import_asan_feature(
-    name = "asan",
-    toolchain_import = ":asan_import",
-)
-
-cc_toolchain_import_asan_runtime_closure_feature(
-    name = "asan_runtime_closure",
-    requires = ["asan"],
-    toolchain_import = ":asan_import",
-)
-
-cc_toolchain_import_asan_feature(
-    name = "tsan",
-    toolchain_import = ":tsan_import",
-)
-
-cc_toolchain_config(
-    name = "config_with_sanitizers",
-    archiver = "@llvm_linux_x86_64//:ar",
-    c_compiler = "@llvm_linux_x86_64//:clang",
-    cc_compiler = "@llvm_linux_x86_64//:clang++",
-    compiler_features = FEATURES_ESSENTIAL + [
-        ":asan",
-        ":asan_runtime_closure",
-        ":tsan",
-    ],
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
-    target_cpu = "x86_64",
-    target_system_name = "local",
-    tool_paths = CUDA_WITH_SANITIZER_TOOLS,
-)
-
-cc_toolchain(
-    name = "toolchain_with_sanitizers",
-    all_files = ":all",
-    ar_files = ":ar",
-    compiler_files = ":compiler",
-    dwp_files = ":all",
-    linker_files = ":linker",
-    objcopy_files = ":objcopy",
-    strip_files = ":strip",
-    supports_param_files = 1,
-    toolchain_config = ":config_with_sanitizers",
-    toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_with_sanitizers_id",
-)
