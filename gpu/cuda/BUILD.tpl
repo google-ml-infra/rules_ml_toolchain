@@ -58,10 +58,10 @@ cc_library(
     # the subtargets. We still also need them in the dependencies for setting
     # up the right include paths with the include prefixes.
     textual_hdrs = [
+            "@cuda_cccl//:header_list",
             "@cuda_cudart//:header_list",
             "@cuda_cublas//:header_list",
             "@cuda_profiler_api//:header_list",
-            "@cuda_cccl//:header_list",
             "@cuda_nvrtc//:header_list",
             "@cuda_nvtx//:header_list",
             "@cuda_nvcc//:header_list",
@@ -73,10 +73,10 @@ cc_library(
             "@cuda_nvml//:header_list",
             "@cuda_nvjitlink//:header_list",
            ] + (["@cuda_crt//:header_list"] if _cudart_version and int(_cudart_version)>=13 else []),
-    deps = [":cudart_headers",
+    deps = [":cccl_headers",
+            ":cudart_headers",
             ":cublas_headers",
             ":profiler_api_headers",
-            ":cccl_headers",
             ":nvrtc_headers",
             ":nvtx_headers",
             ":nvcc_headers",
