@@ -31,6 +31,7 @@ build:clang --copt=-Werror=mismatched-tags
 # Hermetic ASan configuration example. Hermetic ASan works only for Linux x86_64
 common:asan --features=asan
 common:asan --strip=never
+build:asan --action_env=ASAN_OPTIONS=detect_leaks=0
 
 # Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
 common:tsan --features=tsan
