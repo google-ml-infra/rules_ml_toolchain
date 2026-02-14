@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
@@ -206,8 +207,7 @@ def _import_asan_feature_impl(ctx):
             env_entries = [
                 env_entry(
                     key = "ASAN_OPTIONS",
-                    # Default value can be overwritten by --action_env=ASAN_OPTIONS=detect_leaks=0 or another value
-                    value = "detect_leaks=1",
+                    value = ctx.attr.asan_options[BuildSettingInfo].value,
                 ),
             ],
         ),
@@ -233,6 +233,7 @@ cc_toolchain_import_asan_feature = rule(
             mandatory = True,
             providers = [CcToolchainImportInfo],
         ),
+        "asan_options": attr.label(default = "@rules_ml_toolchain//common:asan_options"),
     },
     provides = [FeatureInfo, DefaultInfo],
 )
