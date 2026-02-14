@@ -200,9 +200,23 @@ def _import_asan_feature_impl(ctx):
             ],
         ))
 
+    env_sets = [
+        env_set(
+            actions = ALL_CPP_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
+            env_entries = [
+                env_entry(
+                    key = "ASAN_OPTIONS",
+                    # Default value can be overwritten by --action_env=ASAN_OPTIONS=detect_leaks=0 or another value
+                    value = "detect_leaks=1",
+                ),
+            ],
+        ),
+    ]
+
     library_feature = _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
+        env_sets = env_sets,
         flag_sets = flag_sets,
         implies = ctx.attr.implies,
         provides = ctx.attr.provides,
