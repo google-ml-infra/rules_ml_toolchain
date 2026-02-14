@@ -29,12 +29,13 @@ build:clang --copt=-Qunused-arguments
 build:clang --copt=-Werror=mismatched-tags
 
 # Hermetic ASan configuration example. Hermetic ASan works only for Linux x86_64
-common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:asan --features=asan
+common:asan --host_features=-asan
+# The value defined in //common:asan_options is injected as the ASAN_OPTIONS environment variable
+common:asan --@rules_ml_toolchain//common:asan_options=detect_leaks=0
 common:asan --strip=never
 
 # Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
-common:tsan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 common:tsan --features=tsan
 common:tsan --strip=never
 

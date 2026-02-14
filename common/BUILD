@@ -28,11 +28,6 @@ constraint_value(
     constraint_setting = ":toolchain_mode",
 )
 
-constraint_value(
-    name = "with_sanitizers",
-    constraint_setting = ":toolchain_mode",
-)
-
 #######################################################
 # Platforms definitions and config settings
 platform(
@@ -41,15 +36,6 @@ platform(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
         ":essential",
-    ],
-)
-
-platform(
-    name = "linux_x86_64_with_sanitizers",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-        ":with_sanitizers",
     ],
 )
 
@@ -192,4 +178,13 @@ config_setting(
     flag_values = {
         ":enable_sycl": "False",
     },
+)
+
+#########################################################
+# Sanitizer options
+
+string_flag(
+    name = "asan_options",
+    build_setting_default = "detect_leaks=1",
+    visibility = ["//visibility:public"],
 )

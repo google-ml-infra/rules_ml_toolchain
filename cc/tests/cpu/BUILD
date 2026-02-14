@@ -200,7 +200,7 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@pybind11",
     ],
-    features = ["asan_runtime_closure_feature"],
+    features = ["asan_runtime_closure"],
 )
 
 genrule(

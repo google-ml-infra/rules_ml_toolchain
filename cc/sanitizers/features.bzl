@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
@@ -200,9 +201,22 @@ def _import_asan_feature_impl(ctx):
             ],
         ))
 
+    env_sets = [
+        env_set(
+            actions = ALL_CPP_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
+            env_entries = [
+                env_entry(
+                    key = "ASAN_OPTIONS",
+                    value = ctx.attr.asan_options[BuildSettingInfo].value,
+                ),
+            ],
+        ),
+    ]
+
     library_feature = _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
+        env_sets = env_sets,
         flag_sets = flag_sets,
         implies = ctx.attr.implies,
         provides = ctx.attr.provides,
@@ -219,6 +233,7 @@ cc_toolchain_import_asan_feature = rule(
             mandatory = True,
             providers = [CcToolchainImportInfo],
         ),
+        "asan_options": attr.label(default = "@rules_ml_toolchain//common:asan_options"),
     },
     provides = [FeatureInfo, DefaultInfo],
 )

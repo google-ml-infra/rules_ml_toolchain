@@ -6,8 +6,6 @@ This project provides built-in support for LLVM sanitizer ASan for memory safety
 The following configuration provides a baseline for integrating ASan into ML projects.
 
 ```
-# A separate toolchain configuration is provided to support sanitizer
-common:asan --platforms=@rules_ml_toolchain//common:linux_x86_64_with_sanitizers
 # Enable ASan (AddressSanitizer) feature
 common:asan --features=asan
 ```
