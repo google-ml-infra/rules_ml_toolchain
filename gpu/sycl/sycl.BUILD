@@ -13,9 +13,17 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 alias(
     name = "sycl_headers",
     actual = "@@oneapi//:headers",
+    visibility = ["//visibility:public"],
+)
+
+# To support hermetic build.
+bzl_library(
+    name = "build_defs_bzl",
+    srcs = ["build_defs.bzl"],
     visibility = ["//visibility:public"],
 )
