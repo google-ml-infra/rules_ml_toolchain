@@ -201,22 +201,9 @@ def _import_asan_feature_impl(ctx):
             ],
         ))
 
-    env_sets = [
-        env_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
-            env_entries = [
-                env_entry(
-                    key = "ASAN_OPTIONS",
-                    value = ctx.attr.asan_options[BuildSettingInfo].value,
-                ),
-            ],
-        ),
-    ]
-
     library_feature = _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
-        env_sets = env_sets,
         flag_sets = flag_sets,
         implies = ctx.attr.implies,
         provides = ctx.attr.provides,
@@ -233,7 +220,6 @@ cc_toolchain_import_asan_feature = rule(
             mandatory = True,
             providers = [CcToolchainImportInfo],
         ),
-        "asan_options": attr.label(default = "@rules_ml_toolchain//common:asan_options"),
     },
     provides = [FeatureInfo, DefaultInfo],
 )
@@ -480,45 +466,6 @@ cc_toolchain_import_tsan_runtime_closure_feature = rule(
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),
         "requires": attr.string_list(),
-        "implies": attr.string_list(),
-        "toolchain_import": attr.label(
-            mandatory = True,
-            providers = [CcToolchainImportInfo],
-        ),
-    },
-    provides = [FeatureInfo, DefaultInfo],
-)
-
-# ==========================================================
-def _import_test_feature_impl(ctx):
-    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
-
-    env_sets = [
-        env_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
-            env_entries = [
-                env_entry(
-                    key = "TEST_FLAG",
-                    value = "VAL1",
-                ),
-            ],
-        ),
-    ]
-
-    library_feature = _feature(
-        name = ctx.label.name,
-        enabled = ctx.attr.enabled,
-        env_sets = env_sets,
-        implies = ctx.attr.implies,
-        provides = ctx.attr.provides,
-    )
-    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
-
-cc_toolchain_import_test_feature = rule(
-    _import_test_feature_impl,
-    attrs = {
-        "enabled": attr.bool(default = False),
-        "provides": attr.string_list(),
         "implies": attr.string_list(),
         "toolchain_import": attr.label(
             mandatory = True,

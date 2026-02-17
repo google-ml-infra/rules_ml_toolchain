@@ -179,13 +179,3 @@ config_setting(
         ":enable_sycl": "False",
     },
 )
-
-#########################################################
-# Sanitizer options
-
-string_flag(
-    name = "asan_options",
-    # Value 'detect_leaks=1' reproduce ASan default behavior
-    build_setting_default = "detect_leaks=1",
-    visibility = ["//visibility:public"],
-)

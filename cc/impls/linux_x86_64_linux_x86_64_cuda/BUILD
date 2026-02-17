@@ -23,8 +23,7 @@ load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
     "cc_toolchain_import_asan_runtime_closure_feature",
-    "cc_toolchain_import_tsan_feature",
-    "cc_toolchain_import_test_feature")
+    "cc_toolchain_import_tsan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -149,11 +148,6 @@ cc_toolchain_import_asan_feature(
     toolchain_import = ":tsan_import",
 )
 
-cc_toolchain_import_test_feature(
-    name = "test",
-    toolchain_import = ":asan_import",
-)
-
 # buildifier: leave-alone
 filegroup(
     name = "all",
@@ -270,7 +264,6 @@ FEATURES_ESSENTIAL = [
     ":asan",
     ":asan_runtime_closure",
     ":tsan",
-    ":test",
 ]
 
 cc_toolchain_config(
