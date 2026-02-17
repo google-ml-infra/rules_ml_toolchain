@@ -203,7 +203,7 @@ def _import_asan_feature_impl(ctx):
 
     env_sets = [
         env_set(
-            actions = ALL_CPP_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
+            actions = ALL_CC_COMPILE_ACTION_NAMES + ALL_CC_LINK_ACTION_NAMES,
             env_entries = [
                 env_entry(
                     key = "ASAN_OPTIONS",
