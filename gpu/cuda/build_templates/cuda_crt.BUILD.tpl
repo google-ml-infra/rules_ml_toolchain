@@ -7,7 +7,7 @@ filegroup(
     name = "header_list",
     %{comment}srcs = if_cuda_newer_than(
         %{comment}"13_0",
-        %{comment}if_true = glob(["include/crt/**"]),
+        %{comment}if_true = glob(["include/crt/**"], allow_empty = True),
         %{comment}if_false = [],
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
