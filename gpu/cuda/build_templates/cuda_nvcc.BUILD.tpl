@@ -61,7 +61,7 @@ filegroup(
     srcs = glob([
         "bin/**",
         "nvvm/bin/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
