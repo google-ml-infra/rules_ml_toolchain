@@ -46,8 +46,10 @@ cuda_cc_test(
     deps = [
         ":vector_cuda",
         "@cuda_cudart//:cudart",
+        "@cuda_nccl//:nccl",
         "@gtest//:gtest_main",
         "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+        "@nvidia_nvshmem//:nvshmem",
     ],
 )
 

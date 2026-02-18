@@ -40,6 +40,8 @@ cc_binary(
     deps = [
         ":vector_cuda",
         "@cuda_cudart//:cudart",
+        "@cuda_nccl//:nccl",
+        "@nvidia_nvshmem//:nvshmem",
         "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
     ],
 )
@@ -70,6 +72,8 @@ cuda_cc_test(
     deps = [
         ":vector_cuda",
         "@cuda_cudart//:cudart",
+        "@cuda_nccl//:nccl",
+        "@nvidia_nvshmem//:nvshmem",
         "@gtest//:gtest_main",
         "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
     ],
