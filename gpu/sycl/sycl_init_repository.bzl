@@ -45,4 +45,5 @@ def sycl_init_repository(
             name = dist_name,
             distrs = redist_dict[dist_name],
             build_templates = build_template["version_to_template"],
+            is_level_zero = (dist_name == "level_zero"),
         )

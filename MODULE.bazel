@@ -77,7 +77,13 @@ use_repo(nccl_configure, "local_config_nccl")
 # SYCL configuration
 
 sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configure_ext")
-use_repo(sycl_configure, "local_config_sycl")
+use_repo(
+    sycl_configure,
+    "local_config_sycl",
+    "oneapi",
+    "level_zero",
+    "zero_loader",
+)
 
 ##############################################################
 # Hermetic toolchain configuration
