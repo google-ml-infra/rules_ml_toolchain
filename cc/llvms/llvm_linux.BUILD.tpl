@@ -57,6 +57,12 @@ alias(
 )
 
 alias(
+    name = "clang-format",
+    actual = "@@%{llvm_repo_name}//:bin/clang-format",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "objcopy",
     actual = "@@%{llvm_repo_name}//:objcopy",
     visibility = ["//visibility:public"],
