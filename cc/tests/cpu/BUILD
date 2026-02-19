@@ -200,7 +200,7 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@pybind11",
     ],
-    features = ["asan_runtime_closure"],
+    #features = ["asan_runtime_closure"],
 )
 
 genrule(
@@ -236,6 +236,14 @@ cc_test(
         "//cc/sysroots:openmp",
         "@gtest//:gtest_main",
     ],
+)
+
+#############################################
+# Print info
+py_binary(
+    name = "python-info",
+    srcs = ["info.py"],
+    main = "info.py",
 )
 
 #############################################
