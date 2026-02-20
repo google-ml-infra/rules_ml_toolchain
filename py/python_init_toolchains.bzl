@@ -62,13 +62,6 @@ def python_init_toolchains(name = "python", python_version = None, **kwargs):
             if "aarch64" in platform or "x86_64" in platform:
                 sha256s[platform] = HERMETIC_PYTHON_SHA256
 
-        print("===========================")
-        print("name = ", get_toolchain_name_per_python_version(name))
-        print("tool_version = ", tool_version)
-        print("HERMETIC_PYTHON_URL = ", HERMETIC_PYTHON_URL)
-        print("HERMETIC_PYTHON_PREFIX = ", HERMETIC_PYTHON_PREFIX)
-        print("===========================")
-
         python_register_toolchains(
             name = get_toolchain_name_per_python_version(name),
             base_url = "",
