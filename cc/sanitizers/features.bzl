@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
@@ -110,7 +111,8 @@ ASAN_COMPILER_FLAGS = [
 ]
 
 ASAN_LINKER_FLAGS = [
-    "-fsanitize=address",
+    "-fsanitize=address",           # mandatory for linking
+    "-fno-sanitize-link-runtime",   # gives absolute control over the linking
 ]
 
 def _filter_asan_common_libs(flags):
@@ -170,7 +172,7 @@ def _import_asan_feature_impl(ctx):
             actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
             flag_groups = [
                 flag_group(
-                    flags = linker_dir_flags + common_linker_flags,
+                    flags = ASAN_LINKER_FLAGS + linker_dir_flags + common_linker_flags,
                 ),
             ],
         ))
