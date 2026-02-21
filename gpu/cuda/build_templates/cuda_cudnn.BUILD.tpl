@@ -75,7 +75,7 @@ filegroup(
     name = "header_list",
     %{comment}srcs = glob([
         %{comment}"include/cudnn*.h",
-    %{comment}]),
+    %{comment}], allow_empty = True),
 )
 
 

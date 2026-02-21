@@ -28,7 +28,7 @@ cc_library(
 
 filegroup(
     name = "header_list",
-    %{comment}srcs = glob(["include/curand*.h"]),
+    %{comment}srcs = glob(["include/curand*.h"], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

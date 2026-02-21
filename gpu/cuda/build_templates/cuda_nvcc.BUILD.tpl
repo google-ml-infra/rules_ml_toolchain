@@ -61,7 +61,7 @@ filegroup(
     srcs = glob([
         "bin/**",
         "nvvm/bin/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
@@ -89,10 +89,10 @@ filegroup(
     %{comment}srcs = glob([
         %{comment}"include/fatbinary_section.h",
         %{comment}"include/nvPTXCompiler.h",
-    %{comment}]) + if_cuda_newer_than(
+    %{comment}], allow_empty = True) + if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = [],
-        %{comment}if_false = glob(["include/crt/**"]),
+        %{comment}if_false = glob(["include/crt/**"], allow_empty = True),
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )

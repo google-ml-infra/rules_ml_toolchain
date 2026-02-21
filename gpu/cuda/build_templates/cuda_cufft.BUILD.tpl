@@ -31,7 +31,7 @@ filegroup(
     %{comment}srcs = glob([
         %{comment}"include/cudalibxt.h",
         %{comment}"include/cufft*.h"
-    %{comment}]),
+    %{comment}], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

@@ -37,7 +37,7 @@ filegroup(
     name = "header_list",
     %{comment}srcs = glob([
         %{comment}"include/cusolver*.h",
-    %{comment}]),
+    %{comment}], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

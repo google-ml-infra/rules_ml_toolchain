@@ -16,7 +16,7 @@ filegroup(
     name = "thrust_header_list",
     srcs = glob([
         %{comment}"thrust/thrust/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 
@@ -33,7 +33,7 @@ filegroup(
     name = "cuda_header_list",
     srcs = glob([
         %{comment}"libcudacxx/include/cuda/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 
@@ -50,7 +50,7 @@ filegroup(
     name = "nv_header_list",
     srcs = glob([
         %{comment}"libcudacxx/include/nv/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 
@@ -67,7 +67,7 @@ filegroup(
     name = "cub_header_list",
     srcs = glob([
         %{comment}"cub/cub/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

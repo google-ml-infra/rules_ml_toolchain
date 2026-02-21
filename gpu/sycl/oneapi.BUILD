@@ -109,8 +109,7 @@ filegroup(
             "tcm/1.3/**",
             "umf/0.10/**",
             "vtune/2025.3/**",
-        ]
-    ),
+        ], allow_empty = True),
 )
 
 oneapi_feature(
@@ -239,7 +238,7 @@ cc_toolchain_import(
     hdrs = glob([
         "compiler/{oneapi_version}/lib/clang/{clang_version}/include/**"
             .format(oneapi_version = ONEAPI_VERSION, clang_version = CLANG_VERSION),
-    ]),
+    ], allow_empty = True),
     includes = [
         "compiler/{oneapi_version}/lib/clang/{clang_version}"
             .format(oneapi_version = ONEAPI_VERSION, clang_version = CLANG_VERSION),
@@ -270,7 +269,7 @@ cc_toolchain_import(
     name = "includes_sycl",
     hdrs = glob([
         "compiler/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
-    ]),
+    ], allow_empty = True),
     includes = [
         "compiler/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
     ],
@@ -280,7 +279,7 @@ cc_toolchain_import(
     name = "core",
     additional_libs = glob([
         "compiler/{oneapi_version}/lib/*".format(oneapi_version = ONEAPI_VERSION),
-    ]),
+    ], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
@@ -289,7 +288,7 @@ cc_library(
     hdrs = glob([
         "compiler/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include/**".format(oneapi_version = ONEAPI_VERSION),
-    ]),
+    ], allow_empty = True),
     includes = [
         "compiler/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include".format(oneapi_version = ONEAPI_VERSION),
@@ -313,7 +312,7 @@ cc_library(
         "{oneapi_version}/lib/libur_loader.so*".format(oneapi_version = ONEAPI_VERSION),
         "{oneapi_version}/lib/libur_adapter_level_zero.so*".format(oneapi_version = ONEAPI_VERSION),
         "{oneapi_version}/lib/libur_adapter_opencl.so*".format(oneapi_version = ONEAPI_VERSION),
-    ]),
+    ], allow_empty = True),
     linkopts = ["-Wl,-Bstatic,-lsvml,-lirng,-limf,-lirc,-lirc_s,-Bdynamic"],
     linkstatic = 1,
     visibility = ["//visibility:public"],
