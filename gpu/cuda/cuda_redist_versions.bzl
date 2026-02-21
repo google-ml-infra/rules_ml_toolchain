@@ -786,6 +786,9 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "version_to_template": {
                 "13": "//third_party/gpus/cuda/hermetic:cuda_nvptxcompiler.BUILD.tpl",
             },
+            "local": {
+                "source_dirs": ["include", "lib"],
+            },
         },
 }
 
