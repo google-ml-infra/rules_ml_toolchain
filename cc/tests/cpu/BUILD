@@ -239,14 +239,6 @@ cc_test(
 )
 
 #############################################
-# Print info
-py_binary(
-    name = "python-info",
-    srcs = ["info.py"],
-    main = "info.py",
-)
-
-#############################################
 # Tests Suite
 test_suite(
     name = "all",
