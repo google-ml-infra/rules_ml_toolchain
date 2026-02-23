@@ -67,15 +67,20 @@ python_init_rules()
 load("//py:python_init_repositories.bzl", "python_init_repositories")
 
 python_init_repositories(
+    default_python_version = "system",
     requirements = {
-        "3.11": "//:requirements_lock_3_11.txt",
-        "3.12": "//:requirements_lock_3_12.txt",
+        "3.11": "//build:requirements_lock_3_11.txt",
+        "3.12": "//build:requirements_lock_3_12.txt",
+        "3.13": "//build:requirements_lock_3_13.txt",
+        "3.14": "//build:requirements_lock_3_14.txt",
+        "3.13-ft": "//build:requirements_lock_3_13_ft.txt",
+        "3.14-ft": "//build:requirements_lock_3_14_ft.txt",
     },
 )
 
 load("//py:python_init_toolchains.bzl", "python_init_toolchains")
 
-python_init_toolchains(python_version = "3.11")
+python_init_toolchains()
 
 load("//py:python_configure.bzl", "python_configure")
 python_configure(name = "local_config_python")

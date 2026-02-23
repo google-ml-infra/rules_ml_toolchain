@@ -16,11 +16,9 @@
 import unittest
 from cc.tests.cpu import protoclient
 
-
 class TestProtoClient(unittest.TestCase):
     def test(self):
         self.assertEqual("Hello, Julius Caesar", protoclient.say_hello("Julius Caesar"))
-
 
 if __name__ == '__main__':
     unittest.main()

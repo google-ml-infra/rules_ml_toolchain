@@ -8,6 +8,9 @@ cc_test(
     deps = [
         "@gtest//:gtest_main",
     ],
+    tags = [
+        "notsan",
+    ],
     #    copts = [
     #        "-fsanitize=address",
     #    ],
@@ -21,6 +24,9 @@ cc_test(
     srcs = ["tsan_test.cc"],
     deps = [
         "@gtest//:gtest_main",
+    ],
+    tags = [
+        "noasan",
     ],
 #    copts = [
 #        "-fsanitize=thread",
