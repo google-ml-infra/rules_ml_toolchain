@@ -13,8 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 
-import sys
-import os
 import unittest
 from cc.tests.cpu import protoclient
 
@@ -23,10 +21,4 @@ class TestProtoClient(unittest.TestCase):
         self.assertEqual("Hello, Julius Caesar", protoclient.say_hello("Julius Caesar"))
 
 if __name__ == '__main__':
-    print(f"\n--- PYTHON DEBUG INFO ---")
-    print(f"Executable: {sys.executable}")
-    print(f"Version: {sys.version}")
-    print(f"Prefix: {sys.prefix}")
-    print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
-    print(f"---------------------\n")
     unittest.main()
