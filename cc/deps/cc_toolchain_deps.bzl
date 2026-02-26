@@ -187,12 +187,16 @@ def cc_toolchain_deps():
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
                 "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
+                "lib/libicu-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicu-copyright.txt"],
                 "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2-copyright.txt"],
             },
             remote_file_integrity = {
                 "lib/libicudata.so.66": "sha256-ULA52oarQP7Zc5VIkqpSsLgzEnuUED7GK3HB4Ikc5e0=",
                 "lib/libicuuc.so.66": "sha256-ym++YXsGTEkVzYUT8XGxrd7fgknGmgsvNo+Ph8jFMhs=",
+                "lib/libicu-copyright.txt": "sha256-5VUi2B7caHo0GkQR4HduVMplTpAUfzVKkEWKrO1BFq8=",
                 "lib/libxml2.so.2": "sha256-tMhjAAaQTQYKwvGKlP4mdtb70gD/8/LtfvOrZnL0Msw=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
             },
         )
 
@@ -208,12 +212,16 @@ def cc_toolchain_deps():
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
                 "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
+                "lib/libicu-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicu-copyright.txt"],
                 "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2-copyright.txt"],
             },
             remote_file_integrity = {
                 "lib/libicudata.so.66": "sha256-ULA52oarQP7Zc5VIkqpSsLgzEnuUED7GK3HB4Ikc5e0=",
                 "lib/libicuuc.so.66": "sha256-ym++YXsGTEkVzYUT8XGxrd7fgknGmgsvNo+Ph8jFMhs=",
+                "lib/libicu-copyright.txt": "sha256-5VUi2B7caHo0GkQR4HduVMplTpAUfzVKkEWKrO1BFq8=",
                 "lib/libxml2.so.2": "sha256-tMhjAAaQTQYKwvGKlP4mdtb70gD/8/LtfvOrZnL0Msw=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
             },
         )
 
@@ -229,12 +237,16 @@ def cc_toolchain_deps():
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
                 "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
+                "lib/libicu-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicu-copyright.txt"],
                 "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2-copyright.txt"],
             },
             remote_file_integrity = {
                 "lib/libicudata.so.66": "sha256-ULA52oarQP7Zc5VIkqpSsLgzEnuUED7GK3HB4Ikc5e0=",
                 "lib/libicuuc.so.66": "sha256-ym++YXsGTEkVzYUT8XGxrd7fgknGmgsvNo+Ph8jFMhs=",
+                "lib/libicu-copyright.txt": "sha256-5VUi2B7caHo0GkQR4HduVMplTpAUfzVKkEWKrO1BFq8=",
                 "lib/libxml2.so.2": "sha256-tMhjAAaQTQYKwvGKlP4mdtb70gD/8/LtfvOrZnL0Msw=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
             },
         )
 
