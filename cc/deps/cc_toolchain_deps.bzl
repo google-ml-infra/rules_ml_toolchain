@@ -274,6 +274,20 @@ def cc_toolchain_deps():
             mirrored_tar_sha256 = "26a52cc6c658736f822546f220216178ac50d75ac1809bf8608395c8edd7c2c1",
             build_file = Label("//cc/config:llvm18_linux_aarch64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-aarch64-linux-gnu",
+            remote_file_urls = {
+                "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/libicudata.so.66"],
+                "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/libicuuc.so.66"],
+                "lib/libicu-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/libicu-copyright.txt"],
+                "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/libxml2-copyright.txt"],
+            },
+            remote_file_integrity = {
+                "lib/libicudata.so.66": "sha256-JnjcoI0wyr+1MspFvm3Nob5s6szuouOtLibcsCEI/4g=",
+                "lib/libicuuc.so.66": "sha256-+E0qpHxIqFij8RoW56gNzm4TBMVfKR7P3pBm+vrApBU=",
+                "lib/libicu-copyright.txt": "sha256-5VUi2B7caHo0GkQR4HduVMplTpAUfzVKkEWKrO1BFq8=",
+                "lib/libxml2.so.2": "sha256-L8tDFju/LAOgXQvqXKZsNZWqUfmBe6+7M8f4POaUee8=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
+            },
         )
 
     if "llvm20_linux_aarch64" not in native.existing_rules():
