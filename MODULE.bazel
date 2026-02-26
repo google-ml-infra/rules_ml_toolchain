@@ -61,6 +61,9 @@ use_repo(
     "cuda_profiler_api",
 )
 
+nvshmem_redist = use_extension("//extensions:nvshmem_redist.bzl", "nvshmem_redist_ext")
+use_repo(nvshmem_redist, "nvidia_nvshmem")
+
 ##############################################################
 # NCCL configuration
 
@@ -74,7 +77,13 @@ use_repo(nccl_configure, "local_config_nccl")
 # SYCL configuration
 
 sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configure_ext")
-use_repo(sycl_configure, "local_config_sycl")
+use_repo(
+    sycl_configure,
+    "local_config_sycl",
+    "oneapi",
+    "level_zero",
+    "zero_loader",
+)
 
 ##############################################################
 # Hermetic toolchain configuration

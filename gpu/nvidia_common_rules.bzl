@@ -66,8 +66,9 @@ def _get_orig_repo_name(repository_ctx):
         return repository_ctx.original_name
 
     # With Bzlmod, the repo name will be something like `_main~cuda_redist_init_ext~cuda_nvml`,
+    # or `rules_ml_toolchain++cuda_redist_init_ext+cuda_nvml` in Bazel 8.
     # we need to extract the original repo name.
-    return repository_ctx.name.split("~")[-1]
+    return repository_ctx.name.split("~")[-1].split("+")[-1]
 
 def get_archive_name(url):
     # buildifier: disable=function-docstring-return

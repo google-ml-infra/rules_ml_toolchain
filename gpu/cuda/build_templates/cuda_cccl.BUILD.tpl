@@ -12,7 +12,7 @@ filegroup(
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/cuda/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/nv/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/thrust/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 
