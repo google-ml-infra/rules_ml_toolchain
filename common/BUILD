@@ -158,6 +158,47 @@ config_setting(
         "@local_config_cuda//:enable_cuda": "True"
     },
 )
+
+# Flag for linking static CUDA libs
+bool_flag(
+    name = "link_cuda_static_libs",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_cuda_static_linking_enabled",
+    flag_values = {
+        ":link_cuda_static_libs": "True",
+    },
+)
+
+
+# Flag for linking static CUDA NVRTC libs
+bool_flag(
+    name = "link_nvrtc_static_libs",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_nvrtc_static_linking_enabled",
+    flag_values = {
+        ":link_nvrtc_static_libs": "True",
+    },
+)
+
+# Flag for linking static CUDA CUDNN libs
+bool_flag(
+    name = "link_cudnn_static_libs",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_cudnn_static_linking_enabled",
+    flag_values = {
+        ":link_cudnn_static_libs": "True",
+    },
+)
+
 #######################################################
 # Enable SYCL support flags
 
