@@ -1,12 +1,13 @@
 #!/bin/bash
 
-PY_VER=3.13
-LLVM_VER=18
-
+PY_VERSION=3.13
+LLVM_VERSION=18.1.8
 LLVM_DIST_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz
-LLVM_DIR=$(basename "${LLVM_DIST_URL}" .tar.xz)
 
-CPYTHON_NAME=cpython-${PY_VER}.x-asan-linux-x86_64-llvm-${LLVM_VER}
+LLVM_DIR=$(basename "${LLVM_DIST_URL}" .tar.xz)
+LLVM_MAJOR_VERSION=${LLVM_VERSION%%.*}
+
+CPYTHON_NAME=cpython-${PY_VERSION}.x-asan-linux-x86_64-llvm-${LLVM_VERSION}
 SRC_DIR=$PWD
 DST_DIR=/tmp
 
@@ -20,7 +21,7 @@ apt install -y build-essential gdb lcov pkg-config \
   patchelf
 
 if [ ! -d "$LLVM_DIR" ]; then
-  echo "Downloading and extracting LLVM $LLVM_VER..."
+  echo "Downloading and extracting LLVM $LLVM_VERSION..."
   wget ${LLVM_DIST_URL}
   tar -xf $(basename "${LLVM_DIST_URL}")
 fi
@@ -31,11 +32,10 @@ if [ -d "cpython" ]; then
   rm -rf cpython
 fi
 
-git clone -b ${PY_VER} --single-branch https://github.com/python/cpython.git
+git clone -b ${PY_VERSION} --single-branch https://github.com/python/cpython.git
 cd cpython
 
-echo $SRC_DIR/${LLVM_DIR}/lib/clang/${LLVM_VER}/lib/x86_64-unknown-linux-gnu/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$SRC_DIR/${LLVM_DIR}/lib/clang/${LLVM_VER}/lib/x86_64-unknown-linux-gnu/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$SRC_DIR/${LLVM_DIR}/lib/clang/${LLVM_MAJOR_VERSION}/lib/x86_64-unknown-linux-gnu/:$LD_LIBRARY_PATH
 
 # Remove existing directory with binary files
 if [ -d "${DST_DIR}/${CPYTHON_NAME}" ]; then
@@ -63,7 +63,7 @@ echo "Installing CPython to ${DST_DIR}/${CPYTHON_NAME}"
 make install
 
 echo "Bundling CPython (Ubuntu 20.04 based)..."
-cp $SRC_DIR/$LLVM_DIR/lib/clang/${LLVM_VER}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan.so ${DST_DIR}/${CPYTHON_NAME}/lib/
+cp $SRC_DIR/$LLVM_DIR/lib/clang/${LLVM_MAJOR_VERSION}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan.so ${DST_DIR}/${CPYTHON_NAME}/lib/
 
 cp /usr/lib/x86_64-linux-gnu/libssl.so.1.1 ${DST_DIR}/${CPYTHON_NAME}/lib/
 cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 ${DST_DIR}/${CPYTHON_NAME}/lib/
