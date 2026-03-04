@@ -210,7 +210,7 @@ build:sycl --repo_env=SYCL_BUILD_HERMETIC=0
 # Hermetic SYCL Configuration
 build:sycl_hermetic --config=sycl
 build:sycl_hermetic --repo_env=SYCL_BUILD_HERMETIC=1
-build:sycl_hermetic --repo_env=ONEAPI_VERSION=2025.1
+build:sycl_hermetic --repo_env=ONEAPI_VERSION=2025.3
 build:sycl_hermetic --repo_env=OS=ubuntu_24.10
 
 # Enable Clang for host and icpx for SYCL

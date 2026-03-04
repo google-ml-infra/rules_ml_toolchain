@@ -292,6 +292,30 @@ CUDNN_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.16.0.json",
         "c95167877ac0ded30a29accc9d337a5e60cd70d1a01a3492de56624b39eab868",
     ],
+    "9.17.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.17.0.json",
+        "5c2fe21bd5626f1078caf030c569d894df44a844bfe3b0475ae5f55a4b64c395",
+    ],
+    "9.17.1": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.17.1.json",
+        "f7583aa8652b5434ecd85bdc735ee2b5f1171e6841bf626b70e4937d4b2a2c88",
+    ],
+    "9.18.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.18.0.json",
+        "f625c2704c7411ab35e02956a5937346e61f375dbf8bdf375a1061975b6b224b",
+    ],
+    "9.18.1": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.18.1.json",
+        "f1967c08554f07d1a85638e44debaa4ad75696fc170cf1f1f1718ae13d3c64da",
+    ],
+    "9.19.0": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.19.0.json",
+        "6ad4f2c047ee03131d1efb95db56f78c24953cb30880a2edcf99407ff9362a04",
+    ],
+    "9.19.1": [
+        "https://developer.download.nvidia.com/compute/cudnn/redist/redistrib_9.19.1.json",
+        "ee7bd6872b8611017bfc9ac99a4a71932652d1851b5917aa2c66bf29a12f8fd4",
+    ],
 }
 
 MIRRORED_TARS_CUDNN_REDIST_JSON_DICT = {
@@ -406,6 +430,14 @@ NVSHMEM_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.4.5.json",
         "a656614a6ec638d85922bc816e5e26063308c3905273a72a863cf0f24e188f38",
     ],
+    "3.5.19": [
+        "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.5.19.json",
+        "6dced4193eb728542504b346cfb768da6e3de2abca0cded95fda3a69729994d2",
+    ],
+    "3.5.21": [
+        "https://developer.download.nvidia.com/compute/nvshmem/redist/redistrib_3.5.21.json",
+        "c9a9c22766d1cfc64548205a526d9aabbdba46756e0dae60332e89a36a818350",
+    ],
 }
 
 MIRRORED_TARS_NVSHMEM_REDIST_JSON_DICT = {
@@ -449,6 +481,10 @@ CUDA_13_NCCL_WHEEL_DICT = {
             "url": "https://files.pythonhosted.org/packages/7b/70/aae7806eeaed043b3e212da435880ad067b5f14052986a6b4c0a4c62f68a/nvidia_nccl_cu13-2.29.3-py3-none-manylinux_2_18_x86_64.whl",
             "sha256": "2a321629f49490e4e0122ecb578a4b4a6f89e72740dd988e04dfa4758fab7fc3",
         },
+        "2.29.7": {
+            "url": "https://files.pythonhosted.org/packages/67/f4/58e4e91b6919367c7aafb8e36fce9aad1a3047e536bf7e2fd560927d3a4c/nvidia_nccl_cu13-2.29.7-py3-none-manylinux_2_18_x86_64.whl",
+            "sha256": "edd81538446786ec3b73972543e53bb43bcaf0bfc8ef76cb679fcc390ffe136d",
+        },
     },
     "aarch64-unknown-linux-gnu": {
         "2.27.7": {
@@ -466,6 +502,10 @@ CUDA_13_NCCL_WHEEL_DICT = {
         "2.29.3": {
             "url": "https://files.pythonhosted.org/packages/27/59/ff243ebe6fa1767a9135719829347f609a90607cfbba9637ba3e9b3e36ce/nvidia_nccl_cu13-2.29.3-py3-none-manylinux_2_18_aarch64.whl",
             "sha256": "eab9f5c565ab3326906f1d1b5be5773a174c2a1b47002faed76f9e957392f713",
+        },
+        "2.29.7": {
+            "url": "https://files.pythonhosted.org/packages/72/0d/daf50d44177ee0cbc7ff0a0c91eb5ff676c82be42f9a970bc7597f440c3a/nvidia_nccl_cu13-2.29.7-py3-none-manylinux_2_18_aarch64.whl",
+            "sha256": "674a12383e3c38a1bcccae7d4f3633b37852230b6047883cb2f4c2d1b36d9bf5",
         },
     },
 }
@@ -488,6 +528,10 @@ CUDA_12_NCCL_WHEEL_DICT = {
             "url": "https://files.pythonhosted.org/packages/31/5a/cac7d231f322b66caa16fd4b136ebc8e4b18b2805811c2d58dc47210cdea/nvidia_nccl_cu12-2.29.3-py3-none-manylinux_2_18_x86_64.whl",
             "sha256": "35ad42e7d5d722a83c36a3a478e281c20a5646383deaf1b9ed1a9ab7d61bed53",
         },
+        "2.29.7": {
+            "url": "https://files.pythonhosted.org/packages/31/1e/9e366f36efc550f07d6737f199e3f6bffafdf28795d007f10a77dd274f5c/nvidia_nccl_cu12-2.29.7-py3-none-manylinux_2_18_x86_64.whl",
+            "sha256": "ecd0a012051abc20c1aa87328841efa8cade3ced65803046e38c2f03c0891fea",
+        },
     },
     "aarch64-unknown-linux-gnu": {
         "2.27.7": {
@@ -505,6 +549,10 @@ CUDA_12_NCCL_WHEEL_DICT = {
         "2.29.3": {
             "url": "https://files.pythonhosted.org/packages/28/cf/bcf8bb0c0030b1b9a345331f6281c37d2a8669758521eb93c382f6f87c8f/nvidia_nccl_cu12-2.29.3-py3-none-manylinux_2_18_aarch64.whl",
             "sha256": "6351b79dc7d2cc3d654ea1523616b9eeded71fe9c8da66b71eef9a5d1b2adad4",
+        },
+        "2.29.7": {
+            "url": "https://files.pythonhosted.org/packages/20/cc/f48875411d1f176bce58e6343fd5d4131fc1db5420719ff25944bdc006c6/nvidia_nccl_cu12-2.29.7-py3-none-manylinux_2_18_aarch64.whl",
+            "sha256": "0cf032ee22b560447daf0456108a75e32bd74a4de6c6b64725637a359fa48cd8",
         },
     },
 }
