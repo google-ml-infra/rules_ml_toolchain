@@ -43,9 +43,9 @@ common:asan_shared --config=asan
 common:asan_shared --copt=-shared-libasan
 common:asan_shared --linkopt=-shared-libasan
 common:asan_shared --repo_env=HERMETIC_PYTHON_VERSION=3.13
-common:asan_shared --repo_env=HERMETIC_PYTHON_URL="https://storage.googleapis.com/ml-sysroot-testing/python/cpython-3.13.x-asan-linux-x86_64-llvm18.1.8.tgz"
-common:asan_shared --repo_env=HERMETIC_PYTHON_SHA256=22883586d6de73c545e0d5a2d70c4627e949b12fe76d1feb93220496d8799f81
-common:asan_shared --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.13.x-asan-linux-x86_64-llvm18.1.8/"
+common:asan_shared --repo_env=HERMETIC_PYTHON_URL="https://storage.googleapis.com/ml-sysroot-testing/python/cpython-3.13.x-asan-linux-x86_64-llvm-18.1.8.tar.gz"
+common:asan_shared --repo_env=HERMETIC_PYTHON_SHA256=8452fdcda6ba801a00dd6685042b9619d71eb5a9ada64ec3365dfde4b37d8406
+common:asan_shared --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.13.x-asan-linux-x86_64-llvm-18.1.8/"
 
 # Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
 common:tsan --features=tsan
