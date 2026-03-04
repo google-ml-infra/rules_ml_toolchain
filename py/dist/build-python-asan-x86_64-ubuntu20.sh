@@ -15,6 +15,8 @@
 # limitations under the License.
 # ==============================================================================
 
+# Automated script for compiling CPython with AddressSanitizer (ASan) instrumentation
+
 PY_VERSION=3.13
 LLVM_VERSION=18.1.8
 LLVM_DIST_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz
