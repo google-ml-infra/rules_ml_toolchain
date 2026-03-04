@@ -179,3 +179,10 @@ config_setting(
         ":enable_sycl": "False",
     },
 )
+
+#######################################################
+# Sanitizers flags
+string_flag(
+    name = "asan_options",
+    build_setting_default = "",
+)
