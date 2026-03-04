@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 
-load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
