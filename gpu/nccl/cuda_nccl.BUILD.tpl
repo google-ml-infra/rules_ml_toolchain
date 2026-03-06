@@ -27,6 +27,7 @@ filegroup(
     name = "header_list",
     %{comment}srcs = glob([
         %{comment}"include/**/*.h",
+        %{comment}"include/**/*.cuh",
     %{comment}]),
 )
 
