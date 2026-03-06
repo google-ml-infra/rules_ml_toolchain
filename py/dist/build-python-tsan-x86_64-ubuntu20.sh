@@ -70,6 +70,10 @@ cp /usr/lib/x86_64-linux-gnu/libffi.so.7.1.0 ${DST_DIR}/${CPYTHON_NAME}/lib/
 cd ${DST_DIR}/${CPYTHON_NAME}/lib/
 ln -s libffi.so.7.1.0 libffi.so.7
 
+# Create link for correct -isystem external/python_3_xx.../include/python3.xx handling
+cd ${DST_DIR}/${CPYTHON_NAME}/include/
+ln -s python${PY_VERSION}t python${PY_VERSION}
+
 echo "Creating portable CPython archive..."
 cd ${DST_DIR}
 tar -czf ${CPYTHON_NAME}.tar.gz ${CPYTHON_NAME}
