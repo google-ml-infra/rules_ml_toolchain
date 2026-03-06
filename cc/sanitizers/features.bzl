@@ -88,40 +88,14 @@ def _filter_flags_by_keys(flags, keys):
 # =============================================================================================================
 # ASAN section
 
-ASAN_COMMON_LIBS = [
-    "libclang_rt.asan_static.a",
-]
-
-ASAN_EXEC_LIBS = [
-    "libclang_rt.asan.a",
-]
-
-ASAN_EXEC_SYMS = [
-    "libclang_rt.asan.a.syms",
-]
-
 ASAN_COMPILER_FLAGS = [
     "-fsanitize=address",
-    "-fno-omit-frame-pointer",
-    "-fsanitize-address-use-after-scope",
-    "-fsanitize-address-globals-dead-stripping",
-    "-fno-assume-sane-operator-new",
     "-fno-common",  # for backward compatibility with old toolchain sanitizer configuration
 ]
 
 ASAN_LINKER_FLAGS = [
-    "-fsanitize=address",           # mandatory for linking
-    "-fno-sanitize-link-runtime",   # gives absolute control over the linking
+    "-fsanitize=address",
 ]
-
-def _filter_asan_common_libs(flags):
-    return _filter_flags_by_keys(flags, ASAN_COMMON_LIBS)
-
-def _filter_asan_exec_libs(flags):
-    return _filter_flags_by_keys(flags, ASAN_EXEC_LIBS)
-
-def _filter_asan_exec_syms(flags):
-    return _filter_flags_by_keys(flags, ASAN_EXEC_SYMS)
 
 def _import_asan_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
@@ -157,49 +131,14 @@ def _import_asan_feature_impl(ctx):
             .linking_context.additional_libs.to_list()
     ]).to_list()
 
-    common_linker_flags = depset([
-        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
-        for file_path in _filter_asan_common_libs([
-            file.path
-            for file in toolchain_import_info
-                .linking_context.additional_libs.to_list()
-        ])
-    ]).to_list()
-
-    if common_linker_flags:
-        flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
-            flag_groups = [
-                flag_group(
-                    flags = ASAN_LINKER_FLAGS + linker_dir_flags + common_linker_flags,
-                ),
-            ],
-        ))
-
-    exec_linker_flags = depset([
-        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
-        for file_path in _filter_asan_exec_libs([
-            file.path
-            for file in toolchain_import_info
-                .linking_context.additional_libs.to_list()
-        ])
-    ]).to_list()
-
-    exec_linker_syms_flags = depset(_filter_asan_exec_syms([
-        ("-Wl,--dynamic-list=" + file.path)
-        for file in toolchain_import_info
-            .linking_context.additional_libs.to_list()
-    ])).to_list()
-
-    if exec_linker_flags or exec_linker_syms_flags:
-        flag_sets.append(flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES,
-            flag_groups = [
-                flag_group(
-                    flags = exec_linker_flags + exec_linker_syms_flags,
-                ),
-            ],
-        ))
+    flag_sets.append(flag_set(
+        actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+        flag_groups = [
+            flag_group(
+                flags = ASAN_LINKER_FLAGS + linker_dir_flags,
+            ),
+        ],
+    ))
 
     library_feature = _feature(
         name = ctx.label.name,
@@ -224,66 +163,6 @@ cc_toolchain_import_asan_feature = rule(
     provides = [FeatureInfo, DefaultInfo],
 )
 
-def _import_asan_runtime_closure_feature_impl(ctx):
-    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
-
-    flag_sets = []
-
-    exec_linker_flags = depset([
-        ("-Wl,--whole-archive\n" + file_path + "\n-Wl,--no-whole-archive")
-        for file_path in _filter_asan_exec_libs([
-            file.path
-            for file in toolchain_import_info
-                .linking_context.additional_libs.to_list()
-        ])
-    ]).to_list()
-
-    exec_linker_syms_flags = depset(_filter_asan_exec_syms([
-        ("-Wl,--dynamic-list=" + file.path)
-        for file in toolchain_import_info
-            .linking_context.additional_libs.to_list()
-    ])).to_list()
-
-    if exec_linker_flags or exec_linker_syms_flags:
-        flag_sets.append(flag_set(
-            actions = DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
-            flag_groups = [
-                flag_group(
-                    flags = exec_linker_flags + exec_linker_syms_flags,
-                ),
-            ],
-        ))
-
-    requires = [
-        feature_set(features = [feature_name])
-        for feature_name in ctx.attr.requires
-    ]
-
-    library_feature = _feature(
-        name = ctx.label.name,
-        enabled = ctx.attr.enabled,
-        flag_sets = flag_sets,
-        implies = ctx.attr.implies,
-        requires = requires,
-        provides = ctx.attr.provides,
-    )
-    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
-
-
-cc_toolchain_import_asan_runtime_closure_feature = rule(
-    _import_asan_runtime_closure_feature_impl,
-    attrs = {
-        "enabled": attr.bool(default = False),
-        "provides": attr.string_list(),
-        "requires": attr.string_list(),
-        "implies": attr.string_list(),
-        "toolchain_import": attr.label(
-            mandatory = True,
-            providers = [CcToolchainImportInfo],
-        ),
-    },
-    provides = [FeatureInfo, DefaultInfo],
-)
 
 #==============================================================================================================
 # TSAN
@@ -306,7 +185,8 @@ TSAN_COMPILER_FLAGS = [
 ]
 
 TSAN_LINKER_FLAGS = [
-    "-fsanitize=thread",
+    "-fsanitize=thread",            # mandatory for linking
+    "-fno-sanitize-link-runtime",   # gives absolute control over the linking
 ]
 
 def _get_tsan_cc_libs(flags):

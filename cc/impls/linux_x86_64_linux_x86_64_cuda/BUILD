@@ -22,7 +22,6 @@ load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_asan_runtime_closure_feature",
     "cc_toolchain_import_tsan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
@@ -134,12 +133,6 @@ cc_toolchain_import(
 
 cc_toolchain_import_asan_feature(
     name = "asan",
-    toolchain_import = ":asan_import",
-)
-
-cc_toolchain_import_asan_runtime_closure_feature(
-    name = "asan_runtime_closure",
-    requires = ["asan"],
     toolchain_import = ":asan_import",
 )
 
@@ -262,7 +255,6 @@ FEATURES_ESSENTIAL = [
 
     # Sanitizers
     ":asan",
-    ":asan_runtime_closure",
     ":tsan",
 ]
 
