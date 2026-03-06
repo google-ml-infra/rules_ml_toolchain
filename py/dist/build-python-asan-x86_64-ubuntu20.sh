@@ -18,13 +18,14 @@
 # Automated script for compiling CPython with AddressSanitizer (ASan) instrumentation
 
 PY_VERSION=3.13
+PY_REPO_TAG=v${PY_VERSION}.12 # Find https://github.com/python/cpython latest stable tag
 LLVM_VERSION=18.1.8
 LLVM_DIST_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 
 LLVM_DIR=$(basename "${LLVM_DIST_URL}" .tar.xz)
 LLVM_MAJOR_VERSION=${LLVM_VERSION%%.*}
 
-CPYTHON_NAME=cpython-${PY_VERSION}.x-asan-linux-x86_64-llvm-${LLVM_VERSION}
+CPYTHON_NAME=cpython-${PY_VERSION}.x-asan-shared-linux-x86_64-llvm-${LLVM_VERSION}
 SRC_DIR=$PWD
 DST_DIR=/tmp
 
@@ -49,7 +50,7 @@ if [ -d "cpython" ]; then
   rm -rf cpython
 fi
 
-git clone -b ${PY_VERSION} --single-branch https://github.com/python/cpython.git
+git clone -b ${PY_REPO_TAG} --depth 1 https://github.com/python/cpython.git
 cd cpython
 
 export LD_LIBRARY_PATH=$SRC_DIR/${LLVM_DIR}/lib/clang/${LLVM_MAJOR_VERSION}/lib/x86_64-unknown-linux-gnu/:$LD_LIBRARY_PATH

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PY_VERSION=3.14
+PY_REPO_TAG=v${PY_VERSION}.3 # Find https://github.com/python/cpython latest stable tag
 LLVM_VERSION=18.1.8
 LLVM_DIST_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 
@@ -30,7 +31,7 @@ if [ -d "cpython" ]; then
   rm -rf cpython
 fi
 
-git clone -b ${PY_VERSION} --single-branch https://github.com/python/cpython.git
+git clone -b ${PY_REPO_TAG} --depth 1 https://github.com/python/cpython.git
 cd cpython
 
 export LD_LIBRARY_PATH=$SRC_DIR/${LLVM_DIR}/lib/clang/${LLVM_MAJOR_VERSION}/lib/x86_64-unknown-linux-gnu/:$LD_LIBRARY_PATH
