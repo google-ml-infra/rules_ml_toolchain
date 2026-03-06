@@ -166,7 +166,8 @@ TSAN_COMPILER_FLAGS = [
 ]
 
 TSAN_LINKER_FLAGS = [
-    "-fsanitize=thread",
+    "-fsanitize=thread",            # mandatory for linking
+    "-fno-sanitize-link-runtime",   # gives absolute control over the linking
 ]
 
 def _import_tsan_feature_impl(ctx):
