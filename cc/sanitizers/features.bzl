@@ -69,28 +69,16 @@ def _filter_flags_by_keys(flags, keys):
 
     return libFlags
 
-# =============================================================================================================
-# ASAN section
-
-ASAN_COMPILER_FLAGS = [
-    "-fno-omit-frame-pointer",
-    "-fno-sanitize-recover=all",
-    "-fsanitize=address",
-    "-fno-common",  # for backward compatibility with old toolchain sanitizer configuration
-]
-
-ASAN_LINKER_FLAGS = [
-    "-fsanitize=address",
-]
-
-def _import_asan_feature_impl(ctx):
+def _import_sanitizer_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
-
     flag_sets = []
 
     compiler_flags = depset([
         flag
-        for flag in ASAN_COMPILER_FLAGS
+        for flag in ([
+            "-fno-omit-frame-pointer",
+            "-fno-sanitize-recover=all",
+        ] + ctx.attr.compiler_flags)
     ]).to_list()
 
     if compiler_flags:
@@ -105,7 +93,7 @@ def _import_asan_feature_impl(ctx):
 
     linker_flags = depset([
         flag
-        for flag in ASAN_LINKER_FLAGS
+        for flag in ctx.attr.linker_flags
     ]).to_list()
 
     linker_dir_flags = depset([
@@ -141,8 +129,8 @@ def _import_asan_feature_impl(ctx):
     )
     return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
 
-cc_toolchain_import_asan_feature = rule(
-    _import_asan_feature_impl,
+cc_toolchain_import_sanitizer_feature = rule(
+    _import_sanitizer_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),
@@ -151,91 +139,16 @@ cc_toolchain_import_asan_feature = rule(
             mandatory = True,
             providers = [CcToolchainImportInfo],
         ),
-    },
-    provides = [FeatureInfo, DefaultInfo],
-)
-
-
-#==============================================================================================================
-# TSAN
-
-TSAN_COMPILER_FLAGS = [
-    "-fno-omit-frame-pointer",
-    "-fno-sanitize-recover=all",
-    "-fsanitize=thread",
-]
-
-TSAN_LINKER_FLAGS = [
-    "-fsanitize=thread",            # mandatory for linking
-]
-
-def _import_tsan_feature_impl(ctx):
-    toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
-
-    flag_sets = []
-
-    compiler_flags = depset([
-        flag
-        for flag in TSAN_COMPILER_FLAGS
-    ]).to_list()
-
-    if compiler_flags:
-        flag_sets.append(flag_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES,
-            flag_groups = [
-                flag_group(
-                    flags = compiler_flags,
-                ),
-            ],
-        ))
-
-    linker_flags = depset([
-        flag
-        for flag in TSAN_LINKER_FLAGS
-    ]).to_list()
-
-    linker_dir_flags = depset([
-        "-L" + file.dirname
-        for file in toolchain_import_info
-            .linking_context.static_libraries.to_list()
-    ] + [
-        "-L" + file.dirname
-        for file in toolchain_import_info
-            .linking_context.dynamic_libraries.to_list()
-    ] + [
-        "-L" + file.dirname
-        for file in toolchain_import_info
-            .linking_context.additional_libs.to_list()
-    ]).to_list()
-
-    if linker_flags or linker_dir_flags:
-        flag_sets.append(flag_set(
-            actions = SANITIZER_LINK_ACTIONS,
-            flag_groups = [
-                flag_group(
-                    flags = linker_flags + linker_dir_flags,
-                ),
-            ],
-        ))
-
-    library_feature = _feature(
-        name = ctx.label.name,
-        enabled = ctx.attr.enabled,
-        flag_sets = flag_sets,
-        implies = ctx.attr.implies,
-        provides = ctx.attr.provides,
-    )
-    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
-
-cc_toolchain_import_tsan_feature = rule(
-    _import_tsan_feature_impl,
-    attrs = {
-        "enabled": attr.bool(default = False),
-        "provides": attr.string_list(),
-        "implies": attr.string_list(),
-        "toolchain_import": attr.label(
+        "compiler_flags": attr.string_list(
+            default = [],
+            doc = "The list of flags to pass to the compiler regardless of if \
+the target is a C or C++ library.",
             mandatory = True,
-            providers = [CcToolchainImportInfo],
+        ),
+        "linker_flags": attr.string_list(
+            default = [],
+            doc = "The list of flags to apply when linking.",
+            mandatory = True,
         ),
     },
     provides = [FeatureInfo, DefaultInfo],
