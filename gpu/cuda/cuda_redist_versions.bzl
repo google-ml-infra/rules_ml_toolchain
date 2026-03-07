@@ -666,6 +666,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "cuda_culibos": {
             "repo_name": "cuda_culibos",
             "version_to_template": {
+                # only exists on 13+
                 "13": "//gpu/cuda/build_templates:cuda_culibos.BUILD.tpl",
             },
 	    "local": {
@@ -832,7 +833,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
     "libnvptxcompiler": {
             "repo_name": "cuda_nvptxcompiler",
             "version_to_template": {
-                "13": "//gpu/cuda/build_templates:cuda_nvptxcompiler.BUILD.tpl",
+                "any": "//gpu/cuda/build_templates:cuda_nvptxcompiler.BUILD.tpl",
             },
             "local": {
                 "source_dirs": ["include", "lib"],

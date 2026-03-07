@@ -61,43 +61,43 @@ cc_import(
 cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_graph_static_v9.a",
+    static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_adv_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_adv_static_v9.a",
+    static_library = "lib/libcudnn_adv_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_engines_runtime_compiled_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_engines_runtime_compiled_static_v9.a",
+    static_library = "lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_engines_precompiled_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_engines_precompiled_static_v9.a",
+    static_library = "lib/libcudnn_engines_precompiled_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_ops_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_ops_static_v9.a",
+    static_library = "lib/libcudnn_ops_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_heuristic_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_heuristic_static_v9.a",
+    static_library = "lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
 )
 
 cc_import(
     name = "cudnn_cnn_static",
     hdrs = [":headers"],
-    static_library = "lib/libcudnn_cnn_static_v9.a",
+    static_library = "lib/libcudnn_cnn_static_v%{libcudnn_version}.a",
 )
 %{multiline_comment}
 cc_library(
@@ -105,13 +105,13 @@ cc_library(
     hdrs = [":header_list"],
     %{comment}alwayslink = if_static_cudnn(True, False),
     %{comment}srcs = if_static_cudnn(
-      %{comment}[":lib/libcudnn_engines_precompiled_static_v9.a",
-      %{comment} ":lib/libcudnn_ops_static_v9.a",
-      %{comment} ":lib/libcudnn_cnn_static_v9.a",
-      %{comment} ":lib/libcudnn_adv_static_v9.a",
-      %{comment} ":lib/libcudnn_heuristic_static_v9.a",
-      %{comment} ":lib/libcudnn_graph_static_v9.a",
-      %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v9.a",
+      %{comment}[":lib/libcudnn_engines_precompiled_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_ops_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_cnn_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_adv_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_graph_static_v%{libcudnn_version}.a",
+      %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
       %{comment}], []),
     %{comment}deps = if_static_cudnn(
       %{comment}[],
