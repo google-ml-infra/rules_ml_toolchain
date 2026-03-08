@@ -257,6 +257,9 @@ def InvokeNvcc(argv, log=False):
   nvccopts += std_options
   nvccopts += m_options
   nvccopts += warning_options
+  print(NVCC_VERSION)
+  if NVCC_VERSION >= 13:
+    nvccopts += ' -rdc=true '
   # Force C++17 dialect (note, everything in just one string!)
   nvccopts += ' --std c++17 '
   nvccopts += fatbin_options
