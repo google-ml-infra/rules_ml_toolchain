@@ -258,7 +258,7 @@ def InvokeNvcc(argv, log=False):
   nvccopts += m_options
   nvccopts += warning_options
   if int(NVCC_VERSION.split('.')[0]) >= 13:
-    nvccopts += ' --device-entity-has-hidden-visibility=false ' 
+    nvccopts += ' --device-entity-has-hidden-visibility=false -static-global-template-stub=false '
   # Force C++17 dialect (note, everything in just one string!)
   nvccopts += ' --std c++17 '
   nvccopts += fatbin_options
