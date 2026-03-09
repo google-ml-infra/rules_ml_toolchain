@@ -1,16 +1,17 @@
-# Copyright 2025 The Bazel Authors. All rights reserved.
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# ==============================================================================
 
 """CUDA module extension."""
 
@@ -21,6 +22,7 @@ load(
 
 def _cuda_configure_ext_impl(mctx):
     """Implementation of the cuda_configure_ext module extension."""
+
     # Collect configure tag attributes from all modules.
     # Later modules override earlier ones for each attribute.
     kwargs = {}
@@ -96,100 +98,124 @@ _configure_tag = tag_class(
         # Version labels for CUDA components
         "cccl_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cccl//:version.bzl"),
             doc = "Label pointing to the CCCL version.bzl file.",
         ),
         "crt_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_crt//:version.bzl"),
             doc = "Label pointing to the CRT version.bzl file.",
         ),
         "cublas_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cublas//:version.bzl"),
             doc = "Label pointing to the cuBLAS version.bzl file.",
         ),
         "cudart_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cudart//:version.bzl"),
             doc = "Label pointing to the CUDA runtime version.bzl file.",
         ),
         "cudnn_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cudnn//:version.bzl"),
             doc = "Label pointing to the cuDNN version.bzl file.",
         ),
         "cufft_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cufft//:version.bzl"),
             doc = "Label pointing to the cuFFT version.bzl file.",
         ),
         "cupti_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cupti//:version.bzl"),
             doc = "Label pointing to the CUPTI version.bzl file.",
         ),
         "curand_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_curand//:version.bzl"),
             doc = "Label pointing to the cuRAND version.bzl file.",
         ),
         "cusolver_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cusolver//:version.bzl"),
             doc = "Label pointing to the cuSOLVER version.bzl file.",
         ),
         "cusparse_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_cusparse//:version.bzl"),
             doc = "Label pointing to the cuSPARSE version.bzl file.",
         ),
         "nvcc_binary": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvcc//:bin/nvcc"),
             doc = "Label pointing to the nvcc binary.",
         ),
         "nvcc_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvcc//:version.bzl"),
             doc = "Label pointing to the nvcc version.bzl file.",
         ),
         "nvjitlink_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvjitlink//:version.bzl"),
             doc = "Label pointing to the nvjitlink version.bzl file.",
         ),
         "nvml_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvml//:version.bzl"),
             doc = "Label pointing to the NVML version.bzl file.",
         ),
         "nvtx_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvtx//:version.bzl"),
             doc = "Label pointing to the NVTX version.bzl file.",
         ),
         "nvvm_version": attr.label(
             allow_single_file = True,
+            default = Label("@cuda_nvvm//:version.bzl"),
             doc = "Label pointing to the NVVM version.bzl file.",
         ),
         # Build and config file templates
         "local_config_cuda_build_file": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda:local_config_cuda.BUILD"),
             doc = "Label pointing to the local_config_cuda BUILD file.",
         ),
         "build_defs_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda:build_defs.bzl.tpl"),
             doc = "Label pointing to the build_defs.bzl template.",
         ),
         "cuda_build_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda:BUILD.tpl"),
             doc = "Label pointing to the cuda BUILD template.",
         ),
         "cuda_config_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda:cuda_config.h.tpl"),
             doc = "Label pointing to the cuda_config.h template.",
         ),
         "cuda_config_py_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda:cuda_config.py.tpl"),
             doc = "Label pointing to the cuda_config.py template.",
         ),
         # Crosstool templates
         "crosstool_wrapper_driver_is_not_gcc_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda/legacy/crosstool:clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl"),
             doc = "Label pointing to the crosstool wrapper driver template.",
         ),
         "crosstool_build_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda/legacy/crosstool:BUILD.tpl"),
             doc = "Label pointing to the crosstool BUILD template.",
         ),
         "cc_toolchain_config_tpl": attr.label(
             allow_single_file = True,
+            default = Label("//gpu/cuda/legacy/crosstool:cc_toolchain_config.bzl.tpl"),
             doc = "Label pointing to the cc_toolchain_config.bzl template.",
         ),
     },

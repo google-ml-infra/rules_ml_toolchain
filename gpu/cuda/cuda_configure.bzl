@@ -62,15 +62,6 @@ load(
     "USE_HERMETIC_CC_TOOLCHAIN_DEFAULT_VALUE",
 )
 load(
-    "//gpu:compiler_common_tools.bzl",
-    "get_cxx_inc_directories",
-    "to_list_of_strings",
-)
-load(
-    "//gpu/cuda:cuda_redist_versions.bzl",
-    "PTX_VERSION_DICT",
-)
-load(
     "//common:common.bzl",
     "execute",
     "get_bash_bin",
@@ -78,6 +69,15 @@ load(
     "get_host_environ",
     "realpath",
     "which",
+)
+load(
+    "//gpu:compiler_common_tools.bzl",
+    "get_cxx_inc_directories",
+    "to_list_of_strings",
+)
+load(
+    "//gpu/cuda:cuda_redist_versions.bzl",
+    "PTX_VERSION_DICT",
 )
 
 def _find_cc(repository_ctx):
