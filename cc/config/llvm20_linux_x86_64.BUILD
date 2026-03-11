@@ -146,6 +146,14 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
+cc_toolchain_import(
+    name = "rt_ubsan",
+    additional_libs = glob([
+        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.ubsan*".format(clang_version = CLANG_VERSION),
+    ]),
+    visibility = ["//visibility:public"],
+)
+
 #============================================================================================
 # CUDA
 

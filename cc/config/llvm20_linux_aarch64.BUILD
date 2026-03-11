@@ -132,20 +132,25 @@ filegroup(
 cc_toolchain_import(
     name = "rt_asan",
     additional_libs = glob([
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
     ]),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "rt_tsan",
-    additional_libs = [
-        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan.a".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan.a.syms".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan_cxx.a".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan_cxx.a.syms".format(clang_version = CLANG_VERSION),
-    ],
+    additional_libs = glob([
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan*".format(clang_version = CLANG_VERSION),
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "rt_ubsan",
+    additional_libs = glob([
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.ubsan*".format(clang_version = CLANG_VERSION),
+    ]),
     visibility = ["//visibility:public"],
 )
 
