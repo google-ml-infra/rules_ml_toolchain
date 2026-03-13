@@ -224,7 +224,7 @@ def InvokeNvcc(argv, log=False):
   # Unfortunately, there are other options that have -c prefix too.
   # So allowing only those look like C/C++ files.
   src_files = [f for f in src_files if
-               re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$|\.cu$', f)]
+        	       re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$|\.cu$', f)]
   srcs = ' '.join(src_files)
   out = ' -o ' + out_file[0]
 
@@ -257,6 +257,8 @@ def InvokeNvcc(argv, log=False):
   nvccopts += std_options
   nvccopts += m_options
   nvccopts += warning_options
+  if int(NVCC_VERSION.split('.')[0]) >= 13:
+    nvccopts += ' --device-entity-has-hidden-visibility=false -static-global-template-stub=false '
   # Force C++17 dialect (note, everything in just one string!)
   nvccopts += ' --std c++17 '
   nvccopts += fatbin_options

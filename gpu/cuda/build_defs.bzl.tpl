@@ -20,9 +20,46 @@ def if_cuda(if_true, if_false = []):
     with CUDA enabled.  Otherwise, the select statement evaluates to if_false.
     """
     return select({
-        "@local_config_cuda//:is_cuda_enabled": if_true,
+        "@rules_ml_toolchain//common:is_cuda_enabled": if_true,
         "//conditions:default": if_false,
     })
+
+# Macros for building CUDA static code.
+def if_static_cuda(if_true, if_false = []):
+    """Shorthand for select()'ing on whether we're building with static CUDA libs.
+
+    Returns a select statement which evaluates to if_true if we're building
+    with static CUDA enabled.  Otherwise, the select statement evaluates to if_false.
+    """
+    return select({
+        "@rules_ml_toolchain//common:is_cuda_static_linking_enabled": if_true,
+        "//conditions:default": if_false,
+    })
+
+# Macros for building NVRTC static code.
+def if_static_nvrtc(if_true, if_false = []):
+    """Shorthand for select()'ing on whether we're building with static NVRTC libs.
+
+    Returns a select statement which evaluates to if_true if we're building
+    with static NVRTC enabled.  Otherwise, the select statement evaluates to if_false.
+    """
+    return select({
+        "@rules_ml_toolchain//common:is_nvrtc_static_linking_enabled": if_true,
+        "//conditions:default": if_false,
+    })
+
+# Macros for building CUDNN static code.
+def if_static_cudnn(if_true, if_false = []):
+    """Shorthand for select()'ing on whether we're building with static CUDNN libs.
+
+    Returns a select statement which evaluates to if_true if we're building
+    with static CUDNN enabled.  Otherwise, the select statement evaluates to if_false.
+    """
+    return select({
+        "@rules_ml_toolchain//common:is_cudnn_static_linking_enabled": if_true,
+        "//conditions:default": if_false,
+    })
+
 
 def if_cuda_clang(if_true, if_false = []):
    """Shorthand for select()'ing on wheteher we're building with cuda-clang.
@@ -178,13 +215,16 @@ def cuda_header_library(
         **kwargs
     )
 
-def cuda_library(copts = [], tags = [], deps = [], implementation_deps = [], **kwargs):
+def cuda_library(copts = [], tags = [], deps = [], linkopts = [], implementation_deps = [], **kwargs):
     """Wrapper over cc_library which adds default CUDA options."""
     native.cc_library(
         copts = cuda_default_copts() + copts,
         tags = tags + ["gpu"],
         deps = deps + if_cuda_is_configured([
             "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+        ]),
+        linkopts = linkopts + if_static_cuda([
+            "-lrt",
         ]),
         implementation_deps = implementation_deps + if_cuda_hermetic_clang([
             "%{hermetic_wrappers_headers}",
