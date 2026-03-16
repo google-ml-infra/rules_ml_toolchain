@@ -165,7 +165,9 @@ def call_compiler(argv, link = False, sycl_compile = True):
       ar_cmd = ('env ' + AR_PATH + ar_flags)
       return system(ar_cmd)
   elif link:
-    # Expand @params file if present
+    # Step 1: Expand response files (flags starting with '@')
+    # These files contain additional linker flags that must be inserted
+    # into the argument list.
     expanded_flags = []
     for s in flags:
         if s.startswith("@") and os.path.isfile(s[1:]):
@@ -173,36 +175,70 @@ def call_compiler(argv, link = False, sycl_compile = True):
                 expanded_flags += shlex.split(f.read())
         else:
             expanded_flags.append(s)
-
-    seen = set()
+    # Step 2: Deduplicate flags while tracking whether we are inside
+    # a --whole-archive / --no-whole-archive region.
     ordered_flags = []
-
-    # Track the type of each unique flag and preserve order
+    seen = set()
+    
+    # This variable tracks whether we are currently processing flags
+    # that should be treated as part of a whole-archive block.
+    processing_whole = False
     for s in expanded_flags:
+        # Detect the start of a whole-archive section
+        if s in ("-Wl,--whole-archive", "--whole-archive", "-Wl,-whole-archive", "-whole-archive"):
+            processing_whole = True
+            ordered_flags.append(("-Wl", "--whole-archive"))
+            continue
+        # Detect the end of a whole-archive section
+        if s in ("-Wl,--no-whole-archive", "--no-whole-archive", "-Wl,-no-whole-archive", "-no-whole-archive"):
+            processing_whole = False
+            ordered_flags.append(("-Wl", "--no-whole-archive"))
+            continue
+        # Deduplicate flags
         if s not in seen:
             seen.add(s)
-            flag_type = "whole" if s.endswith((".o", ".lo")) else "regular"
+            # Determine how this flag should be treated:
+            # 1. Object files (.o/.lo) must always be in whole-archive
+            # 2. If we are currently inside a whole-archive region, treat as whole
+            # 3. Otherwise treat as a regular flag
+            flag_type = "whole" if s.endswith((".o", ".lo")) else ("whole" if processing_whole else "regular")
+            # Store both the type and the safely quoted value
             ordered_flags.append((flag_type, shlex.quote(s)))
-
+    # Step 3: Reconstruct the final linker flags list while inserting
+    # the required whole-archive / no-whole-archive markers.
     deduped_flags = []
-    in_whole_archive = False
-
-    for flag_type, flag in ordered_flags:
-        if flag_type == "whole":
-            if not in_whole_archive:
+    
+    # Tracks whether we have already emitted a --whole-archive marker
+    injected_whole = False
+    for flag_type, value in ordered_flags:
+        # Explicit request to begin whole-archive
+        if flag_type == "-Wl" and value == "--whole-archive":
+            if not injected_whole:
                 deduped_flags.append("-Wl,--whole-archive")
-                in_whole_archive = True
-            deduped_flags.append(flag)
-        else:
-            if in_whole_archive:
+                injected_whole = True
+            continue
+        # Explicit request to end whole-archive
+        if flag_type == "-Wl" and value == "--no-whole-archive":
+            if injected_whole:
                 deduped_flags.append("-Wl,--no-whole-archive")
-                in_whole_archive = False
-            deduped_flags.append(flag)
-
-    # Close any open --whole-archive section
-    if in_whole_archive:
+                injected_whole = False
+            continue
+        # Handle flags that must be inside whole-archive
+        if flag_type == "whole":
+            if not injected_whole:
+                deduped_flags.append("-Wl,--whole-archive")
+                injected_whole = True
+            deduped_flags.append(value)
+    
+        # Handle regular flags
+        else:
+            if injected_whole:
+                deduped_flags.append("-Wl,--no-whole-archive")
+                injected_whole = False
+            deduped_flags.append(value)
+    # Step 4: Ensure the final whole-archive section is closed
+    if injected_whole:
         deduped_flags.append("-Wl,--no-whole-archive")
-
     # Output file
     if args.o:
         out_files.append('-o')
@@ -244,14 +280,12 @@ def standardize_key_val_args(argv, key):
       mod_args.append(last + arg)
       last = None
       continue
-
     if arg == key:
       last = key
     elif arg.startswith(key):
       mod_args.append(arg.replace(' ', ''))
     else:
       mod_args.append(arg)
-
   return mod_args
 
 def main():
