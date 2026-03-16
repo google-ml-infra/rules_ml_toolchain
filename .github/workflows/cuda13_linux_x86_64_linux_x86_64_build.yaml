@@ -56,7 +56,9 @@ jobs:
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs //cc/tests/gpu:all
       - run: echo "NVCC Static CUDA building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true //cc/tests/gpu:all
-      - run: echo "NVCC Static CUDNN+NVRTC CUDA building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --@rules_ml_toolchain//common:link_nvrtc_static_libs=true --@rules_ml_toolchain//common:link_cudnn_static_libs=true //cc/tests/gpu:all
+      - run: echo "NVCC Static CUDNN CUDA testing..."
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --@rules_ml_toolchain//common:link_cudnn_static_libs=true //cc/tests/gpu:cudnn_test
+      - run: echo "NVCC Static NVRTC CUDA testing..."
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --@rules_ml_toolchain//common:link_nvrtc_static_libs=true //cc/tests/gpu:nvrtc_test
       - run: echo "Bzlmod. NVCC building..."
       - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
