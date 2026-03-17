@@ -57,7 +57,7 @@ generate_toolchain_cppmap = rule(
             doc = "The name of the output file to generate.",
         ),
         "workspace_prefix": attr.string(
-            default = "external/rules_ml_toolchain",
+            default = "pywrap_external/rules_ml_toolchain",
             doc = "Prefix to prepend to files belonging to the current workspace.",
         ),
     },

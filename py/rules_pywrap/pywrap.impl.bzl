@@ -855,7 +855,7 @@ def python_extension(
     rule which preserves enough information for pywrap_library to be able to do its job of linking
     multiple extensions together.
 
-    Different python_extension tarets may depend on each other, depend on or be depended on by
+    Different python_extension targets may depend on each other, depend on or be depended on by
     any number of py_library targets. To use python_extension in py_test or py_binary, do not depend
     on it directly, instead create a pywrap_library target, which should depend on all
     python_extensions needed in your test or binary, and then depend on pywrap_library itself. This
@@ -969,6 +969,7 @@ def python_extension(
             visibility = visibility,
         )
     else:
+        print("_pywrap_info_wrapper(name={}, deps=[{}])".format(name, ("%s" % cc_library_name)))
         _pywrap_info_wrapper(
             name = name,
             deps = ["%s" % cc_library_name],
@@ -1044,6 +1045,7 @@ def _pywrap_info_wrapper_impl(ctx):
         val = "imports_paths = %s # template_val" % py_pkgs
         substitutions["imports_paths = []  # template_val"] = val
 
+    print("_pywrap_info_wrapper_impl: ctx.file.py_stub_src={}", ctx.file.py_stub_src)
     ctx.actions.expand_template(
         template = ctx.file.py_stub_src,
         output = py_stub,

@@ -1,0 +1,25 @@
+load("//py/rules_pywrap:pywrap.impl.bzl", "pywrap_binaries", "pywrap_library")
+
+pywrap_library(
+    name = "pywrap_external_aggregated",
+    common_lib_filters = {
+        "pybind/framework": "//py/rules_pywrap/tests:first_library",
+    },
+    common_lib_versions = {
+        "pybind/framework": "2",
+    },
+    pywrap_lib_filter = "//py/rules_pywrap/tests:third_library",
+    starlark_only_deps = [
+
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+
+    ]
+)
+
+pywrap_binaries(
+    name = "pywrap_external_aggregated_binaries",
+    dep = ":pywrap_external_aggregated",
+    visibility = ["//visibility:public"],
+)

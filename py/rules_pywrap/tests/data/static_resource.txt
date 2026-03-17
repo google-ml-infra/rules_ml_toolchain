@@ -1,0 +1,1 @@
+A static resource file under py/rules_pywrap/tests/data dir

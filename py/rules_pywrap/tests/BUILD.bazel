@@ -1,0 +1,261 @@
+load(
+    "//py/rules_pywrap:pywrap.impl.bzl",
+    "pybind_extension",
+    "pywrap_binaries",
+    "pywrap_common_library",
+    "pywrap_library",
+)
+
+# TODO: Uncomment after you find following files
+#exports_files([
+#    "pybind_aggregated.def",
+#    "py_cc_pybind_aggregated.def",
+#])
+
+cc_library(
+    name = "sixth_library",
+    srcs = ["sixth_library.cc"],
+    hdrs = ["sixth_library.h"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    deps = [":second_library"],
+    alwayslink = False,
+)
+
+cc_library(
+    name = "fifth_library",
+    srcs = ["fifth_library.cc"],
+    hdrs = ["fifth_library.h"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    deps = [":second_library"],
+    alwayslink = False,
+)
+
+cc_library(
+    name = "fourth_library",
+    srcs = ["fourth_library.cc"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    deps = [":second_library"],
+    alwayslink = False,
+)
+
+cc_library(
+    name = "third_library",
+    srcs = ["third_library.cc"],
+    hdrs = ["third_library.h"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    alwayslink = False,
+)
+
+cc_library(
+    name = "second_library",
+    srcs = ["second_library.cc"],
+    hdrs = ["second_library.h"],
+    data = [
+        "//py/rules_pywrap/tests/data:static_resource.txt",
+    ],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    alwayslink = False,
+)
+
+cc_library(
+    name = "first_library",
+    srcs = ["first_library.cc"],
+    hdrs = ["first_library.h"],
+    data = [
+        "//py/rules_pywrap/tests/data:data_binary",
+        "//py/rules_pywrap/tests/data:static_resource.txt",
+    ],
+    features = ["windows_export_all_symbols"],
+    linkstatic = False,
+    deps = [":second_library"],
+    alwayslink = False,
+)
+
+cc_library(
+    name = "regular",
+    srcs = ["regular.cc"],
+    hdrs = ["regular.h"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = True,
+    deps = [
+        ":first_library",
+        ":second_library",
+    ],
+    alwayslink = True,
+)
+
+cc_library(
+    name = "regular_copy",
+    srcs = ["regular_copy.cc"],
+    hdrs = ["regular_copy.h"],
+    features = ["windows_export_all_symbols"],
+    linkstatic = False,
+    deps = [
+        ":first_library",
+        ":second_library",
+    ],
+    alwayslink = False,
+)
+
+# Nodes in transitive closure of this binary:
+cc_test(
+    name = "regular_cc_test",
+    srcs = ["regular_test.cc"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":regular",
+        ":regular_copy",
+        "@gtest//:gtest_main",
+    ],
+    # Lines were commented in original file
+    #    linkstatic = by default will be "True" on windows else "False"
+    #    linkstatic = False,
+)
+
+#
+# Python-specific (pybind) binaries/tests
+#
+pybind_extension(
+    name = "pybind",
+    srcs = select({
+        "//conditions:default": ["pybind.cc"],
+    }),
+    common_lib_packages = [
+        "",
+        "py/non_existent",  # non-existent package to test that its Ok
+        "py/rules_pywrap/tests/pywrap_external", # TODO: Old value was "pywrap_external", is new value ok?
+        "py/rules_pywrap/tests/pybind_external", # TODO: Old value was "pybind_external", is new value ok?
+    ],
+    data = [":static_resource.txt"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":fifth_library",
+        ":first_library",
+        ":second_library",
+        ":third_library",
+    ],
+    local_defines = ["TARGET_NAME=pybind"],
+)
+
+pybind_extension(
+    name = "pybind_copy",
+    srcs = ["pybind_copy.cc"],
+    common_lib_packages = [
+        "",
+        "py/rules_pywrap/tests/pywrap_external", # TODO: Old value was "pywrap_external", is new value ok?
+        "py/rules_pywrap/tests/pybind_external", # TODO: Old value was "pybind_external", is new value ok?
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":first_library",
+        ":second_library",
+    ] + select({
+        "//conditions:default": [":third_library"],
+    }),
+    local_defines = ["TARGET_NAME=pybind_copy"],
+)
+
+pybind_extension(
+    name = "pybind_cc_only",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":fourth_library",      # TODO: original file has 'fourth_library' value
+    ],
+)
+
+pybind_extension(
+    name = "pybind_with_starlark_only",
+    srcs = ["pybind_with_starlark_only.cc"],
+    common_lib_packages = [
+        "",
+        "py/rules_pywrap/tests/pywrap_external", # TODO: Old value was "pywrap_external", is new value ok?
+        "py/rules_pywrap/tests/pybind_external", # TODO: Old value was "pybind_external", is new value ok?
+    ],
+    starlark_only = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":sixth_library",
+    ]
+)
+
+py_library(
+    name = "py_library_1",
+    srcs = [],
+    deps = [":pybind"],
+)
+
+py_library(
+    name = "py_library_2",
+    srcs = [],
+    # "pybind" is already in py_library1, duplicats "pybind" on purpose
+    # to test that it is ok
+    deps = [
+        ":py_library_3",
+        ":pybind",
+    ],
+)
+
+py_library(
+    name = "py_library_3",
+    srcs = [],
+    # The only place where pybind_copy is provided, and it will be consumed by
+    # pybind_aggregated only as a multi-level transitive dependency.
+    deps = [":pybind_copy"],
+)
+
+py_library(
+    name = "py_library_4",
+    srcs = [],
+    deps = [":pybind_cc_only"],
+)
+
+pywrap_library(
+    name = "pybind_aggregated",
+    common_lib_versions = {
+        "framework": "2",
+    },
+    common_lib_def_files_or_filters = {
+        "framework": "//py/rules_pywrap/tests:framework.json",
+    },
+    common_lib_filters = {
+        # TODO: What is the purpose of this select() statement?
+        "framework": select({
+            "@bazel_tools//src/conditions:windows": [":fifth_library"],
+            "//conditions:default": []
+        }),
+    },
+    common_lib_linkopts = {
+        "framework": select({
+            "@bazel_tools//src/conditions:windows": [],
+            "@bazel_tools//src/conditions:darwin": [],
+            "//conditions:default": ["-z defs"],
+        }),
+    },
+    common_lib_version_scripts = {
+        "framework": select({
+            "@bazel_tools//src/conditions:windows": None,
+            "@bazel_tools//src/conditions:darwin": ":darwin_framework.lds",
+            "//conditions:default": ":linux_framework.lds",
+        }),
+    },
+    pywrap_count = 4,
+    pywrap_lib_filter = ":third_library",
+    starlark_only_pywrap_count = 1,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":py_library_1",
+        ":py_library_2",
+        ":py_library_3",
+        ":py_library_4",
+        ":pybind_with_starlark_only",
+        #"//pybind/"        # TODO: Replace by correct value
+    ],
+)
