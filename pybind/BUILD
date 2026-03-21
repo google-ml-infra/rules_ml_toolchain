@@ -69,7 +69,7 @@ cc_library(
     srcs = ["second_library.cc"],
     hdrs = ["second_library.h"],
     data = [
-        "//data:static_resource.txt",
+        "//py/rules_pywrap/tests/data:static_resource.txt",
     ],
     features = ["windows_export_all_symbols"],
     linkstatic = True,
@@ -81,8 +81,8 @@ cc_library(
     srcs = ["first_library.cc"],
     hdrs = ["first_library.h"],
     data = [
-        "//data:data_binary",
-        "//data:static_resource.txt",
+        "//py/rules_pywrap/tests/data:data_binary",
+        "//py/rules_pywrap/tests/data:static_resource.txt",
     ],
     features = ["windows_export_all_symbols"],
     linkstatic = False,
@@ -144,8 +144,8 @@ pybind_extension(
     common_lib_packages = [
         "",
         "pywrap_external/python",  # non-existent package to test that its Ok
-        "pybind_external",
-        "pywrap_external",
+        "py/rules_pywrap/tests/pybind_external",
+        "py/rules_pywrap/tests/pywrap_external",
     ],
     data = [":static_resource.txt"],
     visibility = ["//visibility:public"],
@@ -164,8 +164,8 @@ pybind_extension(
     srcs = ["pybind_copy.cc"],
     common_lib_packages = [
         "",
-        "pywrap_external",
-        "pybind_external",
+        "py/rules_pywrap/tests/pywrap_external",
+        "py/rules_pywrap/tests/pybind_external",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -191,8 +191,8 @@ pybind_extension(
     srcs = ["pybind_with_starlark_only.cc"],
     common_lib_packages = [
         "",
-        "pywrap_external",
-        "pybind_external",
+        "py/rules_pywrap/tests/pywrap_external",
+        "py/rules_pywrap/tests/pybind_external",
     ],
     starlark_only = True,
     visibility = ["//visibility:public"],

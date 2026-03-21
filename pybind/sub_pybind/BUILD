@@ -8,8 +8,8 @@ pybind_extension(
         "",
         "pywrap_external/python",  # non-existent package to test that its Ok
         "pybind",
-        "pybind_external",
-        "pywrap_external",
+        "py/rules_pywrap/tests/pybind_external",
+        "py/rules_pywrap/tests/pywrap_external",
     ],
 #    visibility = ["//visibility:public"],
     deps = [
