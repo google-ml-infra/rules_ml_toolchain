@@ -125,6 +125,7 @@ cc_library(
       %{comment}":cudnn_main",
     %{comment}]) + ["@cuda_nvrtc//:nvrtc"],
     %{comment}linkopts = cuda_rpath_flags("nvidia/cudnn/lib"),
+    includes = ["include"],
     visibility = ["//visibility:public"],
 )
 
