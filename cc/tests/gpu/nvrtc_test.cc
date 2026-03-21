@@ -83,7 +83,7 @@ TEST(NvrtcTest, CompileAndRun) {
     CUdevice cuDevice;
     CUDA_SAFE_CALL(cuDeviceGet(&cuDevice, 0));
     CUcontext context;
-    CUDA_SAFE_CALL(cuCtxCreate(&context, 0, cuDevice));
+    CUDA_SAFE_CALL(cuCtxCreate(&context, nullptr, 0, cuDevice));
     
     CUmodule module;
     CUDA_SAFE_CALL(cuModuleLoadDataEx(&module, ptx.data(), 0, 0, 0));
