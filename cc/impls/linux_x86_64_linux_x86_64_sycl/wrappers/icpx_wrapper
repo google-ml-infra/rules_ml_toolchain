@@ -101,6 +101,8 @@ def call_compiler(argv, link = False, sycl_compile = True):
   common_flags.append("-fno-finite-math-only")
   common_flags.append("-fno-fast-math")
   common_flags.append("-fexceptions")
+  # ref: https://github.com/openxla/xla/commit/631797c84cbb02e805ec89090214e8093fd8ba1d
+  common_flags.append("-Wno-implicit-float-size-conversion")
 
   compile_flags = []
   compile_flags.append('-DDNNL_GRAPH_WITH_SYCL=1')
