@@ -114,7 +114,7 @@ cc_library(
       %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
       %{comment}], []),
     %{comment}deps = if_static_cudnn(
-      %{comment}[],
+      %{comment}["@zlib//:zlib"],
       %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
       %{comment}":cudnn_graph",
