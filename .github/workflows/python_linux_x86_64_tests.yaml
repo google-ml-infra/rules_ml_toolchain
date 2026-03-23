@@ -54,4 +54,4 @@ jobs:
       - uses: actions/checkout@v5
 
       - run: echo "Building / running tests..."
-      - run: bazel test --repo_env=USE_PYWRAP_RULES=True --verbose_failures //py/rules_pywrap/tests:all
+      - run: bazel test --repo_env=USE_PYWRAP_RULES=True --verbose_failures --test_output=errors //py/rules_pywrap/tests:all
