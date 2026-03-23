@@ -3,10 +3,10 @@ load("//rules_pywrap:pywrap.bzl", "pywrap_binaries", "pywrap_library")
 pywrap_library(
     name = "pywrap_external_aggregated",
     common_lib_filters = {
-        "pybind/framework": "//py/rules_pywrap/tests:fifth_library",
+        "py/rules_pywrap/tests/framework": "//py/rules_pywrap/tests:fifth_library",
     },
     common_lib_versions = {
-        "pybind/framework": "2",
+        "py/rules_pywrap/tests/framework": "2",
     },
     pywrap_lib_filter = "//py/rules_pywrap/tests:third_library",
     starlark_only_deps = [
