@@ -2,6 +2,7 @@
 #include "second_library.h"
 
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -28,6 +29,16 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   EXPECT_EQ(second_global_func(), 1);
   std::cout << "8: second_global_func" << std::endl;
   EXPECT_EQ(second_global_func(), 1);
+
+  std::cout << "List directories" << std::endl;
+  std::string path = ".";
+  try {
+    for (const auto& entry : fs::directory_iterator(path)) {
+      std::cout << entry.path().filename() << std::endl;
+    }
+  } catch (const fs::filesystem_error& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
 
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
