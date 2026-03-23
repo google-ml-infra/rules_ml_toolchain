@@ -1,5 +1,5 @@
 #include "pybind11/pybind11.h"
-#include "pybind/fifth_library.h"
+#include "py/rules_pywrap/tests/fifth_library.h"
 
 int nested_pybind_func(int x) {
   return x >> 1;

@@ -1,7 +1,7 @@
 import unittest
-from pybind import pybind as regular
-from pybind import pybind_copy as regular_copy
-from pybind import pybind_with_starlark_only as regular_with_starlark_only
+from py.rules_pywrap.tests import pybind as regular
+from py.rules_pywrap.tests import pybind_copy as regular_copy
+from py.rules_pywrap.tests import pybind_with_starlark_only as regular_with_starlark_only
 
 
 class PybindTest(unittest.TestCase):

@@ -239,7 +239,7 @@ pywrap_library(
         "framework": "2",
     },
     common_lib_def_files_or_filters = {
-        "framework": "//pybind:framework.json",
+        "framework": "//py/rules_pywrap/tests:framework.json",
         #        "framework": ":_libframework.so.2.def",
     },
     common_lib_filters = {
@@ -272,7 +272,7 @@ pywrap_library(
         ":py_library_3",
         ":py_library_4",
         ":pybind_with_starlark_only",
-        "//pybind/sub_pybind:relative_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -301,7 +301,7 @@ py_test(
         # not needed, since duplicated, but passed to check that duplication is
         # ok
         "py_library_1",
-        "//pybind/sub_pybind:relative_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
     ],
 #    legacy_create_init = False,
 )
@@ -394,7 +394,7 @@ pywrap_library(
         ":pybind_wrapped",
         ":pybind_wrapped_copy",
         ":pybind_wrapped_cc_only",
-        "//pybind/sub_pybind:relative_wrapped_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_wrapped_import_lib",
     ],
 )
 
@@ -404,7 +404,7 @@ py_test(
     visibility = ["//:__pkg__"],
     deps = [
         ":pybind_wrapped_aggregated",
-        "//pybind/sub_pybind:relative_wrapped_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_wrapped_import_lib",
     ],
 )
 

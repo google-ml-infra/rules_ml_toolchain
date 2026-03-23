@@ -1,19 +1,19 @@
 import unittest
 import os
-from pybind import pybind_wrapped as regular
-from pybind import pybind_wrapped_copy as regular_copy
-import pybind.pybind_wrapped
-import pybind.pybind_wrapped_copy
-from pybind.pybind_wrapped import _EXTRA_SYMBOL as REGULAR_EXTRA_SYMBOL
-from pybind.pybind_wrapped_copy import _EXTRA_SYMBOL as REGULAR_COPY_EXTRA_SYMBOL
-from pybind.pybind_wrapped.sub import second_func as sub_second_func
-import pybind.pybind_wrapped.sub
-from pybind.pybind_wrapped.sub._sub_private import *
-from pybind.pybind_wrapped.sub._sub_private import _sub_private_private_func
-from pybind.sub_pybind.relative_wrapped_import_lib import call_nested_pyind_func
-from pybind.sub_pybind.relative_wrapped_import_lib import sub_sub_private_func
+from py.rules_pywrap.tests import pybind as regular
+from py.rules_pywrap.tests import pybind_copy as regular_copy
+import py.rules_pywrap.tests.pybind
+import py.rules_pywrap.tests.pybind_copy
+from py.rules_pywrap.tests.pybind import _EXTRA_SYMBOL as REGULAR_EXTRA_SYMBOL
+from py.rules_pywrap.tests.pybind_copy import _EXTRA_SYMBOL as REGULAR_COPY_EXTRA_SYMBOL
+from py.rules_pywrap.tests.pybind.sub import second_func as sub_second_func
+import py.rules_pywrap.tests.pybind.sub
+from py.rules_pywrap.tests.pybind.sub._sub_private import *
+from py.rules_pywrap.tests.pybind.sub._sub_private import _sub_private_private_func
+from py.rules_pywrap.tests.sub_pybind.relative_import_lib import call_nested_pyind_func
+from py.rules_pywrap.tests.sub_pybind.relative_import_lib import sub_sub_private_func
 
-class PybindWrappedTest(unittest.TestCase):
+class PybindTest(unittest.TestCase):
   def _read_file(self, filename, mode="r"):
     with open(filename, mode) as file:
       file_content = file.read()
@@ -22,19 +22,16 @@ class PybindWrappedTest(unittest.TestCase):
   def test_pybind_first(self):
     print("1: regular.first_func")
     self.assertEqual(regular.first_func(1), 2)
-    print("2: pybind.pybind_wrapped.second_func")
-    self.assertEqual(pybind.pybind_wrapped.second_func(1), 2)
+    print("2: py.rules_pywrap.tests.pybind.second_func")
+    self.assertEqual(py.rules_pywrap.tests.pybind.second_func(1), 2)
     print("3: regular.third_func")
     self.assertEqual(regular.third_func(1), 1)
-    print("4: pybind.pybind_wrapped_copy.first_func")
-    self.assertEqual(pybind.pybind_wrapped_copy.first_func(1), 4)
+    print("4: py.rules_pywrap.tests.pybind_copy.first_func")
+    self.assertEqual(py.rules_pywrap.tests.pybind_copy.first_func(1), 4)
     print("5: regular_copy.second_func")
     self.assertEqual(regular_copy.second_func(1), 4)
-    # This shoudl be the only case different from non-wrapped variant,
-    # This is by design, as third_func is configured to be duplicated explicitly
-    # in non-wrapped variant via pywrap_lib_filter param to pywrap_library()
     print("6: regular_copy.third_func")
-    self.assertEqual(regular_copy.third_func(1), 2)
+    self.assertEqual(regular_copy.third_func(1), 1)
     print("7: regular.second_global_func")
     self.assertEqual(regular.second_global_func(), 2)
     print("8: regular_copy.second_global_func")
@@ -52,14 +49,14 @@ class PybindWrappedTest(unittest.TestCase):
     print("12: py/rules_pywrap/tests/data/static_resource")
     self.assertEqual(self._read_file("py/rules_pywrap/tests/data/static_resource.txt"),
                      "A static resource file under data dir")
-    print("13: pybind_wrapped/static_resource.txt")
-    self.assertEqual(self._read_file("pybind/static_resource.txt"),
+    print("13: py/rules_pywrap/tests/static_resource.txt")
+    self.assertEqual(self._read_file("py/rules_pywrap/tests/static_resource.txt"),
                      "A static resource file under pybind dir")
 
     print("14: Submodules")
     self.assertEqual(sub_second_func(1), 5)
-    self.assertEqual(pybind.pybind_wrapped.sub.second_func(1), 6)
-    self.assertEqual(pybind.pybind_wrapped.sub._sub_private.sub_sub_func(3), 6)
+    self.assertEqual(py.rules_pywrap.tests.pybind.sub.second_func(1), 6)
+    self.assertEqual(py.rules_pywrap.tests.pybind.sub._sub_private.sub_sub_func(3), 6)
     self.assertEqual(_sub_private_private_func(5), 10)
 
     print("15: Nested pybinds and relative imports")

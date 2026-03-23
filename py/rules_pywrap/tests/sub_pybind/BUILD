@@ -7,13 +7,13 @@ pybind_extension(
     common_lib_packages = [
         "",
         "pywrap_external/python",  # non-existent package to test that its Ok
-        "pybind",
+        "py/rules_pywrap/tests",
         "py/rules_pywrap/tests/pybind_external",
         "py/rules_pywrap/tests/pywrap_external",
     ],
 #    visibility = ["//visibility:public"],
     deps = [
-        "//pybind:fifth_library",
+        "//py/rules_pywrap/tests:fifth_library",
         "@pybind11",
     ],
     local_defines = ["TARGET_NAME=nested_pybind"],
@@ -33,10 +33,10 @@ pybind_extension(
     srcs = ["nested_pybind.cc"],
     common_lib_packages = [
         "",
-        "pybind",
+        "py/rules_pywrap/tests",
     ],
     deps = [
-        "//pybind:fifth_library",
+        "//py/rules_pywrap/tests:fifth_library",
         "@pybind11",
     ],
     wrap_py_init = True,
