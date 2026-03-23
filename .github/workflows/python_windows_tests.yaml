@@ -44,9 +44,6 @@ jobs:
             container: null,
           },
         ]
-    # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
-    # workflow is required.
-    # See go/ml-github-actions/getting_started/using_runners.md#supported-runner-scale-set.
     runs-on: ${{ matrix.job_info.runner }}
     container:
       image: ${{ matrix.job_info.container }}
@@ -54,4 +51,4 @@ jobs:
       - uses: actions/checkout@v5
 
       - run: echo "Building / running tests..."
-      - run: bazel test --repo_env=USE_PYWRAP_RULES=True //py/rules_pywrap/tests:all
+      - run: bazel test --repo_env=USE_PYWRAP_RULES=True --verbose_failures //py/rules_pywrap/tests:all
