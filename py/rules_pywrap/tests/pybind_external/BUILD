@@ -2,13 +2,13 @@ load("//rules_pywrap:pywrap.bzl", "pywrap_common_library", "pywrap_library")
 
 pywrap_library(
     name = "pybind_external_aggregated",
-    pywrap_lib_filter = "//pybind:third_library",
+    pywrap_lib_filter = "//py/rules_pywrap/tests:third_library",
     # Should be generated in final version
     deps = [
-        "//pybind",
-        "//pybind:pybind_cc_only",
-        "//pybind:pybind_copy",
-        "//pybind/sub_pybind:relative_import_lib",
+        "//py/rules_pywrap/tests",
+        "//py/rules_pywrap/tests:pybind_cc_only",
+        "//py/rules_pywrap/tests:pybind_copy",
+        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -23,7 +23,7 @@ py_test(
     visibility = ["//:__pkg__"],
     deps = [
         ":pybind_external_aggregated",
-        "//pybind/sub_pybind:relative_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -34,7 +34,7 @@ py_test(
     visibility = ["//:__pkg__"],
     deps = [
         "//pywrap_external:pywrap_external_aggregated",
-        "//pybind/sub_pybind:relative_import_lib",
+        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
     ],
 )
 
