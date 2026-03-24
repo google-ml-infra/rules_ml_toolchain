@@ -63,8 +63,32 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
 
 #ifdef _WIN32
   std::cout << "Current directory: " << get_current_dir() << std::endl;
-  std::cout << "List directories" << std::endl;
   std::string path = ".";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << "List directory " << path << std::endl;
   listFiles(path);
 #endif
 
