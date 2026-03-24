@@ -87,11 +87,23 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
 #else
   EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
 #endif // _WIN32
+
   std::cout << "10: py/rules_pywrap/tests/data/static_resource" << std::endl;
-  EXPECT_EQ(read_file("py/rules_pywrap/tests/data/static_resource.txt"),
+#ifdef _WIN32
+  EXPECT_EQ(read_file("../../data/static_resource.txt"),
             "A static resource file under data dir");
+#else
+  EXPECT_EQ(read_file("py/rules_pywrap/tests/data/static_resource.txt"),
+              "A static resource file under data dir");
+#endif
+
   std::cout << "11: py/rules_pywrap/tests/static_resource.txt" << std::endl;
+#ifdef _WIN32
+  EXPECT_EQ(read_file("../../static_resource.txt"),
+            "A static resource file under pybind dir");
+#else
   EXPECT_EQ(read_file("py/rules_pywrap/tests/static_resource.txt"),
             "A static resource file under pybind dir");
+#endif
 }
 
