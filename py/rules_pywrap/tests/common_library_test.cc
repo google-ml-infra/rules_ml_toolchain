@@ -2,15 +2,31 @@
 #include "second_library.h"
 
 #include <iostream>
-#include <filesystem>
-#include <experimental/filesystem>
 #include <fstream>
 #include <string>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace fs = std::experimental::filesystem;
+#ifdef _WIN32
+#include <io.h>
+
+void listFiles(std::string path) {
+  struct _finddata_t fileinfo;
+  // We add *.* to the path to look for all files
+  intptr_t handle = _findfirst((path + "\\*.*").c_str(), &fileinfo);
+
+  if (handle != -1) {
+    do {
+      std::cout << fileinfo.name <<  (fileinfo.attrib & _A_SUBDIR ? " [DIR]" : "") << std::endl;
+    } while (_findnext(handle, &fileinfo) == 0);
+
+    _findclose(handle);
+  } else {
+    std::cerr << "Could not open directory." << std::endl;
+  }
+}
+#endif
 
 std::string read_file(const std::string& filename) {
   std::ifstream file(filename);
@@ -33,15 +49,11 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   std::cout << "8: second_global_func" << std::endl;
   EXPECT_EQ(second_global_func(), 1);
 
+#ifdef _WIN32
   std::cout << "List directories" << std::endl;
   std::string path = ".";
-  try {
-    for (const auto& entry : fs::directory_iterator(path)) {
-      std::cout << entry.path().filename() << std::endl;
-    }
-  } catch (const fs::filesystem_error& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-  }
+  listFiles(path);
+#endif
 
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
