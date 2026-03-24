@@ -71,6 +71,10 @@ filegroup(
         %{comment}"2024.3",
         %{comment}["include/cupti_pmsampling.h",
         %{comment}"include/cupti_profiler_host.h"],
+    %{comment}) + if_version_equal_or_greater_than(
+        %{comment}"%{libcupti_minor_version}",
+        %{comment}"2024.3.2",
+        %{comment}["include/cupti_range_profiler.h"],
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
