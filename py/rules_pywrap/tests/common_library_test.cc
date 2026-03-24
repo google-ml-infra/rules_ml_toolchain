@@ -10,6 +10,18 @@
 
 #ifdef _WIN32
 #include <io.h>
+#include <windows.h>
+
+std::string get_current_dir() {
+  char buffer[MAX_PATH];
+  // GetCurrentDirectory returns the length of the string copied
+  DWORD length = GetCurrentDirectoryA(MAX_PATH, buffer);
+
+  if (length == 0) {
+    return "Error retrieving directory";
+  }
+  return std::string(buffer);
+}
 
 void listFiles(std::string path) {
   struct _finddata_t fileinfo;
@@ -50,6 +62,7 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   EXPECT_EQ(second_global_func(), 1);
 
 #ifdef _WIN32
+  std::cout << "Current directory: " << get_current_dir() << std::endl;
   std::cout << "List directories" << std::endl;
   std::string path = ".";
   listFiles(path);
