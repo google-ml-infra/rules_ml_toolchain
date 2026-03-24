@@ -75,26 +75,15 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   std::cout << "List directory " << path << std::endl;
   listFiles(path);
 
-  path += "/..";
-  std::cout << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << "List directory " << path << std::endl;
+  path += "/data/";
+  std::cout << "List '/data/' directory " << path << std::endl;
   listFiles(path);
 #endif
 
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
-  EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
+  //EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
+  EXPECT_TRUE(!read_file("../../data/data_binary.exe").empty());
 #else
   EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
 #endif // _WIN32

@@ -33,7 +33,9 @@ TEST(PyCommonLibraryTest, PyCommonLibraryTest) {
 
   std::cout << "10: binary resource size" << std::endl;
 #ifdef _WIN32
-  EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
+  //Path doesn't work for Windows
+  //EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
+  EXPECT_TRUE(!read_file("../../data/data_binary.exe").empty());
 #else
   EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
 #endif // _WIN32
