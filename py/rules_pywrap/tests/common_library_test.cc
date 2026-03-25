@@ -62,21 +62,32 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   EXPECT_EQ(second_global_func(), 1);
 
 #ifdef _WIN32
-  std::cout << "Current directory: " << get_current_dir() << std::endl;
+  std::cout << std::endl << "Current directory: " << get_current_dir() << std::endl;
   std::string path = ".";
-  std::cout << "List directory " << path << std::endl;
+  std::cout << std::endl << "List directory " << path << std::endl;
   listFiles(path);
 
   path += "/..";
-  std::cout << "List directory " << path << std::endl;
+  std::cout << std::endl << "List directory " << path << std::endl;
   listFiles(path);
 
   path += "/..";
-  std::cout << "List directory " << path << std::endl;
+  std::cout << std::endl << "List directory " << path << std::endl;
   listFiles(path);
 
-  path += "/data/";
-  std::cout << "List '/data/' directory " << path << std::endl;
+  std::cout << std::endl << "List '/data/' directory " << (path + "/data/") << std::endl;
+  listFiles(path + "/data/");
+
+  path += "/..";
+  std::cout << std::endl << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << std::endl << "List directory " << path << std::endl;
+  listFiles(path);
+
+  path += "/..";
+  std::cout << std::endl << "List directory " << path << std::endl;
   listFiles(path);
 #endif
 
