@@ -11,6 +11,9 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
+#include "tools/cpp/runfiles/runfiles.h"
+
+using bazel::tools::cpp::runfiles::Runfiles;
 
 std::string get_current_dir() {
   char buffer[MAX_PATH];
@@ -89,6 +92,21 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   path += "/..";
   std::cout << std::endl << "List directory " << path << std::endl;
   listFiles(path);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  std::cout << std::endl << "Get location from runfiles " << path << std::endl;
+  std::string error;
+  std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest(&error));
+  ASSERT_NE(runfiles, nullptr) << error;
+
+  std::string path = runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt");
+
+  std::ifstream file(path.c_str());
+
+  std::cout << "List './../../data/' directory " << std::endl;
+  listFiles("./../../data/");
+
+  EXPECT_TRUE(file.good());
 #endif
 
   std::cout << "9: binary resource size" << std::endl;

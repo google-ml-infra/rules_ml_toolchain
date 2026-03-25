@@ -328,8 +328,8 @@ cc_test(
     visibility = ["//:__pkg__"],
     deps = [
         ":common_pybind_aggregated_framework",
-        "@bazel_tools//tools/cpp/runfiles",
         "@gtest//:gtest_main",
+        "@bazel_tools//tools/cpp/runfiles",
     ],
 )
 
