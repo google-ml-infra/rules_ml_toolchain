@@ -1,4 +1,18 @@
-//#include "first_library.h"
+/* Copyright 2026 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+============================================================================== */
+
 #include "second_library.h"
 
 #include <iostream>
@@ -8,40 +22,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#ifdef _WIN32
-#include <io.h>
-#include <windows.h>
 #include "tools/cpp/runfiles/runfiles.h"
 
 using bazel::tools::cpp::runfiles::Runfiles;
-
-std::string get_current_dir() {
-  char buffer[MAX_PATH];
-  // GetCurrentDirectory returns the length of the string copied
-  DWORD length = GetCurrentDirectoryA(MAX_PATH, buffer);
-
-  if (length == 0) {
-    return "Error retrieving directory";
-  }
-  return std::string(buffer);
-}
-
-void listFiles(std::string path) {
-  struct _finddata_t fileinfo;
-  // We add *.* to the path to look for all files
-  intptr_t handle = _findfirst((path + "\\*.*").c_str(), &fileinfo);
-
-  if (handle != -1) {
-    do {
-      std::cout << fileinfo.name <<  (fileinfo.attrib & _A_SUBDIR ? " [DIR]" : "") << std::endl;
-    } while (_findnext(handle, &fileinfo) == 0);
-
-    _findclose(handle);
-  } else {
-    std::cerr << "Could not open directory." << std::endl;
-  }
-}
-#endif
 
 std::string read_file(const std::string& filename) {
   std::ifstream file(filename);
@@ -65,63 +48,21 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   EXPECT_EQ(second_global_func(), 1);
 
 #ifdef _WIN32
-  std::cout << std::endl << "Current directory: " << get_current_dir() << std::endl;
-  std::string path = ".";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  std::cout << std::endl << "List '/data/' directory " << (path + "/data/") << std::endl;
-  listFiles(path + "/data/");
-
-  path += "/..";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  path += "/..";
-  std::cout << std::endl << "List directory " << path << std::endl;
-  listFiles(path);
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  std::cout << std::endl << "Get location from runfiles " << path << std::endl;
   std::string error;
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest(&error));
   ASSERT_NE(runfiles, nullptr) << error;
-
-  std::string rpath = runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt");
-
-  std::ifstream file(rpath.c_str());
-  std::cout << "File path: " << rpath << std::endl;
-  std::cout << "File content: " << read_file(rpath) << std::endl;
-
-  std::cout << "List './../../data/' directory " << std::endl;
-  listFiles("./../../data/");
-
-  EXPECT_TRUE(file.good());
 #endif
 
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
-  //EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
-  EXPECT_TRUE(!read_file("../../data/data_binary.exe").empty());
+  EXPECT_TRUE(!read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/data_binary.exe")).empty());
 #else
   EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
 #endif // _WIN32
 
   std::cout << "10: py/rules_pywrap/tests/data/static_resource" << std::endl;
 #ifdef _WIN32
-  EXPECT_EQ(read_file("../../data/static_resource.txt"),
+  EXPECT_EQ(read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt"),
             "A static resource file under data dir");
 #else
   EXPECT_EQ(read_file("py/rules_pywrap/tests/data/static_resource.txt"),
@@ -130,7 +71,7 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
 
   std::cout << "11: py/rules_pywrap/tests/static_resource.txt" << std::endl;
 #ifdef _WIN32
-  EXPECT_EQ(read_file("../../static_resource.txt"),
+  EXPECT_EQ(read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/static_resource.txt"),
             "A static resource file under pybind dir");
 #else
   EXPECT_EQ(read_file("py/rules_pywrap/tests/static_resource.txt"),
