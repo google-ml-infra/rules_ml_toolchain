@@ -102,6 +102,8 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   std::string rpath = runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt");
 
   std::ifstream file(rpath.c_str());
+  std::cout << "File path: " << rpath << std::endl;
+  std::cout << "File content: " << read_file(rpath) << std::endl;
 
   std::cout << "List './../../data/' directory " << std::endl;
   listFiles("./../../data/");
