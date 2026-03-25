@@ -99,9 +99,9 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest(&error));
   ASSERT_NE(runfiles, nullptr) << error;
 
-  std::string path = runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt");
+  std::string rpath = runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt");
 
-  std::ifstream file(path.c_str());
+  std::ifstream file(rpath.c_str());
 
   std::cout << "List './../../data/' directory " << std::endl;
   listFiles("./../../data/");
