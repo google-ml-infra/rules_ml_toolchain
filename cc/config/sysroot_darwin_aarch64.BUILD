@@ -102,14 +102,7 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "pthread",
     shared_library = "usr/lib/libpthread.tbd",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
-    deps = [
-        ":glibc",
-    ],
 )
 
 cc_toolchain_import(
@@ -130,7 +123,7 @@ cc_toolchain_import(
     shared_library = "System/Library/Frameworks/CoreFoundation.framework/CoreFoundation.tbd",
 )
 
-# This is a group of essential system libraries. The actual glibc library is split
+# This is a group of essential system libraries. The actual syslibs library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
     name = "syslibs",
@@ -144,6 +137,7 @@ cc_toolchain_import(
         ":system",
         ":libm",
         ":stdc++",
+        ":pthread",
         ":objc",
         ":core_foundation",
     ],

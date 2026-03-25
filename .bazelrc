@@ -3,6 +3,8 @@ common:bzlmod --enable_bzlmod --noenable_workspace
 
 common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 build --toolchain_resolution_debug=.*
+build --host_cxxopt=-std=c++17
+build --cxxopt=-std=c++17
 build --repo_env=HERMETIC_PYTHON_VERSION=3.11
 
 build:--os=linux --cxxopt=-std=c++17
@@ -230,7 +232,7 @@ build:sycl --repo_env=SYCL_BUILD_HERMETIC=0
 # Hermetic SYCL Configuration
 build:sycl_hermetic --config=sycl
 build:sycl_hermetic --repo_env=SYCL_BUILD_HERMETIC=1
-build:sycl_hermetic --repo_env=ONEAPI_VERSION=2025.3
+build:sycl_hermetic --repo_env=ONEAPI_VERSION=2025.1
 build:sycl_hermetic --repo_env=OS=ubuntu_24.10
 
 # Enable Clang for host and icpx for SYCL
