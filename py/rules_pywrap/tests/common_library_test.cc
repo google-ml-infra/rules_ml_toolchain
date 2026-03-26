@@ -22,10 +22,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tools/cpp/runfiles/runfiles.h"
-
-using bazel::tools::cpp::runfiles::Runfiles;
-
 std::string read_file(const std::string& filename) {
   std::ifstream file(filename);
   std::stringstream buffer;
@@ -47,35 +43,17 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
   std::cout << "8: second_global_func" << std::endl;
   EXPECT_EQ(second_global_func(), 1);
 
-#ifdef _WIN32
-  std::string error;
-  std::unique_ptr<Runfiles> runfiles(Runfiles::CreateForTest(&error));
-  ASSERT_NE(runfiles, nullptr) << error;
-#endif
-
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
-  EXPECT_TRUE(!read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/data_binary.exe")).empty());
+  EXPECT_TRUE(!read_file("data/data_binary.exe").empty());
 #else
-  EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
+  EXPECT_TRUE(!read_file("data/data_binary").empty());
 #endif // _WIN32
-
-  std::cout << "10: py/rules_pywrap/tests/data/static_resource" << std::endl;
-#ifdef _WIN32
-  EXPECT_EQ(read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/data/static_resource.txt"),
+  std::cout << "10: data/static_resource" << std::endl;
+  EXPECT_EQ(read_file("data/static_resource.txt"),
             "A static resource file under data dir");
-#else
-  EXPECT_EQ(read_file("py/rules_pywrap/tests/data/static_resource.txt"),
-              "A static resource file under data dir");
-#endif
-
   std::cout << "11: py/rules_pywrap/tests/static_resource.txt" << std::endl;
-#ifdef _WIN32
-  EXPECT_EQ(read_file(runfiles->Rlocation("rules_ml_toolchain/py/rules_pywrap/tests/static_resource.txt"),
-            "A static resource file under pybind dir");
-#else
   EXPECT_EQ(read_file("py/rules_pywrap/tests/static_resource.txt"),
             "A static resource file under pybind dir");
-#endif
 }
 

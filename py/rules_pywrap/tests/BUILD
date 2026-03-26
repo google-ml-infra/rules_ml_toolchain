@@ -83,7 +83,8 @@ cc_library(
     srcs = ["second_library.cc"],
     hdrs = ["second_library.h"],
     data = [
-        "//py/rules_pywrap/tests/data:static_resource.txt",
+        #"//py/rules_pywrap/tests/data:static_resource.txt",
+        "//data:static_resource.txt",
     ],
     features = ["windows_export_all_symbols"],
     linkstatic = True,
@@ -95,8 +96,10 @@ cc_library(
     srcs = ["first_library.cc"],
     hdrs = ["first_library.h"],
     data = [
-        "//py/rules_pywrap/tests/data:data_binary",
-        "//py/rules_pywrap/tests/data:static_resource.txt",
+        #"//py/rules_pywrap/tests/data:data_binary",
+        #"//py/rules_pywrap/tests/data:static_resource.txt",
+        "//data:data_binary",
+        "//data:static_resource.txt",
     ],
     features = ["windows_export_all_symbols"],
     linkstatic = False,
