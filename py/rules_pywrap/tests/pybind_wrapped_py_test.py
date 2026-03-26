@@ -60,11 +60,11 @@ class PybindWrappedTest(unittest.TestCase):
 
     print("11: binary resource size")
     if "nt" in os.name:
-      self.assertTrue(self._read_file("py/rules_pywrap/tests/data/data_binary.exe", "rb"))
+      self.assertTrue(self._read_file("data/data_binary.exe", "rb"))
     else:
-      self.assertTrue(self._read_file("py/rules_pywrap/tests/data/data_binary", "rb"))
-    print("12: py/rules_pywrap/tests/data/static_resource")
-    self.assertEqual(self._read_file("py/rules_pywrap/tests/data/static_resource.txt"),
+      self.assertTrue(self._read_file("data/data_binary", "rb"))
+    print("12: data/static_resource")
+    self.assertEqual(self._read_file("data/static_resource.txt"),
                      "A static resource file under data dir")
     print("13: pybind_wrapped/static_resource.txt")
     self.assertEqual(self._read_file("py/rules_pywrap/tests/static_resource.txt"),
