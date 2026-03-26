@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//rules_pywrap:pywrap.bzl", "pywrap_common_library", "pywrap_library")
+load(
+    "//py/rules_pywrap:pywrap.default.bzl",
+    "pywrap_common_library",
+    "pywrap_library"
+)
 
 pywrap_library(
     name = "pybind_external_aggregated",
