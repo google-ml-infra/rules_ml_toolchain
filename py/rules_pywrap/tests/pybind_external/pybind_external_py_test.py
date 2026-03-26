@@ -24,8 +24,8 @@ from py.rules_pywrap.tests.pybind.sub import second_func as sub_second_func
 import py.rules_pywrap.tests.pybind.sub
 from py.rules_pywrap.tests.pybind.sub._sub_private import *
 from py.rules_pywrap.tests.pybind.sub._sub_private import _sub_private_private_func
-from py.rules_pywrap.tests.sub_pybind.relative_import_lib import call_nested_pyind_func
-from py.rules_pywrap.tests.sub_pybind.relative_import_lib import sub_sub_private_func
+from py.rules_pywrap.tests.pybind.sub_pybind.relative_import_lib import call_nested_pyind_func
+from py.rules_pywrap.tests.pybind.sub_pybind.relative_import_lib import sub_sub_private_func
 
 class PybindTest(unittest.TestCase):
   def _read_file(self, filename, mode="r"):

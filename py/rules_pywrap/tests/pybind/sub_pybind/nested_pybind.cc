@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 ============================================================================== */
 
 #include "pybind11/pybind11.h"
-#include "py/rules_pywrap/tests/fifth_library.h"
+#include "py/rules_pywrap/tests/pybind/fifth_library.h"
 
 int nested_pybind_func(int x) {
   return x >> 1;

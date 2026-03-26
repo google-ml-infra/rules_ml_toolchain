@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import unittest
-from py.rules_pywrap.tests import pybind as regular
-from py.rules_pywrap.tests import pybind_copy as regular_copy
-from py.rules_pywrap.tests import pybind_with_starlark_only as regular_with_starlark_only
+from py.rules_pywrap.tests.pybind import pybind as regular
+from py.rules_pywrap.tests.pybind import pybind_copy as regular_copy
+from py.rules_pywrap.tests.pybind import pybind_with_starlark_only as regular_with_starlark_only
 
 class PybindTest(unittest.TestCase):
   def test_pybind_first(self):

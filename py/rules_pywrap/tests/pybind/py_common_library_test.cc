@@ -55,8 +55,8 @@ TEST(PyCommonLibraryTest, PyCommonLibraryTest) {
   std::cout << "11: data/static_resource" << std::endl;
   EXPECT_EQ(read_file("data/static_resource.txt"),
             "A static resource file under data dir");
-  std::cout << "12: py/rules_pywrap/tests/static_resource.txt" << std::endl;
-  EXPECT_EQ(read_file("py/rules_pywrap/tests/static_resource.txt"),
+  std::cout << "12: py/rules_pywrap/tests/pybind/static_resource.txt" << std::endl;
+  EXPECT_EQ(read_file("py/rules_pywrap/tests/pybind/static_resource.txt"),
             "A static resource file under pybind dir");
 
 }
