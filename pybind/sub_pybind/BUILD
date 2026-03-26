@@ -14,6 +14,7 @@ pybind_extension(
 #    visibility = ["//visibility:public"],
     deps = [
         "//pybind:fifth_library",
+        "@pybind11//:pybind11",
     ],
     local_defines = ["TARGET_NAME=nested_pybind"],
 )
@@ -36,6 +37,7 @@ pybind_extension(
     ],
     deps = [
         "//pybind:fifth_library",
+        "@pybind11",
     ],
     wrap_py_init = True,
     local_defines = ["TARGET_NAME=nested_wrapped_pybind"],

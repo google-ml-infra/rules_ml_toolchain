@@ -154,6 +154,7 @@ pybind_extension(
         ":first_library",
         ":second_library",
         ":third_library",
+        "@pybind11//:pybind11",
     ],
     local_defines = ["TARGET_NAME=pybind"],
 )
@@ -170,6 +171,7 @@ pybind_extension(
     deps = [
         ":first_library",
         ":second_library",
+        "@pybind11//:pybind11",
     ] + select({
         "//conditions:default": [":third_library"],
     }),
@@ -196,6 +198,7 @@ pybind_extension(
     visibility = ["//visibility:public"],
     deps = [
         ":sixth_library",
+        "@pybind11//:pybind11",
     ],
 )
 
@@ -355,6 +358,7 @@ pybind_extension(
         ":first_library",
         ":second_library",
         ":third_library",
+        "@pybind11//:pybind11",
     ],
     wrap_py_init = True,
     local_defines = ["TARGET_NAME=pybind_wrapped"],
@@ -366,6 +370,7 @@ pybind_extension(
     deps = [
         ":first_library",
         ":second_library",
+        "@pybind11//:pybind11",
     ] + select({
         "//conditions:default": [":third_library"],
     }),
@@ -378,6 +383,7 @@ pybind_extension(
     visibility = ["//visibility:public"],
     deps = [
         ":fourth_library",
+        "@pybind11//:pybind11",
     ],
     wrap_py_init = True,
 )
