@@ -401,3 +401,16 @@ py_test(
         "//pybind/sub_pybind:relative_wrapped_import_lib",
     ],
 )
+
+test_suite(
+    name = "all",
+    tests = [
+        ":pybind_wrapped_py_test",
+        ":pybind_py_test",
+        ":pybind_with_starlark_only_py_test",
+        ":common_library_test",
+        ":py_common_library_test",
+        ":regular_cc_test",
+    ],
+    visibility = ["//visibility:public"]
+)
