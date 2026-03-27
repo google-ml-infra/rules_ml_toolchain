@@ -60,6 +60,41 @@ test_suite(
     ],
 )
 
+cuda_cc_test(
+    name = "cudnn_test",
+    srcs = [
+        "cudnn_test.cc",
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
+    deps = [
+        "@cuda_cudnn//:cudnn",
+        "@cuda_cudart//:cudart",
+        "@gtest//:gtest_main",
+        "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+    ],
+)
+
+cuda_cc_test(
+    name = "nvrtc_test",
+    srcs = [
+        "nvrtc_test.cc",
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
+    deps = [
+        "@cuda_nvrtc//:nvrtc",
+        "@local_config_cuda//cuda:cuda_driver",
+        "@cuda_cudart//:cudart",
+        "@gtest//:gtest_main",
+        "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+    ],
+)
+
 #cc_binary(
 #    name = "vector_cuda_binary",
 #    srcs = [
