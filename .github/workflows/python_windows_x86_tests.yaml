@@ -52,4 +52,4 @@ jobs:
 
       - run: echo "Building / running tests..."
       #- run: bazel test --repo_env=USE_PYWRAP_RULES=True --verbose_failures --test_output=errors --color=yes --enable_runfiles //pybind:all
-      - run: bazel --output_user_root=C:/_rmt test --repo_env=USE_PYWRAP_RULES=True --verbose_failures --test_output=errors --color=yes --enable_runfiles //py/rules_pywrap/tests/pybind:all
+      - run: bazel --output_user_root=C:/_rmt test --repo_env=USE_PYWRAP_RULES=True --verbose_failures --test_output=errors --color=yes --enable_runfiles //py/tests/pybind:all

@@ -12,26 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//rules_pywrap:pywrap.bzl", "pywrap_binaries", "pywrap_library")
+load(
+    "//py/rules_pywrap:pywrap.default.bzl",
+    "pywrap_binaries",
+    "pywrap_library"
+)
 
 pywrap_library(
     name = "pywrap_external_aggregated",
     common_lib_filters = {
-        "py/rules_pywrap/tests/framework": "//py/rules_pywrap/tests/pybind:fifth_library",
+        "py/tests/pybind/framework": "//py/tests/pybind:fifth_library",
     },
     common_lib_versions = {
-        "py/rules_pywrap/tests/framework": "2",
+        "py/tests/pybind/framework": "2",
     },
-    pywrap_lib_filter = "//py/rules_pywrap/tests/pybind:third_library",
+    pywrap_lib_filter = "//py/tests/pybind:third_library",
     starlark_only_deps = [
-        "//py/rules_pywrap/tests/pybind:pybind_with_starlark_only",
+        "//py/tests/pybind:pybind_with_starlark_only",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//py/rules_pywrap/tests/pybind:tests",
-        "//py/rules_pywrap/tests/pybind:pybind_cc_only",
-        "//py/rules_pywrap/tests/pybind:pybind_copy",
-        "//py/rules_pywrap/tests/sub_pybind:relative_import_lib",
+        "//py/tests/pybind:tests",
+        "//py/tests/pybind:pybind_cc_only",
+        "//py/tests/pybind:pybind_copy",
+        "//py/tests/pybind/sub_pybind:relative_import_lib",
     ],
 )
 

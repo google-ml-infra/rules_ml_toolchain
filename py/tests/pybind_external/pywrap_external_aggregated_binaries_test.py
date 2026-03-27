@@ -29,23 +29,23 @@ class PywrapExternalAggregatedBinariesTest(unittest.TestCase):
       wheel_locations = json.load(f)
 
     relative_wheel_locations = [
-        ("/py/rules_pywrap/tests/pywrap_external/pybind.{pyextension}",
-         "/py/rules_pywrap/tests/pybind.{pyextension}"),
-        ("/py/rules_pywrap/tests/pybind.py", ""),
-        ("/py/rules_pywrap/tests/pywrap_external/pybind_copy.{pyextension}",
-         "/py/rules_pywrap/tests/pybind_copy.{pyextension}"),
-        ("/py/rules_pywrap/tests/pybind_copy.py", ""),
-        ("/py/rules_pywrap/tests/pywrap_external/pybind_cc_only.{pyextension}", ""),
-        ("/py/rules_pywrap/tests/pywrap_external/pybind_with_starlark_only.{pyextension}", ""),
-        ("/py/rules_pywrap/tests/pybind_with_starlark_only.py", ""),
-        ("/py/rules_pywrap/tests/pywrap_external/{lib}pywrap_external_aggregated_common.{extension}",
-         "/py/rules_pywrap/tests/pywrap_external/{lib}pywrap_external_aggregated_common.{extension}"),
+        ("/py/tests/pywrap_external/pybind.{pyextension}",
+         "/py/tests/pybind/pybind.{pyextension}"),
+        ("/py/tests/pybind/pybind.py", ""),
+        ("/py/tests/pywrap_external/pybind_copy.{pyextension}",
+         "/py/tests/pybind/pybind_copy.{pyextension}"),
+        ("/py/tests/pybind/pybind_copy.py", ""),
+        ("/py/tests/pywrap_external/pybind_cc_only.{pyextension}", ""),
+        ("/py/tests/pywrap_external/pybind_with_starlark_only.{pyextension}", ""),
+        ("/py/tests/pybind/pybind_with_starlark_only.py", ""),
+        ("/py/tests/pywrap_external/{lib}pywrap_external_aggregated_common.{extension}",
+         "/py/tests/pywrap_external/{lib}pywrap_external_aggregated_common.{extension}"),
         (
-            "/py/rules_pywrap/tests/pywrap_external/{lib}pywrap_external_aggregated__starlark_only_common.{extension}",
+            "/py/tests/pywrap_external/{lib}pywrap_external_aggregated__starlark_only_common.{extension}",
             ""),
-        ('/py/rules_pywrap/tests/sub_pybind/nested_pybind.py', ''),
-        ('/py/rules_pywrap/tests/pywrap_external/nested_pybind.{pyextension}',
-         '/py/rules_pywrap/tests/sub_pybind/nested_pybind.{pyextension}'),
+        ('/py/tests/pybind/sub_pybind/nested_pybind.py', ''),
+        ('/py/tests/pywrap_external/nested_pybind.{pyextension}',
+         '/py/tests/pybind/sub_pybind/nested_pybind.{pyextension}'),
     ]
 
     pyextension = "so"
@@ -54,14 +54,14 @@ class PywrapExternalAggregatedBinariesTest(unittest.TestCase):
     system = platform.system()
     if "Windows" in system:
       relative_wheel_locations.extend([
-          ("/py/rules_pywrap/tests/pywrap_external/framework.2.dll", "/py/rules_pywrap/tests/framework.2.dll"),
-          ("/py/rules_pywrap/tests/pywrap_external/framework.2.dll.if.lib",
-           "/py/rules_pywrap/tests/framework.2.dll.if.lib"),
+          ("/py/tests/pywrap_external/framework.2.dll", "/py/tests/framework.2.dll"),
+          ("/py/tests/pywrap_external/framework.2.dll.if.lib",
+           "/py/tests/pybind/framework.2.dll.if.lib"),
           (
-              "/py/rules_pywrap/tests/pywrap_external/pywrap_external_aggregated__starlark_only_common.dll.if.lib",
+              "/py/tests/pywrap_external/pywrap_external_aggregated__starlark_only_common.dll.if.lib",
               ""),
-          ("/py/rules_pywrap/tests/pywrap_external/pywrap_external_aggregated_common.dll.if.lib",
-           "/py/rules_pywrap/tests/pywrap_external/pywrap_external_aggregated_common.dll.if.lib"),
+          ("/py/tests/pywrap_external/pywrap_external_aggregated_common.dll.if.lib",
+           "/py/tests/pywrap_external/pywrap_external_aggregated_common.dll.if.lib"),
       ])
       pyextension = "pyd"
       extension = "dll"
@@ -69,12 +69,12 @@ class PywrapExternalAggregatedBinariesTest(unittest.TestCase):
     elif "Darwin" in system:
       extension = "dylib"
       relative_wheel_locations.extend([
-          ("/py/rules_pywrap/tests/pywrap_external/libframework.2.dylib",
-           "/py/rules_pywrap/tests/libframework.2.dylib"),
+          ("/py/tests/pywrap_external/libframework.2.dylib",
+           "/py/tests/pybind/libframework.2.dylib"),
       ])
     else:
       relative_wheel_locations.extend([
-          ("/py/rules_pywrap/tests/pywrap_external/libframework.so.2", "/py/rules_pywrap/tests/libframework.so.2"),
+          ("/py/tests/pywrap_external/libframework.so.2", "/py/tests/pybind/libframework.so.2"),
       ])
 
     expected_relative_wheel_locations = {}

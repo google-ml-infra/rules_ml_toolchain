@@ -45,15 +45,15 @@ TEST(CommonLibraryTest, CommonLibraryTest) {
 
   std::cout << "9: binary resource size" << std::endl;
 #ifdef _WIN32
-  EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary.exe").empty());
+  EXPECT_TRUE(!read_file("py/tests/data/data_binary.exe").empty());
 #else
-  EXPECT_TRUE(!read_file("py/rules_pywrap/tests/data/data_binary").empty());
+  EXPECT_TRUE(!read_file("py/tests/data/data_binary").empty());
 #endif // _WIN32
-  std::cout << "10: py/rules_pywrap/tests/data/static_resource" << std::endl;
-  EXPECT_EQ(read_file("py/rules_pywrap/tests/data/static_resource.txt"),
+  std::cout << "10: py/tests/data/static_resource" << std::endl;
+  EXPECT_EQ(read_file("py/tests/data/static_resource.txt"),
             "A static resource file under data dir");
-  std::cout << "11: py/rules_pywrap/tests/pybind/static_resource.txt" << std::endl;
-  EXPECT_EQ(read_file("py/rules_pywrap/tests/pybind/static_resource.txt"),
+  std::cout << "11: py/tests/pybind/static_resource.txt" << std::endl;
+  EXPECT_EQ(read_file("py/tests/pybind/static_resource.txt"),
             "A static resource file under pybind dir");
 }
 
