@@ -67,7 +67,6 @@ py_binary(
     visibility = ["//visibility:public"],
 )
 
-# cc
 py_library(
     name = "setup_py_nvidia_dependencies_util",
     srcs = ["setup_py_nvidia_dependencies_util.py"],
