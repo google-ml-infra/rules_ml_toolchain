@@ -969,7 +969,6 @@ def python_extension(
             visibility = visibility,
         )
     else:
-        print("_pywrap_info_wrapper(name={}, deps=[{}])".format(name, ("%s" % cc_library_name)))
         _pywrap_info_wrapper(
             name = name,
             deps = ["%s" % cc_library_name],
@@ -1045,7 +1044,6 @@ def _pywrap_info_wrapper_impl(ctx):
         val = "imports_paths = %s # template_val" % py_pkgs
         substitutions["imports_paths = []  # template_val"] = val
 
-    print("_pywrap_info_wrapper_impl: ctx.file.py_stub_src={}", ctx.file.py_stub_src)
     ctx.actions.expand_template(
         template = ctx.file.py_stub_src,
         output = py_stub,
