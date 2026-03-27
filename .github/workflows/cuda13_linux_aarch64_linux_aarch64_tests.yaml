@@ -53,6 +53,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: echo "NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 //cc/tests/gpu:all
+      - run: echo "NVCC Static CUDA building..."
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 //cc/tests/gpu:all
+      - run: echo "NVCC Static CUDNN CUDA testing..."
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --@rules_ml_toolchain//common:link_cudnn_static_libs=true --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 //cc/tests/gpu:cudnn_test
+      - run: echo "NVCC Static NVRTC CUDA testing..."
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --@rules_ml_toolchain//common:link_cuda_static_libs=true --@rules_ml_toolchain//common:link_nvrtc_static_libs=true --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 //cc/tests/gpu:nvrtc_test
       - run: echo "Bzlmod. NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: bazel build --config=build_cuda_with_nvcc --config=cuda13 --config=cuda_libraries_from_stubs --config=bzlmod --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 //cc/tests/gpu:all
