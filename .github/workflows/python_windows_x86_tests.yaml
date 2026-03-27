@@ -57,4 +57,5 @@ jobs:
           --verbose_failures \
           --test_output=errors \
           --color=yes \
+          --enable_runfiles \
           //py/tests/pybind:all
