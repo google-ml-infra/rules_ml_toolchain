@@ -20,9 +20,7 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda", "if_cuda_hermetic_clang")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
-load("//cc/sanitizers:features.bzl",
-    "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_tsan_feature")
+load("//cc/sanitizers:features.bzl", "cc_toolchain_import_sanitizer_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -131,14 +129,46 @@ cc_toolchain_import(
     ],
 )
 
-cc_toolchain_import_asan_feature(
+cc_toolchain_import(
+    name = "ubsan_import",
+    deps = [
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:rt_ubsan",
+    ],
+)
+
+cc_toolchain_import_sanitizer_feature(
     name = "asan",
+    compiler_flags = [
+        "-fsanitize=address",
+        "-fno-common",
+    ],
+    linker_flags = [
+        "-fsanitize=address",
+    ],
     toolchain_import = ":asan_import",
 )
 
-cc_toolchain_import_asan_feature(
+cc_toolchain_import_sanitizer_feature(
     name = "tsan",
+    compiler_flags = [
+        "-fsanitize=thread",
+    ],
+    linker_flags = [
+        "-fsanitize=thread",
+    ],
     toolchain_import = ":tsan_import",
+)
+
+cc_toolchain_import_sanitizer_feature(
+    name = "ubsan",
+    compiler_flags = [
+        "-fsanitize=undefined",
+    ],
+    linker_flags = [
+        "-fsanitize=undefined",
+    ],
+    toolchain_import = ":ubsan_import",
 )
 
 # buildifier: leave-alone
@@ -159,6 +189,7 @@ filegroup(
     srcs = [
         ":asan_import",
         ":tsan_import",
+        ":ubsan_import",
         ":cuda_nvcc",
         ":imports",
         ":wrappers",
@@ -256,6 +287,7 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
+    ":ubsan"
 ]
 
 cc_toolchain_config(
