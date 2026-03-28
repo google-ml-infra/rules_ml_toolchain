@@ -84,3 +84,6 @@ alias(
     actual = "@@%{llvm_repo_name}//:includes",
     visibility = ["//visibility:public"],
 )
+
+# Expose clang configuration for other rules to use
+exports_files(["clang.bzl"])
