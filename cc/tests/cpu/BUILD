@@ -17,6 +17,7 @@ load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@com_google_protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
 #############################################
 # C
@@ -170,9 +171,7 @@ genrule(
 py_binary(
     name = "protogen_tool",
     srcs = ["protogen_tool.py"],
-    #args = [
-    #    "-f /tmp/my.proto",
-    #],
+    main = "protogen_tool.py",
     data = [":protogen.so"],
 )
 
@@ -181,7 +180,7 @@ genrule(
     outs = [
         "my.proto",
     ],
-    cmd = "$(location :protogen_tool) -f $@",
+    cmd = "$(execpath :protogen_tool) -f $@",
     tools = [":protogen_tool"],
 )
 
