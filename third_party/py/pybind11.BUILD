@@ -37,7 +37,7 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     deps = [
-        "@rules_ml_toolchain//third_party/py/runtime:headers",
+        "@rules_python//python/cc:current_py_cc_headers",
     ],
 )
 
