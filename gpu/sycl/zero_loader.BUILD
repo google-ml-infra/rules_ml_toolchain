@@ -42,7 +42,7 @@ cc_toolchain_import(
     name = "libs",
     additional_libs = glob([
         "**/*",
-    ]),
+    ], allow_empty = True),
     shared_library = "libze_loader.so",
     visibility = ["//visibility:public"],
 )
@@ -54,7 +54,7 @@ cc_library(
         "lib/liblevel_zero_utils.a",
         "lib/libze_null.so*",
         "lib/libze_tracing_layer.so*",
-    ]),
+    ], allow_empty = True),
     data = ([
         "lib/libze_loader.so.1",
     ]),

@@ -85,7 +85,7 @@ def _use_downloaded_archive(ctx):
 
     _download_distribution(ctx, dist)
 
-    if ctx.name == "level_zero":
+    if ctx.attr.is_level_zero:
         _handle_level_zero(ctx)
 
     build_template = ctx.attr.build_templates[dist_key]
@@ -105,5 +105,6 @@ dist_repo = repository_rule(
     attrs = {
         "distrs": attr.string_list_dict(mandatory = True),
         "build_templates": attr.string_dict(mandatory = True),
+        "is_level_zero": attr.bool(default = False),
     },
 )

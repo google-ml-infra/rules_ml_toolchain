@@ -2,7 +2,7 @@ licenses(["restricted"])  # NVIDIA proprietary license
 
 filegroup(
     name = "header_list",
-    %{comment}srcs = glob(["include/**"]),
+    %{comment}srcs = glob(["include/**"], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 
