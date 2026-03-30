@@ -7,6 +7,10 @@ build --host_cxxopt=-std=c++17
 build --cxxopt=-std=c++17
 build --repo_env=HERMETIC_PYTHON_VERSION=3.11
 
+# Used for rules_python bootstrap 1.8.0+
+build --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
+test --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
+
 build:--os=linux --cxxopt=-std=c++17
 build:--os=macos --cxxopt=-std=c++17
 build:--os=windows --cxxopt=-std=c++14
