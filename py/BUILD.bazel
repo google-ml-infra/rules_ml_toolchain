@@ -54,35 +54,3 @@ compile_pip_requirements(
     requirements_in = "requirements.in",
     requirements_txt = REQUIREMENTS,
 )
-
-# Flag indicating if the target requires pre-built wheel.
-bool_flag(
-    name = "wheel_dependency",
-    build_setting_default = False,
-)
-
-config_setting(
-    name = "enable_wheel_dependency",
-    flag_values = {
-        ":wheel_dependency": "True",
-    },
-)
-
-filegroup(
-    name = "manylinux_compliance_test",
-    srcs = ["manylinux_compliance_test.py"],
-    visibility = ["//visibility:public"],
-)
-
-py_binary(
-    name = "unpack_wheel_and_unzip_archive_files",
-    srcs = ["unpack_wheel_and_unzip_archive_files.py"],
-    main = "unpack_wheel_and_unzip_archive_files.py",
-    visibility = ["//visibility:public"],
-)
-
-py_library(
-    name = "setup_py_nvidia_dependencies_util",
-    srcs = ["setup_py_nvidia_dependencies_util.py"],
-    visibility = ["//visibility:public"],
-)

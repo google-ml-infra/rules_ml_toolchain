@@ -60,9 +60,8 @@ http_archive(
 )
 
 # Initialize hermetic Python
-load("//py:python_init_rules.bzl", "python_init_rules")
-
-python_init_rules()
+load("//py/deps:rules_python_deps.bzl", "rules_python_deps")
+rules_python_deps()
 
 load("//py:python_init_repositories.bzl", "python_init_repositories")
 
@@ -103,7 +102,7 @@ http_archive(
     urls = ["https://github.com/pybind/pybind11/archive/v2.13.6.tar.gz"],
     sha256 = "e08cb87f4773da97fa7b5f035de8763abc656d87d5773e62f6da0587d1f0ec20",
     strip_prefix = "pybind11-2.13.6",
-    build_file = "//third_party:pybind11.BUILD",
+    build_file = "//third_party/py:pybind11.BUILD",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
