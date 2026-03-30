@@ -84,6 +84,13 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Stub for LLVM 18 Linux x86_64, leave it for backward compatibility
+filegroup(
+    name = "distro_libs",
+    srcs = [ ],
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import(
     name = "includes",
     hdrs = glob([

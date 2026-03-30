@@ -106,7 +106,10 @@ cc_proto_library(
 cc_binary(
     name = "protobuf",
     srcs = ["protobuf.cc"],
-    deps = [":protobuf_hello_lib"],
+    deps = [
+        "@com_google_protobuf//:protobuf",
+        ":protobuf_hello_lib"
+    ],
 )
 
 cc_test(
@@ -151,7 +154,10 @@ cc_binary(
     name = "protogen",
     srcs = ["protogen.cc"],
     linkshared = True,
-    deps = ["@pybind11"],
+    deps = [
+        "@com_google_protobuf//:protobuf",
+        "@pybind11//:pybind11"
+    ],
 )
 
 genrule(
@@ -198,9 +204,8 @@ cc_binary(
     deps = [
         ":my_proto_library_cc",
         "@com_google_protobuf//:protobuf",
-        "@pybind11",
+        "@pybind11//:pybind11",
     ],
-    features = ["asan_runtime_closure"],
 )
 
 genrule(

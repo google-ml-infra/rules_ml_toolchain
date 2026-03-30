@@ -26,7 +26,8 @@ cc_library(
 filegroup(
     name = "header_list",
     %{comment}srcs = glob([
-        %{comment}"include/nccl*.h",
+        %{comment}"include/**/*.h",
+        %{comment}"include/**/*.cuh",
     %{comment}]),
 )
 

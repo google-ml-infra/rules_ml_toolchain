@@ -3,6 +3,7 @@ common:bzlmod --enable_bzlmod --noenable_workspace
 
 common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 build --toolchain_resolution_debug=.*
+build --host_cxxopt=-std=c++17
 build --cxxopt=-std=c++17
 build --repo_env=HERMETIC_PYTHON_VERSION=3.11
 
@@ -32,14 +33,41 @@ build:clang --copt=-Werror=mismatched-tags
 common:asan --features=asan
 common:asan --host_features=-asan
 common:asan --strip=never
+common:asan --copt=-fno-omit-frame-pointer
 # Disables LeakSanitizer (LSan). The core of AddressSanitizer (ASan) remains fully active and will still catch
 # the "loud" memory errors that actually cause crashes, security vulnerabilities, and undefined behavior
 common:asan --action_env=ASAN_OPTIONS=detect_leaks=0
 common:asan --host_action_env=ASAN_OPTIONS=detect_leaks=0
+common:asan --@rules_ml_toolchain//common:asan_options=detect_leaks=0
+
+common:asan_shared --config=asan
+common:asan_shared --copt=-shared-libasan
+common:asan_shared --linkopt=-shared-libasan
+
+# Example configuration for running ASan-instrumented tests involving ASan shared libraries and Python 3.13
+common:asan_shared_py3.13 --config=asan_shared
+common:asan_shared_py3.13 --repo_env=HERMETIC_PYTHON_VERSION=3.13
+common:asan_shared_py3.13 --repo_env=HERMETIC_PYTHON_URL="https://storage.googleapis.com/ml-sysroot-testing/python/cpython-3.13.x-asan-shared-linux-x86_64-llvm-18.1.8.tar.gz"
+common:asan_shared_py3.13 --repo_env=HERMETIC_PYTHON_SHA256=cc7354abad5ab5b87aae3c870e510860c9ffefcd3d8f6c3e02129aaf9d30a5bb
+common:asan_shared_py3.13 --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.13.x-asan-shared-linux-x86_64-llvm-18.1.8/"
 
 # Hermetic TSan configuration example. Hermetic TSan works only for Linux x86_64
 common:tsan --features=tsan
 common:tsan --strip=never
+common:tsan --copt=-g
+
+# TSan with shared library config
+common:tsan_shared --config=tsan
+common:tsan_shared --copt=-shared-libsan
+common:tsan_shared --linkopt=-shared-libsan
+
+# Example configuration for running TSan-instrumented tests involving TSan shared libraries and Python 3.14
+common:tsan_shared_py3.14 --config=tsan_shared
+common:tsan_shared_py3.14 --@rules_python//python/config_settings:py_freethreaded="yes"
+common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_VERSION=3.14-ft
+common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_URL="https://storage.googleapis.com/ml-sysroot-testing/python/cpython-3.14.x-tsan-shared-linux-x86_64-llvm-18.1.8.tar.gz"
+common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_SHA256=19160bafba950761dea5a3e3f831212cf6aa0d5dc8a0fb13c1caf69c009e853e
+common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.14.x-tsan-shared-linux-x86_64-llvm-18.1.8/"
 
 # We need successfully finished tests to check that TSan works. Only for this purpose we add TSan options 'halt_on_error=1:exitcode=66'
 # TODO: How to make it work with different versions of LLVM?

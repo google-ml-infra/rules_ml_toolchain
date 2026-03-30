@@ -2,6 +2,7 @@ licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@local_config_cuda//cuda:build_defs.bzl",
     "if_cuda_newer_than",
+    "if_static_cuda",
     "if_version_equal_or_greater_than",
 )
 load(
@@ -15,10 +16,22 @@ cc_import(
     hdrs = [":headers"],
     shared_library = "lib/libcupti.so.%{libcupti_version}",
 )
+
+cc_import(
+    name = "cupti_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libcupti_static.a",
+)
+
+cc_import(
+    name = "nvperf_host_static_library",
+    hdrs = [":headers"],
+    static_library = "lib/libnvperf_host_static.a",
+)
 %{multiline_comment}
 cc_library(
     name = "cupti",
-    %{comment}deps = [":cupti_shared_library"],
+    %{comment}deps = if_static_cuda([":cupti_static_library"], [":cupti_shared_library"]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
@@ -71,6 +84,10 @@ filegroup(
         %{comment}"2024.3",
         %{comment}["include/cupti_pmsampling.h",
         %{comment}"include/cupti_profiler_host.h"],
+    %{comment}) + if_version_equal_or_greater_than(
+        %{comment}"%{libcupti_minor_version}",
+        %{comment}"2024.3.2",
+        %{comment}["include/cupti_range_profiler.h"],
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
