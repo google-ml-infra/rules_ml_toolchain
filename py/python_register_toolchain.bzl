@@ -31,7 +31,7 @@ def get_toolchain_name_per_python_version(name):
         version = HERMETIC_PYTHON_VERSION.replace(".", "_"),
     )
 
-def python_init_toolchains(name = "python", python_version = None, **kwargs):
+def python_register_toolchains(name = "python", python_version = None, **kwargs):
     """Register hermetic python toolchains.
 
     Args:
