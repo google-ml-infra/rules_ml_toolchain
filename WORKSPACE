@@ -64,7 +64,6 @@ load("//py/deps:rules_python_deps.bzl", "rules_python_deps")
 rules_python_deps()
 
 load("//py:python_init_repositories.bzl", "python_init_repositories")
-
 python_init_repositories(
     default_python_version = "system",
     requirements = {
@@ -77,9 +76,8 @@ python_init_repositories(
     },
 )
 
-load("//py:python_init_toolchains.bzl", "python_init_toolchains")
-
-python_init_toolchains()
+load("//py:python_register_toolchain.bzl", "python_register_toolchain")
+python_register_toolchain()
 
 load("//py:python_configure.bzl", "python_configure")
 python_configure(name = "local_config_python")

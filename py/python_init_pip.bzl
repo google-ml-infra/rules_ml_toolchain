@@ -22,7 +22,7 @@ load(
 )
 load("@rules_python//python:pip.bzl", "package_annotation", "pip_parse")
 load(
-    "//py:python_init_toolchains.bzl",
+    "//py:python_register_toolchain.bzl",
     "get_toolchain_name_per_python_version",
 )
 
