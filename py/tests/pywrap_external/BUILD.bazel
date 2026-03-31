@@ -32,7 +32,7 @@ pywrap_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//py/tests/pybind:tests",
+        "//py/tests/pybind",
         "//py/tests/pybind:pybind_cc_only",
         "//py/tests/pybind:pybind_copy",
         "//py/tests/pybind/sub_pybind:relative_import_lib",

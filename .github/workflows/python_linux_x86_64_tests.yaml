@@ -60,3 +60,9 @@ jobs:
           --test_output=errors \
           --color=yes \
           //py/tests/pybind:all
+      - run: |
+          bazel test --repo_env=USE_PYWRAP_RULES=True \
+          --verbose_failures \
+          --test_output=errors \
+          --color=yes \
+          //py/tests/pybind_external:all

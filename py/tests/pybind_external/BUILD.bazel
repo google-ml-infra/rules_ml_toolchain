@@ -17,16 +17,17 @@ load(
     "pywrap_common_library",
     "pywrap_library"
 )
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 
 pywrap_library(
     name = "pybind_external_aggregated",
     pywrap_lib_filter = "//py/tests/pybind:third_library",
     # Should be generated in final version
     deps = [
-        "//py/tests/pybind:tests",
+        "//py/tests/pybind",
         "//py/tests/pybind:pybind_cc_only",
         "//py/tests/pybind:pybind_copy",
-        "//py/tests/sub_pybind:relative_import_lib",
+        "//py/tests/pybind/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -41,7 +42,7 @@ py_test(
     visibility = ["//:__pkg__"],
     deps = [
         ":pybind_external_aggregated",
-        "//py/tests/sub_pybind:relative_import_lib",
+        "//py/tests/pybind/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -51,8 +52,8 @@ py_test(
     main = "pybind_external_py_test.py",
     visibility = ["//:__pkg__"],
     deps = [
-        "//pywrap_external:pywrap_external_aggregated",
-        "//py/tests/sub_pybind:relative_import_lib",
+        "//py/tests/pywrap_external:pywrap_external_aggregated",
+        "//py/tests/pybind/sub_pybind:relative_import_lib",
     ],
 )
 
@@ -61,13 +62,13 @@ py_test(
     srcs = ["pywrap_external_aggregated_binaries_test.py"],
     args = [
         "--wheel-locations=$(location {})".format(
-            "//pywrap_external:pywrap_external_aggregated_binaries.json",
+            "//py/tests/pywrap_external:pywrap_external_aggregated_binaries.json",
         ),
     ],
     visibility = ["//:__pkg__"],
     data = [
-        "//pywrap_external:pywrap_external_aggregated_binaries",
-        "//pywrap_external:pywrap_external_aggregated_binaries.json",
+        "//py/tests/pywrap_external:pywrap_external_aggregated_binaries",
+        "//py/tests/pywrap_external:pywrap_external_aggregated_binaries.json",
     ],
 )
 
@@ -85,6 +86,16 @@ py_binary(
     srcs = ["pybind_external_py_test.py"],
     main = "pybind_external_py_test.py",
     deps = [
-        "//pywrap_external:pywrap_external_aggregated",
+        "//py/tests/pywrap_external:pywrap_external_aggregated",
     ],
+)
+
+test_suite(
+    name = "all",
+    tests = [
+        ":pybind_external_py_test",
+        ":pybind_pywrap_external_py_test",
+        ":pywrap_external_aggregated_binaries_test",
+    ],
+    visibility = ["//visibility:public"]
 )
