@@ -54,7 +54,7 @@ class PywrapExternalAggregatedBinariesTest(unittest.TestCase):
     system = platform.system()
     if "Windows" in system:
       relative_wheel_locations.extend([
-          ("/py/tests/pywrap_external/framework.2.dll", "/py/tests/framework.2.dll"),
+          ("/py/tests/pywrap_external/framework.2.dll", "/py/tests/pybind/framework.2.dll"),
           ("/py/tests/pywrap_external/framework.2.dll.if.lib",
            "/py/tests/pybind/framework.2.dll.if.lib"),
           (
