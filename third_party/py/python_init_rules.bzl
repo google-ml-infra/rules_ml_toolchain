@@ -16,7 +16,7 @@
 
 load("//common:repo.bzl", "tf_http_archive", "tf_mirror_urls")
 
-def rules_python_deps(extra_patches = []):
+def python_init_rules(extra_patches = []):
     """Defines (doesn't setup) the rules_python repository.
 
     Args:
