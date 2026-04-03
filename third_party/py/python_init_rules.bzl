@@ -37,8 +37,8 @@ def python_init_rules(extra_patches = []):
     tf_http_archive(
         name = "com_google_protobuf",
         patch_file = [
-            "@rules_ml_toolchain//third_party/protobuf/6.31.1:protobuf.patch",
-            "@rules_ml_toolchain//third_party/protobuf/6.31.1:protobuf_arena.patch",
+            "@rules_ml_toolchain//third_party/protobuf:protobuf.patch",
+            "@rules_ml_toolchain//third_party/protobuf:protobuf_arena.patch",
         ],
         sha256 = "6e09bbc950ba60c3a7b30280210cd285af8d7d8ed5e0a6ed101c72aff22e8d88",
         strip_prefix = "protobuf-6.31.1",
