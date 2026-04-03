@@ -10,7 +10,7 @@ bazel_dep(name = "rules_cc", version = "0.2.0")
 bazel_dep(name = "abseil-cpp", version = "20250814.1", repo_name = "com_google_absl")
 bazel_dep(name = "googletest", version = "1.17.0", repo_name = "gtest")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "rules_python", version = "1.8.4")
+bazel_dep(name = "rules_python", version = "1.8.5")
 
 # Do I need one more patch here?
 single_version_override(
@@ -32,17 +32,58 @@ single_version_override(
         "//third_party/rules_python/1.8.x:rules_python_versions.patch",
         "//third_party/rules_python/1.8.x:rules_python_pip_version.patch",
     ],
-    version = "1.8.4",
+    version = "1.8.5",
 )
 
+### Toolchains
+
+# TODO: Support HERMETIC_PYTHON_URL, etc to allow specifying a custom built
+# python version.
+# Keep in sync with jax/version.py (_version) and python.defaults below.
+DEFAULT_PYTHON_VERSION = "3.11"
+JAXLIB_VERSION = "0.9.2"
+
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.defaults(python_version = "3.13")
+python.defaults(
+    # The environment variable takes precedence if set.
+    python_version = DEFAULT_PYTHON_VERSION,
+    python_version_env = "HERMETIC_PYTHON_VERSION",
+)
+python.toolchain(python_version = "3.11")
+python.toolchain(python_version = "3.12")
 python.toolchain(python_version = "3.13")
-use_repo(python, "pythons_hub")
+python.toolchain(python_version = "3.14")
 
-python_version_ext = use_extension("//extensions:python_version.bzl", "python_version_ext")
-use_repo(python_version_ext, "python_version_repo")
+### Pypi
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 
+[pip.parse(
+    extra_hub_aliases = {
+        "numpy": ["numpy_headers"],
+    },
+    hub_name = "jax_pypi",
+    python_version = python_version,
+    requirements_lock = "//build:requirements_lock_{}.txt".format(python_version.replace(".", "_")),
+    whl_modifications = {
+        "//build:numpy.json": "numpy",  # @pypi_mods is defined in XLA's MODULE.bazel
+    },
+) for python_version in [
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
+]]
+
+use_repo(pip, "pypi_mods", pypi = "jax_pypi")
+
+# Override XLA's pypi installation to use the one defined by JAX.
+# TODO: have a better way to unify the pypi installation.
+override_repo(
+    pip,
+    xla_pypi = "pypi",
+)
+
+### Pybind
 pybind11_internal_configure = use_extension(
     "@pybind11_bazel//:internal_configure.bzl",
     "internal_configure_extension",
