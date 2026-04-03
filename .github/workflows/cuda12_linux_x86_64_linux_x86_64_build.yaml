@@ -59,8 +59,14 @@ jobs:
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             //cc/tests/gpu:all
+
       - run: echo "NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs //cc/tests/gpu:all
+      - run: |
+          bazel build --config=build_cuda_with_nvcc \
+            --config=cuda \
+            --config=cuda_libraries_from_stubs \
+            //cc/tests/gpu:all
+
       - run: echo "Bzlmod. Clang 18 building..."
       - run: |
           bazel build --config=build_cuda_with_clang \
@@ -69,5 +75,11 @@ jobs:
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --config=bzlmod \
             //cc/tests/gpu:all
+
       - run: echo "Bzlmod. NVCC building..."
-      - run: bazel build --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs --config=bzlmod //cc/tests/gpu:all
+      - run: |
+          bazel build --config=build_cuda_with_nvcc \
+            --config=cuda \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            //cc/tests/gpu:all
