@@ -1,5 +1,5 @@
 module(
-    name = "rules_ml_toolchain"
+    name = "rules_ml_toolchain",
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.8.1")
@@ -10,23 +10,44 @@ bazel_dep(name = "rules_cc", version = "0.2.0")
 bazel_dep(name = "abseil-cpp", version = "20250814.1", repo_name = "com_google_absl")
 bazel_dep(name = "googletest", version = "1.17.0", repo_name = "gtest")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "rules_python", version = "1.6.0")
+bazel_dep(name = "rules_python", version = "1.8.4")
+
+# Do I need one more patch here?
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//third_party/protobuf/6.31.1:protobuf_arena.patch"],
+    version = "32.1",
+)
+
+##############################################################
+# Python toolchain and pypi dependencies
+
+single_version_override(
+    module_name = "rules_python",
+    patch_strip = 1,
+    patches = [
+        "//third_party/rules_python/1.8.x:rules_python_scope.patch",
+        "//third_party/rules_python/1.8.x:rules_python_freethreaded.patch",
+        "//third_party/rules_python/1.8.x:rules_python_versions.patch",
+        "//third_party/rules_python/1.8.x:rules_python_pip_version.patch",
+    ],
+    version = "1.8.4",
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.defaults(python_version = "3.13")
+python.toolchain(python_version = "3.13")
+use_repo(python, "pythons_hub")
+
+python_version_ext = use_extension("//extensions:python_version.bzl", "python_version_ext")
+use_repo(python_version_ext, "python_version_repo")
 
 pybind11_internal_configure = use_extension(
     "@pybind11_bazel//:internal_configure.bzl",
     "internal_configure_extension",
 )
 use_repo(pybind11_internal_configure, "pybind11")
-
-##############################################################
-# Python toolchain dependencies
-
-python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.defaults(python_version = "3.13")
-python.toolchain(python_version = "3.13")
-
-python_version_ext = use_extension("//extensions:python_version.bzl", "python_version_ext")
-use_repo(python_version_ext, "python_version_repo")
 
 ##############################################################
 # CUDA
@@ -52,14 +73,14 @@ use_repo(
     "cuda_cusparse",
     "cuda_driver",
     "cuda_nvcc",
-    "cuda_nvrtc",
     "cuda_nvdisasm",
     "cuda_nvjitlink",
     "cuda_nvml",
+    "cuda_nvptxcompiler",
+    "cuda_nvrtc",
     "cuda_nvtx",
     "cuda_nvvm",
     "cuda_profiler_api",
-    "cuda_nvptxcompiler",
 )
 
 ##############################################################
