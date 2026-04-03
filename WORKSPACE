@@ -28,6 +28,7 @@ http_archive(
 )
 
 load("@bazel_features//:deps.bzl", "bazel_features_deps")
+
 bazel_features_deps()
 
 http_archive(
@@ -60,10 +61,12 @@ http_archive(
 )
 
 # Initialize hermetic Python
-load("//py/deps:rules_python_deps.bzl", "rules_python_deps")
-rules_python_deps()
+load("//third_party/py:python_init_rules.bzl", "python_init_rules")
+
+python_init_rules()
 
 load("//py:python_init_repositories.bzl", "python_init_repositories")
+
 python_init_repositories(
     default_python_version = "system",
     requirements = {
@@ -77,9 +80,11 @@ python_init_repositories(
 )
 
 load("//py:python_register_toolchain.bzl", "python_register_toolchain")
+
 python_register_toolchain()
 
 load("//py:python_configure.bzl", "python_configure")
+
 python_configure(name = "local_config_python")
 
 http_archive(
@@ -97,13 +102,14 @@ http_archive(
 
 http_archive(
     name = "pybind11",
-    urls = ["https://github.com/pybind/pybind11/archive/v2.13.6.tar.gz"],
+    build_file = "//third_party/py:pybind11.BUILD",
     sha256 = "e08cb87f4773da97fa7b5f035de8763abc656d87d5773e62f6da0587d1f0ec20",
     strip_prefix = "pybind11-2.13.6",
-    build_file = "//third_party/py:pybind11.BUILD",
+    urls = ["https://github.com/pybind/pybind11/archive/v2.13.6.tar.gz"],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
 protobuf_deps()
 
 # Cross compilation error with older version. Details: https://github.com/bulletphysics/bullet3/issues/4607
