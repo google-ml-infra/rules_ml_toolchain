@@ -15,7 +15,7 @@ bazel_dep(name = "rules_python", version = "1.8.5")
 single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
-    patches = ["//third_party/protobuf/6.31.1:protobuf_arena.patch"],
+    patches = ["//third_party/protobuf:protobuf_arena.patch"],
     version = "32.1",
 )
 
@@ -29,10 +29,10 @@ single_version_override(
     module_name = "rules_python",
     patch_strip = 1,
     patches = [
-        "//third_party/rules_python/1.8.x:rules_python_scope.patch",
-        "//third_party/rules_python/1.8.x:rules_python_freethreaded.patch",
-        "//third_party/rules_python/1.8.x:rules_python_versions.patch",
-        "//third_party/rules_python/1.8.x:rules_python_pip_version.patch",
+        "//third_party/rules_python:rules_python_scope.patch",
+        "//third_party/rules_python:rules_python_freethreaded.patch",
+        "//third_party/rules_python:rules_python_versions.patch",
+        "//third_party/rules_python:rules_python_pip_version.patch",
     ],
     version = "1.8.5",
 )
