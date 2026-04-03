@@ -12,7 +12,6 @@ bazel_dep(name = "googletest", version = "1.17.0", repo_name = "gtest")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_python", version = "1.8.5")
 
-# Do I need one more patch here?
 single_version_override(
     module_name = "protobuf",
     patch_strip = 1,
@@ -41,10 +40,7 @@ single_version_override(
 ### Toolchains
 
 # TODO: Support HERMETIC_PYTHON_URL, etc to allow specifying a custom built
-# python version.
-# Keep in sync with jax/version.py (_version) and python.defaults below.
 DEFAULT_PYTHON_VERSION = "3.11"
-JAXLIB_VERSION = "0.9.2"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.defaults(
@@ -78,13 +74,6 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 ]]
 
 use_repo(pip, "pypi_mods", pypi = "jax_pypi")
-
-# Override XLA's pypi installation to use the one defined by JAX.
-# TODO: have a better way to unify the pypi installation.
-override_repo(
-    pip,
-    xla_pypi = "pypi",
-)
 
 ### Pybind
 pybind11_internal_configure = use_extension(
