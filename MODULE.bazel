@@ -126,6 +126,15 @@ nccl_configure = use_extension("//extensions:nccl_configure.bzl", "nccl_configur
 use_repo(nccl_configure, "local_config_nccl")
 
 ##############################################################
+# NVSHMEM configuration
+
+nvshmem_json_ext = use_extension("//extensions:nvshmem_json.bzl", "nvshmem_json_ext")
+use_repo(nvshmem_json_ext, "nvshmem_redist_json")
+
+nvshmem_redist_ext = use_extension("//extensions:nvshmem_redist.bzl", "nvshmem_redist_ext")
+use_repo(nvshmem_redist_ext, "nvidia_nvshmem")
+
+##############################################################
 # SYCL configuration
 
 sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configure_ext")
