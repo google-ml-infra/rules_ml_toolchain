@@ -73,7 +73,7 @@ The archive should be made on Linux machine with GLIBC 2.31 or earlier version
 
 8. Upload the archive to the GCS bucket.
    ```
-   gsutil cp <tar.xz file> gs://ml-sysroot-testing
+   gcloud storage cp <tar.xz file> gs://ml-sysroot-testing
    ```
 
 9. Update the `xz_x86_64` or `xz_aarch64` data in
@@ -135,7 +135,7 @@ The archive should be made on Linux machine with GLIBC 2.31 or earlier version
 
 7. Upload the archive to the GCS bucket.
    ```
-   gsutil cp <tar.xz file> gs://ml-sysroot-testing
+   gcloud storage cp <tar.xz file> gs://ml-sysroot-testing
    ```
 
 8. Update the `tar_x86_64` or `tar_aarch64` data in
