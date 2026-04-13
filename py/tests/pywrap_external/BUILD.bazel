@@ -1,0 +1,46 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load(
+    "//py/rules_pywrap:pywrap.default.bzl",
+    "pywrap_binaries",
+    "pywrap_library"
+)
+
+pywrap_library(
+    name = "pywrap_external_aggregated",
+    common_lib_filters = {
+        "py/tests/pybind/framework": "//py/tests/pybind:fifth_library",
+    },
+    common_lib_versions = {
+        "py/tests/pybind/framework": "2",
+    },
+    pywrap_lib_filter = "//py/tests/pybind:third_library",
+    starlark_only_deps = [
+        "//py/tests/pybind:pybind_with_starlark_only",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//py/tests/pybind",
+        "//py/tests/pybind:pybind_cc_only",
+        "//py/tests/pybind:pybind_copy",
+        "//py/tests/pybind/sub_pybind:relative_import_lib",
+    ],
+)
+
+pywrap_binaries(
+    name = "pywrap_external_aggregated_binaries",
+    dep = ":pywrap_external_aggregated",
+    visibility = ["//visibility:public"],
+)

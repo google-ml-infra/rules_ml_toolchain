@@ -1,0 +1,1 @@
+A static resource file under data dir
