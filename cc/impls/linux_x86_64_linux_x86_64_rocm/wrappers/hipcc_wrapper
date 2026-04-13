@@ -1,0 +1,328 @@
+#!/usr/bin/env python3
+# Copyright 2025 The OpenXLA Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+"""Crosstool wrapper for compiling ROCm programs.
+
+SYNOPSIS:
+  hipcc_wrapper [options passed in by cc_library() or cc_binary() rule]
+
+DESCRIPTION:
+  This script is expected to be called by the cc_library() or cc_binary() bazel
+  rules. When the option "-x rocm" is present in the list of arguments passed
+  to this script, it invokes the hipcc compiler. When "-x rocm" is not
+  present, this wrapper invokes the host compiler (clang) with the input
+  arguments as is.
+
+ENVIRONMENT VARIABLES (set by toolchain features):
+  GCC_PATH: Path to the host compiler (clang)
+  HIPCC_PATH: Path to the hipcc compiler
+  ROCM_PATH: Path to the ROCm installation
+  HIPCC_VERSION: Version of ROCm/HIP
+"""
+
+from argparse import ArgumentParser
+import os
+import subprocess
+import re
+import sys
+import shlex
+
+# Get paths from environment variables set by toolchain features
+CPU_COMPILER = os.environ.get('GCC_PATH', 'clang')
+HIPCC_PATH = os.environ.get('HIPCC_PATH', '/opt/rocm/bin/hipcc')
+ROCM_PATH = os.environ.get('ROCM_PATH', '/opt/rocm')
+HIPCC_VERSION = os.environ.get('HIPCC_VERSION', '6.0')
+VERBOSE = os.environ.get('CROSSTOOL_VERBOSE', '0') == '1'
+
+
+def log(s):
+    """Log a message for debugging."""
+    print('hipcc_wrapper: {0}'.format(s))
+
+
+def get_option_value(argv, option):
+    """Extract the list of values for option from the argv list.
+
+    Args:
+        argv: A list of strings, possibly the argv passed to main().
+        option: The option whose value to extract, without the leading '-'.
+
+    Returns:
+        A list of values, either directly following the option,
+        (eg., -opt val1 val2) or values collected from multiple occurrences of
+        the option (eg., -opt val1 -opt val2).
+    """
+    parser = ArgumentParser()
+    parser.add_argument('-' + option, nargs='*', action='append')
+    args, _ = parser.parse_known_args(argv)
+    if not args or not vars(args)[option]:
+        return []
+    else:
+        return sum(vars(args)[option], [])
+
+
+def get_host_compiler_options(argv):
+    """Collect the -isystem, -iquote, and --sysroot option values from argv.
+
+    Args:
+        argv: A list of strings, possibly the argv passed to main().
+
+    Returns:
+        The string that can be used as the --compiler-options to hipcc.
+    """
+    parser = ArgumentParser()
+    parser.add_argument('-isystem', nargs='*', action='append')
+    parser.add_argument('-iquote', nargs='*', action='append')
+    parser.add_argument('--sysroot', nargs=1)
+    parser.add_argument('-g', nargs='*', action='append')
+    parser.add_argument('-no-canonical-prefixes', action='store_true')
+    parser.add_argument('--genco', action='store_true')
+
+    args, _ = parser.parse_known_args(argv)
+
+    opts = ''
+
+    if args.isystem:
+        opts += ' -isystem ' + ' -isystem '.join(sum(args.isystem, []))
+    if args.iquote:
+        opts += ' -iquote ' + ' -iquote '.join(sum(args.iquote, []))
+    if args.g:
+        opts += ' -g' + ' -g'.join(sum(args.g, []))
+    if args.no_canonical_prefixes:
+        opts += ' -no-canonical-prefixes'
+    if args.sysroot:
+        opts += ' --sysroot ' + args.sysroot[0]
+    if args.genco:
+        opts += ' --genco'
+
+    return opts
+
+
+def get_hipcc_options(argv):
+    """Collect the hipcc-specific options from argv.
+
+    Args:
+        argv: A list of strings, possibly the argv passed to main().
+
+    Returns:
+        The string that can be passed directly to hipcc.
+    """
+    parser = ArgumentParser()
+    parser.add_argument('--offload-arch', nargs='*', action='append')
+    parser.add_argument('-gline-tables-only', action='store_true')
+
+    args, _ = parser.parse_known_args(argv)
+
+    hipcc_opts = ' -gline-tables-only ' if args.gline_tables_only else ''
+    if args.offload_arch:
+        hipcc_opts = hipcc_opts + ' '.join(
+            ['--offload-arch=' + a for a in sum(args.offload_arch, [])])
+
+    return hipcc_opts
+
+
+def system(cmd):
+    """Invoke cmd with os.system().
+
+    Args:
+        cmd: The command.
+
+    Returns:
+        The exit code if the process exited with exit() or -signal
+        if the process was terminated by a signal.
+    """
+    retv = os.system(cmd)
+    if os.WIFEXITED(retv):
+        return os.WEXITSTATUS(retv)
+    else:
+        return -os.WTERMSIG(retv)
+
+
+def invoke_hipcc(argv, log_enabled=False):
+    """Call hipcc with arguments assembled from argv.
+
+    Args:
+        argv: A list of strings, possibly the argv passed to main().
+        log_enabled: True if logging is requested.
+
+    Returns:
+        The return value of calling os.system('hipcc ' + args)
+    """
+    host_compiler_options = get_host_compiler_options(argv)
+    hipcc_compiler_options = get_hipcc_options(argv)
+    opt_option = get_option_value(argv, 'O')
+    m_options = get_option_value(argv, 'm')
+    m_options = ''.join([' -m' + m for m in m_options if m in ['32', '64']])
+    include_options = get_option_value(argv, 'I')
+    out_file = get_option_value(argv, 'o')
+    depfiles = get_option_value(argv, 'MF')
+    defines = get_option_value(argv, 'D')
+    defines = ''.join([' -D' + define for define in defines])
+    undefines = get_option_value(argv, 'U')
+    undefines = ''.join([' -U' + define for define in undefines])
+    std_options = get_option_value(argv, 'std')
+    hipcc_allowed_std_options = ["c++11", "c++14", "c++17"]
+    std_options = ''.join([
+        ' -std=' + define
+        for define in std_options if define in hipcc_allowed_std_options
+    ])
+
+    # The list of source files get passed after the -c option.
+    src_files = get_option_value(argv, 'c')
+
+    if len(src_files) == 0:
+        return 1
+    if len(out_file) != 1:
+        return 1
+
+    opt = (' -O2' if (len(opt_option) > 0 and int(opt_option[0]) > 0) else ' -g')
+
+    includes = (' -I ' + ' -I '.join(include_options)
+                if len(include_options) > 0 else '')
+
+    # Filter to only C/C++ source files
+    src_files = [
+        f for f in src_files
+        if re.search(r'\.cpp$|\.cc$|\.c$|\.cxx$|\.C$', f)
+    ]
+    srcs = ' '.join(src_files)
+    out = ' -o ' + out_file[0]
+
+    hipccopts = hipcc_compiler_options + ' '
+    # Ensure HIP header is included before standard math headers
+    hipccopts += ' --include=hip/hip_runtime.h '
+    # Force C++17 dialect
+    hipccopts += ' --std=c++17 '
+    # Use -fno-gpu-rdc for early GPU kernel finalization at compile time
+    hipccopts += ' -fno-gpu-rdc '
+    hipccopts += ' -fcuda-flush-denormals-to-zero '
+    hipccopts += undefines
+    hipccopts += defines
+    hipccopts += std_options
+    hipccopts += m_options
+    hipccopts += ' --rocm-path="' + ROCM_PATH + '" '
+
+    if depfiles:
+        # Generate the dependency file
+        depfile = depfiles[0]
+        cmd = (HIPCC_PATH + ' ' + hipccopts + host_compiler_options +
+               ' -I .' + includes + ' ' + srcs + ' -M -o ' + depfile)
+        if log_enabled:
+            log(cmd)
+        if VERBOSE:
+            print(cmd)
+        exit_status = os.system(cmd)
+        if exit_status != 0:
+            return exit_status
+
+    cmd = (HIPCC_PATH + ' ' + hipccopts + host_compiler_options + ' -fPIC' +
+           ' -I .' + opt + includes + ' -c ' + srcs + out)
+
+    if log_enabled:
+        log(cmd)
+    if VERBOSE:
+        print(cmd)
+    return system(cmd)
+
+
+def normalize_flag(flag):
+    """Split flags that contain spaces into separate arguments.
+
+    This handles the case where flags like '-isystem path' are passed as a single
+    argument with a space inside, which can happen from rules_ml_toolchain's
+    cc_toolchain_import_feature.
+
+    Args:
+        flag: A single flag string.
+
+    Returns:
+        A list of flag strings (usually 1, but 2 if the flag contained a space).
+    """
+    if flag.startswith("-") and " " in flag:
+        return flag.split()
+    else:
+        return [flag]
+
+
+def is_rocm_flag(flag):
+    """Check if a flag is ROCm-specific and should be stripped for host compilation."""
+    return (flag.startswith('--rocm') or
+            flag.startswith('-nohipinc') or
+            flag.startswith('--offload-arch'))
+
+
+def main():
+    # Ignore PWD env var
+    os.environ['PWD'] = ''
+
+    parser = ArgumentParser(fromfile_prefix_chars='@')
+    parser.add_argument('-x', nargs=1)
+    parser.add_argument('--rocm_log', action='store_true')
+    parser.add_argument('-pass-exit-codes', action='store_true')
+    args, leftover = parser.parse_known_args(sys.argv[1:])
+
+    if VERBOSE:
+        print('PWD=' + os.getcwd())
+        print('HIPCC_PATH=' + HIPCC_PATH)
+        print('ROCM_PATH=' + ROCM_PATH)
+
+    if args.x and args.x[0] == 'rocm':
+        # Compilation for GPU objects
+        if args.rocm_log:
+            log('-x rocm')
+        leftover = [shlex.quote(s) for s in leftover]
+        if args.rocm_log:
+            log('using hipcc')
+        return invoke_hipcc(leftover, log_enabled=args.rocm_log)
+
+    elif args.pass_exit_codes:
+        # Link stage - use host compiler as linker with ROCm runtime
+        # Normalize flags to split any that contain spaces (e.g., '-isystem path')
+        gpu_linker_flags = []
+        for flag in sys.argv[1:]:
+            if not flag.startswith('--rocm_log') and not is_rocm_flag(flag):
+                gpu_linker_flags.extend(normalize_flag(flag))
+
+        # Add ROCm runtime library paths
+        rocm_lib = ROCM_PATH + '/lib'
+        gpu_linker_flags.append('-L' + rocm_lib)
+        gpu_linker_flags.append('-Wl,-rpath=' + rocm_lib)
+        gpu_linker_flags.append('-lhsa-runtime64')
+        gpu_linker_flags.append('-lamdhip64')
+        gpu_linker_flags.append('-lrt')
+        gpu_linker_flags.append('-lstdc++')
+
+        if VERBOSE:
+            print(' '.join([CPU_COMPILER] + gpu_linker_flags))
+        return subprocess.call([CPU_COMPILER] + gpu_linker_flags)
+
+    else:
+        # Compilation for host objects
+        # Normalize flags to split any that contain spaces (e.g., '-isystem path')
+        cpu_compiler_flags = []
+        for flag in sys.argv[1:]:
+            if not flag.startswith('--rocm_log') and not is_rocm_flag(flag):
+                cpu_compiler_flags.extend(normalize_flag(flag))
+
+        # Add HIP platform macro for host code
+        cpu_compiler_flags.append('-D__HIP_PLATFORM_HCC__')
+        if VERBOSE:
+            print(' '.join([CPU_COMPILER] + cpu_compiler_flags))
+        return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

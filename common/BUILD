@@ -222,6 +222,28 @@ config_setting(
 )
 
 #######################################################
+# Enable ROCm support flags
+
+bool_flag(
+    name = "enable_rocm",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_rocm_enabled",
+    flag_values = {
+        ":enable_rocm": "True",
+    },
+)
+
+config_setting(
+    name = "is_rocm_disabled",
+    flag_values = {
+        ":enable_rocm": "False",
+    },
+)
+
+#######################################################
 # Sanitizers flags
 string_flag(
     name = "asan_options",
