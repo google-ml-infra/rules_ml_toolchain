@@ -141,6 +141,12 @@ sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configur
 use_repo(sycl_configure, "local_config_sycl")
 
 ##############################################################
+# ROCm configuration
+
+rocm_configure = use_extension("//extensions:rocm_configure.bzl", "rocm_configure_ext")
+use_repo(rocm_configure, "local_config_rocm")
+
+##############################################################
 # Hermetic toolchain configuration
 
 toolchain = use_extension("//extensions:toolchain.bzl", "toolchain_ext")

@@ -246,3 +246,18 @@ build:icpx_clang --repo_env TF_ICPX_CLANG=1
 build:icpx_clang --copt=-fclang-abi-compat=17
 build:icpx_clang --copt=-fsycl-unnamed-lambda
 
+# #############################################################################
+# ROCm configuration
+# #############################################################################
+# Common ROCm settings
+common:rocm_common --repo_env TF_NEED_ROCM=1
+common:rocm_common --@rules_ml_toolchain//common:enable_rocm=True
+common:rocm_common --define=using_rocm_hipcc=true
+common:rocm_common --define=tensorflow_mkldnn_contraction_kernel=0
+common:rocm_common --copt=-Wno-gnu-offsetof-extensions
+
+# Hermetic ROCm toolchain
+common:rocm --config=rocm_common
+common:rocm --@rules_ml_toolchain//common:enable_hermetic_cc=True
+common:rocm --extra_toolchains=@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64_rocm
+
