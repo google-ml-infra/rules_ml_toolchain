@@ -611,7 +611,6 @@ def _create_local_rocm_repository(repository_ctx):
         "rocm:BUILD",
         "crosstool:BUILD.rocm",
         "crosstool:hipcc_cc_toolchain_config.bzl",
-        "crosstool:clang/bin/crosstool_wrapper_driver_rocm",
         "rocm:rocm_config.h",
     ]}
 
@@ -710,19 +709,12 @@ def _create_local_rocm_repository(repository_ctx):
         rocm_defines,
     )
 
-    repository_ctx.template(
-        "crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc",
-        tpl_paths["crosstool:clang/bin/crosstool_wrapper_driver_rocm"],
-        {
-            "%{rocm_root}": "external/local_config_rocm/" + str(rocm_config.rocm_toolkit_path),
-            "%{hipcc_env}": _hipcc_env(repository_ctx),
-            "%{rocr_runtime_library}": "hsa-runtime64",
-            "%{tmpdir}": get_host_environ(
-                repository_ctx,
-                _TMPDIR,
-                "",
-            ),
-        },
+    # Copy hipcc_wrapper from rules_ml_toolchain instead of generating from template.
+    # The wrapper reads paths from environment variables (GCC_PATH, ROCM_PATH, HIPCC_PATH)
+    # which are set by the rocm-env-paths feature in cc_toolchain_config.
+    repository_ctx.symlink(
+        Label("//cc/impls/linux_x86_64_linux_x86_64_rocm/wrappers:hipcc_wrapper"),
+        "crosstool/wrappers/hipcc_wrapper",
     )
 
     # Set up rocm_config.h, which is used by
@@ -819,10 +811,10 @@ def _create_remote_rocm_repository(repository_ctx, remote_config_repo):
         config_repo_label(remote_config_repo, "crosstool:cc_toolchain_config.bzl"),
         {},
     )
-    repository_ctx.template(
-        "crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc",
-        config_repo_label(remote_config_repo, "crosstool:clang/bin/crosstool_wrapper_driver_is_not_gcc"),
-        {},
+    # Copy hipcc_wrapper from rules_ml_toolchain
+    repository_ctx.symlink(
+        Label("//cc/impls/linux_x86_64_linux_x86_64_rocm/wrappers:hipcc_wrapper"),
+        "crosstool/wrappers/hipcc_wrapper",
     )
 
 def _rocm_autoconf_impl(repository_ctx):

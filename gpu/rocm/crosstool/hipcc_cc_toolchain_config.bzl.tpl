@@ -1074,22 +1074,30 @@ def _impl(ctx):
         ],
     )
 
-    # Feature to set CLANG_COMPILER_PATH environment variable for the wrapper script.
-    # This allows the local toolchain to override the default hermetic clang path.
+    # Feature to set environment variables for the wrapper script (hipcc_wrapper).
+    # This allows the toolchain to pass paths to the wrapper via environment.
+    # GCC_PATH: Host compiler path (clang)
+    # ROCM_PATH: ROCm installation root
+    # HIPCC_PATH: Path to hipcc compiler
+    rocm_env_entries = []
+    if ctx.attr.clang_compiler_path:
+        rocm_env_entries.append(env_entry(key = "GCC_PATH", value = ctx.attr.clang_compiler_path))
+        # Also set CLANG_COMPILER_PATH for backward compatibility
+        rocm_env_entries.append(env_entry(key = "CLANG_COMPILER_PATH", value = ctx.attr.clang_compiler_path))
+    if ctx.attr.rocm_path:
+        rocm_env_entries.append(env_entry(key = "ROCM_PATH", value = ctx.attr.rocm_path))
+    if ctx.attr.hipcc_path:
+        rocm_env_entries.append(env_entry(key = "HIPCC_PATH", value = ctx.attr.hipcc_path))
+
     clang_compiler_path_feature = feature(
-        name = "clang-compiler-path",
-        enabled = ctx.attr.clang_compiler_path != "",
+        name = "rocm-env-paths",
+        enabled = len(rocm_env_entries) > 0,
         env_sets = [
             env_set(
                 actions = all_compile_actions + all_link_actions,
-                env_entries = [
-                    env_entry(
-                        key = "CLANG_COMPILER_PATH",
-                        value = ctx.attr.clang_compiler_path,
-                    ),
-                ],
+                env_entries = rocm_env_entries,
             ),
-        ] if ctx.attr.clang_compiler_path else [],
+        ] if rocm_env_entries else [],
     )
 
     features = [
@@ -1188,6 +1196,8 @@ cc_toolchain_config = rule(
         "linker_bin_path": attr.string(),
         "builtin_sysroot": attr.string(),
         "clang_compiler_path": attr.string(),
+        "rocm_path": attr.string(),
+        "hipcc_path": attr.string(),
     },
     provides = [CcToolchainConfigInfo],
 )

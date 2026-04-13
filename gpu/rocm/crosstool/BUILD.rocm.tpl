@@ -46,11 +46,11 @@ cc_toolchain_suite(
 cc_toolchain(
     name = "cc-compiler-local-nonhermetic",
     all_files = "@local_config_rocm//rocm:all_files",
-    compiler_files = ":crosstool_wrapper_driver_local",
-    ar_files = ":crosstool_wrapper_driver_local",
-    as_files = ":crosstool_wrapper_driver_local",
+    compiler_files = ":hipcc_wrapper_local",
+    ar_files = ":hipcc_wrapper_local",
+    as_files = ":hipcc_wrapper_local",
     dwp_files = ":empty",
-    linker_files = ":crosstool_wrapper_driver_local",
+    linker_files = ":hipcc_wrapper_local",
     objcopy_files = ":empty",
     strip_files = ":empty",
     supports_param_files = 1,
@@ -70,7 +70,8 @@ cc_toolchain_config(
     abi_libc_version = "local",
     # Include directories detected from local clang + ROCm includes
     cxx_builtin_include_directories = _LOCAL_CLANG.include_directories + [%{cxx_builtin_include_directories}],
-    host_compiler_path = "clang/bin/crosstool_wrapper_driver_is_not_gcc",
+    # Use hipcc_wrapper from rules_ml_toolchain
+    host_compiler_path = "wrappers/hipcc_wrapper",
     host_compiler_prefix = "/usr/bin",
     compile_flags = [
         "-U_FORTIFY_SOURCE",
@@ -112,8 +113,10 @@ cc_toolchain_config(
     coverage_compile_flags = ["--coverage"],
     coverage_link_flags = ["--coverage"],
     supports_start_end_lib = True,
-    # Compiler path from local_clang_info(), sets CLANG_COMPILER_PATH env var
+    # Environment variables for hipcc_wrapper
     clang_compiler_path = _LOCAL_CLANG.compiler_path,
+    rocm_path = "%{rocm_root}",
+    hipcc_path = "%{rocm_root}/bin/hipcc",
 )
 
 filegroup(
@@ -121,12 +124,13 @@ filegroup(
     srcs = [],
 )
 
-# Local toolchain uses the wrapper with CLANG_COMPILER_PATH env var
-# to override the default hermetic clang path.
+# Local toolchain uses hipcc_wrapper from rules_ml_toolchain.
+# Environment variables (GCC_PATH, ROCM_PATH, HIPCC_PATH) are set via the
+# rocm-env-paths feature in cc_toolchain_config.
 filegroup(
-  name = "crosstool_wrapper_driver_local",
-  srcs = [
-      ":clang/bin/crosstool_wrapper_driver_is_not_gcc",
-      "@local_config_rocm//rocm:toolchain_data",
-  ],
+    name = "hipcc_wrapper_local",
+    srcs = [
+        ":wrappers/hipcc_wrapper",
+        "@local_config_rocm//rocm:toolchain_data",
+    ],
 )
