@@ -55,14 +55,16 @@ jobs:
       - run: |
           bazel test \
             --config=rocm \
+            --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
             --define=using_rocm=true \
-            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx942" \
+            --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             //cc/tests/gpu/rocm:all
 
       - run: echo "Testing host (CPU) code compilation with ROCm toolchain..."
       - run: |
           bazel test \
             --config=rocm \
+            --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
             --define=using_rocm=true \
             //cc/tests/cpu:all
 
@@ -70,15 +72,17 @@ jobs:
       - run: |
           bazel test \
             --config=rocm \
+            --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
             --config=bzlmod \
             --define=using_rocm=true \
-            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx942" \
+            --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             //cc/tests/gpu/rocm:all
 
       - run: echo "Bzlmod. Testing host (CPU) code compilation with ROCm toolchain..."
       - run: |
           bazel test \
             --config=rocm \
+            --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
             --config=bzlmod \
             --define=using_rocm=true \
             //cc/tests/cpu:all
