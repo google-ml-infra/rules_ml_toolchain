@@ -17,7 +17,7 @@
 # Tools: Linux x86_64, Sysroot: Linux x86_64, ROCm
 # ==============================================================================
 
-load("@local_config_rocm//rocm:build_defs.bzl", "rocm_gpu_architectures", "rocm_version_number")
+load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
@@ -48,11 +48,13 @@ ROCM_TOOLS = {
 
 rocm_hipcc_feature(
     name = "rocm_hipcc_feature",
-    amdgpu_targets = rocm_gpu_architectures(),
+    amdgpu_targets = hipcc_config().gpu_architectures,
     enabled = True,
+    hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",
-    rocm_toolkit = "@local_config_rocm//rocm:rocm_root",
-    version = str(rocm_version_number()),
+    rocm_path = hipcc_config().rocm_path,
+    rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
+    version = str(hipcc_config().version_number),
     visibility = ["//visibility:public"],
 )
 
@@ -68,7 +70,7 @@ filegroup(
 
 filegroup(
     name = "rocm_toolkit_files",
-    srcs = ["@local_config_rocm//rocm:toolchain_data"],
+    srcs = ["@config_rocm_hipcc//rocm:toolchain_data"],
 )
 
 alias(

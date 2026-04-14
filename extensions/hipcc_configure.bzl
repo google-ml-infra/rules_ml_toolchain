@@ -13,26 +13,26 @@
 # limitations under the License.
 # ==============================================================================
 
-"""ROCm module extension."""
+"""HIPcc module extension for ROCm toolchain configuration."""
 
 load(
-    "//gpu/rocm:rocm_configure.bzl",
-    "rocm_configure",
+    "//gpu/rocm:hipcc_configure.bzl",
+    "hipcc_configure",
 )
 
-def _rocm_configure_ext_impl(mctx):
-    """Implementation of the rocm_configure_ext module extension."""
-    rocm_configure(name = "local_config_rocm")
+def _hipcc_configure_ext_impl(mctx):
+    """Implementation of the hipcc_configure_ext module extension."""
+    hipcc_configure(name = "config_rocm_hipcc")
 
-rocm_configure_ext = module_extension(
-    implementation = _rocm_configure_ext_impl,
-    doc = """ROCm module extension for configuring the ROCm toolchain.
+hipcc_configure_ext = module_extension(
+    implementation = _hipcc_configure_ext_impl,
+    doc = """HIPcc module extension for configuring the ROCm toolchain.
 
 Usage in MODULE.bazel:
 
 ```starlark
-rocm_configure = use_extension("@rules_ml_toolchain//extensions:rocm_configure.bzl", "rocm_configure_ext")
-use_repo(rocm_configure, "local_config_rocm")
+hipcc_configure = use_extension("@rules_ml_toolchain//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
+use_repo(hipcc_configure, "config_rocm_hipcc")
 ```
 """,
 )

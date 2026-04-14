@@ -13,20 +13,39 @@
 # limitations under the License.
 # ==============================================================================
 
-"""ROCm crosstool configuration templates."""
+load(
+    "@config_rocm_hipcc//rocm:build_defs.bzl",
+    "rocm_cc_test",
+    "rocm_library",
+)
 
-package(default_visibility = ["//visibility:public"])
+rocm_library(
+    name = "vector_hip",
+    srcs = ["vector_hip.hip.cc"],
+    hdrs = ["vector_hip.hip.h"],
+    tags = ["rocm-only"],
+)
 
-exports_files([
-    "BUILD.rocm.tpl",
-    "hipcc_cc_toolchain_config.bzl.tpl",
-])
-
-filegroup(
-    name = "all_files",
+rocm_cc_test(
+    name = "vector_hip_test",
     srcs = [
-        "BUILD.rocm.tpl",
-        "hipcc_cc_toolchain_config.bzl.tpl",
-        "//gpu/rocm/crosstool/clang/bin:all_files",
+        "vector_hip_test.cc",
+    ],
+    tags = [
+        "rocm-only",
+        "gpu",
+    ],
+    deps = [
+        ":vector_hip",
+        "@gtest//:gtest_main",
+    ],
+)
+
+#############################################
+# Test Suite
+test_suite(
+    name = "all",
+    tests = [
+        ":vector_hip_test",
     ],
 )

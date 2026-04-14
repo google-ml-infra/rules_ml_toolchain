@@ -21,19 +21,6 @@ exports_files([
     "BUILD.tpl",
     "build_defs.bzl.tpl",
     "find_rocm_config.py",
-    "rocm_config.h.tpl",
-    "rocm_configure.bzl",
+    "hipcc_configure.bzl",
     "rocm_redist.bzl",
 ])
-
-filegroup(
-    name = "rocm_configure_files",
-    srcs = [
-        "BUILD.tpl",
-        "build_defs.bzl.tpl",
-        "find_rocm_config.py",
-        "rocm_config.h.tpl",
-        "rocm_redist.bzl",
-        "//gpu/rocm/crosstool:all_files",
-    ],
-)

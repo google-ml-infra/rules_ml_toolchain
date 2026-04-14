@@ -104,7 +104,12 @@ def get_host_compiler_options(argv):
     if args.no_canonical_prefixes:
         opts += ' -no-canonical-prefixes'
     if args.sysroot:
-        opts += ' --sysroot ' + args.sysroot[0]
+        sysroot = args.sysroot[0]
+        opts += ' --sysroot ' + sysroot
+        # Add explicit C++ include paths for hermetic sysroot
+        # HIPcc's clang needs these when in HIP mode (-x hip)
+        opts += ' -isystem ' + sysroot + '/usr/include/c++/8'
+        opts += ' -isystem ' + sysroot + '/usr/include/x86_64-linux-gnu/c++/8'
     if args.genco:
         opts += ' --genco'
 
@@ -123,13 +128,21 @@ def get_hipcc_options(argv):
     parser = ArgumentParser()
     parser.add_argument('--offload-arch', nargs='*', action='append')
     parser.add_argument('-gline-tables-only', action='store_true')
+    parser.add_argument('-fno-gpu-rdc', action='store_true')
+    parser.add_argument('-fcuda-flush-denormals-to-zero', action='store_true')
 
     args, _ = parser.parse_known_args(argv)
 
-    hipcc_opts = ' -gline-tables-only ' if args.gline_tables_only else ''
+    hipcc_opts = ''
+    if args.gline_tables_only:
+        hipcc_opts += ' -gline-tables-only '
     if args.offload_arch:
-        hipcc_opts = hipcc_opts + ' '.join(
+        hipcc_opts += ' '.join(
             ['--offload-arch=' + a for a in sum(args.offload_arch, [])])
+    if args.fno_gpu_rdc:
+        hipcc_opts += ' -fno-gpu-rdc'
+    if args.fcuda_flush_denormals_to_zero:
+        hipcc_opts += ' -fcuda-flush-denormals-to-zero'
 
     return hipcc_opts
 
@@ -161,7 +174,19 @@ def invoke_hipcc(argv, log_enabled=False):
     Returns:
         The return value of calling os.system('hipcc ' + args)
     """
+    # Normalize flags that may contain spaces (e.g., "-isystem path")
+    normalized_argv = []
+    for flag in argv:
+        normalized_argv.extend(normalize_flag(flag))
+    argv = normalized_argv
+
+    if VERBOSE:
+        print("DEBUG: Normalized argv:", argv)
+
     host_compiler_options = get_host_compiler_options(argv)
+
+    if VERBOSE:
+        print("DEBUG: host_compiler_options:", host_compiler_options)
     hipcc_compiler_options = get_hipcc_options(argv)
     opt_option = get_option_value(argv, 'O')
     m_options = get_option_value(argv, 'm')
@@ -202,40 +227,38 @@ def invoke_hipcc(argv, log_enabled=False):
     out = ' -o ' + out_file[0]
 
     hipccopts = hipcc_compiler_options + ' '
-    # Ensure HIP header is included before standard math headers
-    hipccopts += ' --include=hip/hip_runtime.h '
-    # Force C++17 dialect
-    hipccopts += ' --std=c++17 '
-    # Use -fno-gpu-rdc for early GPU kernel finalization at compile time
-    hipccopts += ' -fno-gpu-rdc '
-    hipccopts += ' -fcuda-flush-denormals-to-zero '
     hipccopts += undefines
     hipccopts += defines
     hipccopts += std_options
     hipccopts += m_options
-    hipccopts += ' --rocm-path="' + ROCM_PATH + '" '
 
     if depfiles:
         # Generate the dependency file
         depfile = depfiles[0]
-        cmd = (HIPCC_PATH + ' ' + hipccopts + host_compiler_options +
+        # Note: host_compiler_options must come before hipccopts so that -isystem paths
+        # are set up before --include flags are processed
+        cmd = (HIPCC_PATH + ' ' + host_compiler_options + ' ' + hipccopts +
                ' -I .' + includes + ' ' + srcs + ' -M -o ' + depfile)
+        cmd_args = shlex.split(cmd)
         if log_enabled:
-            log(cmd)
+            log(' '.join(cmd_args))
         if VERBOSE:
-            print(cmd)
-        exit_status = os.system(cmd)
+            print(' '.join(cmd_args))
+        exit_status = subprocess.call(cmd_args)
         if exit_status != 0:
             return exit_status
 
-    cmd = (HIPCC_PATH + ' ' + hipccopts + host_compiler_options + ' -fPIC' +
+    # Note: host_compiler_options must come before hipccopts so that -isystem paths
+    # are set up before --include flags are processed
+    cmd = (HIPCC_PATH + ' ' + host_compiler_options + ' ' + hipccopts + ' -fPIC' +
            ' -I .' + opt + includes + ' -c ' + srcs + out)
+    cmd_args = shlex.split(cmd)
 
     if log_enabled:
-        log(cmd)
+        log(' '.join(cmd_args))
     if VERBOSE:
-        print(cmd)
-    return system(cmd)
+        print(' '.join(cmd_args))
+    return subprocess.call(cmd_args)
 
 
 def normalize_flag(flag):
@@ -283,7 +306,7 @@ def main():
         # Compilation for GPU objects
         if args.rocm_log:
             log('-x rocm')
-        leftover = [shlex.quote(s) for s in leftover]
+        # Note: Don't quote leftover args - they'll be parsed by argparse in invoke_hipcc
         if args.rocm_log:
             log('using hipcc')
         return invoke_hipcc(leftover, log_enabled=args.rocm_log)

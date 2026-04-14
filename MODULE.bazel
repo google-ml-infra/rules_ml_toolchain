@@ -143,8 +143,8 @@ use_repo(sycl_configure, "local_config_sycl")
 ##############################################################
 # ROCm configuration
 
-rocm_configure = use_extension("//extensions:rocm_configure.bzl", "rocm_configure_ext")
-use_repo(rocm_configure, "local_config_rocm")
+hipcc_configure = use_extension("//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
+use_repo(hipcc_configure, "config_rocm_hipcc")
 
 ##############################################################
 # Hermetic toolchain configuration

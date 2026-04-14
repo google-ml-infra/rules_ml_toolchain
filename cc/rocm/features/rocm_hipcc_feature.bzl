@@ -67,12 +67,14 @@ def _rocm_hipcc_feature_impl(ctx):
     The environment variables are read by the hipcc_wrapper script to locate
     the HIPcc compiler and ROCm toolkit.
     """
-    # Construct paths from the provided labels
-    # The rocm_toolkit label points to @local_config_rocm//rocm:rocm_root
-    # which gives workspace_root = "external/local_config_rocm/rocm"
-    # The actual ROCm distribution is in the rocm_dist subdirectory
-    rocm_path = ctx.attr.rocm_toolkit.label.workspace_root + "/rocm/rocm_dist"
-    hipcc_path = rocm_path + "/bin/hipcc"
+    # Construct full paths using workspace_root from the rocm_toolkit label
+    # and relative paths from hipcc_config() struct
+    workspace_root = ctx.attr.rocm_toolkit.label.workspace_root
+    package = ctx.attr.rocm_toolkit.label.package
+
+    # Combine workspace path with relative paths from the struct
+    rocm_path = workspace_root + "/" + package + "/" + ctx.attr.rocm_path
+    hipcc_path = workspace_root + "/" + package + "/" + ctx.attr.hipcc_path
 
     # Build environment entries
     # Note: GCC_PATH is set by cc_toolchain_config's __tool_paths_as_environment_vars
@@ -93,6 +95,16 @@ def _rocm_hipcc_feature_impl(ctx):
     # Add architecture flags if specified
     for arch in ctx.attr.amdgpu_targets:
         compiler_flags.append("--offload-arch=" + arch)
+
+    # ROCm-specific compilation flags
+    compiler_flags.extend([
+        # Force C++17 for HIP compilation
+        "--std=c++17",
+        # Disable relocatable device code for faster compilation
+        "-fno-gpu-rdc",
+        # Flush denormals to zero on GPU
+        "-fcuda-flush-denormals-to-zero",
+    ])
 
     return _feature(
         name = ctx.label.name,
@@ -128,8 +140,7 @@ rocm_hipcc_feature = rule(
         ),
         "rocm_toolkit": attr.label(
             mandatory = True,
-            allow_single_file = True,
-            doc = "Label pointing to the ROCm toolkit (used to derive paths).",
+            doc = "Label pointing to the ROCm toolkit (for dependencies).",
         ),
         "host_compiler": attr.label(
             allow_single_file = True,
@@ -143,6 +154,14 @@ rocm_hipcc_feature = rule(
             default = [],
             doc = "List of AMDGPU targets (e.g., gfx906, gfx908).",
         ),
+        "rocm_path": attr.string(
+            mandatory = True,
+            doc = "Path to the ROCm installation directory.",
+        ),
+        "hipcc_path": attr.string(
+            mandatory = True,
+            doc = "Path to the hipcc compiler binary.",
+        ),
     },
     provides = [FeatureInfo],
     doc = """
@@ -155,10 +174,12 @@ for ROCm compilation (--rocm-path, --offload-arch).
 Example usage:
     rocm_hipcc_feature(
         name = "rocm_hipcc_feature",
-        rocm_toolkit = "@local_config_rocm//rocm:rocm_root",
+        rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
         host_compiler = "@llvm_linux_x86_64//:clang",
         version = "6.0",
         amdgpu_targets = ["gfx906", "gfx908"],
+        rocm_path = "external/_main~hipcc_configure_ext~config_rocm_hipcc/rocm/rocm_dist",
+        hipcc_path = "external/_main~hipcc_configure_ext~config_rocm_hipcc/rocm/rocm_dist/bin/hipcc",
     )
 """,
 )
