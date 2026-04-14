@@ -84,7 +84,7 @@ def rocm_library(copts = [], deps = [], **kwargs):
     """
     native.cc_library(
         copts = rocm_default_copts() + ["-x", "rocm"] + copts,
-        deps = deps + ["@config_rocm_hipcc//rocm:hip_headers"],
+        deps = deps + ["@config_rocm_hipcc//rocm:hip_runtime"],
         **kwargs
     )
 
@@ -99,7 +99,6 @@ def rocm_cc_test(copts = [], deps = [], **kwargs):
     native.cc_test(
         copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
         deps = deps + [
-            "@config_rocm_hipcc//rocm:hip_headers",
             "@config_rocm_hipcc//rocm:hip_runtime",
         ],
         **kwargs
