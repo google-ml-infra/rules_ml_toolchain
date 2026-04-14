@@ -51,21 +51,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: echo "Building with HIPcc toolchain..."
+      - run: echo "Building and testing with hermetic HIPcc toolchain..."
       - run: |
-          bazel build \
+          bazel test \
             --config=rocm \
             --define=using_rocm=true \
-            --repo_env ROCM_PATH=/opt/rocm \
-            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx906,gfx908,gfx90a,gfx942" \
+            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx942" \
             //cc/tests/gpu/rocm:all
 
-      - run: echo "Bzlmod. Building with HIPcc toolchain..."
+      - run: echo "Bzlmod. Building and testing with hermetic HIPcc toolchain..."
       - run: |
-          bazel build \
+          bazel test \
             --config=rocm \
             --config=bzlmod \
             --define=using_rocm=true \
-            --repo_env ROCM_PATH=/opt/rocm \
-            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx906,gfx908,gfx90a,gfx942" \
+            --repo_env TF_ROCM_AMDGPU_TARGETS="gfx942" \
             //cc/tests/gpu/rocm:all

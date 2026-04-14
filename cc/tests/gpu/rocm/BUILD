@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load(
     "@config_rocm_hipcc//rocm:build_defs.bzl",
     "rocm_cc_test",
@@ -34,6 +35,7 @@ rocm_cc_test(
     tags = [
         "rocm-only",
         "gpu",
+        "manual",  # Requires actual GPU hardware - run manually only
     ],
     deps = [
         ":vector_hip",
@@ -41,11 +43,14 @@ rocm_cc_test(
     ],
 )
 
-#############################################
-# Test Suite
+build_test(
+    name = "vector_hip_build_test",
+    targets = [":vector_hip_test"],
+)
+
 test_suite(
     name = "all",
     tests = [
-        ":vector_hip_test",
+        ":vector_hip_build_test",  # CI runs build test only
     ],
 )

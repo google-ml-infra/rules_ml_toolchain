@@ -9,6 +9,26 @@ rocm_redist = {
         required_softlinks = [],
         rocm_root = "",
     ),
+    "rocm_7.12.0_gfx908": struct(
+        packages = [
+            {
+                "url": "https://repo.amd.com/rocm/tarball/therock-dist-linux-gfx908-7.12.0.tar.gz",
+                "sha256": "8645100bd43761253114f175a6b5e5e928a72a437094e9e35d750ea089d41d6c",
+            },
+        ],
+        required_softlinks = [],
+        rocm_root = "",
+    ),
+    "rocm_7.12.0_gfx90a": struct(
+        packages = [
+            {
+                "url": "https://repo.amd.com/rocm/tarball/therock-dist-linux-gfx90a-7.12.0.tar.gz",
+                "sha256": "d1dc2d3cb113e433cf3d3a77f8e414dfd9537b8e7d4f655df4c2d3604a736700",
+            },
+        ],
+        required_softlinks = [],
+        rocm_root = "",
+    ),
 }
 
 def _parse_rocm_distro_links(distro_links):
