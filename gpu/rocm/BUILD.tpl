@@ -5,12 +5,14 @@ package(default_visibility = ["//visibility:private"])
 cc_library(
     name = "hip_runtime",
     hdrs = glob(["%{rocm_root}/include/**/*.h"]),
+    includes = ["%{rocm_root}/include"],
     srcs = glob(
         [
             "%{rocm_root}/lib/libamdhip64.so*",
             "%{rocm_root}/lib/libhsa-runtime64.so*",
             "%{rocm_root}/lib/librocprofiler-register.so.0*",
             "%{rocm_root}/lib/libamd_comgr.so*",
+            "%{rocm_root}/lib/libamd_comgr_loader.so*",
             "%{rocm_root}/lib/rocm_sysdeps/lib/*.so*",
             "%{rocm_root}/llvm/lib/libclang-cpp.so*",
             "%{rocm_root}/llvm/lib/libLLVM.so.*",
@@ -26,11 +28,12 @@ filegroup(
     srcs = glob([
         "%{rocm_root}/bin/hipcc",
         "%{rocm_root}/lib/llvm/**",
+        "%{rocm_root}/llvm/bin/*",
+        "%{rocm_root}/lib/llvm/lib/clang/**/include/**",
+        "%{rocm_root}/lib/llvm/lib/clang/**/lib/**/*.a",
+        "%{rocm_root}/lib/llvm/lib/clang/**/lib/**/*.bc",
         "%{rocm_root}/share/hip/**",
         "%{rocm_root}/amdgcn/**",
-        "%{rocm_root}/lib/rocm_sysdeps/lib/*.so*",
-        "%{rocm_root}/lib/libamd_comgr_loader.so*",
-        "%{rocm_root}/lib/libamd_comgr.so*",
     ]),
     visibility = ["//visibility:public"],
 )

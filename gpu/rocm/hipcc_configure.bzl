@@ -35,8 +35,8 @@ _ROCM_DISTRO_HASH = "ROCM_DISTRO_HASH"
 _ROCM_DISTRO_LINKS = "ROCM_DISTRO_LINKS"
 _TMPDIR = "TMPDIR"
 
-# Default hermetic ROCm redistributable version (gfx90X = MI100, gfx908)
-_DEFAULT_ROCM_DISTRO_VERSION = "rocm_7.10.0_gfx90X"
+# Default hermetic ROCm redistributable version
+_DEFAULT_ROCM_DISTRO_VERSION = "rocm_7.12.0_gfx908"
 
 def auto_configure_fail(msg):
     """Output failure message when rocm configuration fails."""
@@ -184,6 +184,15 @@ def _setup_rocm_distro_dir(repository_ctx):
     """Sets up the rocm hermetic installation directory to be used in hermetic build"""
     bash_bin = get_bash_bin(repository_ctx)
 
+    # Check for non-hermetic ROCm installation via ROCM_PATH
+    rocm_path = repository_ctx.os.environ.get("ROCM_PATH")
+    if rocm_path:
+        # Use system ROCm installation by symlinking it into the repository
+        auto_configure_warning("Using non-hermetic ROCm from ROCM_PATH: {}".format(rocm_path))
+        repository_ctx.symlink(rocm_path, _DISTRIBUTION_PATH)
+        # Use the symlinked path (_DISTRIBUTION_PATH) for all operations, not the absolute path
+        return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, rocm_path)
+
     # Check for custom URL-based distro
     rocm_distro_url = repository_ctx.os.environ.get(_ROCM_DISTRO_URL)
     if rocm_distro_url:
@@ -195,7 +204,7 @@ def _setup_rocm_distro_dir(repository_ctx):
         return _setup_rocm_distro_dir_impl(repository_ctx, rocm_distro)
 
     # Use hermetic redistributable (default: gfx908 for MI100)
-    rocm_distro_version = repository_ctx.os.environ.get(_ROCM_DISTRO_VERSION, "rocm_7.10.0_gfx90X")
+    rocm_distro_version = repository_ctx.os.environ.get(_ROCM_DISTRO_VERSION, _DEFAULT_ROCM_DISTRO_VERSION)
 
     if rocm_distro_version not in rocm_redist:
         fail("Unknown ROCM_DISTRO_VERSION: {}. Available versions: {}".format(
@@ -219,10 +228,17 @@ def _hipcc_autoconf_impl(repository_ctx):
     miopen_version_number = int(rocm_config.miopen_version_number)
     hipruntime_version_number = int(rocm_config.hipruntime_version_number)
 
-    # Copy header and library files to execroot.
-    # rocm_toolkit_path
-    rocm_toolkit_path = _remove_root_dir(rocm_config.rocm_toolkit_path, "rocm")
-    rocm_path_relative = "rocm_dist"  # Relative to repository root
+    # Handle hermetic vs non-hermetic ROCm
+    if rocm_config.install_path:
+        # Non-hermetic: symlink already created in _setup_rocm_distro_dir
+        # Use "rocm_dist" (relative to rocm/ directory where BUILD file is)
+        rocm_toolkit_path = "rocm_dist"
+    else:
+        # Hermetic: files already extracted to rocm/rocm_dist
+        rocm_toolkit_path = _remove_root_dir(rocm_config.rocm_toolkit_path, "rocm")
+
+    # Always use relative paths (either symlink or hermetic dist)
+    rocm_path_relative = "rocm_dist"
     hipcc_path_relative = rocm_path_relative + "/bin/hipcc"
 
     bash_bin = get_bash_bin(repository_ctx)
@@ -252,6 +268,7 @@ def _hipcc_autoconf_impl(repository_ctx):
     )
 
 _ENVIRONS = [
+    "ROCM_PATH",
     _TF_ROCM_AMDGPU_TARGETS,
     _ROCM_DISTRO_VERSION,
     _ROCM_DISTRO_URL,
