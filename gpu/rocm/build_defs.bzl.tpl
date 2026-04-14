@@ -88,14 +88,19 @@ def rocm_library(copts = [], deps = [], **kwargs):
         **kwargs
     )
 
-def rocm_cc_test(copts = [], **kwargs):
+def rocm_cc_test(copts = [], deps = [], **kwargs):
     """Wrapper over cc_test which adds default ROCm/HIP options.
 
     Args:
         copts: Additional compiler options.
+        deps: Test dependencies.
         **kwargs: Other arguments passed to cc_test.
     """
     native.cc_test(
         copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
+        deps = deps + [
+            "@config_rocm_hipcc//rocm:hip_headers",
+            "@config_rocm_hipcc//rocm:hip_runtime",
+        ],
         **kwargs
     )
