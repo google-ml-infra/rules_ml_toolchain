@@ -22,7 +22,8 @@ SYNOPSIS:
 DESCRIPTION:
   This script is expected to be called by the cc_library() or cc_binary() bazel
   rules. When the option "-x rocm" is present in the list of arguments passed
-  to this script, it invokes the hipcc compiler. When "-x rocm" is not
+  to this script, it invokes the hipcc compiler. Most arguments are passed
+  as is as a string to --compiler-options of hipcc. When "-x rocm" is not
   present, this wrapper invokes the host compiler (clang) with the input
   arguments as is.
 
@@ -30,7 +31,6 @@ ENVIRONMENT VARIABLES (set by toolchain features):
   GCC_PATH: Path to the host compiler (clang)
   HIPCC_PATH: Path to the hipcc compiler
   ROCM_PATH: Path to the ROCm installation
-  HIPCC_VERSION: Version of ROCm/HIP
 """
 
 from argparse import ArgumentParser
@@ -44,16 +44,14 @@ import shlex
 CPU_COMPILER = os.environ.get("GCC_PATH", "clang")
 HIPCC_PATH = os.environ.get("HIPCC_PATH", "/opt/rocm/bin/hipcc")
 ROCM_PATH = os.environ.get("ROCM_PATH", "/opt/rocm")
-HIPCC_VERSION = os.environ.get("HIPCC_VERSION", "6.0")
 VERBOSE = os.environ.get("CROSSTOOL_VERBOSE", "0") == "1"
 
 
-def log(s):
-    """Log a message for debugging."""
+def Log(s):
     print("hipcc_wrapper: {0}".format(s))
 
 
-def get_option_value(argv, option):
+def GetOptionValue(argv, option):
     """Extract the list of values for option from the argv list.
 
     Args:
@@ -74,14 +72,14 @@ def get_option_value(argv, option):
         return sum(vars(args)[option], [])
 
 
-def get_host_compiler_options(argv):
+def GetHostCompilerOptions(argv):
     """Collect the -isystem, -iquote, and --sysroot option values from argv.
 
     Args:
         argv: A list of strings, possibly the argv passed to main().
 
     Returns:
-        A list of option strings that can be passed to hipcc.
+        The string that can be used as the --compiler-options to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("-isystem", nargs="*", action="append")
@@ -93,65 +91,52 @@ def get_host_compiler_options(argv):
 
     args, _ = parser.parse_known_args(argv)
 
-    opts = []
+    opts = ""
 
     if args.isystem:
-        for path in sum(args.isystem, []):
-            opts.extend(["-isystem", path])
+        # Quote each path to handle special characters like ~
+        opts += " " + " ".join(["-isystem " + shlex.quote(p) for p in sum(args.isystem, [])])
     if args.iquote:
-        for path in sum(args.iquote, []):
-            opts.extend(["-iquote", path])
+        # Quote each path to handle special characters like ~
+        opts += " " + " ".join(["-iquote " + shlex.quote(p) for p in sum(args.iquote, [])])
     if args.g:
-        for g in sum(args.g, []):
-            opts.append("-g" + g)
+        opts += " -g" + " -g".join(sum(args.g, []))
     if args.no_canonical_prefixes:
-        opts.append("-no-canonical-prefixes")
+        opts += " -no-canonical-prefixes"
     if args.sysroot:
-        sysroot = args.sysroot[0]
-        opts.extend(["--sysroot", sysroot])
-        # Add explicit C++ include paths for hermetic sysroot
-        # HIPcc's clang needs these when in HIP mode (-x hip)
-        opts.extend(["-isystem", sysroot + "/usr/include/c++/8"])
-        opts.extend(["-isystem", sysroot + "/usr/include/x86_64-linux-gnu/c++/8"])
+        opts += " --sysroot " + shlex.quote(args.sysroot[0])
     if args.genco:
-        opts.append("--genco")
+        opts += " --genco"
 
     return opts
 
 
-def get_hipcc_options(argv):
+def GetHipccOptions(argv):
     """Collect the hipcc-specific options from argv.
 
     Args:
         argv: A list of strings, possibly the argv passed to main().
 
     Returns:
-        A list of option strings that can be passed directly to hipcc.
+        The string that can be passed directly to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("--offload-arch", nargs="*", action="append")
     parser.add_argument("-gline-tables-only", action="store_true")
-    parser.add_argument("-fno-gpu-rdc", action="store_true")
-    parser.add_argument("-fcuda-flush-denormals-to-zero", action="store_true")
 
     args, _ = parser.parse_known_args(argv)
 
-    hipcc_opts = []
-    if args.gline_tables_only:
-        hipcc_opts.append("-gline-tables-only")
+    hipcc_opts = " -gline-tables-only " if args.gline_tables_only else ""
     if args.offload_arch:
-        for arch in sum(args.offload_arch, []):
-            hipcc_opts.append("--offload-arch=" + arch)
-    if args.fno_gpu_rdc:
-        hipcc_opts.append("-fno-gpu-rdc")
-    if args.fcuda_flush_denormals_to_zero:
-        hipcc_opts.append("-fcuda-flush-denormals-to-zero")
+        hipcc_opts += " ".join(
+            ["--offload-arch=" + a for a in sum(args.offload_arch, [])]
+        )
 
     return hipcc_opts
 
 
 def system(cmd):
-    """Invoke cmd with os.system().
+    """Invokes cmd with os.system().
 
     Args:
         cmd: The command.
@@ -167,135 +152,136 @@ def system(cmd):
         return -os.WTERMSIG(retv)
 
 
-def invoke_hipcc(argv, log_enabled=False):
+def InvokeHipcc(argv, log=False):
     """Call hipcc with arguments assembled from argv.
 
     Args:
         argv: A list of strings, possibly the argv passed to main().
-        log_enabled: True if logging is requested.
+        log: True if logging is requested.
 
     Returns:
         The return value of calling os.system('hipcc ' + args)
     """
-    # Normalize flags that may contain spaces (e.g., "-isystem path")
-    normalized_argv = []
-    for flag in argv:
-        normalized_argv.extend(normalize_flag(flag))
-    argv = normalized_argv
+    # Split combined flags (e.g., '-isystem path' -> ['-isystem', 'path'])
+    # Also handle quoted forms like "'- isystem path'"
+    split_argv = []
+    for arg in argv:
+        # Remove surrounding quotes if present
+        cleaned_arg = arg.strip("'\"")
+        if cleaned_arg.startswith('-isystem '):
+            split_argv.extend(['-isystem', cleaned_arg[9:]])
+        elif cleaned_arg.startswith('-iquote '):
+            split_argv.extend(['-iquote', cleaned_arg[8:]])
+        else:
+            split_argv.append(cleaned_arg)
 
-    if VERBOSE:
-        print("DEBUG: Normalized argv:", argv)
-
-    host_compiler_options = get_host_compiler_options(argv)
-
-    if VERBOSE:
-        print("DEBUG: host_compiler_options:", host_compiler_options)
-    hipcc_compiler_options = get_hipcc_options(argv)
-    opt_option = get_option_value(argv, "O")
-    m_options = get_option_value(argv, "m")
-    include_options = get_option_value(argv, "I")
-    out_file = get_option_value(argv, "o")
-    depfiles = get_option_value(argv, "MF")
-    defines = get_option_value(argv, "D")
-    undefines = get_option_value(argv, "U")
-    std_options = get_option_value(argv, "std")
+    host_compiler_options = GetHostCompilerOptions(split_argv)
+    hipcc_compiler_options = GetHipccOptions(split_argv)
+    opt_option = GetOptionValue(split_argv, "O")
+    m_options = GetOptionValue(split_argv, "m")
+    m_options = "".join([" -m" + m for m in m_options if m in ["32", "64"]])
+    include_options = GetOptionValue(split_argv, "I")
+    out_file = GetOptionValue(split_argv, "o")
+    depfiles = GetOptionValue(split_argv, "MF")
+    defines = GetOptionValue(split_argv, "D")
+    defines = "".join([" -D" + shlex.quote(define) for define in defines])
+    undefines = GetOptionValue(split_argv, "U")
+    undefines = "".join([" -U" + shlex.quote(define) for define in undefines])
+    std_options = GetOptionValue(split_argv, "std")
+    hipcc_allowed_std_options = ["c++11", "c++14", "c++17"]
+    std_options = "".join(
+        [" -std=" + define for define in std_options if define in hipcc_allowed_std_options]
+    )
 
     # The list of source files get passed after the -c option.
-    src_files = get_option_value(argv, "c")
+    src_files = GetOptionValue(split_argv, "c")
 
     if len(src_files) == 0:
         return 1
     if len(out_file) != 1:
         return 1
 
+    opt = " -O2" if (len(opt_option) > 0 and int(opt_option[0]) > 0) else " -g"
+
+    includes = (
+        " -I " + " -I ".join(include_options) if len(include_options) > 0 else ""
+    )
+
     # Filter to only C/C++ source files
-    src_files = [f for f in src_files if re.search(r"\.cpp$|\.cc$|\.c$|\.cxx$|\.C$", f)]
+    src_files = [
+        f for f in src_files if re.search(r"\.cpp$|\.cc$|\.c$|\.cxx$|\.C$", f)
+    ]
+    srcs = " ".join(src_files)
+    out = " -o " + out_file[0]
 
-    # Build command arguments as a list
-    cmd_args = [HIPCC_PATH]
-
-    # Note: host_compiler_options must come before hipcc_compiler_options so that -isystem paths
-    # are set up before --include flags are processed
-    cmd_args.extend(host_compiler_options)
-    cmd_args.extend(hipcc_compiler_options)
-
-    # Add defines and undefines
-    for define in undefines:
-        cmd_args.extend(["-U", define])
-    for define in defines:
-        cmd_args.extend(["-D", define])
-
-    # Add std options (filter to hipcc-allowed values)
-    hipcc_allowed_std_options = ["c++11", "c++14", "c++17"]
-    for std in std_options:
-        if std in hipcc_allowed_std_options:
-            cmd_args.append("-std=" + std)
-
-    # Add machine options
-    for m in m_options:
-        if m in ["32", "64"]:
-            cmd_args.append("-m" + m)
-
-    # Add optimization flag
-    if len(opt_option) > 0 and int(opt_option[0]) > 0:
-        cmd_args.append("-O2")
-    else:
-        cmd_args.append("-g")
-
-    # Add includes
-    cmd_args.extend(["-I", "."])
-    for include in include_options:
-        cmd_args.extend(["-I", include])
+    hipccopts = hipcc_compiler_options + " "
+    # Include hip/hip_runtime.h before any other headers to ensure HIP
+    # device-compatible headers are used.
+    hipccopts += " --include=hip/hip_runtime.h "
+    # Force C++17 dialect
+    hipccopts += " --std=c++17 "
+    # Use -fno-gpu-rdc by default for early GPU kernel finalization
+    hipccopts += " -fno-gpu-rdc "
+    hipccopts += " -fcuda-flush-denormals-to-zero "
+    hipccopts += undefines
+    hipccopts += defines
+    hipccopts += std_options
+    hipccopts += m_options
+    hipccopts += ' --rocm-path="' + ROCM_PATH + '" '
 
     if depfiles:
         # Generate the dependency file
-        depfile_args = cmd_args + src_files + ["-M", "-o", depfiles[0]]
-        if log_enabled:
-            log(" ".join(depfile_args))
+        depfile = depfiles[0]
+        cmd = (
+            HIPCC_PATH
+            + " "
+            + hipccopts
+            + host_compiler_options
+            + " -I ."
+            + includes
+            + " "
+            + srcs
+            + " -M -o "
+            + depfile
+        )
+        if log:
+            Log(cmd)
         if VERBOSE:
-            print(" ".join(depfile_args))
-        exit_status = subprocess.call(depfile_args)
+            print(cmd)
+        exit_status = os.system(cmd)
         if exit_status != 0:
             return exit_status
 
-    # Build final compile command
-    cmd_args.append("-fPIC")
-    cmd_args.append("-c")
-    cmd_args.extend(src_files)
-    cmd_args.extend(["-o", out_file[0]])
+    cmd = (
+        HIPCC_PATH
+        + " "
+        + hipccopts
+        + host_compiler_options
+        + " -fPIC"
+        + " -I ."
+        + opt
+        + includes
+        + " -c "
+        + srcs
+        + out
+    )
 
-    if log_enabled:
-        log(" ".join(cmd_args))
+    if log:
+        Log(cmd)
     if VERBOSE:
-        print(" ".join(cmd_args))
-    return subprocess.call(cmd_args)
-
-
-def normalize_flag(flag):
-    """Split flags that contain spaces into separate arguments.
-
-    This handles the case where flags like '-isystem path' are passed as a single
-    argument with a space inside, which can happen from rules_ml_toolchain's
-    cc_toolchain_import_feature.
-
-    Args:
-        flag: A single flag string.
-
-    Returns:
-        A list of flag strings (usually 1, but 2 if the flag contained a space).
-    """
-    if flag.startswith("-") and " " in flag:
-        return flag.split()
-    else:
-        return [flag]
+        print(cmd)
+    return system(cmd)
 
 
 def is_rocm_flag(flag):
     """Check if a flag is ROCm-specific and should be stripped for host compilation."""
+    # Only strip flags that clang doesn't understand at all
     return (
         flag.startswith("--rocm")
         or flag.startswith("-nohipinc")
         or flag.startswith("--offload-arch")
+        or flag.startswith("-fcuda-flush-denormals-to-zero")
+        or flag.startswith("-fno-gpu-rdc")
     )
 
 
@@ -317,17 +303,19 @@ def main():
     if args.x and args.x[0] == "rocm":
         # Compilation for GPU objects
         if args.rocm_log:
-            log("-x rocm")
-        # Note: Don't quote leftover args - they'll be parsed by argparse in invoke_hipcc
+            Log("-x rocm")
+        leftover = [shlex.quote(s) for s in leftover]
         if args.rocm_log:
-            log("using hipcc")
-        return invoke_hipcc(leftover, log_enabled=args.rocm_log)
+            Log("using hipcc")
+        return InvokeHipcc(leftover, log=args.rocm_log)
 
     elif args.pass_exit_codes:
-        gpu_linker_flags = []
-        for flag in sys.argv[1:]:
-            if not flag.startswith("--rocm_log") and not is_rocm_flag(flag):
-                gpu_linker_flags.extend(normalize_flag(flag))
+        # Link - use host compiler but strip ROCm-specific flags
+        gpu_linker_flags = [
+            flag
+            for flag in sys.argv[1:]
+            if not flag.startswith("--rocm_log") and not is_rocm_flag(flag)
+        ]
 
         if VERBOSE:
             print(" ".join([CPU_COMPILER] + gpu_linker_flags))
@@ -335,17 +323,52 @@ def main():
 
     else:
         # Compilation for host objects
-        # Normalize flags to split any that contain spaces (e.g., '-isystem path')
-        cpu_compiler_flags = []
-        for flag in sys.argv[1:]:
-            if not flag.startswith("--rocm_log") and not is_rocm_flag(flag):
-                cpu_compiler_flags.extend(normalize_flag(flag))
+        # Strip ROCm-specific flags that clang doesn't understand
+        cpu_compiler_flags = [
+            flag
+            for flag in sys.argv[1:]
+            if not flag.startswith("--rocm_log") and not is_rocm_flag(flag)
+        ]
 
-        # Add HIP platform macro for host code
+        # SE codes need to be built with gcc, but need this macro defined
         cpu_compiler_flags.append("-D__HIP_PLATFORM_HCC__")
+
+        # Split flags that have been incorrectly combined (e.g., '-isystem path' -> ['-isystem', 'path'])
+        # and filter out -iquote flags with non-existent paths
+        import pathlib
+        split_flags = []
+        for flag in cpu_compiler_flags:
+            # Check if this is a combined flag like '-isystem path' or '-iquote path'
+            if flag.startswith('-isystem '):
+                split_flags.extend(['-isystem', flag[9:]])  # Split into ['-isystem', 'path']
+            elif flag.startswith('-iquote '):
+                split_flags.extend(['-iquote', flag[8:]])   # Split into ['-iquote', 'path']
+            else:
+                split_flags.append(flag)
+
+        # Now filter out non-existent -iquote paths
+        filtered_flags = []
+        i = 0
+        while i < len(split_flags):
+            flag = split_flags[i]
+            if flag == "-iquote" and i + 1 < len(split_flags):
+                path = split_flags[i + 1]
+                if pathlib.Path(path).exists() or not path.startswith("external/"):
+                    filtered_flags.append(flag)
+                    filtered_flags.append(path)
+                    i += 2
+                else:
+                    # Skip non-existent -iquote paths
+                    i += 2
+            else:
+                filtered_flags.append(flag)
+                i += 1
+
+        cmd_line = [CPU_COMPILER] + filtered_flags
+
         if VERBOSE:
-            print(" ".join([CPU_COMPILER] + cpu_compiler_flags))
-        return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)
+            print(" ".join(cmd_line))
+        return subprocess.call(cmd_line)
 
 
 if __name__ == "__main__":

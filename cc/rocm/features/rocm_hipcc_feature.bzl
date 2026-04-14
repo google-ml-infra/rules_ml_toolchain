@@ -24,6 +24,7 @@ load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
     "ALL_CC_COMPILE_ACTION_NAMES",
+    "ALL_CPP_COMPILE_ACTION_NAMES",
     "CC_LINK_EXECUTABLE_ACTION_NAMES",
     "DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
 )
@@ -86,42 +87,56 @@ def _rocm_hipcc_feature_impl(ctx):
         env_entry("HIPCC_VERSION", ctx.attr.version),
     ]
 
-    # Build compiler flags
-    compiler_flags = []
+    # Build compiler flags (common to both C and C++)
+    common_compiler_flags = []
 
     # Add --rocm-path flag pointing to the ROCm toolkit
-    compiler_flags.append("--rocm-path=" + rocm_path)
+    common_compiler_flags.append("--rocm-path=" + rocm_path)
 
     # Add architecture flags if specified
     for arch in ctx.attr.amdgpu_targets:
-        compiler_flags.append("--offload-arch=" + arch)
+        common_compiler_flags.append("--offload-arch=" + arch)
 
-    # ROCm-specific compilation flags
-    compiler_flags.extend([
-        # Force C++17 for HIP compilation
-        "--std=c++17",
+    # ROCm-specific compilation flags (common to C and C++)
+    common_compiler_flags.extend([
         # Disable relocatable device code for faster compilation
         "-fno-gpu-rdc",
         # Flush denormals to zero on GPU
         "-fcuda-flush-denormals-to-zero",
     ])
 
+    # C++ only flags
+    cpp_only_flags = [
+        # Force C++17 for HIP compilation (only valid for C++)
+        "--std=c++17",
+    ]
+
     return _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
         provides = ctx.attr.provides,
         flag_sets = [
+            # Common flags for all compile and link actions
             flag_set(
                 actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
                           DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
                           ALL_CC_COMPILE_ACTION_NAMES,
                 flag_groups = [
                     flag_group(
-                        flags = compiler_flags,
+                        flags = common_compiler_flags,
                     ),
-                ] if compiler_flags else [],
+                ] if common_compiler_flags else [],
             ),
-        ] if compiler_flags else [],
+            # C++ only flags (not applied to c_compile)
+            flag_set(
+                actions = ALL_CPP_COMPILE_ACTION_NAMES,
+                flag_groups = [
+                    flag_group(
+                        flags = cpp_only_flags,
+                    ),
+                ],
+            ),
+        ],
         env_sets = [env_set(
             actions = ALL_ACTIONS,
             env_entries = env_entries,
