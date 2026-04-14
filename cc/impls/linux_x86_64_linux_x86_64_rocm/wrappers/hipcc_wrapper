@@ -81,7 +81,7 @@ def get_host_compiler_options(argv):
         argv: A list of strings, possibly the argv passed to main().
 
     Returns:
-        The string that can be used as the --compiler-options to hipcc.
+        A list of option strings that can be passed to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("-isystem", nargs="*", action="append")
@@ -93,25 +93,28 @@ def get_host_compiler_options(argv):
 
     args, _ = parser.parse_known_args(argv)
 
-    opts = ""
+    opts = []
 
     if args.isystem:
-        opts += " -isystem " + " -isystem ".join(sum(args.isystem, []))
+        for path in sum(args.isystem, []):
+            opts.extend(["-isystem", path])
     if args.iquote:
-        opts += " -iquote " + " -iquote ".join(sum(args.iquote, []))
+        for path in sum(args.iquote, []):
+            opts.extend(["-iquote", path])
     if args.g:
-        opts += " -g" + " -g".join(sum(args.g, []))
+        for g in sum(args.g, []):
+            opts.append("-g" + g)
     if args.no_canonical_prefixes:
-        opts += " -no-canonical-prefixes"
+        opts.append("-no-canonical-prefixes")
     if args.sysroot:
         sysroot = args.sysroot[0]
-        opts += " --sysroot " + sysroot
+        opts.extend(["--sysroot", sysroot])
         # Add explicit C++ include paths for hermetic sysroot
         # HIPcc's clang needs these when in HIP mode (-x hip)
-        opts += " -isystem " + sysroot + "/usr/include/c++/8"
-        opts += " -isystem " + sysroot + "/usr/include/x86_64-linux-gnu/c++/8"
+        opts.extend(["-isystem", sysroot + "/usr/include/c++/8"])
+        opts.extend(["-isystem", sysroot + "/usr/include/x86_64-linux-gnu/c++/8"])
     if args.genco:
-        opts += " --genco"
+        opts.append("--genco")
 
     return opts
 
@@ -123,7 +126,7 @@ def get_hipcc_options(argv):
         argv: A list of strings, possibly the argv passed to main().
 
     Returns:
-        The string that can be passed directly to hipcc.
+        A list of option strings that can be passed directly to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("--offload-arch", nargs="*", action="append")
@@ -133,17 +136,16 @@ def get_hipcc_options(argv):
 
     args, _ = parser.parse_known_args(argv)
 
-    hipcc_opts = ""
+    hipcc_opts = []
     if args.gline_tables_only:
-        hipcc_opts += " -gline-tables-only "
+        hipcc_opts.append("-gline-tables-only")
     if args.offload_arch:
-        hipcc_opts += " ".join(
-            ["--offload-arch=" + a for a in sum(args.offload_arch, [])]
-        )
+        for arch in sum(args.offload_arch, []):
+            hipcc_opts.append("--offload-arch=" + arch)
     if args.fno_gpu_rdc:
-        hipcc_opts += " -fno-gpu-rdc"
+        hipcc_opts.append("-fno-gpu-rdc")
     if args.fcuda_flush_denormals_to_zero:
-        hipcc_opts += " -fcuda-flush-denormals-to-zero"
+        hipcc_opts.append("-fcuda-flush-denormals-to-zero")
 
     return hipcc_opts
 
@@ -191,23 +193,12 @@ def invoke_hipcc(argv, log_enabled=False):
     hipcc_compiler_options = get_hipcc_options(argv)
     opt_option = get_option_value(argv, "O")
     m_options = get_option_value(argv, "m")
-    m_options = "".join([" -m" + m for m in m_options if m in ["32", "64"]])
     include_options = get_option_value(argv, "I")
     out_file = get_option_value(argv, "o")
     depfiles = get_option_value(argv, "MF")
     defines = get_option_value(argv, "D")
-    defines = "".join([" -D" + define for define in defines])
     undefines = get_option_value(argv, "U")
-    undefines = "".join([" -U" + define for define in undefines])
     std_options = get_option_value(argv, "std")
-    hipcc_allowed_std_options = ["c++11", "c++14", "c++17"]
-    std_options = "".join(
-        [
-            " -std=" + define
-            for define in std_options
-            if define in hipcc_allowed_std_options
-        ]
-    )
 
     # The list of source files get passed after the -c option.
     src_files = get_option_value(argv, "c")
@@ -217,65 +208,61 @@ def invoke_hipcc(argv, log_enabled=False):
     if len(out_file) != 1:
         return 1
 
-    opt = " -O2" if (len(opt_option) > 0 and int(opt_option[0]) > 0) else " -g"
-
-    includes = " -I " + " -I ".join(include_options) if len(include_options) > 0 else ""
-
     # Filter to only C/C++ source files
     src_files = [f for f in src_files if re.search(r"\.cpp$|\.cc$|\.c$|\.cxx$|\.C$", f)]
-    srcs = " ".join(src_files)
-    out = " -o " + out_file[0]
 
-    hipccopts = hipcc_compiler_options + " "
-    hipccopts += undefines
-    hipccopts += defines
-    hipccopts += std_options
-    hipccopts += m_options
+    # Build command arguments as a list
+    cmd_args = [HIPCC_PATH]
+
+    # Note: host_compiler_options must come before hipcc_compiler_options so that -isystem paths
+    # are set up before --include flags are processed
+    cmd_args.extend(host_compiler_options)
+    cmd_args.extend(hipcc_compiler_options)
+
+    # Add defines and undefines
+    for define in undefines:
+        cmd_args.extend(["-U", define])
+    for define in defines:
+        cmd_args.extend(["-D", define])
+
+    # Add std options (filter to hipcc-allowed values)
+    hipcc_allowed_std_options = ["c++11", "c++14", "c++17"]
+    for std in std_options:
+        if std in hipcc_allowed_std_options:
+            cmd_args.append("-std=" + std)
+
+    # Add machine options
+    for m in m_options:
+        if m in ["32", "64"]:
+            cmd_args.append("-m" + m)
+
+    # Add optimization flag
+    if len(opt_option) > 0 and int(opt_option[0]) > 0:
+        cmd_args.append("-O2")
+    else:
+        cmd_args.append("-g")
+
+    # Add includes
+    cmd_args.extend(["-I", "."])
+    for include in include_options:
+        cmd_args.extend(["-I", include])
 
     if depfiles:
         # Generate the dependency file
-        depfile = depfiles[0]
-        # Note: host_compiler_options must come before hipccopts so that -isystem paths
-        # are set up before --include flags are processed
-        cmd = (
-            HIPCC_PATH
-            + " "
-            + host_compiler_options
-            + " "
-            + hipccopts
-            + " -I ."
-            + includes
-            + " "
-            + srcs
-            + " -M -o "
-            + depfile
-        )
-        cmd_args = shlex.split(cmd)
+        depfile_args = cmd_args + src_files + ["-M", "-o", depfiles[0]]
         if log_enabled:
-            log(" ".join(cmd_args))
+            log(" ".join(depfile_args))
         if VERBOSE:
-            print(" ".join(cmd_args))
-        exit_status = subprocess.call(cmd_args)
+            print(" ".join(depfile_args))
+        exit_status = subprocess.call(depfile_args)
         if exit_status != 0:
             return exit_status
 
-    # Note: host_compiler_options must come before hipccopts so that -isystem paths
-    # are set up before --include flags are processed
-    cmd = (
-        HIPCC_PATH
-        + " "
-        + host_compiler_options
-        + " "
-        + hipccopts
-        + " -fPIC"
-        + " -I ."
-        + opt
-        + includes
-        + " -c "
-        + srcs
-        + out
-    )
-    cmd_args = shlex.split(cmd)
+    # Build final compile command
+    cmd_args.append("-fPIC")
+    cmd_args.append("-c")
+    cmd_args.extend(src_files)
+    cmd_args.extend(["-o", out_file[0]])
 
     if log_enabled:
         log(" ".join(cmd_args))
