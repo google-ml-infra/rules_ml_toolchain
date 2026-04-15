@@ -32,9 +32,9 @@ int VectorGenerateAndSum(int size) {
   hipMallocManaged(&b, sizeof(int) * size);
   hipMallocManaged(&c, sizeof(int) * size);
 
-  for(int i = 1; i <= size; ++i) {
-    a[i] = i;
-    b[i] = i;
+  for(int i = 0; i < size; ++i) {
+    a[i] = i + 1;
+    b[i] = i + 1;
     c[i] = 0;
   }
 

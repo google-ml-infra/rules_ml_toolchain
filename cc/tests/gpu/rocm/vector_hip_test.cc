@@ -11,11 +11,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-============================================================================== */
+==============================================================================
+*/
 
 #include "vector_hip.hip.h"
 #include "gtest/gtest.h"
 
-TEST(VectorHipTest, VectorHipTest) {
-    EXPECT_EQ(90, VectorGenerateAndSum(10));
-}
+TEST(VectorHipTest, VectorHipTest) { EXPECT_EQ(110, VectorGenerateAndSum(10)); }

@@ -2,6 +2,13 @@ licenses(["restricted"])  # MPL2, portions GPL v3, LGPL v3, BSD-like
 
 package(default_visibility = ["//visibility:private"])
 
+# Export rocm_dist directory so it can be referenced directly as a label by XLA
+# XLA's rocm_configure needs to symlink this directory into its own repository
+exports_files(
+    ["rocm_dist"],
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "hip_runtime",
     hdrs = glob(["%{rocm_root}/include/**/*.h"]),
@@ -20,6 +27,12 @@ cc_library(
         exclude = [
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
         ]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "rocm_redist",
+    srcs = glob(["%{rocm_root}/**"]),
     visibility = ["//visibility:public"],
 )
 

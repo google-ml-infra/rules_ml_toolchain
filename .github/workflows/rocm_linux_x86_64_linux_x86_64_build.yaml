@@ -41,7 +41,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build-rocm:latest",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build:latest",
           },
         ]
     # Use self-hosted runners with ROCm support

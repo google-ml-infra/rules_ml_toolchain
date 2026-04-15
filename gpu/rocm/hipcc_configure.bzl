@@ -26,6 +26,16 @@ def enable_sycl(repository_ctx):
     """Returns whether to build with SYCL support."""
     return bool(get_host_environ(repository_ctx, "TF_NEED_SYCL", "").strip())
 
+def _enable_rocm(repository_ctx):
+    """Returns whether to build with ROCm support."""
+    enable_rocm = get_host_environ(repository_ctx, "TF_NEED_ROCM")
+    if enable_rocm == "1":
+        return True
+    # Also enable if ROCM_PATH is set (non-hermetic ROCm)
+    if repository_ctx.os.environ.get("ROCM_PATH"):
+        return True
+    return False
+
 _TF_ROCM_AMDGPU_TARGETS = "TF_ROCM_AMDGPU_TARGETS"
 _TF_ROCM_CONFIG_REPO = "TF_ROCM_CONFIG_REPO"
 _DISTRIBUTION_PATH = "rocm/rocm_dist"
@@ -215,14 +225,24 @@ def _setup_rocm_distro_dir(repository_ctx):
     repository_ctx.report_progress("Downloading hermetic ROCm distribution: {}".format(rocm_distro_version))
     return _setup_rocm_distro_dir_impl(repository_ctx, rocm_redist[rocm_distro_version])
 
-def _hipcc_autoconf_impl(repository_ctx):
-    """Creates the repository containing files set up to build with ROCm."""
+def _create_dummy_repository(repository_ctx):
+    """Creates a stub ROCm repository when ROCm is not enabled."""
+    # Create stub repository using templates with empty values
+    stub_dict = {
+        "%{rocm_root}": "",
+        "%{rocm_gpu_architectures}": "[]",
+        "%{rocm_version_number}": "0",
+        "%{miopen_version_number}": "0",
+        "%{hipruntime_version_number}": "0",
+        "%{hipcc_path}": "",
+        "%{rocm_path}": "",
+    }
 
-    tpl_paths = {labelname: _tpl_path(repository_ctx, labelname) for labelname in [
-        "rocm:BUILD",
-        "rocm:build_defs.bzl",
-    ]}
+    _tpl(repository_ctx, "rocm:BUILD", stub_dict)
+    _tpl(repository_ctx, "rocm:build_defs.bzl", stub_dict)
 
+def _setup_rocm_repository(repository_ctx):
+    """Sets up the ROCm repository when ROCm is enabled."""
     rocm_config = _setup_rocm_distro_dir(repository_ctx)
     rocm_version_number = int(rocm_config.rocm_version_number)
     miopen_version_number = int(rocm_config.miopen_version_number)
@@ -255,19 +275,18 @@ def _hipcc_autoconf_impl(repository_ctx):
         "%{rocm_path}": rocm_path_relative,
     }
 
-    repository_ctx.template(
-        "rocm/BUILD",
-        tpl_paths["rocm:BUILD"],
-        repository_dict,
-    )
+    _tpl(repository_ctx, "rocm:BUILD", repository_dict)
+    _tpl(repository_ctx, "rocm:build_defs.bzl", repository_dict)
 
-    repository_ctx.template(
-        "rocm/build_defs.bzl",
-        tpl_paths["rocm:build_defs.bzl"],
-        repository_dict,
-    )
+def _hipcc_autoconf_impl(repository_ctx):
+    """Implementation of the hipcc_configure repository rule."""
+    if not _enable_rocm(repository_ctx):
+        _create_dummy_repository(repository_ctx)
+    else:
+        _setup_rocm_repository(repository_ctx)
 
 _ENVIRONS = [
+    "TF_NEED_ROCM",
     "ROCM_PATH",
     _TF_ROCM_AMDGPU_TARGETS,
     _ROCM_DISTRO_VERSION,
