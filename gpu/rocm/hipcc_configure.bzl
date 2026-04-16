@@ -3,6 +3,8 @@
 `rocm_configure` depends on the following environment variables:
 
   * `ROCM_PATH`: The path to the ROCm toolkit. Default is `/opt/rocm`.
+  * `TF_ROCM_MULTIPLE_PATHS`: Colon-separated list of ROCm component paths (e.g., "/path/to/hip:/path/to/rocblas").
+  * `LLVM_PATH`: Path to ROCm LLVM (used with TF_ROCM_MULTIPLE_PATHS).
   * `TF_ROCM_AMDGPU_TARGETS`: The AMDGPU targets.
 """
 
@@ -11,6 +13,7 @@ load(
     "//common:common.bzl",
     "err_out",
     "execute",
+    "files_exist",
     "get_bash_bin",
     "get_python_bin",
 )
@@ -32,6 +35,8 @@ def _enable_rocm(repository_ctx):
 
 _TF_ROCM_AMDGPU_TARGETS = "TF_ROCM_AMDGPU_TARGETS"
 _TF_ROCM_CONFIG_REPO = "TF_ROCM_CONFIG_REPO"
+_TF_ROCM_MULTIPLE_PATHS = "TF_ROCM_MULTIPLE_PATHS"
+_LLVM_PATH = "LLVM_PATH"
 _DISTRIBUTION_PATH = "rocm/rocm_dist"
 _ROCM_DISTRO_VERSION = "ROCM_DISTRO_VERSION"
 _ROCM_DISTRO_URL = "ROCM_DISTRO_URL"
@@ -186,9 +191,55 @@ def _setup_rocm_distro_dir_impl(repository_ctx, rocm_distro):
     bash_bin = get_bash_bin(repository_ctx)
     return _get_rocm_config(repository_ctx, bash_bin, _canonical_path("{}/{}".format(_DISTRIBUTION_PATH, rocm_distro.rocm_root)), "")
 
+def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
+    """Sets up ROCm from multiple component paths by symlinking into rocm_dist.
+
+    Args:
+        repository_ctx: The repository context.
+        multiple_paths: Colon-separated list of ROCm component paths.
+        bash_bin: Path to bash interpreter.
+
+    Returns:
+        ROCm config struct.
+    """
+    auto_configure_warning("Using ROCm from multiple paths: {}".format(multiple_paths))
+    paths_list = multiple_paths.split(":")
+
+    # Symlink files from each ROCm component path
+    for rocm_custom_path in paths_list:
+        cmd = "find " + rocm_custom_path + "/* \\( -type f -o -type l \\)"
+        result = execute(repository_ctx, [bash_bin, "-c", cmd])
+        for file_path in result.stdout.strip().split("\n"):
+            if not file_path:
+                continue
+            relative_path = file_path[len(rocm_custom_path):]
+            symlink_path = _DISTRIBUTION_PATH + relative_path
+            if files_exist(repository_ctx, [symlink_path], bash_bin)[0]:
+                # File already present from a previous path, skip
+                continue
+            else:
+                repository_ctx.symlink(file_path, symlink_path)
+
+    # Handle LLVM_PATH separately if provided
+    llvm_path = repository_ctx.os.environ.get(_LLVM_PATH)
+    if llvm_path:
+        repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/llvm")
+        repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/lib/llvm")
+        # Only create amdgcn symlink if it exists
+        amdgcn_path = llvm_path + "/amdgcn"
+        if files_exist(repository_ctx, [amdgcn_path], bash_bin)[0]:
+            repository_ctx.symlink(amdgcn_path, _DISTRIBUTION_PATH + "/amdgcn")
+
+    return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, _DISTRIBUTION_PATH)
+
 def _setup_rocm_distro_dir(repository_ctx):
     """Sets up the rocm hermetic installation directory to be used in hermetic build"""
     bash_bin = get_bash_bin(repository_ctx)
+
+    # Check for multiple ROCm paths (highest priority)
+    multiple_paths = repository_ctx.os.environ.get(_TF_ROCM_MULTIPLE_PATHS)
+    if multiple_paths:
+        return _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin)
 
     # Check for non-hermetic ROCm installation via ROCM_PATH
     rocm_path = repository_ctx.os.environ.get("ROCM_PATH")
