@@ -31,6 +31,8 @@ def hipcc_config():
             - rocm_root: Path to the ROCm root within the distribution (for file labels)
             - miopen_version: MIOpen version number
             - hipruntime_version: HIP runtime version number
+            - clang_version: Clang version string
+            - lib_paths: List of library paths (for multiple ROCm paths setup)
     """
     return struct(
         gpu_architectures = %{rocm_gpu_architectures},
@@ -41,6 +43,7 @@ def hipcc_config():
         miopen_version = %{miopen_version_number},
         hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
+        lib_paths = %{rocm_lib_paths},
     )
 
 # Alias for compatibility

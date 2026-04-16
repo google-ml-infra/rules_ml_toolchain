@@ -85,12 +85,15 @@ def find_rocm_config(repository_ctx, rocm_path):
     # Parse the dict from stdout.
     return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])
 
-def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path):
+def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path, rocm_lib_paths = None):
     """Detects and returns information about the ROCm installation on the system.
 
     Args:
       repository_ctx: The repository context.
       bash_bin: the path to the path interpreter
+      rocm_path: Path to ROCm installation.
+      install_path: Original install path (for non-hermetic builds).
+      rocm_lib_paths: Optional list of lib paths (for multiple ROCm paths setup).
 
     Returns:
       A struct containing the following fields:
@@ -99,6 +102,9 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path):
         rocm_version_number: The version of ROCm on the system.
         miopen_version_number: The version of MIOpen on the system.
         hipruntime_version_number: The version of HIP Runtime on the system.
+        clang_version: The clang version in ROCm's LLVM.
+        install_path: Original install path.
+        rocm_lib_paths: List of lib paths (for multiple paths setup).
     """
     config = find_rocm_config(repository_ctx, rocm_path)
     rocm_toolkit_path = config["rocm_toolkit_path"]
@@ -114,6 +120,7 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path):
         hipruntime_version_number = hipruntime_version_number,
         clang_version = clang_version,
         install_path = install_path,
+        rocm_lib_paths = rocm_lib_paths if rocm_lib_paths else [],
     )
 
 def _tpl_path(repository_ctx, labelname):
@@ -205,6 +212,13 @@ def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
     auto_configure_warning("Using ROCm from multiple paths: {}".format(multiple_paths))
     paths_list = multiple_paths.split(":")
 
+    # Collect lib paths for rpath construction
+    rocm_lib_paths = []
+    for rocm_custom_path in paths_list:
+        lib_path = rocm_custom_path + "/lib/"
+        if files_exist(repository_ctx, [lib_path], bash_bin)[0] and not lib_path in rocm_lib_paths:
+            rocm_lib_paths.append(lib_path)
+
     # Symlink files from each ROCm component path
     for rocm_custom_path in paths_list:
         cmd = "find " + rocm_custom_path + "/* \\( -type f -o -type l \\)"
@@ -230,7 +244,13 @@ def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
         if files_exist(repository_ctx, [amdgcn_path], bash_bin)[0]:
             repository_ctx.symlink(amdgcn_path, _DISTRIBUTION_PATH + "/amdgcn")
 
-    return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, _DISTRIBUTION_PATH)
+    return _get_rocm_config(
+        repository_ctx,
+        bash_bin,
+        _DISTRIBUTION_PATH,
+        _DISTRIBUTION_PATH,
+        rocm_lib_paths = rocm_lib_paths,
+    )
 
 def _setup_rocm_distro_dir(repository_ctx):
     """Sets up the rocm hermetic installation directory to be used in hermetic build"""
@@ -284,6 +304,7 @@ def _create_dummy_repository(repository_ctx):
         "%{hipcc_path}": "",
         "%{rocm_path}": "",
         "%{clang_version}": "",
+        "%{rocm_lib_paths}": "[]",
     }
 
     _tpl(repository_ctx, "rocm:BUILD", stub_dict)
@@ -322,6 +343,7 @@ def _setup_rocm_repository(repository_ctx):
         "%{hipcc_path}": hipcc_path_relative,
         "%{rocm_path}": rocm_path_relative,
         "%{clang_version}": rocm_config.clang_version,
+        "%{rocm_lib_paths}": str(rocm_config.rocm_lib_paths),
     }
 
     _tpl(repository_ctx, "rocm:BUILD", repository_dict)

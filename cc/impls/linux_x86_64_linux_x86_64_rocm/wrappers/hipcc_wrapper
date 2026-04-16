@@ -257,25 +257,40 @@ def InvokeHipcc(argv, log=False):
     # Add rocm-path (extracted from argv earlier)
     cmd_args.extend(["--rocm-path=" + rocm_path_for_wrappers])
 
-    # Add ROCm's LLVM headers for GPU compilation
-    # We need both cuda_wrappers (FIRST) and builtin headers
-    if ROCM_CLANG_VERSION:
+    # Detect if this is device or host compilation
+    is_device_compilation = "--cuda-device-only" in argv
+    is_host_compilation = "--cuda-host-only" in argv
+
+    # Add ROCm's LLVM headers ONLY for GPU/device compilation
+    # For host-only compilation, we use hermetic LLVM headers instead
+    if ROCM_CLANG_VERSION and is_device_compilation:
         # 1. cuda_wrappers must come FIRST (before sysroot C++ headers)
         #    These intercept C++ stdlib includes and add HIP-awareness using #include_next
         #    They provide __device__ annotations for placement new/delete
-        cuda_wrappers_path = os.path.join(ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include", "cuda_wrappers")
+        cuda_wrappers_path = os.path.join(
+            ROCM_PATH,
+            "llvm",
+            "lib",
+            "clang",
+            ROCM_CLANG_VERSION,
+            "include",
+            "cuda_wrappers",
+        )
         cmd_args.extend(["-isystem", cuda_wrappers_path])
 
         # 2. Builtin headers (stddef.h, stdint.h, etc.)
-        rocm_llvm_includes = os.path.join(ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include")
+        rocm_llvm_includes = os.path.join(
+            ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include"
+        )
         cmd_args.extend(["-isystem", rocm_llvm_includes])
 
     # Add -isystem paths from bazel (these come from cc_library "includes" attribute)
-    # Skip hermetic LLVM headers - we use ROCm's LLVM headers instead (added above)
-    # Include sysroot C++ headers - they work with HIP because cuda_wrappers intercept them
+    # For device compilation: Skip hermetic LLVM headers, use ROCm's LLVM headers instead
+    # For host compilation: Include hermetic LLVM headers (ROCm headers not needed)
+    # Sysroot C++ headers work with HIP because cuda_wrappers intercept them (device only)
     for isystem in isystem_options:
-        # Skip hermetic LLVM headers (both builtin and cuda_wrappers) for GPU compilation
-        if "/llvm" in isystem and "/clang/" in isystem:
+        # Skip hermetic LLVM headers only for device/GPU compilation
+        if is_device_compilation and "/llvm" in isystem and "/clang/" in isystem:
             continue
         cmd_args.extend(["-isystem", isystem])
 
