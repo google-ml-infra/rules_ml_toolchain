@@ -77,6 +77,11 @@ def _rocm_hipcc_feature_impl(ctx):
     rocm_path = workspace_root + "/" + package + "/" + ctx.attr.rocm_path
     hipcc_path = workspace_root + "/" + package + "/" + ctx.attr.hipcc_path
 
+    # Build cuda_wrappers_path if provided
+    cuda_wrappers_path = ""
+    if ctx.attr.cuda_wrappers_path:
+        cuda_wrappers_path = workspace_root + "/" + package + "/" + ctx.attr.cuda_wrappers_path
+
     # Build environment entries
     # Note: GCC_PATH is set by cc_toolchain_config's __tool_paths_as_environment_vars
     # feature based on the c_compiler attribute, so we don't set it here to avoid
@@ -85,7 +90,12 @@ def _rocm_hipcc_feature_impl(ctx):
         env_entry("HIPCC_PATH", hipcc_path),
         env_entry("ROCM_PATH", rocm_path),
         env_entry("HIPCC_VERSION", ctx.attr.version),
+        env_entry("ROCM_CLANG_VERSION", ctx.attr.clang_version),
     ]
+
+    # Add CUDA_WRAPPERS_PATH if available
+    if cuda_wrappers_path:
+        env_entries.append(env_entry("CUDA_WRAPPERS_PATH", cuda_wrappers_path))
 
     # Build compiler flags (common to both C and C++)
     common_compiler_flags = []
@@ -177,14 +187,22 @@ rocm_hipcc_feature = rule(
             mandatory = True,
             doc = "Path to the hipcc compiler binary.",
         ),
+        "clang_version": attr.string(
+            default = "",
+            doc = "The clang version in ROCm's LLVM (e.g., '22', '21').",
+        ),
+        "cuda_wrappers_path": attr.string(
+            default = "",
+            doc = "Path to ROCm's cuda_wrappers headers (relative to ROCm root).",
+        ),
     },
     provides = [FeatureInfo],
     doc = """
 Creates a toolchain feature for ROCm/HIP compilation.
 
 This feature sets environment variables (HIPCC_PATH, ROCM_PATH, HIPCC_VERSION,
-GCC_PATH) that are read by the hipcc_wrapper script, and adds compiler flags
-for ROCm compilation (--rocm-path, --offload-arch).
+ROCM_CLANG_VERSION, CUDA_WRAPPERS_PATH, GCC_PATH) that are read by the hipcc_wrapper script,
+and adds compiler flags for ROCm compilation (--rocm-path, --offload-arch).
 
 Example usage:
     rocm_hipcc_feature(

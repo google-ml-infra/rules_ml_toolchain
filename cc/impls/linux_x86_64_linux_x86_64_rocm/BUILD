@@ -49,6 +49,8 @@ ROCM_TOOLS = {
 rocm_hipcc_feature(
     name = "rocm_hipcc_feature",
     amdgpu_targets = hipcc_config().gpu_architectures,
+    clang_version = hipcc_config().clang_version,
+    cuda_wrappers_path = hipcc_config().cuda_wrappers_path,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",

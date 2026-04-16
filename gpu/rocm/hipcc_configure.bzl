@@ -11,9 +11,7 @@ load(
     "//common:common.bzl",
     "err_out",
     "execute",
-    "files_exist",
     "get_bash_bin",
-    "get_host_environ",
     "get_python_bin",
 )
 load(
@@ -22,13 +20,9 @@ load(
     "rocm_redist",
 )
 
-def enable_sycl(repository_ctx):
-    """Returns whether to build with SYCL support."""
-    return bool(get_host_environ(repository_ctx, "TF_NEED_SYCL", "").strip())
-
 def _enable_rocm(repository_ctx):
     """Returns whether to build with ROCm support."""
-    enable_rocm = get_host_environ(repository_ctx, "TF_NEED_ROCM")
+    enable_rocm = repository_ctx.os.environ.get("TF_NEED_ROCM")
     if enable_rocm == "1":
         return True
     # Also enable if ROCM_PATH is set (non-hermetic ROCm)
@@ -62,7 +56,7 @@ def auto_configure_warning(msg):
 
 def _amdgpu_targets(repository_ctx, rocm_toolkit_path, bash_bin):
     """Returns a list of strings representing AMDGPU targets."""
-    amdgpu_targets_str = get_host_environ(repository_ctx, _TF_ROCM_AMDGPU_TARGETS)
+    amdgpu_targets_str = repository_ctx.os.environ.get(_TF_ROCM_AMDGPU_TARGETS)
     if not amdgpu_targets_str:
         cmd = "%s/bin/rocm_agent_enumerator" % rocm_toolkit_path
         result = execute(repository_ctx, [bash_bin, "-c", cmd])
@@ -106,12 +100,14 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path):
     rocm_version_number = config["rocm_version_number"]
     miopen_version_number = config["miopen_version_number"]
     hipruntime_version_number = config["hipruntime_version_number"]
+    clang_version = config.get("clang_version", "")
     return struct(
         amdgpu_targets = _amdgpu_targets(repository_ctx, rocm_toolkit_path, bash_bin),
         rocm_toolkit_path = rocm_toolkit_path,
         rocm_version_number = rocm_version_number,
         miopen_version_number = miopen_version_number,
         hipruntime_version_number = hipruntime_version_number,
+        clang_version = clang_version,
         install_path = install_path,
     )
 
@@ -236,6 +232,8 @@ def _create_dummy_repository(repository_ctx):
         "%{hipruntime_version_number}": "0",
         "%{hipcc_path}": "",
         "%{rocm_path}": "",
+        "%{clang_version}": "",
+        "%{cuda_wrappers_path}": "",
     }
 
     _tpl(repository_ctx, "rocm:BUILD", stub_dict)
@@ -261,6 +259,11 @@ def _setup_rocm_repository(repository_ctx):
     rocm_path_relative = "rocm_dist"
     hipcc_path_relative = rocm_path_relative + "/bin/hipcc"
 
+    # Construct cuda_wrappers path if clang_version is available
+    cuda_wrappers_path_relative = ""
+    if rocm_config.clang_version:
+        cuda_wrappers_path_relative = rocm_path_relative + "/lib/llvm/lib/clang/" + rocm_config.clang_version + "/include/cuda_wrappers"
+
     bash_bin = get_bash_bin(repository_ctx)
 
     clang_offload_bundler_path = rocm_toolkit_path + "/llvm/bin/clang-offload-bundler"
@@ -273,6 +276,8 @@ def _setup_rocm_repository(repository_ctx):
         "%{hipruntime_version_number}": str(hipruntime_version_number),
         "%{hipcc_path}": hipcc_path_relative,
         "%{rocm_path}": rocm_path_relative,
+        "%{clang_version}": rocm_config.clang_version,
+        "%{cuda_wrappers_path}": cuda_wrappers_path_relative,
     }
 
     _tpl(repository_ctx, "rocm:BUILD", repository_dict)
@@ -285,19 +290,10 @@ def _hipcc_autoconf_impl(repository_ctx):
     else:
         _setup_rocm_repository(repository_ctx)
 
-_ENVIRONS = [
-    "TF_NEED_ROCM",
-    "ROCM_PATH",
-    _TF_ROCM_AMDGPU_TARGETS,
-    _ROCM_DISTRO_VERSION,
-    _ROCM_DISTRO_URL,
-    _ROCM_DISTRO_HASH,
-    _ROCM_DISTRO_LINKS,
-]
-
 hipcc_configure = repository_rule(
     implementation = _hipcc_autoconf_impl,
-    environ = _ENVIRONS + [_TF_ROCM_CONFIG_REPO],
+    # Note: environ attribute is optional in Bazel 7.0+
+    # Environment variables accessed via repository_ctx.os.environ.get() are automatically tracked
     attrs = {
         "_find_rocm_config": attr.label(
             default = Label("//gpu/rocm:find_rocm_config.py"),
@@ -313,5 +309,5 @@ hipcc_configure(name = "config_rocm_hipcc")
 ```
 
 Args:
-  name: A unique name for this workspace rule.
+  name: A unique name for this workspace rule.hipcc_config
 """

@@ -406,6 +406,28 @@ def _find_rocsolver_config(rocm_install_path):
   return rocsolver_config
 
 
+def _find_clang_version(rocm_install_path):
+  """Finds the clang version in ROCm's LLVM installation."""
+  import glob
+  clang_lib_path = os.path.join(rocm_install_path, "lib", "llvm", "lib", "clang")
+  if not os.path.exists(clang_lib_path):
+    # Clang not found, return empty string
+    return ""
+
+  # Find all version directories (e.g., "22", "21", "20")
+  version_dirs = glob.glob(os.path.join(clang_lib_path, "*"))
+  version_dirs = [d for d in version_dirs if os.path.isdir(d)]
+
+  if not version_dirs:
+    return ""
+
+  # Sort to get the highest version (newest)
+  version_dirs.sort(reverse=True)
+  clang_version = os.path.basename(version_dirs[0])
+
+  return clang_version
+
+
 def find_rocm_config():
   """Returns a dictionary of ROCm components config info."""
   rocm_install_path = _get_rocm_install_path()
@@ -429,6 +451,9 @@ def find_rocm_config():
   if result["rocm_version_number"] >= 40500:
     result.update(_find_hipsolver_config(rocm_install_path))
   result.update(_find_rocsolver_config(rocm_install_path))
+
+  # Find clang version for cuda_wrappers path
+  result["clang_version"] = _find_clang_version(rocm_install_path)
 
   return result
 

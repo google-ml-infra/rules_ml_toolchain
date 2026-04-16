@@ -260,5 +260,4 @@ common:rocm_common --copt=-Wno-gnu-offsetof-extensions
 common:rocm --config=rocm_common
 common:rocm --dynamic_mode=off
 common:rocm --@rules_ml_toolchain//common:enable_hermetic_cc=True
-common:rocm --extra_toolchains=@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64_rocm
 
