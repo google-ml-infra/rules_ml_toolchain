@@ -45,6 +45,7 @@ filegroup(
         "%{rocm_root}/lib/llvm/lib/clang/**/include/**",
         "%{rocm_root}/lib/llvm/lib/clang/**/lib/**/*.a",
         "%{rocm_root}/lib/llvm/lib/clang/**/lib/**/*.bc",
+        "%{rocm_root}/llvm/lib/clang/*/include/**",
         "%{rocm_root}/share/hip/**",
         "%{rocm_root}/amdgcn/**",
     ]),

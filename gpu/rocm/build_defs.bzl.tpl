@@ -41,7 +41,6 @@ def hipcc_config():
         miopen_version = %{miopen_version_number},
         hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
-        cuda_wrappers_path = "%{cuda_wrappers_path}",
     )
 
 # Alias for compatibility

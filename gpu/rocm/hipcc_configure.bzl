@@ -233,7 +233,6 @@ def _create_dummy_repository(repository_ctx):
         "%{hipcc_path}": "",
         "%{rocm_path}": "",
         "%{clang_version}": "",
-        "%{cuda_wrappers_path}": "",
     }
 
     _tpl(repository_ctx, "rocm:BUILD", stub_dict)
@@ -259,11 +258,6 @@ def _setup_rocm_repository(repository_ctx):
     rocm_path_relative = "rocm_dist"
     hipcc_path_relative = rocm_path_relative + "/bin/hipcc"
 
-    # Construct cuda_wrappers path if clang_version is available
-    cuda_wrappers_path_relative = ""
-    if rocm_config.clang_version:
-        cuda_wrappers_path_relative = rocm_path_relative + "/lib/llvm/lib/clang/" + rocm_config.clang_version + "/include/cuda_wrappers"
-
     bash_bin = get_bash_bin(repository_ctx)
 
     clang_offload_bundler_path = rocm_toolkit_path + "/llvm/bin/clang-offload-bundler"
@@ -277,7 +271,6 @@ def _setup_rocm_repository(repository_ctx):
         "%{hipcc_path}": hipcc_path_relative,
         "%{rocm_path}": rocm_path_relative,
         "%{clang_version}": rocm_config.clang_version,
-        "%{cuda_wrappers_path}": cuda_wrappers_path_relative,
     }
 
     _tpl(repository_ctx, "rocm:BUILD", repository_dict)

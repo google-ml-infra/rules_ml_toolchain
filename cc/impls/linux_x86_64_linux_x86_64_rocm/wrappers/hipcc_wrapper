@@ -32,7 +32,6 @@ ENVIRONMENT VARIABLES (set by toolchain features):
   HIPCC_PATH: Path to the hipcc compiler
   ROCM_PATH: Path to the ROCm installation
   ROCM_CLANG_VERSION: Clang version in ROCm's LLVM (e.g., "22")
-  CUDA_WRAPPERS_PATH: Path to ROCm's cuda_wrappers headers
 """
 
 from argparse import ArgumentParser
@@ -47,7 +46,6 @@ CPU_COMPILER = os.environ.get("GCC_PATH", "clang")
 HIPCC_PATH = os.environ.get("HIPCC_PATH", "/opt/rocm/bin/hipcc")
 ROCM_PATH = os.environ.get("ROCM_PATH", "/opt/rocm")
 ROCM_CLANG_VERSION = os.environ.get("ROCM_CLANG_VERSION", "")
-CUDA_WRAPPERS_PATH = os.environ.get("CUDA_WRAPPERS_PATH", "")
 VERBOSE = os.environ.get("CROSSTOOL_VERBOSE", "0") == "1"
 
 
@@ -259,21 +257,24 @@ def InvokeHipcc(argv, log=False):
     # Add rocm-path (extracted from argv earlier)
     cmd_args.extend(["--rocm-path=" + rocm_path_for_wrappers])
 
-    # Add ROCm's cuda_wrappers as the FIRST -isystem (before sysroot C++ headers)
-    # These wrappers intercept C++ stdlib includes and add HIP-awareness using #include_next
-    # This allows us to use sysroot's C++ headers with HIP compilation
-    # They provide __device__ annotations for placement new/delete and other C++ stdlib features
-    # Path is constructed in hipcc_configure.bzl and passed via CUDA_WRAPPERS_PATH env var
-    if CUDA_WRAPPERS_PATH:
-        cmd_args.extend(["-isystem", CUDA_WRAPPERS_PATH])
+    # Add ROCm's LLVM headers for GPU compilation
+    # We need both cuda_wrappers (FIRST) and builtin headers
+    if ROCM_CLANG_VERSION:
+        # 1. cuda_wrappers must come FIRST (before sysroot C++ headers)
+        #    These intercept C++ stdlib includes and add HIP-awareness using #include_next
+        #    They provide __device__ annotations for placement new/delete
+        cuda_wrappers_path = os.path.join(ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include", "cuda_wrappers")
+        cmd_args.extend(["-isystem", cuda_wrappers_path])
+
+        # 2. Builtin headers (stddef.h, stdint.h, etc.)
+        rocm_llvm_includes = os.path.join(ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include")
+        cmd_args.extend(["-isystem", rocm_llvm_includes])
 
     # Add -isystem paths from bazel (these come from cc_library "includes" attribute)
+    # Skip hermetic LLVM headers - we use ROCm's LLVM headers instead (added above)
     # Include sysroot C++ headers - they work with HIP because cuda_wrappers intercept them
-    # Skip hermetic LLVM clang headers - ROCm LLVM provides its own clang headers
     for isystem in isystem_options:
-        # Skip ALL hermetic LLVM clang includes (including cuda_wrappers) - ROCm provides its own
-        # This catches external/llvm*/lib/clang/* paths regardless of LLVM version
-        # We use ROCm's cuda_wrappers (added via CUDA_WRAPPERS_PATH above), not LLVM's
+        # Skip hermetic LLVM headers (both builtin and cuda_wrappers) for GPU compilation
         if "/llvm" in isystem and "/clang/" in isystem:
             continue
         cmd_args.extend(["-isystem", isystem])

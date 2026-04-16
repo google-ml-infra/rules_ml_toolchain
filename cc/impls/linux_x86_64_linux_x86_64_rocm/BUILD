@@ -50,7 +50,6 @@ rocm_hipcc_feature(
     name = "rocm_hipcc_feature",
     amdgpu_targets = hipcc_config().gpu_architectures,
     clang_version = hipcc_config().clang_version,
-    cuda_wrappers_path = hipcc_config().cuda_wrappers_path,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",
@@ -72,7 +71,9 @@ filegroup(
 
 filegroup(
     name = "rocm_toolkit_files",
-    srcs = ["@config_rocm_hipcc//rocm:toolchain_data"],
+    srcs = [
+        "@config_rocm_hipcc//rocm:toolchain_data",
+    ],
 )
 
 alias(
@@ -91,7 +92,8 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # LLVM includes must come before sysroot for #include_next to work
+        # Hermetic LLVM headers for host compilation
+        # ROCm LLVM headers are in rocm_toolkit_files and added via hipcc_wrapper for GPU
         "@llvm_linux_x86_64//:includes",
         "@llvm_linux_x86_64//:libclang_rt",
         "@sysroot_linux_x86_64//:includes_c",
