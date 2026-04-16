@@ -49,10 +49,11 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-      - run: echo "Testing ROCm GPU code compilation with hermetic HIPcc toolchain..."
-      - run: |
+      - name: Test ROCm GPU code compilation (hermetic HIPcc)
+        run: |
           bazel test \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -60,8 +61,8 @@ jobs:
             --define=using_rocm=true \
             //cc/tests/gpu/rocm:all
 
-      - run: echo "Testing host (CPU) code compilation with ROCm toolchain..."
-      - run: |
+      - name: Test host (CPU) code compilation with ROCm toolchain
+        run: |
           bazel test \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -69,8 +70,8 @@ jobs:
             --define=using_rocm=true \
             //cc/tests/cpu:all
 
-      - run: echo "Bzlmod. Testing ROCm GPU code compilation with hermetic HIPcc toolchain..."
-      - run: |
+      - name: Test ROCm GPU code compilation (bzlmod)
+        run: |
           bazel test \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -79,8 +80,8 @@ jobs:
             --define=using_rocm=true \
             //cc/tests/gpu/rocm:all
 
-      - run: echo "Bzlmod. Testing host (CPU) code compilation with ROCm toolchain..."
-      - run: |
+      - name: Test host (CPU) code compilation (bzlmod)
+        run: |
           bazel test \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
