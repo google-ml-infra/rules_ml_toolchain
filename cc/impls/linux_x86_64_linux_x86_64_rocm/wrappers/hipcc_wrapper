@@ -32,7 +32,6 @@ ENVIRONMENT VARIABLES (set by toolchain features):
   GCC_PATH: Path to the host compiler (clang)
   HIPCC_PATH: Path to the hipcc compiler
   ROCM_PATH: Path to the ROCm installation
-  ROCM_CLANG_VERSION: Clang version in ROCm's LLVM (e.g., "22")
 """
 
 from argparse import ArgumentParser
@@ -40,13 +39,12 @@ import os
 import subprocess
 import re
 import sys
-import shlex
 
 # Get paths from environment variables set by toolchain features
 CPU_COMPILER = os.environ.get("GCC_PATH", "clang")
 HIPCC_PATH = os.environ.get("HIPCC_PATH", "/opt/rocm/bin/hipcc")
 ROCM_PATH = os.environ.get("ROCM_PATH", "/opt/rocm")
-ROCM_CLANG_VERSION = os.environ.get("ROCM_CLANG_VERSION", "")
+ROCM_CLANG_VERSION = os.environ.get("ROCM_CLANG_VERSION", "20")
 VERBOSE = os.environ.get("CROSSTOOL_VERBOSE", "0") == "1"
 
 
@@ -75,14 +73,16 @@ def GetOptionValue(argv, option):
         return sum(vars(args)[option], [])
 
 
-def GetHostCompilerOptions(argv):
+def GetHostCompilerOptions(argv, filter_hermetic_llvm=False, filter_sysroot=False):
     """Collect the -isystem, -iquote, and --sysroot option values from argv.
 
     Args:
         argv: A list of strings, possibly the argv passed to main().
+        filter_hermetic_llvm: If True, filter out hermetic LLVM headers
+        filter_sysroot: If True, filter out --sysroot (for GPU compilation)
 
     Returns:
-        The string that can be used as the --compiler-options to hipcc.
+        A list of options that can be passed to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("-isystem", nargs="*", action="append")
@@ -90,30 +90,31 @@ def GetHostCompilerOptions(argv):
     parser.add_argument("--sysroot", nargs=1)
     parser.add_argument("-g", nargs="*", action="append")
     parser.add_argument("-no-canonical-prefixes", action="store_true")
-    parser.add_argument("--genco", action="store_true")
 
     args, _ = parser.parse_known_args(argv)
 
-    opts = ""
+    opts = []
 
     if args.isystem:
-        # Quote each path to handle special characters like ~
-        opts += " " + " ".join(
-            ["-isystem " + shlex.quote(p) for p in sum(args.isystem, [])]
-        )
+        for p in sum(args.isystem, []):
+            # Skip hermetic LLVM headers for GPU compilation - they conflict with ROCm's
+            # ROCm provides its own LLVM headers via --rocm-path
+            if filter_hermetic_llvm and "/llvm" in p and "/clang/" in p:
+                continue
+            # Skip sysroot headers for GPU compilation - they have non-device-compatible operator new
+            # ROCm provides device-compatible standard library headers via cuda_wrappers
+            if filter_sysroot and "/sysroot_" in p:
+                continue
+            opts.extend(["-isystem", p])
     if args.iquote:
-        # Quote each path to handle special characters like ~
-        opts += " " + " ".join(
-            ["-iquote " + shlex.quote(p) for p in sum(args.iquote, [])]
-        )
+        for p in sum(args.iquote, []):
+            opts.extend(["-iquote", p])
     if args.g:
-        opts += " -g" + " -g".join(sum(args.g, []))
+        opts.append("-g" + "".join(sum(args.g, [])))
     if args.no_canonical_prefixes:
-        opts += " -no-canonical-prefixes"
-    if args.sysroot:
-        opts += " --sysroot " + shlex.quote(args.sysroot[0])
-    if args.genco:
-        opts += " --genco"
+        opts.append("-no-canonical-prefixes")
+    if args.sysroot and not filter_sysroot:
+        opts.extend(["--sysroot", args.sysroot[0]])
 
     return opts
 
@@ -125,7 +126,7 @@ def GetHipccOptions(argv):
         argv: A list of strings, possibly the argv passed to main().
 
     Returns:
-        The string that can be passed directly to hipcc.
+        A list of options that can be passed to hipcc.
     """
     parser = ArgumentParser()
     parser.add_argument("--offload-arch", nargs="*", action="append")
@@ -133,30 +134,54 @@ def GetHipccOptions(argv):
 
     args, _ = parser.parse_known_args(argv)
 
-    hipcc_opts = " -gline-tables-only " if args.gline_tables_only else ""
+    hipcc_opts = []
+    if args.gline_tables_only:
+        hipcc_opts.append("-gline-tables-only")
     if args.offload_arch:
-        hipcc_opts += " ".join(
-            ["--offload-arch=" + a for a in sum(args.offload_arch, [])]
-        )
+        for a in sum(args.offload_arch, []):
+            hipcc_opts.append("--offload-arch=" + a)
 
     return hipcc_opts
 
 
-def system(cmd):
-    """Invokes cmd with os.system().
+def SplitCombinedFlags(argv):
+    """Split combined flags like '-isystem path' into ['-isystem', 'path'].
+
+    Bazel's features.bzl creates combined flags as single arguments.
+    ArgumentParser expects them as separate arguments, so we need to split them.
 
     Args:
-        cmd: The command.
+        argv: A list of strings with potentially combined flags.
 
     Returns:
-        The exit code if the process exited with exit() or -signal
-        if the process was terminated by a signal.
+        A list of strings with combined flags split into separate arguments.
     """
-    retv = os.system(cmd)
-    if os.WIFEXITED(retv):
-        return os.WEXITSTATUS(retv)
-    else:
-        return -os.WTERMSIG(retv)
+    split_flags = []
+    for arg in argv:
+        # Remove outermost quotes if present
+        cleaned_arg = arg
+        if (arg.startswith("'") and arg.endswith("'")) or (
+            arg.startswith('"') and arg.endswith('"')
+        ):
+            cleaned_arg = arg[1:-1]
+
+        # Split common combined flags
+        if cleaned_arg.startswith("-isystem "):
+            split_flags.extend(["-isystem", cleaned_arg[9:]])
+        elif cleaned_arg.startswith("-iquote "):
+            split_flags.extend(["-iquote", cleaned_arg[8:]])
+        elif cleaned_arg.startswith("-I "):
+            split_flags.extend(["-I", cleaned_arg[3:]])
+        elif cleaned_arg.startswith("-MF "):
+            split_flags.extend(["-MF", cleaned_arg[4:]])
+        elif cleaned_arg.startswith("-D "):
+            split_flags.extend(["-D", cleaned_arg[3:]])
+        elif cleaned_arg.startswith("-U "):
+            split_flags.extend(["-U", cleaned_arg[3:]])
+        else:
+            split_flags.append(cleaned_arg)
+
+    return split_flags
 
 
 def InvokeHipcc(argv, log=False):
@@ -167,50 +192,52 @@ def InvokeHipcc(argv, log=False):
         log: True if logging is requested.
 
     Returns:
-        The return value of calling os.system('hipcc ' + args)
+        The return value of calling subprocess with hipcc command
     """
-    # Split combined flags (e.g., '-isystem path' -> ['-isystem', 'path'])
-    # Also handle quoted forms like "'-isystem path'"
-    split_argv = []
-    for arg in argv:
-        # Remove ONLY the outermost layer of quotes if present (not all quotes!)
-        cleaned_arg = arg
-        if (arg.startswith("'") and arg.endswith("'")) or (
-            arg.startswith('"') and arg.endswith('"')
-        ):
-            cleaned_arg = arg[1:-1]
+    # Split combined flags from Bazel before parsing
+    argv = SplitCombinedFlags(argv)
 
-        if cleaned_arg.startswith("-isystem "):
-            split_argv.extend(["-isystem", cleaned_arg[9:]])
-        elif cleaned_arg.startswith("-iquote "):
-            split_argv.extend(["-iquote", cleaned_arg[8:]])
-        else:
-            split_argv.append(cleaned_arg)
+    # Extract GPU-specific options
+    hipcc_compiler_options = GetHipccOptions(argv)
 
-    # Extract --rocm-path from arguments to determine cuda_wrappers location
-    rocm_path_for_wrappers = ROCM_PATH  # fallback
-    for arg in split_argv:
-        if arg.startswith("--rocm-path="):
-            rocm_path_for_wrappers = arg.split("=", 1)[1]
-            break
-
-    # Extract values we need from argv
-    hipcc_compiler_options = GetHipccOptions(split_argv)
-    opt_option = GetOptionValue(split_argv, "O")
-    include_options = GetOptionValue(split_argv, "I")
-    isystem_options = GetOptionValue(split_argv, "isystem")
-    iquote_options = GetOptionValue(split_argv, "iquote")
-    out_file = GetOptionValue(split_argv, "o")
-    depfiles = GetOptionValue(split_argv, "MF")
-    defines = GetOptionValue(split_argv, "D")
-    undefines = GetOptionValue(split_argv, "U")
-    src_files = GetOptionValue(split_argv, "c")
-
-    # Extract --sysroot separately (with two dashes)
+    # Extract paths and flags for GPU compilation
     parser = ArgumentParser()
+    parser.add_argument("--rocm-path", nargs=1)
+    parser.add_argument("-iquote", nargs="*", action="append")
+    parser.add_argument("-isystem", nargs="*", action="append")
     parser.add_argument("--sysroot", nargs=1)
-    args, _ = parser.parse_known_args(split_argv)
-    sysroot = args.sysroot if args.sysroot else None
+    parser.add_argument("-g", nargs="*", action="append")
+    parser.add_argument("-no-canonical-prefixes", action="store_true")
+    args, _ = parser.parse_known_args(argv)
+
+    rocm_path_arg = args.rocm_path[0] if args.rocm_path else ROCM_PATH
+
+    # Build options for GPU compilation
+    # Only include project-specific includes, filter out hermetic LLVM
+    gpu_compiler_options = []
+    if args.iquote:
+        for p in sum(args.iquote, []):
+            gpu_compiler_options.extend(["-iquote", p])
+    if args.isystem:
+        for p in sum(args.isystem, []):
+            # Skip hermetic LLVM headers - ROCm provides its own
+            if "/llvm" in p and "/clang/" in p:
+                continue
+            gpu_compiler_options.extend(["-isystem", p])
+    if args.sysroot:
+        gpu_compiler_options.extend(["--sysroot", args.sysroot[0]])
+    if args.g:
+        gpu_compiler_options.append("-g" + "".join(sum(args.g, [])))
+    if args.no_canonical_prefixes:
+        gpu_compiler_options.append("-no-canonical-prefixes")
+
+    opt_option = GetOptionValue(argv, "O")
+    include_options = GetOptionValue(argv, "I")
+    out_file = GetOptionValue(argv, "o")
+    depfiles = GetOptionValue(argv, "MF")
+    defines = GetOptionValue(argv, "D")
+    undefines = GetOptionValue(argv, "U")
+    src_files = GetOptionValue(argv, "c")
 
     if len(src_files) == 0:
         return 1
@@ -220,133 +247,83 @@ def InvokeHipcc(argv, log=False):
     # Filter to only C/C++ source files
     src_files = [f for f in src_files if re.search(r"\.cpp$|\.cc$|\.c$|\.cxx$|\.C$", f)]
 
-    # Build command as a list of arguments instead of a shell string
-    cmd_args = [HIPCC_PATH]
+    # Build command - simplified to match non-hermetic toolchain exactly
+    cmd = [HIPCC_PATH]
 
-    # Add hipcc-specific options
-    if hipcc_compiler_options.strip():
-        cmd_args.extend(shlex.split(hipcc_compiler_options))
+    # Add hipcc-specific options (--offload-arch, -gline-tables-only)
+    cmd.extend(hipcc_compiler_options)
+
+    # Force HIP runtime header to be included first (from non-hermetic wrapper)
+    # This ensures proper macro setup before other headers
+    cmd.extend(["--include=hip/hip_runtime.h"])
 
     # Force C++17 dialect
-    cmd_args.extend(["--std=c++17"])
+    cmd.extend(["--std=c++17"])
 
     # Use -fno-gpu-rdc by default
-    cmd_args.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
-
-    # Disable x86 intrinsics for GPU compilation to prevent headers like
-    # absl/base/prefetch.h from including xmmintrin.h/mmintrin.h
-    cmd_args.extend(["-mno-mmx", "-mno-sse"])
-
-    # Allow device-side initialization (needed for rocprim/hipcub with newer ROCm)
-    cmd_args.extend(["-fgpu-allow-device-init"])
-
-    # Enable bf16 support for host compilation (required by amd_hip_bf16.h)
-    # The __bf16 type is used in ROCm headers even for host code
-    cmd_args.extend(["-mavx512bf16"])
+    cmd.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
 
     # Add undefines
     for undef in undefines:
-        cmd_args.append("-U" + undef)
+        cmd.append("-U" + undef)
 
     # Add defines
     for define in defines:
-        cmd_args.append("-D" + define)
+        cmd.append("-D" + define)
 
-    # Enable device-side malloc/new for rocprim compatibility
-    cmd_args.append("-D__HIP_ENABLE_DEVICE_MALLOC__")
+    # Add rocm-path
+    cmd.extend(["--rocm-path=" + rocm_path_arg])
 
-    # Add rocm-path (extracted from argv earlier)
-    cmd_args.extend(["--rocm-path=" + rocm_path_for_wrappers])
+    # Add cuda_wrappers BEFORE any system includes
+    # This provides device-compatible versions of <new>, <cmath>, <algorithm>, etc.
+    rocm_cuda_wrappers = os.path.join(
+        rocm_path_arg, "lib/llvm/lib/clang", ROCM_CLANG_VERSION, "include/cuda_wrappers"
+    )
+    cmd.extend(["-isystem", rocm_cuda_wrappers])
 
-    # Detect if this is device or host compilation
-    is_device_compilation = "--cuda-device-only" in argv
-    is_host_compilation = "--cuda-host-only" in argv
+    # Define __device__ as a macro so cuda_wrappers headers work correctly
+    cmd.extend(["-D__device__=__device__"])
 
-    # Add ROCm's LLVM headers ONLY for GPU/device compilation
-    # For host-only compilation, we use hermetic LLVM headers instead
-    if ROCM_CLANG_VERSION and is_device_compilation:
-        # 1. cuda_wrappers must come FIRST (before sysroot C++ headers)
-        #    These intercept C++ stdlib includes and add HIP-awareness using #include_next
-        #    They provide __device__ annotations for placement new/delete
-        cuda_wrappers_path = os.path.join(
-            ROCM_PATH,
-            "llvm",
-            "lib",
-            "clang",
-            ROCM_CLANG_VERSION,
-            "include",
-            "cuda_wrappers",
-        )
-        cmd_args.extend(["-isystem", cuda_wrappers_path])
+    # Add GPU compiler options (-isystem, -iquote, --sysroot)
+    cmd.extend(gpu_compiler_options)
 
-        # 2. Builtin headers (stddef.h, stdint.h, etc.)
-        rocm_llvm_includes = os.path.join(
-            ROCM_PATH, "llvm", "lib", "clang", ROCM_CLANG_VERSION, "include"
-        )
-        cmd_args.extend(["-isystem", rocm_llvm_includes])
+    # -fPIC
+    cmd.append("-fPIC")
 
-    # Add -isystem paths from bazel (these come from cc_library "includes" attribute)
-    # For device compilation: Skip hermetic LLVM headers, use ROCm's LLVM headers instead
-    # For host compilation: Include hermetic LLVM headers (ROCm headers not needed)
-    # Sysroot C++ headers work with HIP because cuda_wrappers intercept them (device only)
-    for isystem in isystem_options:
-        # Skip hermetic LLVM headers only for device/GPU compilation
-        if is_device_compilation and "/llvm" in isystem and "/clang/" in isystem:
-            continue
-        cmd_args.extend(["-isystem", isystem])
+    # -I .
+    cmd.extend(["-I", "."])
 
-    # Add project-specific -iquote paths as -I (not -iquote) because many headers
-    # use angle bracket includes (#include <header.h>) which are not searched in -iquote paths.
-    # -iquote is only searched for quoted includes (#include "header.h").
-    for iquote in iquote_options:
-        cmd_args.extend(["-I", iquote])
+    # Add optimization flag
+    if len(opt_option) > 0 and int(opt_option[0]) > 0:
+        cmd.append("-O2")
+    else:
+        cmd.append("-g")
 
-    # Add sysroot for hermetic C and C++ headers
-    # C++ headers work with HIP because cuda_wrappers (added first) intercept them
-    if sysroot:
-        cmd_args.extend(["--sysroot", sysroot[0]])
-
-    # Add include paths
-    cmd_args.extend(["-I", "."])
+    # Add include paths (filter hermetic LLVM headers)
     for inc in include_options:
-        cmd_args.extend(["-I", inc])
+        # Skip hermetic LLVM headers - they conflict with ROCm's headers
+        # ROCm provides its own LLVM headers (including cuda_wrappers) via --rocm-path
+        if "/llvm" in inc and "/clang/" in inc:
+            continue
+        cmd.extend(["-I", inc])
 
-    # Add flags to avoid absolute paths in dependency files
-    cmd_args.extend(["-no-canonical-prefixes"])
-
+    # Generate dependency file if requested (must come before main compilation)
     if depfiles:
-        # Generate the dependency file
         depfile = depfiles[0]
-        dep_cmd = cmd_args + src_files + ["-M", "-o", depfile]
-
-        if log:
-            Log(" ".join(dep_cmd))
-
-        if VERBOSE:
-            print(" ".join(dep_cmd))
-
+        dep_cmd = cmd + src_files + ["-M", "-o", depfile]
+        if log or VERBOSE:
+            Log("Generating dependencies: " + " ".join(dep_cmd))
         exit_status = subprocess.call(dep_cmd)
         if exit_status != 0:
             return exit_status
 
-    # Build the main compilation command
-    final_cmd = cmd_args + ["-fPIC"]
+    # Compile
+    cmd.extend(["-c"] + src_files + ["-o", out_file[0]])
 
-    # Add optimization flag
-    if len(opt_option) > 0 and int(opt_option[0]) > 0:
-        final_cmd.append("-O2")
-    else:
-        final_cmd.append("-g")
+    if log or VERBOSE:
+        Log(" ".join(cmd))
 
-    # Add source files and output
-    final_cmd.extend(["-c"] + src_files + ["-o", out_file[0]])
-
-    if log:
-        Log(" ".join(final_cmd))
-    if VERBOSE:
-        print(" ".join(final_cmd))
-
-    return subprocess.call(final_cmd)
+    return subprocess.call(cmd)
 
 
 def is_rocm_flag(flag):
@@ -372,16 +349,14 @@ def main():
     args, leftover = parser.parse_known_args(sys.argv[1:])
 
     if VERBOSE:
-        print("PWD=" + os.getcwd())
-        print("HIPCC_PATH=" + HIPCC_PATH)
-        print("ROCM_PATH=" + ROCM_PATH)
+        Log("PWD=" + os.getcwd())
+        Log("HIPCC_PATH=" + HIPCC_PATH)
+        Log("ROCM_PATH=" + ROCM_PATH)
 
     if args.x and args.x[0] == "rocm":
-        # Compilation for GPU objects
+        # Compilation for GPU objects - always use hipcc
         if args.rocm_log:
             Log("-x rocm")
-        leftover = [shlex.quote(s) for s in leftover]
-        if args.rocm_log:
             Log("using hipcc")
         return InvokeHipcc(leftover, log=args.rocm_log)
 
@@ -394,62 +369,28 @@ def main():
         ]
 
         if VERBOSE:
-            print(" ".join([CPU_COMPILER] + gpu_linker_flags))
+            Log(" ".join([CPU_COMPILER] + gpu_linker_flags))
         return subprocess.call([CPU_COMPILER] + gpu_linker_flags)
 
     else:
         # Compilation for host objects
-        # Strip ROCm-specific flags that clang doesn't understand
+        # Split combined flags (e.g., '-isystem path' -> ['-isystem', 'path'])
+        split_flags = SplitCombinedFlags(sys.argv[1:])
+
+        # Filter ROCm-specific flags
         cpu_compiler_flags = [
             flag
-            for flag in sys.argv[1:]
+            for flag in split_flags
             if not flag.startswith("--rocm_log") and not is_rocm_flag(flag)
         ]
 
-        # SE codes need to be built with gcc, but need this macro defined
-        cpu_compiler_flags.append("-D__HIP_PLATFORM_HCC__")
-
-        # Split flags that have been incorrectly combined (e.g., '-isystem path' -> ['-isystem', 'path'])
-        # and filter out -iquote flags with non-existent paths
-        import pathlib
-
-        split_flags = []
-        for flag in cpu_compiler_flags:
-            # Check if this is a combined flag like '-isystem path' or '-iquote path'
-            if flag.startswith("-isystem "):
-                split_flags.extend(
-                    ["-isystem", flag[9:]]
-                )  # Split into ['-isystem', 'path']
-            elif flag.startswith("-iquote "):
-                split_flags.extend(
-                    ["-iquote", flag[8:]]
-                )  # Split into ['-iquote', 'path']
-            else:
-                split_flags.append(flag)
-
-        # Now filter out non-existent -iquote paths
-        filtered_flags = []
-        i = 0
-        while i < len(split_flags):
-            flag = split_flags[i]
-            if flag == "-iquote" and i + 1 < len(split_flags):
-                path = split_flags[i + 1]
-                if pathlib.Path(path).exists() or not path.startswith("external/"):
-                    filtered_flags.append(flag)
-                    filtered_flags.append(path)
-                    i += 2
-                else:
-                    # Skip non-existent -iquote paths
-                    i += 2
-            else:
-                filtered_flags.append(flag)
-                i += 1
-
-        cmd_line = [CPU_COMPILER] + filtered_flags
+        # Enable bf16 support for host compilation (required by amd_hip_bf16.h)
+        # The __bf16 type is used in ROCm headers even for host code
+        cpu_compiler_flags.append("-mavx512bf16")
 
         if VERBOSE:
-            print(" ".join(cmd_line))
-        return subprocess.call(cmd_line)
+            Log(" ".join([CPU_COMPILER] + cpu_compiler_flags))
+        return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)
 
 
 if __name__ == "__main__":
