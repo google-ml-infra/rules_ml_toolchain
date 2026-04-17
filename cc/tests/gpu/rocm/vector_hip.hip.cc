@@ -1,4 +1,4 @@
-/* Copyright 2025 Google LLC
+/* Copyright 2026 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -11,7 +11,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-============================================================================== */
+==============================================================================
+*/
 
 #include "vector_hip.hip.h"
 #include <hip/hip_runtime.h>
@@ -20,7 +21,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 __global__ void VectorAdd(const int *a, const int *b, int *c, int n) {
   int i = threadIdx.x;
 
-  if(i < n) {
+  if (i < n) {
     c[i] += a[i] + b[i];
   }
 }
@@ -32,7 +33,7 @@ int VectorGenerateAndSum(int size) {
   hipMallocManaged(&b, sizeof(int) * size);
   hipMallocManaged(&c, sizeof(int) * size);
 
-  for(int i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i) {
     a[i] = i + 1;
     b[i] = i + 1;
     c[i] = 0;
@@ -41,7 +42,7 @@ int VectorGenerateAndSum(int size) {
   int sum = 0;
   hipLaunchKernelGGL(VectorAdd, dim3(1), dim3(size), 0, 0, a, b, c, size);
   hipDeviceSynchronize();
-  for(int i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i) {
     printf("c[%d] = %d\n", i, c[i]);
     sum += c[i];
   }
