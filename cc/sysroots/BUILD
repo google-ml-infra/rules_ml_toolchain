@@ -5,19 +5,31 @@
 load(":collect_cc_libraries.bzl", "collect_cc_libraries")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 
-# Export template file for local_sysroot_configure repository rule
-exports_files(["defs.bzl.tpl"])
-
-# Flag to control whether to use local (system) sysroot instead of hermetic
+# Flag to control whether to use sysroot's libstdc++ instead of hermetic libc++
+# This is needed for compatibility with prebuilt libraries like ROCm that use libstdc++
 bool_flag(
-    name = "use_local_sysroot",
+    name = "use_libstdcxx",
     build_setting_default = False,
     visibility = ["//visibility:public"],
 )
 
 config_setting(
-    name = "local_sysroot_enabled",
-    flag_values = {":use_local_sysroot": "True"},
+    name = "libstdcxx_enabled",
+    flag_values = {":use_libstdcxx": "True"},
+    visibility = ["//visibility:public"],
+)
+
+# Flag to control whether to statically link libstdc++
+# This is useful to avoid C++ ABI issues with system libraries
+bool_flag(
+    name = "use_static_libstdcxx",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "static_libstdcxx_enabled",
+    flag_values = {":use_static_libstdcxx": "True"},
     visibility = ["//visibility:public"],
 )
 

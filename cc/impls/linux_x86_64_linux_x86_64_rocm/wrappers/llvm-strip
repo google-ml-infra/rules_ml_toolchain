@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
 
-"""ROCm-specific toolchain features."""
-
-package(default_visibility = ["//visibility:public"])
+# Wrapper that calls llvm-strip from ROCm distribution
+exec external/config_rocm_hipcc/rocm/rocm_dist/llvm/bin/llvm-strip "$@"
