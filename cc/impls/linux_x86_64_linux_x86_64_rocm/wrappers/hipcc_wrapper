@@ -384,10 +384,6 @@ def main():
             if not flag.startswith("--rocm_log") and not is_rocm_flag(flag)
         ]
 
-        # Enable bf16 support for host compilation (required by amd_hip_bf16.h)
-        # The __bf16 type is used in ROCm headers even for host code
-        cpu_compiler_flags.append("-mavx512bf16")
-
         if VERBOSE:
             Log(" ".join([CPU_COMPILER] + cpu_compiler_flags))
         return subprocess.call([CPU_COMPILER] + cpu_compiler_flags)

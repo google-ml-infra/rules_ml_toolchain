@@ -43,8 +43,9 @@ def _enable_rocm(repository_ctx):
     enable_rocm = repository_ctx.os.environ.get("TF_NEED_ROCM")
     if enable_rocm == "1":
         return True
-    # Also enable if ROCM_PATH is set (non-hermetic ROCm)
-    if repository_ctx.os.environ.get("ROCM_PATH"):
+    # Also enable if ROCM_PATH is set and non-empty (non-hermetic ROCm)
+    rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
+    if rocm_path and rocm_path.strip():
         return True
     return False
 
@@ -277,8 +278,8 @@ def _setup_rocm_distro_dir(repository_ctx):
         return _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin)
 
     # Check for non-hermetic ROCm installation via ROCM_PATH
-    rocm_path = repository_ctx.os.environ.get("ROCM_PATH")
-    if rocm_path:
+    rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
+    if rocm_path and rocm_path.strip():
         # Use system ROCm installation by symlinking it into the repository
         auto_configure_warning("Using non-hermetic ROCm from ROCM_PATH: {}".format(rocm_path))
         repository_ctx.symlink(rocm_path, _DISTRIBUTION_PATH)
@@ -373,8 +374,18 @@ def _hipcc_autoconf_impl(repository_ctx):
 
 hipcc_configure = repository_rule(
     implementation = _hipcc_autoconf_impl,
-    # Note: environ attribute is optional in Bazel 7.0+
-    # Environment variables accessed via repository_ctx.os.environ.get() are automatically tracked
+    environ = [
+        "ROCM_PATH",
+        "TF_NEED_ROCM",
+        "TF_ROCM_AMDGPU_TARGETS",
+        "TF_ROCM_MULTIPLE_PATHS",
+        "LLVM_PATH",
+        "ROCM_DISTRO_VERSION",
+        "ROCM_DISTRO_URL",
+        "ROCM_DISTRO_HASH",
+        "ROCM_DISTRO_LINKS",
+        "TMPDIR",
+    ],
     attrs = {
         "_find_rocm_config": attr.label(
             default = Label("//gpu/rocm:find_rocm_config.py"),
