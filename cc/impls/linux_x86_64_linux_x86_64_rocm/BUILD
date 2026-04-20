@@ -76,9 +76,19 @@ filegroup(
     ],
 )
 
+cc_toolchain_import(
+    name = "empty_startup_libs",
+    deps = [],
+)
+
 alias(
     name = "startup_libs",
-    actual = "@sysroot_linux_x86_64//:startup_libs",
+    actual = select({
+        # Local sysroot: startup libs via --sysroot flag
+        "//cc/sysroots:local_sysroot_enabled": ":empty_startup_libs",
+        # Hermetic sysroot: use hermetic startup libs
+        "//conditions:default": "@sysroot_linux_x86_64//:startup_libs",
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -96,10 +106,17 @@ cc_toolchain_import(
         # ROCm LLVM headers are in rocm_toolkit_files and added via hipcc_wrapper for GPU
         "@llvm_linux_x86_64//:includes",
         "@llvm_linux_x86_64//:libclang_rt",
-        "@sysroot_linux_x86_64//:includes_c",
-        "@sysroot_linux_x86_64//:includes_system",
-        "@sysroot_linux_x86_64//:syslibs",
-    ],
+    ] + select({
+        # Local sysroot: system headers/libs accessed via --sysroot=/ and sandbox mounts
+        # Only keep LLVM builtin headers, not hermetic sysroot
+        "//cc/sysroots:local_sysroot_enabled": [],
+        # Hermetic sysroot: use hermetic headers and libs via cc_toolchain_import
+        "//conditions:default": [
+            "@sysroot_linux_x86_64//:includes_c",
+            "@sysroot_linux_x86_64//:includes_system",
+            "@sysroot_linux_x86_64//:syslibs",
+        ],
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -172,10 +189,15 @@ filegroup(
 # Features
 # =============================================================================
 
-FEATURES_ESSENTIAL = [
-    # Hermetic libraries (must come first)
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-
+FEATURES_ESSENTIAL = select({
+    # Local sysroot: DO NOT use hermetic_libraries (no -nostdinc/-nostdinc++)
+    # We want to use system headers and libraries
+    "//cc/sysroots:local_sysroot_enabled": [
+        "//cc/features:local_sysroot_system_libs",
+    ],
+    # Hermetic sysroot: use hermetic_libraries feature
+    "//conditions:default": ["//third_party/rules_cc_toolchain/features:hermetic_libraries"],
+}) + [
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
@@ -226,6 +248,36 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
+    cxx_builtin_include_directories = select({
+        # Local sysroot: system directories are builtin
+        # With --sysroot=/, paths are both absolute and relative to sysroot
+        "//cc/sysroots:local_sysroot_enabled": [
+            # Absolute paths
+            "/usr/include",
+            "/usr/include/x86_64-linux-gnu",
+            "/usr/include/c++/11",
+            "/usr/include/x86_64-linux-gnu/c++/11",
+            "/usr/include/c++/10",
+            "/usr/include/x86_64-linux-gnu/c++/10",
+            "/usr/include/c++/9",
+            "/usr/include/x86_64-linux-gnu/c++/9",
+            "/usr/include/c++/7",
+            "/usr/include/x86_64-linux-gnu/c++/7",
+            # Relative paths (sysroot-relative when using --sysroot=/)
+            "/include",
+            "/include/x86_64-linux-gnu",
+            "/include/c++/11",
+            "/include/x86_64-linux-gnu/c++/11",
+            "/include/c++/10",
+            "/include/x86_64-linux-gnu/c++/10",
+            "/include/c++/9",
+            "/include/x86_64-linux-gnu/c++/9",
+            "/include/c++/7",
+            "/include/x86_64-linux-gnu/c++/7",
+        ],
+        # Hermetic sysroot: no system directories
+        "//conditions:default": [],
+    }),
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",

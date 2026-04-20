@@ -526,6 +526,9 @@ def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
     ]
 
 def _cc_toolchain_config_impl(ctx):
+    # Add system builtin include directories if specified
+    builtin_include_dirs = ctx.attr.cxx_builtin_include_directories if ctx.attr.cxx_builtin_include_directories else []
+
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         host_system_name = "local",
@@ -537,6 +540,7 @@ def _cc_toolchain_config_impl(ctx):
         compiler = "clang",
         abi_version = "unknown",
         abi_libc_version = "unknown",
+        cxx_builtin_include_directories = builtin_include_dirs,
         tool_paths = [
             tool_path(name = name, path = path)
             for name, path in ctx.attr.tool_paths.items()
@@ -612,6 +616,10 @@ cc_toolchain_config = rule(
             doc = "The archiver e.g. ar/llvm-ar. Maps to tool path 'ar'.",
             allow_single_file = True,
             mandatory = True,
+        ),
+        "cxx_builtin_include_directories": attr.string_list(
+            doc = "List of builtin include directories for the toolchain. Needed for non-hermetic system includes.",
+            default = [],
         ),
         "strip_tool": attr.label(
             doc = "The strip tool e.g. strip. Maps to tool path 'strip'.",
