@@ -19,10 +19,6 @@ load(
     "cc_toolchain_import_feature",
     "cc_toolchain_sysroot_feature",
 )
-load(
-    "//cc/features:local_sysroot_feature.bzl",
-    "local_sysroot_feature",
-)
 
 package(
     default_visibility = [
@@ -93,9 +89,12 @@ cc_toolchain_sysroot_feature(
     target = "x86_64-linux-gnu",
 )
 
-local_sysroot_feature(
+# Local sysroot feature - use system root instead of hermetic sysroot
+cc_feature(
     name = "local_sysroot_linux_x86_64",
     enabled = True,
+    compiler_flags = ["--sysroot=/"],
+    linker_flags = ["--sysroot=/"],
 )
 
 # When using local sysroot, we need to explicitly link system libraries
@@ -118,9 +117,12 @@ cc_toolchain_sysroot_feature(
     target = "aarch64-linux-gnu",
 )
 
-local_sysroot_feature(
+# Local sysroot feature - use system root instead of hermetic sysroot
+cc_feature(
     name = "local_sysroot_linux_aarch64",
     enabled = True,
+    compiler_flags = ["--sysroot=/"],
+    linker_flags = ["--sysroot=/"],
 )
 
 cc_toolchain_sysroot_feature(
