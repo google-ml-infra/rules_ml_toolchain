@@ -190,8 +190,10 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features:sysroot_linux_x86_64",
-
+] + select({
+    "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux_x86_64"],
+    "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
+}) + [
     # PIC / PIE flags
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",

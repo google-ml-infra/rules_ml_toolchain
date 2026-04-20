@@ -90,9 +90,23 @@ cc_toolchain_sysroot_feature(
 )
 
 cc_toolchain_sysroot_feature(
+    name = "local_sysroot_linux_x86_64",
+    enabled = True,
+    sysroot = "@local_sysroot_linux_x86_64//:sysroot",
+    target = "x86_64-linux-gnu",
+)
+
+cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
     enabled = True,
     sysroot = "@sysroot_linux_aarch64//:sysroot",
+    target = "aarch64-linux-gnu",
+)
+
+cc_toolchain_sysroot_feature(
+    name = "local_sysroot_linux_aarch64",
+    enabled = True,
+    sysroot = "@local_sysroot_linux_aarch64//:sysroot",
     target = "aarch64-linux-gnu",
 )
 
