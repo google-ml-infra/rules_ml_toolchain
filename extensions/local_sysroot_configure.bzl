@@ -21,8 +21,13 @@ def _local_sysroot_configure_ext_impl(mctx):
     """Implementation of the local_sysroot_configure_ext module extension."""
 
     # Create local sysroot repositories for common platforms
+    # These always exist so they can be referenced in select() statements
     local_sysroot(name = "local_sysroot_linux_x86_64")
     local_sysroot(name = "local_sysroot_linux_aarch64")
+
+    return mctx.extension_metadata(
+        reproducible = True,
+    )
 
 local_sysroot_configure_ext = module_extension(
     implementation = _local_sysroot_configure_ext_impl,

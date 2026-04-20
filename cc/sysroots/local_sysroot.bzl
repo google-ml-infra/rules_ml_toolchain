@@ -38,6 +38,8 @@ def _local_sysroot_impl(repository_ctx):
     repository_ctx.symlink(sysroot_path, "sysroot")
 
     # Create BUILD file matching the hermetic sysroot interface
+    # For local sysroot, we don't need to enumerate all files - the compiler
+    # finds them via --sysroot. We just provide empty filegroups to satisfy dependencies.
     repository_ctx.file("BUILD", """
 filegroup(
     name = "sysroot",
@@ -47,39 +49,25 @@ filegroup(
 
 filegroup(
     name = "includes_c",
-    srcs = glob([
-        "sysroot/usr/include/**/*.h",
-    ], allow_empty = True),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "includes_system",
-    srcs = glob([
-        "sysroot/usr/include/c++/**",
-        "sysroot/usr/include/x86_64-linux-gnu/c++/**",
-        "sysroot/usr/include/aarch64-linux-gnu/c++/**",
-    ], allow_empty = True),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "syslibs",
-    srcs = glob([
-        "sysroot/usr/lib/**/*.so*",
-        "sysroot/usr/lib/**/*.a",
-        "sysroot/lib/**/*.so*",
-        "sysroot/lib/**/*.a",
-    ], allow_empty = True),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "startup_libs",
-    srcs = glob([
-        "sysroot/usr/lib/x86_64-linux-gnu/crt*.o",
-        "sysroot/usr/lib/aarch64-linux-gnu/crt*.o",
-    ], allow_empty = True),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 """)
