@@ -1,3 +1,5 @@
+load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
+
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -194,7 +196,7 @@ FEATURES_ESSENTIAL = select({
     # Local sysroot: DO NOT use hermetic_libraries (no -nostdinc/-nostdinc++)
     # We want to use system headers and libraries
     "//cc/sysroots:local_sysroot_enabled": [
-        "//cc/features:local_sysroot_system_libs",
+        "//cc/features:local_sysroot_default_libs",
     ],
     # Hermetic sysroot: use hermetic_libraries feature
     "//conditions:default": ["//third_party/rules_cc_toolchain/features:hermetic_libraries"],
@@ -214,7 +216,7 @@ FEATURES_ESSENTIAL = select({
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
 ] + select({
-    "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux_x86_64"],
+    "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux"],
     "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
 }) + [
     # PIC / PIE flags
@@ -250,32 +252,8 @@ cc_toolchain_config(
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = select({
-        # Local sysroot: system directories are builtin
-        # With --sysroot=/, paths are both absolute and relative to sysroot
-        "//cc/sysroots:local_sysroot_enabled": [
-            # Absolute paths
-            "/usr/include",
-            "/usr/include/x86_64-linux-gnu",
-            "/usr/include/c++/11",
-            "/usr/include/x86_64-linux-gnu/c++/11",
-            "/usr/include/c++/10",
-            "/usr/include/x86_64-linux-gnu/c++/10",
-            "/usr/include/c++/9",
-            "/usr/include/x86_64-linux-gnu/c++/9",
-            "/usr/include/c++/7",
-            "/usr/include/x86_64-linux-gnu/c++/7",
-            # Relative paths (sysroot-relative when using --sysroot=/)
-            "/include",
-            "/include/x86_64-linux-gnu",
-            "/include/c++/11",
-            "/include/x86_64-linux-gnu/c++/11",
-            "/include/c++/10",
-            "/include/x86_64-linux-gnu/c++/10",
-            "/include/c++/9",
-            "/include/x86_64-linux-gnu/c++/9",
-            "/include/c++/7",
-            "/include/x86_64-linux-gnu/c++/7",
-        ],
+        # Local sysroot: use dynamically detected system include paths
+        "//cc/sysroots:local_sysroot_enabled": local_sysroot_info.include_directories,
         # Hermetic sysroot: no system directories
         "//conditions:default": [],
     }),

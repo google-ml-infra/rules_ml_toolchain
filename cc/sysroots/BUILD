@@ -5,6 +5,9 @@
 load(":collect_cc_libraries.bzl", "collect_cc_libraries")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 
+# Export template file for local_sysroot_configure repository rule
+exports_files(["defs.bzl.tpl"])
+
 # Flag to control whether to use local (system) sysroot instead of hermetic
 bool_flag(
     name = "use_local_sysroot",
