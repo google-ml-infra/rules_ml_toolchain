@@ -102,18 +102,19 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Hermetic LLVM headers for host compilation
-        # ROCm LLVM headers are in rocm_toolkit_files and added via hipcc_wrapper for GPU
+        # Hermetic LLVM headers
         "@llvm_linux_x86_64//:includes",
         "@llvm_linux_x86_64//:libclang_rt",
+        # Always include hermetic sysroot headers - needed for GPU compilation
+        # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
+        # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
+        "@sysroot_linux_x86_64//:includes_c",
+        "@sysroot_linux_x86_64//:includes_system",
     ] + select({
-        # Local sysroot: system headers/libs accessed via --sysroot=/ and sandbox mounts
-        # Only keep LLVM builtin headers, not hermetic sysroot
+        # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
-        # Hermetic sysroot: use hermetic headers and libs via cc_toolchain_import
+        # Hermetic sysroot: use hermetic libs
         "//conditions:default": [
-            "@sysroot_linux_x86_64//:includes_c",
-            "@sysroot_linux_x86_64//:includes_system",
             "@sysroot_linux_x86_64//:syslibs",
         ],
     }),

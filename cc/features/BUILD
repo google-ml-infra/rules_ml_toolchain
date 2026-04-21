@@ -95,6 +95,9 @@ cc_feature(
     enabled = True,
     compiler_flags = ["--sysroot=/"],
     linker_flags = ["--sysroot=/"],
+    env_sets = {
+        "HOST_SYSROOT": "/",
+    },
 )
 
 # When using local sysroot, we need to explicitly link system libraries
