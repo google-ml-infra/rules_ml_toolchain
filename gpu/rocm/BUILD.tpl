@@ -63,6 +63,8 @@ filegroup(
         "%{rocm_root}/llvm/lib/clang/*/include/**",
         "%{rocm_root}/share/hip/**",
         "%{rocm_root}/amdgcn/**",
+        "%{rocm_root}/lib/rocm_sysdeps/lib/*.so*",
+        "%{rocm_root}/llvm/lib/*.so*",
     ]),
     visibility = ["//visibility:public"],
 )
