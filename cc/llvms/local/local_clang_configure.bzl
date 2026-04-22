@@ -23,7 +23,6 @@ load(
 )
 
 _CLANG_COMPILER_PATH = "CLANG_COMPILER_PATH"
-_DEFAULT_CLANG_PATH = "/usr/lib/llvm-18/bin/clang"
 
 def _find_clang(repository_ctx):
     """Find the clang compiler path."""
@@ -31,20 +30,11 @@ def _find_clang(repository_ctx):
     if clang_path:
         if clang_path.startswith("/"):
             return clang_path
+
         # Try to find it in PATH
         found = which(repository_ctx, clang_path)
         if found:
             return found
-
-    # Try default path
-    default_path = repository_ctx.path(_DEFAULT_CLANG_PATH)
-    if default_path.exists:
-        return _DEFAULT_CLANG_PATH
-
-    # Try system clang
-    system_clang = which(repository_ctx, "clang")
-    if system_clang:
-        return system_clang
 
     return None
 
