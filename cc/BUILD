@@ -136,9 +136,11 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-# Target platform: Linux x86_64, ROCm
+# Target platform: Linux x86_64, ROCm (hipcc)
+# Used for rocm_library targets (GPU kernels with .cu.cc files)
+# Regular cc_library uses standard hermetic LLVM toolchain
 toolchain(
-    name = "linux_x86_64_linux_x86_64_rocm",
+    name = "linux_x86_64_linux_x86_64_rocm_gpu",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -147,6 +149,7 @@ toolchain(
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
         "//common:essential",
+        "//common:rocm_gpu_compilation",
     ],
     target_settings = [
         "//common:is_rocm_enabled",

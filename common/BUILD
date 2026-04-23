@@ -28,6 +28,27 @@ constraint_value(
     constraint_setting = ":toolchain_mode",
 )
 
+# GPU compilation constraint - used to select GPU-specific toolchains
+constraint_setting(
+    name = "gpu_compilation",
+    default_constraint_value = ":cpu_compilation",
+)
+
+constraint_value(
+    name = "cpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
+constraint_value(
+    name = "cuda_gpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
+constraint_value(
+    name = "rocm_gpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
 #######################################################
 # Platforms definitions and config settings
 platform(
@@ -36,6 +57,20 @@ platform(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
         ":essential",
+    ],
+)
+
+# ROCm platform - supports both CPU and GPU compilation
+# Both are simple x86_64 CPU targets, just using different compilers
+# Has rocm_gpu_compilation constraint so GPU targets are compatible
+# Toolchain selection happens based on target's constraints, not platform
+platform(
+    name = "linux_x86_64_rocm",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        ":essential",
+        ":rocm_gpu_compilation",
     ],
 )
 
