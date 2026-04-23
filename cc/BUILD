@@ -41,7 +41,6 @@ toolchain(
     ],
     target_settings = [
         "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
@@ -137,7 +136,7 @@ toolchain(
 )
 
 # Target platform: Linux x86_64, ROCm (hipcc)
-# Used for rocm_library targets (GPU kernels with .cu.cc files)
+# Explicitly selected by rocm_library via toolchains attribute
 # Regular cc_library uses standard hermetic LLVM toolchain
 toolchain(
     name = "linux_x86_64_linux_x86_64_rocm_gpu",
@@ -149,12 +148,9 @@ toolchain(
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
         "//common:essential",
-        "//common:rocm_gpu_compilation",
     ],
     target_settings = [
-        "//common:is_rocm_enabled",
         "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",

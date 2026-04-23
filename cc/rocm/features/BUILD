@@ -41,11 +41,32 @@ cc_feature(
     enabled = True,
 )
 
+# HIP runtime include paths - needed for __clang_hip_runtime_wrapper.h and other HIP headers
+# These are from ROCm's clang distribution
+cc_feature(
+    name = "rocm_hip_includes",
+    compiler_flags = [
+        "-isystem", "external/config_rocm_hipcc/rocm/rocm_dist/lib/llvm/lib/clang/19/include",
+        "-isystem", "external/config_rocm_hipcc/rocm/rocm_dist/include",
+    ],
+    enabled = True,
+)
+
 # Warning settings specific to ROCm compilation
 cc_feature(
     name = "rocm_warnings",
     compiler_flags = [
         "-Wno-unused-result",
+    ],
+    enabled = True,
+)
+
+# PIC settings for GPU kernel compilation (shared libraries)
+# Override the default -fPIE from hermetic toolchain
+cc_feature(
+    name = "rocm_pic",
+    compiler_flags = [
+        "-fPIC",
     ],
     enabled = True,
 )

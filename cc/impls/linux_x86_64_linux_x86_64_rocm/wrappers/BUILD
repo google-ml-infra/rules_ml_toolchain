@@ -36,7 +36,25 @@ exports_files([
     "ar",
     "clang",
     "clang++",
-    "hipcc_wrapper",
     "idler",
     "ld",
 ])
+
+# Make hipcc_wrapper an executable target for use in custom rules
+# Note: The actual wrapper script file is named "hipcc_wrapper" but we give
+# the sh_binary a different name to avoid conflict with exports_files
+sh_binary(
+    name = "hipcc_wrapper_bin",
+    srcs = [":hipcc_wrapper_script"],
+)
+
+# The actual wrapper script file
+exports_files(
+    ["hipcc_wrapper"],
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "hipcc_wrapper_script",
+    srcs = ["hipcc_wrapper"],
+)

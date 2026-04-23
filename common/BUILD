@@ -60,17 +60,14 @@ platform(
     ],
 )
 
-# ROCm platform - supports both CPU and GPU compilation
-# Both are simple x86_64 CPU targets, just using different compilers
-# Has rocm_gpu_compilation constraint so GPU targets are compatible
-# Toolchain selection happens based on target's constraints, not platform
+# ROCm platform - same as standard linux_x86_64 platform
+# Toolchain selection happens via explicit toolchains attribute in rocm_library
 platform(
     name = "linux_x86_64_rocm",
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
         ":essential",
-        ":rocm_gpu_compilation",
     ],
 )
 

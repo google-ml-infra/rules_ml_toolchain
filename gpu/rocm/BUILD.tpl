@@ -81,6 +81,14 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Make hipcc available as an executable
+sh_binary(
+    name = "hipcc",
+    srcs = ["%{rocm_root}/bin/hipcc"],
+    data = [":toolchain_data"],
+    visibility = ["//visibility:public"],
+)
+
 config_setting(
     name = "using_hipcc",
     define_values = {

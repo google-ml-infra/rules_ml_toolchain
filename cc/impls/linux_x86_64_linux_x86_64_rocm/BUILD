@@ -195,11 +195,14 @@ filegroup(
 FEATURES_ESSENTIAL = select({
     # Local sysroot: DO NOT use hermetic_libraries (no -nostdinc/-nostdinc++)
     # We want to use system headers and libraries
-    "//cc/sysroots:local_sysroot_enabled": [
+    "//cc/sysroot:local_sysroot_enabled": [
         "//cc/features:local_sysroot_default_libs",
     ],
-    # Hermetic sysroot: use hermetic_libraries feature
-    "//conditions:default": ["//third_party/rules_cc_toolchain/features:hermetic_libraries"],
+    # For ROCm toolchain: DO NOT use hermetic_libraries
+    # HIP compilation with -x hip needs clang's built-in resource directory
+    # for __clang_hip_runtime_wrapper.h (compiler built-in header)
+    # -nostdinc from hermetic_libraries would prevent accessing this
+    "//conditions:default": [],
 }) + [
     # Library imports
     ":imports_feature",
@@ -209,7 +212,9 @@ FEATURES_ESSENTIAL = select({
     ":rocm_hipcc_feature",
     "//cc/rocm/features:rocm_defines",
     "//cc/rocm/features:rocm_hermetic",
+    "//cc/rocm/features:rocm_hip_includes",
     "//cc/rocm/features:rocm_warnings",
+    "//cc/rocm/features:rocm_pic",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",
@@ -219,10 +224,11 @@ FEATURES_ESSENTIAL = select({
     "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux"],
     "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
 }) + [
-    # PIC / PIE flags
+    # PIC flags (not PIE - we're building shared libraries for GPU kernels)
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
-    "//third_party/rules_cc_toolchain/features:position_independent_executable",
+    # Note: position_independent_executable adds -fPIE, which conflicts with -fPIC for shared libraries
+    # We use rocm_pic feature instead
 
     # Optimization flags
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
