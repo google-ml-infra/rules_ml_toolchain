@@ -48,6 +48,7 @@ ENVIRONMENT VARIABLES (set by toolchain features):
   HOST_SYSROOT: Sysroot path for host (CPU) compilation. If set, uses this system
                 sysroot for host compilation. If not set, uses hermetic sysroot.
                 GPU compilation always uses hermetic sysroot regardless of this setting.
+  HIPCC_COMPILE_FLAGS_APPEND: Extra flags to append to hipcc compilation (optional)
   CROSSTOOL_VERBOSE: Set to "1" to enable verbose logging
 """
 
@@ -55,6 +56,7 @@ from argparse import ArgumentParser
 import os
 import subprocess
 import re
+import shlex
 import sys
 
 # Get paths from environment variables set by toolchain features
@@ -66,6 +68,9 @@ HOST_SYSROOT = os.environ.get(
     "HOST_SYSROOT", ""
 )  # System sysroot for host compilation (if set)
 VERBOSE = os.environ.get("CROSSTOOL_VERBOSE", "0") == "1"
+
+# Additional flags from environment (for compatibility with non-hermetic build)
+HIPCC_COMPILE_FLAGS_APPEND = os.environ.get("HIPCC_COMPILE_FLAGS_APPEND", "")
 
 
 def Log(s):
@@ -347,6 +352,10 @@ def InvokeHipcc(argv, log=False):
 
     # Add GPU compiler options (-isystem, -iquote, --sysroot)
     cmd.extend(gpu_compiler_options)
+
+    # Add extra compile flags from environment (if set)
+    if HIPCC_COMPILE_FLAGS_APPEND:
+        cmd.extend(shlex.split(HIPCC_COMPILE_FLAGS_APPEND))
 
     # -fPIC
     cmd.append("-fPIC")
