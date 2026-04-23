@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
+#
+# Direct wrapper for hipcc - all flags and includes are set by the toolchain.
+# HIPCC_PATH is set by rocm_hipcc_feature environment variable.
 
-# allow passing the output of one command as input to the next
-set -o pipefail
+if [ -z "$HIPCC_PATH" ]; then
+    echo "Error: HIPCC_PATH not set" >&2
+    exit 1
+fi
 
-# run specified tool with all arguments
-$AR_PATH $@
+# Execute hipcc directly with all arguments
+# All flags (--rocm-path, --offload-arch, etc.) are added by the toolchain
+exec "$HIPCC_PATH" "$@"

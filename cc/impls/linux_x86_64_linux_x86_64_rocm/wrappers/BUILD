@@ -13,30 +13,16 @@
 # limitations under the License.
 # ==============================================================================
 
-"""ROCm wrapper scripts.
-
-hipcc_wrapper is ROCm-specific. Common wrappers are symlinked from CUDA.
-"""
-
 package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "hipcc_direct",
+    "llvm-ar",
+    "llvm-strip",
+    "idler",
+])
 
 filegroup(
     name = "all",
-    srcs = [
-        "ar",
-        "clang",
-        "clang++",
-        "hipcc_wrapper",
-        "idler",
-        "ld",
-    ],
+    srcs = glob(["*"]),
 )
-
-exports_files([
-    "ar",
-    "clang",
-    "clang++",
-    "hipcc_wrapper",
-    "idler",
-    "ld",
-])

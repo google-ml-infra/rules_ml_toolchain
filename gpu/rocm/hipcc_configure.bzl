@@ -101,6 +101,51 @@ def find_rocm_config(repository_ctx, rocm_path):
     # Parse the dict from stdout.
     return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])
 
+def _get_hipcc_include_directories(repository_ctx, hipcc_path):
+    """Get builtin include directories from hipcc.
+
+    Args:
+        repository_ctx: The repository context.
+        hipcc_path: Path to hipcc binary.
+
+    Returns:
+        List of include directory paths.
+    """
+    # Create a temporary empty file for hipcc to process
+    repository_ctx.file("empty.cc", "")
+
+    # Ask hipcc for its builtin include paths
+    # We use a simple test compilation with -v flag to get verbose output
+    result = execute(repository_ctx, [
+        hipcc_path,
+        "-x", "hip",
+        "-v",
+        "-E",
+        "empty.cc",
+    ], allow_failure = True)
+
+    # Parse the include directories from hipcc output
+    # hipcc outputs lines like:
+    #  #include <...> search starts here:
+    #  /path/to/include
+    #  End of search list.
+    include_dirs = []
+    in_include_section = False
+
+    for line in result.stderr.split("\n"):
+        line = line.strip()
+        if "#include <...> search starts here:" in line:
+            in_include_section = True
+            continue
+        if "End of search list" in line:
+            in_include_section = False
+            continue
+        if in_include_section and line:
+            # Remove leading/trailing whitespace and add to list
+            include_dirs.append(line)
+
+    return include_dirs
+
 def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path, rocm_lib_paths = None):
     """Detects and returns information about the ROCm installation on the system.
 
@@ -121,6 +166,7 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path, rocm_lib
         clang_version: The clang version in ROCm's LLVM.
         install_path: Original install path.
         rocm_lib_paths: List of lib paths (for multiple paths setup).
+        include_directories: List of builtin include directories from hipcc.
     """
     config = find_rocm_config(repository_ctx, rocm_path)
     rocm_toolkit_path = config["rocm_toolkit_path"]
@@ -128,6 +174,11 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path, rocm_lib
     miopen_version_number = config["miopen_version_number"]
     hipruntime_version_number = config["hipruntime_version_number"]
     clang_version = config.get("clang_version", "")
+
+    # Get hipcc include directories
+    hipcc_path = rocm_toolkit_path + "/bin/hipcc"
+    include_directories = _get_hipcc_include_directories(repository_ctx, hipcc_path)
+
     return struct(
         amdgpu_targets = _amdgpu_targets(repository_ctx, rocm_toolkit_path, bash_bin),
         rocm_toolkit_path = rocm_toolkit_path,
@@ -137,6 +188,7 @@ def _get_rocm_config(repository_ctx, bash_bin, rocm_path, install_path, rocm_lib
         clang_version = clang_version,
         install_path = install_path,
         rocm_lib_paths = rocm_lib_paths if rocm_lib_paths else [],
+        include_directories = include_directories,
     )
 
 def _tpl_path(repository_ctx, labelname):
@@ -321,6 +373,7 @@ def _create_dummy_repository(repository_ctx):
         "%{rocm_path}": "",
         "%{clang_version}": "",
         "%{rocm_lib_paths}": "[]",
+        "%{include_directories}": "[]",
     }
 
     _tpl(repository_ctx, "rocm:BUILD", stub_dict)
@@ -360,6 +413,7 @@ def _setup_rocm_repository(repository_ctx):
         "%{rocm_path}": rocm_path_relative,
         "%{clang_version}": rocm_config.clang_version,
         "%{rocm_lib_paths}": str(rocm_config.rocm_lib_paths),
+        "%{include_directories}": str(rocm_config.include_directories),
     }
 
     _tpl(repository_ctx, "rocm:BUILD", repository_dict)

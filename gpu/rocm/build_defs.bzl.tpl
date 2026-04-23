@@ -33,6 +33,7 @@ def hipcc_config():
             - hipruntime_version: HIP runtime version number
             - clang_version: Clang version string
             - lib_paths: List of library paths (for multiple ROCm paths setup)
+            - include_directories: List of builtin include directories from hipcc
     """
     return struct(
         gpu_architectures = %{rocm_gpu_architectures},
@@ -44,6 +45,7 @@ def hipcc_config():
         hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
         lib_paths = %{rocm_lib_paths},
+        include_directories = %{include_directories},
     )
 
 # Alias for compatibility
@@ -78,17 +80,24 @@ def rocm_default_copts():
         "-DTENSORFLOW_USE_ROCM=1",
     ])
 
-def rocm_library(copts = [], deps = [], **kwargs):
+def rocm_library(copts = [], deps = [], target_compatible_with = [], **kwargs):
     """Wrapper over cc_library which adds default ROCm/HIP options.
+
+    This macro automatically adds the rocm_gpu_compilation constraint to ensure
+    the ROCm GPU toolchain (hipcc) is selected instead of the default hermetic LLVM toolchain.
 
     Args:
         copts: Additional compiler options.
         deps: Library dependencies.
+        target_compatible_with: Additional platform constraints.
         **kwargs: Other arguments passed to cc_library.
     """
     native.cc_library(
-        copts = rocm_default_copts() + ["-x", "rocm"] + copts,
+        copts = rocm_default_copts() + ["-x", "hip"] + copts,
         deps = deps + ["@config_rocm_hipcc//rocm:hip_runtime"],
+        target_compatible_with = target_compatible_with + [
+            "@rules_ml_toolchain//common:rocm_gpu_compilation",
+        ],
         **kwargs
     )
 

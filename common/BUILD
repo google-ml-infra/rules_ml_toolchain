@@ -28,6 +28,26 @@ constraint_value(
     constraint_setting = ":toolchain_mode",
 )
 
+constraint_setting(
+    name = "gpu_compilation",
+    default_constraint_value = ":cpu_compilation",
+)
+
+constraint_value(
+    name = "cpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
+constraint_value(
+    name = "rocm_gpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
+constraint_value(
+    name = "cuda_gpu_compilation",
+    constraint_setting = ":gpu_compilation",
+)
+
 #######################################################
 # Platforms definitions and config settings
 platform(

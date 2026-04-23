@@ -27,7 +27,8 @@ package(
 
 # Target platform: Linux x86_64,
 
-# Essentials
+# Essentials - used for CPU code in all builds (normal, ROCm, CUDA, SYCL)
+# GPU code is selected via gpu-specific constraints (rocm_gpu_compilation, cuda_gpu_compilation, etc.)
 toolchain(
     name = "linux_x86_64_linux_x86_64",
     exec_compatible_with = [
@@ -38,11 +39,9 @@ toolchain(
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
         "//common:essential",
+        "//common:cpu_compilation",
     ],
     target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//cc/impls/linux_x86_64_linux_x86_64:toolchain",
@@ -136,7 +135,8 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-# Target platform: Linux x86_64, ROCm
+# Target platform: Linux x86_64, ROCm GPU Compilation (hipcc)
+# CPU code uses the default hermetic LLVM toolchain above
 toolchain(
     name = "linux_x86_64_linux_x86_64_rocm",
     exec_compatible_with = [
@@ -147,6 +147,7 @@ toolchain(
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
         "//common:essential",
+        "//common:rocm_gpu_compilation",
     ],
     target_settings = [
         "//common:is_rocm_enabled",

@@ -24,6 +24,12 @@ exports_files(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "rocm_headers",
+    srcs = glob(["%{rocm_root}/include/**/*.h"]),
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "hip_runtime",
     hdrs = glob(["%{rocm_root}/include/**/*.h"]),
@@ -78,6 +84,25 @@ filegroup(
 filegroup(
     name = "rocm_root",
     srcs = [":all_files"],
+    visibility = ["//visibility:public"],
+)
+
+# Tool targets for ROCm toolchain
+filegroup(
+    name = "hipcc",
+    srcs = ["%{rocm_root}/bin/hipcc"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ar",
+    srcs = ["%{rocm_root}/llvm/bin/llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "strip",
+    srcs = ["%{rocm_root}/llvm/bin/llvm-strip"],
     visibility = ["//visibility:public"],
 )
 

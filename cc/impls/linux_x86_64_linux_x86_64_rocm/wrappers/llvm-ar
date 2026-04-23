@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
+#
+# Wrapper for llvm-ar from ROCm LLVM
 
-# allow passing the output of one command as input to the next
-set -o pipefail
+if [ -z "$ROCM_PATH" ]; then
+    echo "Error: ROCM_PATH not set" >&2
+    exit 1
+fi
 
-# run specified tool with all arguments
-$LD_PATH $@
+exec "$ROCM_PATH/llvm/bin/llvm-ar" "$@"
