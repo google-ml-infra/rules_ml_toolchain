@@ -83,9 +83,59 @@ filegroup(
 
 # Make hipcc available as an executable
 sh_binary(
-    name = "hipcc",
+    name = "hipcc_bin",
     srcs = ["%{rocm_root}/bin/hipcc"],
     data = [":toolchain_data"],
+    visibility = ["//visibility:public"],
+)
+
+# Aliases for individual tools (used by cc_toolchain_config and rocm_compile)
+alias(
+    name = "hipcc",
+    actual = "%{rocm_root}/bin/hipcc",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "ld.lld",
+    actual = "%{rocm_root}/llvm/bin/ld.lld",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-ar",
+    actual = "%{rocm_root}/llvm/bin/llvm-ar",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-strip",
+    actual = "%{rocm_root}/llvm/bin/llvm-strip",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-nm",
+    actual = "%{rocm_root}/llvm/bin/llvm-nm",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-objdump",
+    actual = "%{rocm_root}/llvm/bin/llvm-objdump",
+    visibility = ["//visibility:public"],
+)
+
+# Individual tool targets for cc_toolchain_config
+exports_files(
+    [
+        "%{rocm_root}/bin/hipcc",
+        "%{rocm_root}/llvm/bin/ld.lld",
+        "%{rocm_root}/llvm/bin/llvm-ar",
+        "%{rocm_root}/llvm/bin/llvm-strip",
+        "%{rocm_root}/llvm/bin/llvm-nm",
+        "%{rocm_root}/llvm/bin/llvm-objdump",
+    ],
     visibility = ["//visibility:public"],
 )
 

@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ROCm compilation rule that uses hipcc directly and reads flags from toolchain."""
-
-load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
-load("//cc/rocm:rocm_flags_provider.bzl", "RocmFlagsInfo")
+"""ROCm compilation rule that reads compiler and flags from provided cc_toolchain."""
 
 def _rocm_compile_impl(ctx):
-    """Compiles ROCm sources using hipcc directly with flags from ROCm toolchain."""
+    """Compiles ROCm sources using hipcc from provided cc_toolchain."""
 
-    # Get ROCm compiler flags from the provider (not from hermetic clang toolchain)
-    rocm_flags = ctx.attr._rocm_flags[RocmFlagsInfo]
+    # Get the ROCm toolchain provided as an attribute
+    cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
 
     # Collect compilation contexts from dependencies
     cc_infos = [dep[CcInfo] for dep in ctx.attr.deps if CcInfo in dep]
@@ -32,20 +29,39 @@ def _rocm_compile_impl(ctx):
         compilation_contexts = compilation_contexts,
     )
 
-    # Find the ROCm root path in the sandbox by looking for rocm_dist directory
-    # The files are staged as external/config_rocm_hipcc/rocm/rocm_dist/...
-    rocm_sandbox_path = None
-    for file in ctx.files._rocm_root:
-        # Find a file and extract the rocm_dist directory path
-        # file.path looks like: external/config_rocm_hipcc/rocm/rocm_dist/...
-        if "rocm_dist" in file.path:
-            parts = file.path.split("rocm_dist")
-            if len(parts) >= 2:
-                rocm_sandbox_path = parts[0] + "rocm_dist"
-                break
+    # Get feature configuration from toolchain
+    feature_configuration = cc_common.configure_features(
+        ctx = ctx,
+        cc_toolchain = cc_toolchain,
+        requested_features = ctx.features,
+        unsupported_features = ctx.disabled_features,
+    )
 
-    if not rocm_sandbox_path:
-        fail("Could not determine ROCm sandbox path from _rocm_root files")
+    # Get compiler flags from features
+    compile_variables = cc_common.create_compile_variables(
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        user_compile_flags = ctx.attr.copts,
+    )
+    compiler_flags = cc_common.get_memory_inefficient_command_line(
+        feature_configuration = feature_configuration,
+        action_name = "c++-compile",
+        variables = compile_variables,
+    )
+
+    # Get environment variables from feature configuration
+    # These include HIPCC_PATH, ROCM_PATH, etc. set by rocm_hipcc_feature
+    env_vars = cc_common.get_environment_variables(
+        feature_configuration = feature_configuration,
+        action_name = "c++-compile",
+        variables = compile_variables,
+    )
+
+    # Use hipcc executable from toolchain
+    hipcc_files = ctx.files._hipcc
+    if len(hipcc_files) != 1:
+        fail("Expected exactly one hipcc file, got: %s" % hipcc_files)
+    hipcc_file = hipcc_files[0]
 
     # Compile each source file
     objects = []
@@ -57,14 +73,8 @@ def _rocm_compile_impl(ctx):
         args.add("-x", "hip")  # Use standard HIP language mode
         args.add("-c")
 
-        # Add all ROCm toolchain flags (from ROCm features, not hermetic clang)
-        args.add_all(rocm_flags.compiler_flags)
-
-        # Add --rocm-path with actual sandbox path
-        args.add("--rocm-path=" + rocm_sandbox_path)
-
-        # Add user-specified compile options
-        args.add_all(ctx.attr.copts)
+        # Add compiler flags from toolchain features
+        args.add_all(compiler_flags)
 
         # Add include paths from dependencies
         args.add_all(merged_compilation_context.includes, before_each = "-I")
@@ -78,26 +88,18 @@ def _rocm_compile_impl(ctx):
         args.add(src)
         args.add("-o", obj)
 
-        # Set environment for hipcc
-        # ROCM_PATH: tells hipcc where ROCm installation is (includes clang++ in lib/llvm/bin/)
-        # hipcc will use clang++ from the ROCm distribution (already in toolchain_data)
-        env = {
-            "ROCM_PATH": rocm_sandbox_path,
-        }
-
         ctx.actions.run(
-            executable = ctx.executable._hipcc,
+            executable = hipcc_file,
             arguments = [args],
             inputs = depset(
                 direct = [src] + ctx.files.hdrs,
                 transitive = [
                     merged_compilation_context.headers,
-                    depset(ctx.files._rocm_root),
-                    depset(ctx.files._rocm_toolchain_data),  # Includes ROCm's clang++ and all LLVM tools
+                    cc_toolchain.all_files,
                 ],
             ),
             outputs = [obj],
-            env = env,
+            env = env_vars,
             mnemonic = "RocmCompile",
         )
 
@@ -119,22 +121,13 @@ rocm_compile = rule(
             providers = [CcInfo],
         ),
         "copts": attr.string_list(),
+        "_cc_toolchain": attr.label(
+            default = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
+        ),
         "_hipcc": attr.label(
             default = "@config_rocm_hipcc//rocm:hipcc",
-            executable = True,
-            cfg = "exec",
-        ),
-        "_rocm_root": attr.label(
-            default = "@config_rocm_hipcc//rocm:rocm_root",
             allow_files = True,
-        ),
-        "_rocm_toolchain_data": attr.label(
-            default = "@config_rocm_hipcc//rocm:toolchain_data",
-            allow_files = True,
-        ),
-        "_rocm_flags": attr.label(
-            default = "@rules_ml_toolchain//cc/rocm:rocm_flags",
-            providers = [RocmFlagsInfo],
         ),
     },
+    fragments = ["cpp"],
 )

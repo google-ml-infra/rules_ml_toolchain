@@ -13,12 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""ROCm HIPcc feature rule for feature-based toolchain configuration.
-
-This rule creates a toolchain feature that sets environment variables and
-compiler flags needed for ROCm/HIP compilation. It follows the same pattern
-as cuda_nvcc_feature.bzl in rules_ml_toolchain.
-"""
+"""ROCm HIPcc feature for toolchain configuration."""
 
 load(
     "@rules_cc//cc:action_names.bzl",
@@ -38,7 +33,6 @@ load(
     _feature = "feature",
 )
 
-# All actions that need environment variables set
 ALL_ACTIONS = [
     ACTION_NAMES.c_compile,
     ACTION_NAMES.cpp_compile,
@@ -62,25 +56,17 @@ ALL_ACTIONS = [
 ]
 
 def _rocm_hipcc_feature_impl(ctx):
-    """Implementation of the rocm_hipcc_feature rule.
+    """Implementation of the rocm_hipcc_feature rule."""
 
-    Sets up environment variables and compiler flags for ROCm/HIP compilation.
-    The environment variables are read by the hipcc_wrapper script to locate
-    the HIPcc compiler and ROCm toolkit.
-    """
-    # Construct full paths using workspace_root from the rocm_toolkit label
-    # and relative paths from hipcc_config() struct
+    # Construct paths from the rocm_toolkit label
     workspace_root = ctx.attr.rocm_toolkit.label.workspace_root
     package = ctx.attr.rocm_toolkit.label.package
 
-    # Combine workspace path with relative paths from the struct
+    # Combine workspace path with relative paths
     rocm_path = workspace_root + "/" + package + "/" + ctx.attr.rocm_path
     hipcc_path = workspace_root + "/" + package + "/" + ctx.attr.hipcc_path
 
-    # Build environment entries
-    # Note: GCC_PATH is set by cc_toolchain_config's __tool_paths_as_environment_vars
-    # feature based on the c_compiler attribute, so we don't set it here to avoid
-    # duplicate environment variable errors.
+    # Environment variables
     env_entries = [
         env_entry("HIPCC_PATH", hipcc_path),
         env_entry("ROCM_PATH", rocm_path),
@@ -88,27 +74,38 @@ def _rocm_hipcc_feature_impl(ctx):
         env_entry("ROCM_CLANG_VERSION", ctx.attr.clang_version),
     ]
 
-    # Build compiler flags (common to both C and C++)
+    # Compiler flags
     common_compiler_flags = []
 
-    # Add --rocm-path flag pointing to the ROCm toolkit
+    # Add --rocm-path flag
     common_compiler_flags.append("--rocm-path=" + rocm_path)
 
-    # Add architecture flags if specified
+    # Add architecture flags
     for arch in ctx.attr.amdgpu_targets:
         common_compiler_flags.append("--offload-arch=" + arch)
 
-    # ROCm-specific compilation flags (common to C and C++)
+    # ROCm-specific compilation flags
     common_compiler_flags.extend([
-        # Disable relocatable device code for faster compilation
         "-fno-gpu-rdc",
-        # Flush denormals to zero on GPU
         "-fcuda-flush-denormals-to-zero",
     ])
 
+    # ROCm preprocessor definitions
+    common_compiler_flags.extend([
+        "-DTENSORFLOW_USE_ROCM=1",
+        "-D__HIP_PLATFORM_AMD__",
+        "-DEIGEN_USE_HIP",
+        "-DUSE_ROCM",
+    ])
+
+    # Warning flags
+    common_compiler_flags.append("-Wno-unused-result")
+
+    # PIC for shared libraries
+    common_compiler_flags.append("-fPIC")
+
     # C++ only flags
     cpp_only_flags = [
-        # Force C++17 for HIP compilation (only valid for C++)
         "--std=c++17",
     ]
 
@@ -128,7 +125,7 @@ def _rocm_hipcc_feature_impl(ctx):
                     ),
                 ] if common_compiler_flags else [],
             ),
-            # C++ only flags (not applied to c_compile)
+            # C++ only flags
             flag_set(
                 actions = ALL_CPP_COMPILE_ACTION_NAMES,
                 flag_groups = [
@@ -156,11 +153,7 @@ rocm_hipcc_feature = rule(
         ),
         "rocm_toolkit": attr.label(
             mandatory = True,
-            doc = "Label pointing to the ROCm toolkit (for dependencies).",
-        ),
-        "host_compiler": attr.label(
-            allow_single_file = True,
-            doc = "Label pointing to the host compiler (clang).",
+            doc = "Label pointing to the ROCm toolkit.",
         ),
         "version": attr.string(
             mandatory = True,
@@ -187,22 +180,7 @@ rocm_hipcc_feature = rule(
     doc = """
 Creates a toolchain feature for ROCm/HIP compilation.
 
-This feature sets environment variables (HIPCC_PATH, ROCM_PATH, HIPCC_VERSION,
-ROCM_CLANG_VERSION, GCC_PATH) that are read by the hipcc_wrapper script,
-and adds compiler flags for ROCm compilation (--rocm-path, --offload-arch).
-
-The hipcc_wrapper constructs paths to ROCm's LLVM headers (cuda_wrappers and builtins)
-based on ROCM_PATH and ROCM_CLANG_VERSION.
-
-Example usage:
-    rocm_hipcc_feature(
-        name = "rocm_hipcc_feature",
-        rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
-        host_compiler = "@llvm_linux_x86_64//:clang",
-        version = "6.0",
-        amdgpu_targets = ["gfx906", "gfx908"],
-        rocm_path = "external/_main~hipcc_configure_ext~config_rocm_hipcc/rocm/rocm_dist",
-        hipcc_path = "external/_main~hipcc_configure_ext~config_rocm_hipcc/rocm/rocm_dist/bin/hipcc",
-    )
+Sets environment variables (HIPCC_PATH, ROCM_PATH, HIPCC_VERSION, ROCM_CLANG_VERSION)
+and compiler flags (--rocm-path, --offload-arch, etc.) for ROCm compilation.
 """,
 )

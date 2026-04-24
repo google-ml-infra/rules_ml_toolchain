@@ -12,15 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
-load("//cc/rocm:rocm_flags_provider.bzl", "rocm_flags")
-
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["rocm_compile.bzl"])
-
-# Aggregate ROCm compiler flags from all toolchain features
-rocm_flags(
-    name = "rocm_flags",
-    amdgpu_targets = hipcc_config().gpu_architectures,
-)

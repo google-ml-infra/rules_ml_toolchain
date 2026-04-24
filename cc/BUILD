@@ -135,28 +135,6 @@ toolchain(
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 
-# Target platform: Linux x86_64, ROCm (hipcc)
-# Explicitly selected by rocm_library via toolchains attribute
-# Regular cc_library uses standard hermetic LLVM toolchain
-toolchain(
-    name = "linux_x86_64_linux_x86_64_rocm_gpu",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-        "//common:essential",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
-    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-)
-
 #=====================================================================
 # Executor platform: aarch64
 #=====================================================================
