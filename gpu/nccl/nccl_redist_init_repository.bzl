@@ -100,6 +100,11 @@ def _use_downloaded_nccl_wheel(repository_ctx):
         archive = file_name,
         stripPrefix = repository_ctx.attr.strip_prefix,
     )
+    for patch_file in repository_ctx.attr.patches:
+        repository_ctx.patch(
+            patch_file,
+            strip = 1,
+        )
     repository_ctx.delete(file_name)
 
     lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
@@ -134,12 +139,14 @@ cuda_nccl_repo = repository_rule(
         "local_build_templates": attr.label_list(mandatory = True),
         "strip_prefix": attr.string(),
         "local_source_dirs": attr.string_list(mandatory = True),
+        "patches": attr.label_list(allow_files = True),
     },
 )
 
 def nccl_redist_init_repository(
         cuda_nccl_wheels = CUDA_NCCL_WHEELS,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        patches = []):
     # buildifier: disable=function-docstring-args
     """Initializes NCCL repository."""
     nccl_artifacts_dict = {"sha256_dict": {}, "url_dict": {}}
@@ -165,4 +172,5 @@ def nccl_redist_init_repository(
         local_build_templates = local_templates,
         strip_prefix = "nvidia/nccl",
         local_source_dirs = local_source_dirs,
+        patches = patches,
     )
