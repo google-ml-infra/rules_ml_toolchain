@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ROCm library rule that compiles GPU code and creates a cc_library."""
+"""ROCm library rule that compiles GPU code into standalone .so with ROCm's C++ runtime."""
 
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//cc/rocm:rocm_compile.bzl", "rocm_compile")
 
 def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [], local_defines = [], **kwargs):
-    """Compiles ROCm sources with hipcc, wraps .o files in cc_library for linking.
+    """Compiles ROCm sources into standalone .so with ROCm's libc++.
 
     Args:
         name: Name of the library
@@ -26,34 +26,29 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [
         hdrs: Header files (.h, .cu.h)
         copts: Compiler options
         deps: Dependencies
-        linkopts: Linker options
+        linkopts: Linker options (ignored - rocm_compile handles linking)
         local_defines: Preprocessor defines (will be passed as -DNAME)
-        **kwargs: Additional arguments passed to cc_library
+        **kwargs: Additional arguments passed to rocm_compile
     """
-    compiled_objects = []
     if srcs:
         # Convert local_defines to copts with -D prefix
         define_copts = ["-D" + d for d in local_defines]
         all_copts = copts + define_copts
 
+        # rocm_compile now compiles AND links into standalone .so
         rocm_compile(
-            name = name + "_rocm_objects",
+            name = name,
             srcs = srcs,
             hdrs = hdrs,
             deps = deps,
             copts = all_copts,
+            **kwargs
         )
-        compiled_objects.append(":" + name + "_rocm_objects")
-
-    # Allow duplicate weak symbols (__hip_cuid_) from multiple compilations of same source
-    rocm_linkopts = ["-Wl,--allow-multiple-definition"] + linkopts
-
-    cc_library(
-        name = name,
-        hdrs = hdrs,
-        srcs = compiled_objects,
-        deps = deps,
-        copts = copts,
-        linkopts = rocm_linkopts,
-        **kwargs
-    )
+    else:
+        # Header-only library
+        cc_library(
+            name = name,
+            hdrs = hdrs,
+            deps = deps,
+            **kwargs
+        )

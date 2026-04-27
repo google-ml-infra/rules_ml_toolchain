@@ -45,6 +45,16 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+# ROCm's C++ runtime libraries for linking GPU kernel .so files
+filegroup(
+    name = "rocm_cxx_runtime",
+    srcs = glob([
+        "%{rocm_root}/llvm/lib/libc++.so*",
+        "%{rocm_root}/llvm/lib/libc++abi.so*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "rocm_redist",
     srcs = glob(["%{rocm_root}/**"]),
