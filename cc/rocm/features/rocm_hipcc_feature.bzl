@@ -86,7 +86,7 @@ def _rocm_hipcc_feature_impl(ctx):
 
     # ROCm-specific compilation flags
     common_compiler_flags.extend([
-        "-fno-gpu-rdc",
+        "-fno-gpu-rdc",  # No relocatable device code - embed kernels as fat binaries
         "-fcuda-flush-denormals-to-zero",
     ])
 

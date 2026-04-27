@@ -17,7 +17,7 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//cc/rocm:rocm_compile.bzl", "rocm_compile")
 
-def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], **kwargs):
+def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [], local_defines = [], **kwargs):
     """Compiles ROCm sources with hipcc, wraps .o files in cc_library for linking.
 
     Args:
@@ -26,18 +26,27 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], **kwargs):
         hdrs: Header files (.h, .cu.h)
         copts: Compiler options
         deps: Dependencies
+        linkopts: Linker options
+        local_defines: Preprocessor defines (will be passed as -DNAME)
         **kwargs: Additional arguments passed to cc_library
     """
     compiled_objects = []
     if srcs:
+        # Convert local_defines to copts with -D prefix
+        define_copts = ["-D" + d for d in local_defines]
+        all_copts = copts + define_copts
+
         rocm_compile(
             name = name + "_rocm_objects",
             srcs = srcs,
             hdrs = hdrs,
             deps = deps,
-            copts = copts,
+            copts = all_copts,
         )
         compiled_objects.append(":" + name + "_rocm_objects")
+
+    # Allow duplicate weak symbols (__hip_cuid_) from multiple compilations of same source
+    rocm_linkopts = ["-Wl,--allow-multiple-definition"] + linkopts
 
     cc_library(
         name = name,
@@ -45,5 +54,6 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], **kwargs):
         srcs = compiled_objects,
         deps = deps,
         copts = copts,
+        linkopts = rocm_linkopts,
         **kwargs
     )

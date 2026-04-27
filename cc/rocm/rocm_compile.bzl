@@ -66,7 +66,8 @@ def _rocm_compile_impl(ctx):
     # Compile each source file
     objects = []
     for src in ctx.files.srcs:
-        obj = ctx.actions.declare_file(src.basename + ".pic.o")
+        # Use target-specific directory to avoid conflicts when same source compiled with different defines
+        obj = ctx.actions.declare_file("_objs/" + ctx.label.name + "/" + src.basename + ".pic.o")
 
         # Build compilation command for hipcc
         args = ctx.actions.args()
@@ -83,6 +84,9 @@ def _rocm_compile_impl(ctx):
 
         # Add defines from dependencies
         args.add_all(merged_compilation_context.defines, format_each = "-D%s")
+
+        # Add user-provided compiler options
+        args.add_all(ctx.attr.copts)
 
         # Add source and output
         args.add(src)
