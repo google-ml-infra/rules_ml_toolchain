@@ -41,7 +41,6 @@ toolchain(
     ],
     target_settings = [
         "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
         "//common:is_sycl_disabled",
         "//common:is_hermetic_cc_enabled",
     ],
@@ -133,28 +132,6 @@ toolchain(
         "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//cc/impls/linux_x86_64_linux_x86_64_sycl:toolchain",
-    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-)
-
-# Target platform: Linux x86_64, ROCm
-toolchain(
-    name = "linux_x86_64_linux_x86_64_rocm",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-        "//common:essential",
-    ],
-    target_settings = [
-        "//common:is_rocm_enabled",
-        "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
 

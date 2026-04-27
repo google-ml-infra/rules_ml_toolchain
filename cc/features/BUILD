@@ -103,14 +103,17 @@ cc_feature(
 
 # When using local sysroot, we need to explicitly link default system libraries
 # since we don't use hermetic_libraries feature
+# Note: These libraries are needed when mixing system ROCm with hermetic LLVM
 cc_feature(
     name = "local_sysroot_default_libs",
     enabled = True,
     linker_flags = [
-        "-lstdc++",
-        "-lm",
-        "-lpthread",
-        "-ldl",
+        "-lc",          # libc (for malloc, calloc, free, etc.)
+        "-lstdc++",     # libstdc++ (for C++ runtime)
+        "-lm",          # libm (for math functions)
+        "-lpthread",    # libpthread (for threading)
+        "-ldl",         # libdl (for dynamic linking)
+        "-lgcc_s",      # libgcc_s (for exception unwinding: _Unwind_Resume, etc.)
     ],
 )
 

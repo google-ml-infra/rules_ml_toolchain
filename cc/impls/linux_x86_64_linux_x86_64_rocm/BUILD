@@ -1,5 +1,3 @@
-load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
-
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +14,17 @@ load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
 # ==============================================================================
 
 # ==============================================================================
-# Tools: Linux x86_64, Sysroot: Linux x86_64, ROCm
+# ROCm cc_toolchain with hipcc compiler
 # ==============================================================================
+#
+# This toolchain provides:
+# 1. hipcc as the C++ compiler (for rocm_compile rule to use)
+# 2. ROCm include directories (clang headers, HIP headers)
+# 3. ROCm compiler flags via rocm_hipcc_feature
+# 4. Standard linking capability for combining compiled .o files
 
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
+load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
@@ -32,18 +37,6 @@ package(
     ],
 )
 
-ROCM_TOOLS = {
-    "gcc": "wrappers/hipcc_wrapper",
-    "cpp": "wrappers/clang++",
-    "ld": "wrappers/ld",
-    "ar": "wrappers/ar",
-    "gcov": "wrappers/idler",
-    "llvm-cov": "wrappers/idler",
-    "nm": "wrappers/idler",
-    "objdump": "wrappers/idler",
-    "strip": "wrappers/idler",
-}
-
 # =============================================================================
 # ROCm HIPcc Feature
 # =============================================================================
@@ -54,7 +47,6 @@ rocm_hipcc_feature(
     clang_version = hipcc_config().clang_version,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
-    host_compiler = "@llvm_linux_x86_64//:clang",
     rocm_path = hipcc_config().rocm_path,
     rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
     version = str(hipcc_config().version_number),
@@ -65,19 +57,6 @@ rocm_hipcc_feature(
 # Filegroups
 # =============================================================================
 
-filegroup(
-    name = "wrappers",
-    srcs = ["//cc/impls/linux_x86_64_linux_x86_64_rocm/wrappers:all"],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "rocm_toolkit_files",
-    srcs = [
-        "@config_rocm_hipcc//rocm:toolchain_data",
-    ],
-)
-
 cc_toolchain_import(
     name = "empty_startup_libs",
     deps = [],
@@ -86,9 +65,7 @@ cc_toolchain_import(
 alias(
     name = "startup_libs",
     actual = select({
-        # Local sysroot: startup libs via --sysroot flag
         "//cc/sysroots:local_sysroot_enabled": ":empty_startup_libs",
-        # Hermetic sysroot: use hermetic startup libs
         "//conditions:default": "@sysroot_linux_x86_64//:startup_libs",
     }),
     visibility = ["//visibility:public"],
@@ -100,22 +77,14 @@ cc_toolchain_import_feature(
     toolchain_import = ":startup_libs",
 )
 
-# buildifier: leave-alone
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Hermetic LLVM headers
-        "@llvm_linux_x86_64//:includes",
-        "@llvm_linux_x86_64//:libclang_rt",
-        # Always include hermetic sysroot headers - needed for GPU compilation
-        # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
-        # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
+        # Hermetic sysroot (always needed for device code)
         "@sysroot_linux_x86_64//:includes_c",
         "@sysroot_linux_x86_64//:includes_system",
     ] + select({
-        # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
-        # Hermetic sysroot: use hermetic libs
         "//conditions:default": [
             "@sysroot_linux_x86_64//:syslibs",
         ],
@@ -129,62 +98,12 @@ cc_toolchain_import_feature(
     toolchain_import = ":imports",
 )
 
-# buildifier: leave-alone
 filegroup(
     name = "all",
     srcs = [
         ":imports",
-        ":rocm_toolkit_files",
         ":startup_libs",
-        ":wrappers",
-        "@llvm_linux_x86_64//:all",
-    ],
-)
-
-# buildifier: leave-alone
-filegroup(
-    name = "compiler",
-    srcs = [
-        ":imports",
-        ":rocm_toolkit_files",
-        ":wrappers",
-        "@llvm_linux_x86_64//:clang",
-        "@llvm_linux_x86_64//:clang++",
-        "@llvm_linux_x86_64//:distro_libs",
-    ],
-)
-
-# buildifier: leave-alone
-filegroup(
-    name = "linker",
-    srcs = [
-        ":compiler",
-        ":rocm_toolkit_files",
-        ":startup_libs",
-        ":wrappers",
-        "@llvm_linux_x86_64//:distro_libs",
-        "@llvm_linux_x86_64//:ld",
-    ],
-)
-
-# buildifier: leave-alone
-filegroup(
-    name = "ar",
-    srcs = [
-        ":rocm_toolkit_files",
-        ":wrappers",
-        "@llvm_linux_x86_64//:ar",
-        "@llvm_linux_x86_64//:distro_libs",
-    ],
-)
-
-# buildifier: leave-alone
-filegroup(
-    name = "strip",
-    srcs = [
-        ":wrappers",
-        "@llvm_linux_x86_64//:distro_libs",
-        "@llvm_linux_x86_64//:strip",
+        "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
 
@@ -193,13 +112,10 @@ filegroup(
 # =============================================================================
 
 FEATURES_ESSENTIAL = select({
-    # Local sysroot: DO NOT use hermetic_libraries (no -nostdinc/-nostdinc++)
-    # We want to use system headers and libraries
     "//cc/sysroots:local_sysroot_enabled": [
         "//cc/features:local_sysroot_default_libs",
     ],
-    # Hermetic sysroot: use hermetic_libraries feature
-    "//conditions:default": ["//third_party/rules_cc_toolchain/features:hermetic_libraries"],
+    "//conditions:default": [],
 }) + [
     # Library imports
     ":imports_feature",
@@ -207,9 +123,6 @@ FEATURES_ESSENTIAL = select({
 
     # ROCm-specific features
     ":rocm_hipcc_feature",
-    "//cc/rocm/features:rocm_defines",
-    "//cc/rocm/features:rocm_hermetic",
-    "//cc/rocm/features:rocm_warnings",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",
@@ -219,23 +132,15 @@ FEATURES_ESSENTIAL = select({
     "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux"],
     "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
 }) + [
-    # PIC / PIE flags
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
-    "//third_party/rules_cc_toolchain/features:position_independent_executable",
-
-    # Optimization flags
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
     "//cc/features:constants_merge",
     "//cc/features:dbg",
     "//cc/features:fastbuild",
     "//cc/features:opt",
     "//cc/features:detect_issues",
-
-    # C++ standard flags
     "//third_party/rules_cc_toolchain/features:c++17",
-
-    # Other flags
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
@@ -247,34 +152,41 @@ FEATURES_ESSENTIAL = select({
 
 cc_toolchain_config(
     name = "config",
-    archiver = "@llvm_linux_x86_64//:ar",
-    c_compiler = "@llvm_linux_x86_64//:clang",
-    cc_compiler = "@llvm_linux_x86_64//:clang++",
+    archiver = "@config_rocm_hipcc//rocm:llvm-ar",
+    c_compiler = "@config_rocm_hipcc//rocm:hipcc",
+    cc_compiler = "@config_rocm_hipcc//rocm:hipcc",
+    linker = "@config_rocm_hipcc//rocm:ld.lld",
+    strip_tool = "@config_rocm_hipcc//rocm:llvm-strip",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = select({
-        # Local sysroot: use dynamically detected system include paths
         "//cc/sysroots:local_sysroot_enabled": local_sysroot_info.include_directories,
-        # Hermetic sysroot: no system directories
         "//conditions:default": [],
     }),
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
-    tool_paths = ROCM_TOOLS,
+    tool_paths = {
+        "gcc": hipcc_config().hipcc_path,
+        "cpp": hipcc_config().hipcc_path,
+        "ar": hipcc_config().rocm_path + "/llvm/bin/llvm-ar",
+        "ld": hipcc_config().rocm_path + "/llvm/bin/ld.lld",
+        "strip": hipcc_config().rocm_path + "/llvm/bin/llvm-strip",
+        "nm": hipcc_config().rocm_path + "/llvm/bin/llvm-nm",
+        "objdump": hipcc_config().rocm_path + "/llvm/bin/llvm-objdump",
+    },
 )
 
 cc_toolchain(
     name = "toolchain",
     all_files = ":all",
-    ar_files = ":ar",
-    as_files = ":compiler",
-    compiler_files = ":compiler",
+    ar_files = ":all",
+    as_files = ":all",
+    compiler_files = ":all",
     dwp_files = ":all",
-    linker_files = ":linker",
+    linker_files = ":all",
     objcopy_files = ":all",
-    strip_files = ":strip",
+    strip_files = ":all",
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_rocm_id",
+    visibility = ["//visibility:public"],
 )

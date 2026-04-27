@@ -15,37 +15,4 @@
 
 """ROCm-specific toolchain features."""
 
-load(
-    "//third_party/rules_cc_toolchain/features:features.bzl",
-    "cc_feature",
-)
-
 package(default_visibility = ["//visibility:public"])
-
-# ROCm-specific preprocessor definitions
-cc_feature(
-    name = "rocm_defines",
-    compiler_flags = [
-        "-DTENSORFLOW_USE_ROCM=1",
-        "-D__HIP_PLATFORM_AMD__",
-        "-DEIGEN_USE_HIP",
-        "-DUSE_ROCM",
-    ],
-    enabled = True,
-)
-
-# Hermetic ROCm includes - prevents using system HIP headers
-cc_feature(
-    name = "rocm_hermetic",
-    compiler_flags = ["-nohipinc"],
-    enabled = True,
-)
-
-# Warning settings specific to ROCm compilation
-cc_feature(
-    name = "rocm_warnings",
-    compiler_flags = [
-        "-Wno-unused-result",
-    ],
-    enabled = True,
-)

@@ -14,20 +14,18 @@
 # ==============================================================================
 
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
-load(
-    "@config_rocm_hipcc//rocm:build_defs.bzl",
-    "rocm_cc_test",
-    "rocm_library",
-)
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("//cc/rocm:rocm_library.bzl", "rocm_library")
 
 rocm_library(
     name = "vector_hip",
     srcs = ["vector_hip.hip.cc"],
     hdrs = ["vector_hip.hip.h"],
     tags = ["rocm-only"],
+    deps = ["@config_rocm_hipcc//rocm:hip_runtime"],
 )
 
-rocm_cc_test(
+cc_test(
     name = "vector_hip_test",
     srcs = [
         "vector_hip_test.cc",
@@ -39,6 +37,7 @@ rocm_cc_test(
     ],
     deps = [
         ":vector_hip",
+        "@config_rocm_hipcc//rocm:hip_runtime",
         "@gtest//:gtest_main",
     ],
 )
