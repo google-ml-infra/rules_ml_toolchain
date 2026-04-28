@@ -82,6 +82,7 @@ cc_toolchain_import(
     deps = [
         # Hermetic sysroot (always needed for device code)
         "@sysroot_linux_x86_64//:includes_c",
+        "@llvm_linux_x86_64//:includes",  # Hermetic C++ standard library includes
         "@sysroot_linux_x86_64//:includes_system",
     ] + select({
         "//cc/sysroots:local_sysroot_enabled": [],
@@ -99,11 +100,56 @@ cc_toolchain_import_feature(
 )
 
 filegroup(
-    name = "all",
+    name = "compiler",
+    srcs = [
+        ":imports",
+        "@config_rocm_hipcc//rocm:toolchain_data",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
+filegroup(
+    name = "linker",
     srcs = [
         ":imports",
         ":startup_libs",
-        "@config_rocm_hipcc//rocm:toolchain_data",
+        "@llvm_linux_x86_64//:ld",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
+filegroup(
+    name = "ar",
+    srcs = [
+        "@llvm_linux_x86_64//:ar",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
+filegroup(
+    name = "strip",
+    srcs = [
+        "@llvm_linux_x86_64//:strip",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
+filegroup(
+    name = "objcopy",
+    srcs = [
+        "@llvm_linux_x86_64//:objcopy",
+        "@llvm_linux_x86_64//:distro_libs",
+    ],
+)
+
+filegroup(
+    name = "all",
+    srcs = [
+        ":compiler",
+        ":linker",
+        ":ar",
+        ":strip",
+        ":objcopy",
     ],
 )
 
@@ -152,39 +198,33 @@ FEATURES_ESSENTIAL = select({
 
 cc_toolchain_config(
     name = "config",
-    archiver = "@config_rocm_hipcc//rocm:llvm-ar",
+    archiver = "@llvm_linux_x86_64//:ar",
     c_compiler = "@config_rocm_hipcc//rocm:hipcc",
     cc_compiler = "@config_rocm_hipcc//rocm:hipcc",
-    linker = "@config_rocm_hipcc//rocm:ld.lld",
-    strip_tool = "@config_rocm_hipcc//rocm:llvm-strip",
+    linker = "@llvm_linux_x86_64//:ld",
+    strip_tool = "@llvm_linux_x86_64//:strip",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = select({
         "//cc/sysroots:local_sysroot_enabled": local_sysroot_info.include_directories,
         "//conditions:default": [],
-    }),
+    }) + [
+        # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
+        hipcc_config().rocm_path + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
+        hipcc_config().rocm_path + "/include",
+    ],
     target_cpu = "x86_64",
     target_system_name = "local",
-    tool_paths = {
-        "gcc": hipcc_config().hipcc_path,
-        "cpp": hipcc_config().hipcc_path,
-        "ar": hipcc_config().rocm_path + "/llvm/bin/llvm-ar",
-        "ld": hipcc_config().rocm_path + "/llvm/bin/ld.lld",
-        "strip": hipcc_config().rocm_path + "/llvm/bin/llvm-strip",
-        "nm": hipcc_config().rocm_path + "/llvm/bin/llvm-nm",
-        "objdump": hipcc_config().rocm_path + "/llvm/bin/llvm-objdump",
-    },
 )
 
 cc_toolchain(
     name = "toolchain",
     all_files = ":all",
-    ar_files = ":all",
-    as_files = ":all",
-    compiler_files = ":all",
+    ar_files = ":ar",
+    compiler_files = ":compiler",
     dwp_files = ":all",
-    linker_files = ":all",
-    objcopy_files = ":all",
-    strip_files = ":all",
+    linker_files = ":linker",
+    objcopy_files = ":objcopy",
+    strip_files = ":strip",
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_rocm_id",

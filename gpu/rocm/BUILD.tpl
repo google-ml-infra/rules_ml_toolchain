@@ -51,6 +51,7 @@ filegroup(
     srcs = glob([
         "%{rocm_root}/llvm/lib/libc++.so*",
         "%{rocm_root}/llvm/lib/libc++abi.so*",
+        "%{rocm_root}/llvm/lib/libunwind.so*",
     ]),
     visibility = ["//visibility:public"],
 )

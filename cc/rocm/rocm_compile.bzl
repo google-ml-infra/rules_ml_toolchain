@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ROCm compilation rule that compiles and links GPU code into standalone .so with ROCm's C++ runtime."""
+"""ROCm compilation rule that compiles GPU code into .o files for linking into the final binary."""
 
 def _rocm_compile_impl(ctx):
-    """Compiles ROCm sources and links into standalone .so with ROCm's libc++."""
+    """Compiles ROCm sources into .pic.o files with embedded GPU kernels (fat binaries)."""
 
     # Get the ROCm toolchain provided as an attribute
     cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
@@ -109,63 +109,57 @@ def _rocm_compile_impl(ctx):
 
         objects.append(obj)
 
-    # Link objects into standalone .so with ROCm's libc++
-    output_so = ctx.actions.declare_file("lib" + ctx.label.name + ".so")
+    # Create static archive from object files using hermetic llvm-ar
+    output_archive = ctx.actions.declare_file("lib" + ctx.label.name + ".pic.a")
 
-    # Get ROCm linker
-    ld_files = ctx.files._ld
-    if len(ld_files) != 1:
-        fail("Expected exactly one ld.lld file, got: %s" % ld_files)
-    ld = ld_files[0]
+    # Use hermetic llvm-ar directly
+    llvm_ar_files = ctx.files._llvm_ar
+    if len(llvm_ar_files) != 1:
+        fail("Expected exactly one llvm-ar file, got: %s" % llvm_ar_files)
+    llvm_ar = llvm_ar_files[0]
 
-    # Build link command
-    link_args = ctx.actions.args()
-    link_args.add("-shared")
-    link_args.add("-o", output_so)
-    link_args.add_all(objects)
-
-    # Link against ROCm's libc++.so files
-    for lib in ctx.files._rocm_cxx_runtime:
-        if ".so.1" in lib.path:
-            link_args.add(lib.path)
-
-    # Allow duplicate weak symbols from CUID
-    link_args.add("--allow-multiple-definition")
-
-    # Don't link against system libraries - they'll be resolved at runtime
-    # The .so is self-contained with ROCm's C++ runtime
+    # Build archive command
+    args = ctx.actions.args()
+    args.add("rcsD")
+    args.add(output_archive)
+    args.add_all(objects)
 
     ctx.actions.run(
-        executable = ld,
-        arguments = [link_args],
-        inputs = depset(direct = objects + ctx.files._rocm_cxx_runtime),
-        outputs = [output_so],
-        mnemonic = "RocmLink",
-        progress_message = "Linking ROCm shared library %s" % output_so.short_path,
+        executable = llvm_ar,
+        arguments = [args],
+        inputs = depset(direct = objects),
+        outputs = [output_archive],
+        mnemonic = "RocmArchive",
+        progress_message = "Creating archive %s" % output_archive.short_path,
     )
 
-    # Create CcInfo for the .so
+    # Create library_to_link with the archive
+    library_to_link = cc_common.create_library_to_link(
+        actions = ctx.actions,
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        pic_static_library = output_archive,
+        alwayslink = ctx.attr.alwayslink,
+    )
+
+    # Create linker_input containing the library
+    linker_input = cc_common.create_linker_input(
+        owner = ctx.label,
+        libraries = depset(direct = [library_to_link]),
+    )
+
+    # Create linking_context
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset(direct = [linker_input]),
+    )
+
+    # Create CcInfo with linking context
     cc_info = CcInfo(
-        linking_context = cc_common.create_linking_context(
-            linker_inputs = depset(direct = [
-                cc_common.create_linker_input(
-                    owner = ctx.label,
-                    libraries = depset(direct = [
-                        cc_common.create_library_to_link(
-                            actions = ctx.actions,
-                            dynamic_library = output_so,
-                            alwayslink = ctx.attr.alwayslink,
-                            cc_toolchain = cc_toolchain,
-                            feature_configuration = feature_configuration,
-                        ),
-                    ]),
-                ),
-            ]),
-        ),
+        linking_context = linking_context,
     )
 
     return [
-        DefaultInfo(files = depset([output_so])),
+        DefaultInfo(files = depset([output_archive])),
         cc_info,
     ]
 
@@ -189,7 +183,7 @@ rocm_compile = rule(
         ),
         "linkstatic": attr.bool(
             default = False,
-            doc = "Ignored - always creates shared library",
+            doc = "Ignored - object files are always linked into final binary",
         ),
         "_cc_toolchain": attr.label(
             default = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
@@ -198,12 +192,9 @@ rocm_compile = rule(
             default = "@config_rocm_hipcc//rocm:hipcc",
             allow_files = True,
         ),
-        "_ld": attr.label(
-            default = "@config_rocm_hipcc//rocm:ld.lld",
+        "_llvm_ar": attr.label(
+            default = "@llvm_linux_x86_64//:ar",
             allow_files = True,
-        ),
-        "_rocm_cxx_runtime": attr.label(
-            default = "@config_rocm_hipcc//rocm:rocm_cxx_runtime",
         ),
     },
     fragments = ["cpp"],

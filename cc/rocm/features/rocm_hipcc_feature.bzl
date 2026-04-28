@@ -80,6 +80,11 @@ def _rocm_hipcc_feature_impl(ctx):
     # Add --rocm-path flag
     common_compiler_flags.append("--rocm-path=" + rocm_path)
 
+    # Add ROCm clang builtin include directories (needed for __clang_hip_runtime_wrapper.h)
+    # These must be explicitly added because -nostdinc disables builtin includes
+    common_compiler_flags.append("-isystem" + rocm_path + "/llvm/lib/clang/" + ctx.attr.clang_version + "/include")
+    common_compiler_flags.append("-isystem" + rocm_path + "/include")
+
     # Add architecture flags
     for arch in ctx.attr.amdgpu_targets:
         common_compiler_flags.append("--offload-arch=" + arch)
