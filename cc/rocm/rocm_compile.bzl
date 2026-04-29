@@ -109,58 +109,51 @@ def _rocm_compile_impl(ctx):
 
         objects.append(obj)
 
-    # Create static archive from object files using hermetic llvm-ar
-    output_archive = ctx.actions.declare_file("lib" + ctx.label.name + ".pic.a")
+    # Create static library manually using hermetic llvm-ar
+    static_library = ctx.actions.declare_file("lib" + ctx.label.name + ".a")
 
-    # Use hermetic llvm-ar directly
-    llvm_ar_files = ctx.files._llvm_ar
-    if len(llvm_ar_files) != 1:
-        fail("Expected exactly one llvm-ar file, got: %s" % llvm_ar_files)
-    llvm_ar = llvm_ar_files[0]
+    # Use hermetic llvm-ar directly via filegroup
+    ar_files = ctx.files._llvm_ar
+    if len(ar_files) != 1:
+        fail("Expected exactly one ar file, got: %s" % ar_files)
 
-    # Build archive command
-    args = ctx.actions.args()
-    args.add("rcsD")
-    args.add(output_archive)
-    args.add_all(objects)
+    ar_args = ctx.actions.args()
+    ar_args.add("rcsD")
+    ar_args.add(static_library)
+    ar_args.add_all(objects)
 
     ctx.actions.run(
-        executable = llvm_ar,
-        arguments = [args],
+        executable = ar_files[0],
+        arguments = [ar_args],
         inputs = depset(direct = objects),
-        outputs = [output_archive],
+        outputs = [static_library],
         mnemonic = "RocmArchive",
-        progress_message = "Creating archive %s" % output_archive.short_path,
+        progress_message = "Creating static library %s" % static_library.short_path,
     )
 
-    # Create library_to_link with the archive
+    # Create library_to_link with static_library
     library_to_link = cc_common.create_library_to_link(
         actions = ctx.actions,
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
-        pic_static_library = output_archive,
+        static_library = static_library,
         alwayslink = ctx.attr.alwayslink,
     )
 
-    # Create linker_input containing the library
-    linker_input = cc_common.create_linker_input(
-        owner = ctx.label,
-        libraries = depset(direct = [library_to_link]),
-    )
-
-    # Create linking_context
+    # Create linking context
     linking_context = cc_common.create_linking_context(
-        linker_inputs = depset(direct = [linker_input]),
+        linker_inputs = depset(direct = [
+            cc_common.create_linker_input(
+                owner = ctx.label,
+                libraries = depset(direct = [library_to_link]),
+            ),
+        ]),
     )
 
-    # Create CcInfo with linking context
-    cc_info = CcInfo(
-        linking_context = linking_context,
-    )
-
+    # Return CcInfo with static library
     return [
-        DefaultInfo(files = depset([output_archive])),
-        cc_info,
+        DefaultInfo(files = depset([static_library])),
+        CcInfo(linking_context = linking_context),
     ]
 
 rocm_compile = rule(

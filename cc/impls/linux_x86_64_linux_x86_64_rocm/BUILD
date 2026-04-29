@@ -24,7 +24,6 @@
 # 4. Standard linking capability for combining compiled .o files
 
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
-load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
@@ -57,17 +56,9 @@ rocm_hipcc_feature(
 # Filegroups
 # =============================================================================
 
-cc_toolchain_import(
-    name = "empty_startup_libs",
-    deps = [],
-)
-
 alias(
     name = "startup_libs",
-    actual = select({
-        "//cc/sysroots:local_sysroot_enabled": ":empty_startup_libs",
-        "//conditions:default": "@sysroot_linux_x86_64//:startup_libs",
-    }),
+    actual = "@sysroot_linux_x86_64//:startup_libs",
     visibility = ["//visibility:public"],
 )
 
@@ -80,16 +71,11 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Hermetic sysroot (always needed for device code)
         "@sysroot_linux_x86_64//:includes_c",
-        "@llvm_linux_x86_64//:includes",  # Hermetic C++ standard library includes
+        "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_x86_64//:includes_system",
-    ] + select({
-        "//cc/sysroots:local_sysroot_enabled": [],
-        "//conditions:default": [
-            "@sysroot_linux_x86_64//:syslibs",
-        ],
-    }),
+        "@sysroot_linux_x86_64//:syslibs",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -157,12 +143,7 @@ filegroup(
 # Features
 # =============================================================================
 
-FEATURES_ESSENTIAL = select({
-    "//cc/sysroots:local_sysroot_enabled": [
-        "//cc/features:local_sysroot_default_libs",
-    ],
-    "//conditions:default": [],
-}) + [
+FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
@@ -174,10 +155,8 @@ FEATURES_ESSENTIAL = select({
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-] + select({
-    "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux"],
-    "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
-}) + [
+    "//cc/features:sysroot_linux_x86_64",
+]+ [
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
@@ -204,10 +183,7 @@ cc_toolchain_config(
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
     compiler_features = FEATURES_ESSENTIAL,
-    cxx_builtin_include_directories = select({
-        "//cc/sysroots:local_sysroot_enabled": local_sysroot_info.include_directories,
-        "//conditions:default": [],
-    }) + [
+    cxx_builtin_include_directories = [
         # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
         hipcc_config().rocm_path + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
         hipcc_config().rocm_path + "/include",

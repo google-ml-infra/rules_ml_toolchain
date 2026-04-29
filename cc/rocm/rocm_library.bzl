@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ROCm library rule that compiles GPU code into standalone .so with ROCm's C++ runtime."""
+"""ROCm library rule that compiles GPU code and wraps in cc_library."""
 
-load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//cc/rocm:rocm_compile.bzl", "rocm_compile")
 
 def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [], local_defines = [], **kwargs):
@@ -35,14 +35,15 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [
         define_copts = ["-D" + d for d in local_defines]
         all_copts = copts + define_copts
 
-        # rocm_compile now compiles AND links into standalone .so
+        # rocm_compile now behaves like cc_library - it creates archives and returns proper CcInfo
         rocm_compile(
             name = name,
             srcs = srcs,
             hdrs = hdrs,
             deps = deps,
             copts = all_copts,
-            **kwargs
+            alwayslink = kwargs.get("alwayslink", True),
+            **{k: v for k, v in kwargs.items() if k not in ["srcs", "hdrs", "deps", "copts", "linkopts", "local_defines", "alwayslink"]}
         )
     else:
         # Header-only library
