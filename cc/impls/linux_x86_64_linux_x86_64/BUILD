@@ -61,11 +61,7 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:openmp",
         "@llvm_linux_x86_64//:libclang_rt",
         "@llvm_linux_x86_64//:includes",
-    ] + select({
-        # When using libstdc++, include hermetic libstdc++ library
-        "//cc/sysroots:libstdcxx_enabled": ["@sysroot_linux_x86_64//:stdc++"],
-        "//conditions:default": [],
-    }),
+    ],
     visibility = ["//visibility:public"],
 )
 

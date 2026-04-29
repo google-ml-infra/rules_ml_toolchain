@@ -70,6 +70,7 @@ cc_toolchain_import_feature(
 
 cc_toolchain_import(
     name = "imports",
+    visibility = ["//visibility:public"],
     deps = [
         # Use sysroot's C and system headers
         "@sysroot_linux_x86_64//:includes_c",
@@ -78,7 +79,6 @@ cc_toolchain_import(
         # This matches what ROCm libraries were built with
         "@sysroot_linux_x86_64//:syslibs",
     ],
-    visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import_feature(
@@ -133,11 +133,11 @@ filegroup(
 filegroup(
     name = "all",
     srcs = [
+        ":ar",
         ":compiler",
         ":linker",
-        ":ar",
-        ":strip",
         ":objcopy",
+        ":strip",
     ],
 )
 
@@ -148,7 +148,7 @@ filegroup(
 FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
-    ":startup_libs_feature",
+    # Note: No startup_libs for ROCm - system sysroot provides startup files
 
     # ROCm-specific features
     ":rocm_hipcc_feature",
@@ -157,8 +157,7 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features:sysroot_linux_x86_64",
-]+ [
+    "//cc/features:rocm_local_sysroot_linux_x86_64",  # Use system sysroot for ROCm compatibility
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",
@@ -182,14 +181,14 @@ cc_toolchain_config(
     archiver = "@config_rocm_hipcc//rocm:ar",
     c_compiler = "@config_rocm_hipcc//rocm:hipcc",
     cc_compiler = "@config_rocm_hipcc//rocm:hipcc",
-    linker = "@config_rocm_hipcc//rocm:ld",
-    strip_tool = "@config_rocm_hipcc//rocm:strip",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = [
         # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
         hipcc_config().rocm_path + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
         hipcc_config().rocm_path + "/include",
     ],
+    linker = "@config_rocm_hipcc//rocm:ld",
+    strip_tool = "@config_rocm_hipcc//rocm:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
 )

@@ -29,6 +29,7 @@ package(
         "//cc/impls/linux_x86_64_linux_aarch64:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
+        "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
     ],
 )
@@ -88,6 +89,17 @@ cc_toolchain_sysroot_feature(
     target = "x86_64-linux-gnu",
 )
 
+# Use system/local sysroot for ROCm builds (compatibility with system ROCm libraries)
+cc_feature(
+    name = "rocm_local_sysroot_linux_x86_64",
+    compiler_flags = [
+        "--sysroot=/",
+    ],
+    enabled = True,  # Always enabled for ROCm toolchain
+    linker_flags = [
+        "--sysroot=/",
+    ],
+)
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
@@ -165,9 +177,9 @@ cc_feature(
     compiler_flags = [
         "-O0",
     ],
+    expand_if_not_available = "opt",
     #implies = ["generate_pdb_file"],
     provides = ["compilation_mode"],
-    expand_if_not_available = "opt",
 )
 
 cc_feature(
@@ -189,14 +201,36 @@ cc_feature(
     provides = ["compilation_mode"],
 )
 
-# Use libstdc++ instead of libc++ for compatibility with prebuilt libraries (e.g. ROCm)
-# Just use -stdlib=libstdc++ and let clang find the system headers naturally
+# Use hermetic libstdc++ instead of libc++
+# Provides GLIBCXX_3.4.25 (GCC 8) from hermetic sysroot
 cc_feature(
     name = "use_libstdcxx",
+    compiler_flags = [
+        "-stdlib=libstdc++",
+    ],
     enabled = select({
         "//cc/sysroots:libstdcxx_enabled": True,
         "//conditions:default": False,
     }),
-    compiler_flags = ["-stdlib=libstdc++"],
-    linker_flags = ["-stdlib=libstdc++"],
+    linker_flags = [
+        "-stdlib=libstdc++",
+    ],
+)
+
+# Use system libstdc++ instead of libc++ for compatibility with prebuilt libraries (e.g. ROCm)
+# ROCm libraries require GLIBCXX_3.4.30, so we link against system libstdc++ (GCC 11)
+cc_feature(
+    name = "use_system_libstdcxx",
+    compiler_flags = [
+        "-stdlib=libstdc++",
+    ],
+    enabled = select({
+        "//cc/sysroots:libstdcxx_enabled": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-stdlib=libstdc++",
+        "-L/usr/lib/x86_64-linux-gnu",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
 )
