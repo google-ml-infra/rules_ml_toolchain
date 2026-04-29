@@ -109,8 +109,52 @@ def _rocm_compile_impl(ctx):
 
         objects.append(obj)
 
-    # Return just the .pic.o files - let cc_library handle linking
-    return [DefaultInfo(files = depset(objects))]
+    # Create static library with llvm-ar
+    static_library = ctx.actions.declare_file("lib" + ctx.label.name + ".a")
+
+    # Use hermetic llvm-ar
+    ar_files = ctx.files._llvm_ar
+    if len(ar_files) != 1:
+        fail("Expected exactly one ar file, got: %s" % ar_files)
+
+    ar_args = ctx.actions.args()
+    ar_args.add("rcsD")
+    ar_args.add(static_library)
+    ar_args.add_all(objects)
+
+    ctx.actions.run(
+        executable = ar_files[0],
+        arguments = [ar_args],
+        inputs = depset(direct = objects),
+        outputs = [static_library],
+        mnemonic = "RocmArchive",
+        progress_message = "Creating static library %s" % static_library.short_path,
+    )
+
+    # Create library_to_link with alwayslink=True (GPU kernels looked up by name at runtime)
+    library_to_link = cc_common.create_library_to_link(
+        actions = ctx.actions,
+        feature_configuration = feature_configuration,
+        cc_toolchain = cc_toolchain,
+        static_library = static_library,
+        alwayslink = True,  # Always link all symbols for GPU kernels
+    )
+
+    # Create linking context
+    linking_context = cc_common.create_linking_context(
+        linker_inputs = depset(direct = [
+            cc_common.create_linker_input(
+                owner = ctx.label,
+                libraries = depset(direct = [library_to_link]),
+            ),
+        ]),
+    )
+
+    # Return CcInfo so this can be used as a dep in cc_library
+    return [
+        DefaultInfo(files = depset([static_library])),
+        CcInfo(linking_context = linking_context),
+    ]
 
 rocm_compile = rule(
     implementation = _rocm_compile_impl,
@@ -131,6 +175,10 @@ rocm_compile = rule(
         ),
         "_hipcc": attr.label(
             default = "@config_rocm_hipcc//rocm:hipcc",
+            allow_files = True,
+        ),
+        "_llvm_ar": attr.label(
+            default = "@llvm_linux_x86_64//:ar",
             allow_files = True,
         ),
     },

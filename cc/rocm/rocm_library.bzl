@@ -18,7 +18,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//cc/rocm:rocm_compile.bzl", "rocm_compile")
 
 def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [], local_defines = [], **kwargs):
-    """Compiles ROCm sources with hipcc and wraps .o files in cc_library.
+    """Compiles ROCm sources into static library with GPU kernels embedded.
 
     Args:
         name: Name of the library
@@ -26,33 +26,31 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [
         hdrs: Header files (.h, .cu.h)
         copts: Compiler options
         deps: Dependencies
-        linkopts: Linker options
+        linkopts: Linker options (currently unused)
         local_defines: Preprocessor defines (will be passed as -DNAME)
-        **kwargs: Additional arguments passed to cc_library
+        **kwargs: Additional arguments passed to rocm_compile
     """
     # Convert local_defines to copts with -D prefix
     define_copts = ["-D" + d for d in local_defines]
     all_copts = copts + define_copts
 
-    compiled_objects = []
     if srcs:
-        # Compile ROCm sources into .pic.o files
+        # rocm_compile handles everything: compilation, archiving, and CcInfo creation
+        # Note: alwayslink is always True for GPU kernels (filtered out from kwargs)
+        # linkstatic is also filtered as it's not applicable (always produces static .a)
         rocm_compile(
-            name = name + "_rocm_objects",
+            name = name,
             srcs = srcs,
             hdrs = hdrs,
             deps = deps,
             copts = all_copts,
+            **{k: v for k, v in kwargs.items() if k not in ["linkopts", "local_defines", "alwayslink", "linkstatic"]}
         )
-        compiled_objects.append(":" + name + "_rocm_objects")
-
-    # Wrap compiled objects (or just headers) in cc_library
-    cc_library(
-        name = name,
-        hdrs = hdrs,
-        srcs = compiled_objects,
-        deps = deps,
-        copts = all_copts,
-        linkopts = linkopts,
-        **kwargs
-    )
+    else:
+        # Header-only library
+        cc_library(
+            name = name,
+            hdrs = hdrs,
+            deps = deps,
+            **kwargs
+        )
