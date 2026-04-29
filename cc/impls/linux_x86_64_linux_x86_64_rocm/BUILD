@@ -99,32 +99,32 @@ filegroup(
     srcs = [
         ":imports",
         ":startup_libs",
-        "@llvm_linux_x86_64//:ld",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@config_rocm_hipcc//rocm:ld",
+        "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
 
 filegroup(
     name = "ar",
     srcs = [
-        "@llvm_linux_x86_64//:ar",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@config_rocm_hipcc//rocm:ar",
+        "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
 
 filegroup(
     name = "strip",
     srcs = [
-        "@llvm_linux_x86_64//:strip",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@config_rocm_hipcc//rocm:strip",
+        "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
 
 filegroup(
     name = "objcopy",
     srcs = [
-        "@llvm_linux_x86_64//:objcopy",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@config_rocm_hipcc//rocm:objcopy",
+        "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
 
@@ -177,11 +177,11 @@ FEATURES_ESSENTIAL = [
 
 cc_toolchain_config(
     name = "config",
-    archiver = "@llvm_linux_x86_64//:ar",
+    archiver = "@config_rocm_hipcc//rocm:ar",
     c_compiler = "@config_rocm_hipcc//rocm:hipcc",
     cc_compiler = "@config_rocm_hipcc//rocm:hipcc",
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
+    linker = "@config_rocm_hipcc//rocm:ld",
+    strip_tool = "@config_rocm_hipcc//rocm:strip",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = [
         # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)

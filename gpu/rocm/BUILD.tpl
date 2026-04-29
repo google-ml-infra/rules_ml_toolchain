@@ -137,6 +137,31 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+# Aliases matching cc_toolchain_config naming conventions
+alias(
+    name = "ar",
+    actual = ":llvm-ar",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "ld",
+    actual = ":ld.lld",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "strip",
+    actual = ":llvm-strip",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "objcopy",
+    actual = "%{rocm_root}/llvm/bin/llvm-objcopy",
+    visibility = ["//visibility:public"],
+)
+
 # Individual tool targets for cc_toolchain_config
 exports_files(
     [
@@ -146,6 +171,7 @@ exports_files(
         "%{rocm_root}/llvm/bin/llvm-strip",
         "%{rocm_root}/llvm/bin/llvm-nm",
         "%{rocm_root}/llvm/bin/llvm-objdump",
+        "%{rocm_root}/llvm/bin/llvm-objcopy",
     ],
     visibility = ["//visibility:public"],
 )

@@ -150,10 +150,18 @@ def _rocm_compile_impl(ctx):
         ]),
     )
 
+    # Create compilation context for headers
+    compilation_context = cc_common.create_compilation_context(
+        headers = depset(ctx.files.hdrs),
+    )
+
     # Return CcInfo so this can be used as a dep in cc_library
     return [
         DefaultInfo(files = depset([static_library])),
-        CcInfo(linking_context = linking_context),
+        CcInfo(
+            compilation_context = compilation_context,
+            linking_context = linking_context,
+        ),
     ]
 
 rocm_compile = rule(
@@ -178,7 +186,7 @@ rocm_compile = rule(
             allow_files = True,
         ),
         "_llvm_ar": attr.label(
-            default = "@llvm_linux_x86_64//:ar",
+            default = "@config_rocm_hipcc//rocm:ar",
             allow_files = True,
         ),
     },
