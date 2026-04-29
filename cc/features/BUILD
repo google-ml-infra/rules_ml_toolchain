@@ -29,7 +29,6 @@ package(
         "//cc/impls/linux_x86_64_linux_aarch64:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
-        "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
     ],
 )
@@ -89,33 +88,6 @@ cc_toolchain_sysroot_feature(
     target = "x86_64-linux-gnu",
 )
 
-# Local sysroot feature - use system root instead of hermetic sysroot
-# Generic for all Linux architectures
-cc_feature(
-    name = "local_sysroot_linux",
-    enabled = True,
-    compiler_flags = ["--sysroot=/"],
-    linker_flags = ["--sysroot=/"],
-    env_sets = {
-        "HOST_SYSROOT": "/",
-    },
-)
-
-# When using local sysroot, we need to explicitly link default system libraries
-# since we don't use hermetic_libraries feature
-# Note: These libraries are needed when mixing system ROCm with hermetic LLVM
-cc_feature(
-    name = "local_sysroot_default_libs",
-    enabled = True,
-    linker_flags = [
-        "-lc",          # libc (for malloc, calloc, free, etc.)
-        "-lstdc++",     # libstdc++ (for C++ runtime)
-        "-lm",          # libm (for math functions)
-        "-lpthread",    # libpthread (for threading)
-        "-ldl",         # libdl (for dynamic linking)
-        "-lgcc_s",      # libgcc_s (for exception unwinding: _Unwind_Resume, etc.)
-    ],
-)
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
@@ -218,15 +190,13 @@ cc_feature(
 )
 
 # Use libstdc++ instead of libc++ for compatibility with prebuilt libraries (e.g. ROCm)
+# Just use -stdlib=libstdc++ and let clang find the system headers naturally
 cc_feature(
     name = "use_libstdcxx",
     enabled = select({
         "//cc/sysroots:libstdcxx_enabled": True,
         "//conditions:default": False,
     }),
-    compiler_flags = [
-        "-stdlib=libstdc++",
-        "-nostdinc++",  # Don't use clang's default C++ headers
-    ],
+    compiler_flags = ["-stdlib=libstdc++"],
     linker_flags = ["-stdlib=libstdc++"],
 )
