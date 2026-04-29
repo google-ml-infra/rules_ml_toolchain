@@ -18,7 +18,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//cc/rocm:rocm_compile.bzl", "rocm_compile")
 
 def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [], local_defines = [], **kwargs):
-    """Compiles ROCm sources into standalone .so with ROCm's libc++.
+    """Compiles ROCm sources with hipcc and wraps .o files in cc_library.
 
     Args:
         name: Name of the library
@@ -26,30 +26,33 @@ def rocm_library(name, srcs = [], hdrs = [], copts = [], deps = [], linkopts = [
         hdrs: Header files (.h, .cu.h)
         copts: Compiler options
         deps: Dependencies
-        linkopts: Linker options (ignored - rocm_compile handles linking)
+        linkopts: Linker options
         local_defines: Preprocessor defines (will be passed as -DNAME)
-        **kwargs: Additional arguments passed to rocm_compile
+        **kwargs: Additional arguments passed to cc_library
     """
-    if srcs:
-        # Convert local_defines to copts with -D prefix
-        define_copts = ["-D" + d for d in local_defines]
-        all_copts = copts + define_copts
+    # Convert local_defines to copts with -D prefix
+    define_copts = ["-D" + d for d in local_defines]
+    all_copts = copts + define_copts
 
-        # rocm_compile now behaves like cc_library - it creates archives and returns proper CcInfo
+    compiled_objects = []
+    if srcs:
+        # Compile ROCm sources into .pic.o files
         rocm_compile(
-            name = name,
+            name = name + "_rocm_objects",
             srcs = srcs,
             hdrs = hdrs,
             deps = deps,
             copts = all_copts,
-            alwayslink = kwargs.get("alwayslink", True),
-            **{k: v for k, v in kwargs.items() if k not in ["srcs", "hdrs", "deps", "copts", "linkopts", "local_defines", "alwayslink"]}
         )
-    else:
-        # Header-only library
-        cc_library(
-            name = name,
-            hdrs = hdrs,
-            deps = deps,
-            **kwargs
-        )
+        compiled_objects.append(":" + name + "_rocm_objects")
+
+    # Wrap compiled objects (or just headers) in cc_library
+    cc_library(
+        name = name,
+        hdrs = hdrs,
+        srcs = compiled_objects,
+        deps = deps,
+        copts = all_copts,
+        linkopts = linkopts,
+        **kwargs
+    )
