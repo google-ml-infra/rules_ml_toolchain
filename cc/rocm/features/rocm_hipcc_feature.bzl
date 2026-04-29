@@ -114,6 +114,15 @@ def _rocm_hipcc_feature_impl(ctx):
         "--std=c++17",
     ]
 
+    # Linker flags - force dynamic linking to libstdc++
+    # This is critical for ROCm because ROCm libraries are built with libstdc++
+    # We must link dynamically (not static inline) to avoid ABI mismatches
+    # The sysroot provides libstdc++.so.6 which matches ROCm's expectations
+    linker_flags = [
+        "-lstdc++",  # Link against shared libstdc++.so.6 from sysroot
+        "-Wl,-rpath,$ORIGIN/../_solib_x86_64",  # Ensure runtime can find libstdc++
+    ]
+
     return _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
@@ -136,6 +145,15 @@ def _rocm_hipcc_feature_impl(ctx):
                 flag_groups = [
                     flag_group(
                         flags = cpp_only_flags,
+                    ),
+                ],
+            ),
+            # Linker-only flags
+            flag_set(
+                actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
+                flag_groups = [
+                    flag_group(
+                        flags = linker_flags,
                     ),
                 ],
             ),

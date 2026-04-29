@@ -71,9 +71,11 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
+        # Use sysroot's C and system headers
         "@sysroot_linux_x86_64//:includes_c",
-        "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_x86_64//:includes_system",
+        # Use sysroot's libstdc++ (NOT hermetic libc++)
+        # This matches what ROCm libraries were built with
         "@sysroot_linux_x86_64//:syslibs",
     ],
     visibility = ["//visibility:public"],

@@ -216,3 +216,17 @@ cc_feature(
     ],
     provides = ["compilation_mode"],
 )
+
+# Use libstdc++ instead of libc++ for compatibility with prebuilt libraries (e.g. ROCm)
+cc_feature(
+    name = "use_libstdcxx",
+    enabled = select({
+        "//cc/sysroots:libstdcxx_enabled": True,
+        "//conditions:default": False,
+    }),
+    compiler_flags = [
+        "-stdlib=libstdc++",
+        "-nostdinc++",  # Don't use clang's default C++ headers
+    ],
+    linker_flags = ["-stdlib=libstdc++"],
+)

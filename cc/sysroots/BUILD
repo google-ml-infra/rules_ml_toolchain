@@ -21,6 +21,20 @@ config_setting(
     visibility = ["//visibility:public"],
 )
 
+# Flag to control whether to use sysroot's libstdc++ instead of hermetic libc++
+# This is needed for compatibility with prebuilt libraries like ROCm that use libstdc++
+bool_flag(
+    name = "use_libstdcxx",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "libstdcxx_enabled",
+    flag_values = {":use_libstdcxx": "True"},
+    visibility = ["//visibility:public"],
+)
+
 alias(
     name = "openmp",
     actual = select({
