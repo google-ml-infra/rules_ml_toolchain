@@ -197,6 +197,17 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
+# libutil is required by Rust's std library for linking (glibc < 2.34).
+cc_toolchain_import(
+    name = "util",
+    additional_libs = [
+        "lib/x86_64-linux-gnu/libutil-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
+        "lib/x86_64-linux-gnu/libutil.so.1",
+    ],
+    shared_library = "usr/lib/x86_64-linux-gnu/libutil.so",
+    static_library = "usr/lib/x86_64-linux-gnu/libutil.a",
+)
+
 # This is a group of essential system libraries. The actual glibc library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
@@ -205,6 +216,7 @@ cc_toolchain_import(
         ":dynamic_linker",
         ":libc",
         ":pthread",
+        ":util",
         ":asan",
     ],
     visibility = ["//visibility:public"],
