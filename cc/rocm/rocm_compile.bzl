@@ -109,21 +109,23 @@ def _rocm_compile_impl(ctx):
 
         objects.append(obj)
 
-    # Create static library with llvm-ar
+    # Create static library with ar
     static_library = ctx.actions.declare_file("lib" + ctx.label.name + ".a")
 
-    # Use hermetic llvm-ar
+    # Use llvm-ar from toolchain to create static library
     ar_files = ctx.files._llvm_ar
     if len(ar_files) != 1:
         fail("Expected exactly one ar file, got: %s" % ar_files)
+    ar_file = ar_files[0]
 
+    # Build ar command: ar rcs libname.a obj1.o obj2.o ...
     ar_args = ctx.actions.args()
-    ar_args.add("rcsD")
+    ar_args.add("rcs")
     ar_args.add(static_library)
     ar_args.add_all(objects)
 
     ctx.actions.run(
-        executable = ar_files[0],
+        executable = ar_file,
         arguments = [ar_args],
         inputs = depset(direct = objects),
         outputs = [static_library],
@@ -131,13 +133,13 @@ def _rocm_compile_impl(ctx):
         progress_message = "Creating static library %s" % static_library.short_path,
     )
 
-    # Create library_to_link with alwayslink=True (GPU kernels looked up by name at runtime)
+    # Create library_to_link for static library
     library_to_link = cc_common.create_library_to_link(
         actions = ctx.actions,
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         static_library = static_library,
-        alwayslink = True,  # Always link all symbols for GPU kernels
+        alwayslink = True,  # Always link the entire archive (needed for GPU kernels)
     )
 
     # Create linking context
@@ -187,6 +189,10 @@ rocm_compile = rule(
         ),
         "_llvm_ar": attr.label(
             default = "@config_rocm_hipcc//rocm:ar",
+            allow_files = True,
+        ),
+        "_linker": attr.label(
+            default = "@config_rocm_hipcc//rocm:ld",
             allow_files = True,
         ),
     },

@@ -148,16 +148,20 @@ filegroup(
 FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
-    # Note: No startup_libs for ROCm - system sysroot provides startup files
 
     # ROCm-specific features
     ":rocm_hipcc_feature",
+
+    # Sysroot and C++ library (always hermetic for ROCm)
+    ":startup_libs_feature",
+    "//cc/features:sysroot_linux_x86_64",
+    "//cc/features:use_libstdcxx",
+    "//cc/features:static_libstdcxx",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features:rocm_local_sysroot_linux_x86_64",  # Use system sysroot for ROCm compatibility
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
     "//third_party/rules_cc_toolchain/features:garbage_collect_symbols",

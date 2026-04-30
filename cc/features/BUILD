@@ -84,22 +84,11 @@ cc_feature(
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_x86_64",
-    enabled = True,
+    enabled = True,  # Always enabled for hermetic toolchain
     sysroot = "@sysroot_linux_x86_64//:sysroot",
     target = "x86_64-linux-gnu",
 )
 
-# Use system/local sysroot for ROCm builds (compatibility with system ROCm libraries)
-cc_feature(
-    name = "rocm_local_sysroot_linux_x86_64",
-    compiler_flags = [
-        "--sysroot=/",
-    ],
-    enabled = True,  # Always enabled for ROCm toolchain
-    linker_flags = [
-        "--sysroot=/",
-    ],
-)
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
@@ -214,6 +203,24 @@ cc_feature(
     }),
     linker_flags = [
         "-stdlib=libstdc++",
+    ],
+)
+
+# Statically link hermetic libstdc++ to avoid C++ ABI issues
+# Use this when you need to isolate from system libstdc++ (e.g., ROCm compatibility)
+# When enabled, also enables use_libstdcxx
+cc_feature(
+    name = "static_libstdcxx",
+    compiler_flags = [
+        "-stdlib=libstdc++",
+    ],
+    enabled = select({
+        "//cc/sysroots:static_libstdcxx_enabled": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-stdlib=libstdc++",
+        "-static-libstdc++",
     ],
 )
 

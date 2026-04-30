@@ -1,0 +1,1 @@
+common --repo_env=HERMETIC_PYTHON_VERSION=3.12

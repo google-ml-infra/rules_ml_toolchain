@@ -114,41 +114,37 @@ def _rocm_hipcc_feature_impl(ctx):
         "--std=c++17",
     ]
 
-    # Linker flags - force dynamic linking to libstdc++
-    # This is critical for ROCm because ROCm libraries are built with libstdc++
-    # We must link dynamically (not static inline) to avoid ABI mismatches
-    # The sysroot provides libstdc++.so.6 which matches ROCm's expectations
-    linker_flags = [
-        "-lstdc++",  # Link against shared libstdc++.so.6 from sysroot
-        "-Wl,-rpath,$ORIGIN/../_solib_x86_64",  # Ensure runtime can find libstdc++
+    # Linker flags
+    # Note: libstdc++ linking is controlled by use_libstdcxx/static_libstdcxx features
+    linker_flags = []
+
+    # Build flag_sets list
+    flag_sets_list = [
+        # Common flags for all compile and link actions
+        flag_set(
+            actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
+                      DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
+                      ALL_CC_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = common_compiler_flags,
+                ),
+            ] if common_compiler_flags else [],
+        ),
+        # C++ only flags
+        flag_set(
+            actions = ALL_CPP_COMPILE_ACTION_NAMES,
+            flag_groups = [
+                flag_group(
+                    flags = cpp_only_flags,
+                ),
+            ],
+        ),
     ]
 
-    return _feature(
-        name = ctx.label.name,
-        enabled = ctx.attr.enabled,
-        provides = ctx.attr.provides,
-        flag_sets = [
-            # Common flags for all compile and link actions
-            flag_set(
-                actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
-                          DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
-                          ALL_CC_COMPILE_ACTION_NAMES,
-                flag_groups = [
-                    flag_group(
-                        flags = common_compiler_flags,
-                    ),
-                ] if common_compiler_flags else [],
-            ),
-            # C++ only flags
-            flag_set(
-                actions = ALL_CPP_COMPILE_ACTION_NAMES,
-                flag_groups = [
-                    flag_group(
-                        flags = cpp_only_flags,
-                    ),
-                ],
-            ),
-            # Linker-only flags
+    # Add linker flags only if they exist
+    if linker_flags:
+        flag_sets_list.append(
             flag_set(
                 actions = CC_LINK_EXECUTABLE_ACTION_NAMES + DYNAMIC_LIBRARY_LINK_ACTION_NAMES,
                 flag_groups = [
@@ -156,8 +152,14 @@ def _rocm_hipcc_feature_impl(ctx):
                         flags = linker_flags,
                     ),
                 ],
-            ),
-        ],
+            )
+        )
+
+    return _feature(
+        name = ctx.label.name,
+        enabled = ctx.attr.enabled,
+        provides = ctx.attr.provides,
+        flag_sets = flag_sets_list,
         env_sets = [env_set(
             actions = ALL_ACTIONS,
             env_entries = env_entries,
