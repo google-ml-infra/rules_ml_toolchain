@@ -43,6 +43,7 @@ def _enable_rocm(repository_ctx):
     enable_rocm = repository_ctx.os.environ.get("TF_NEED_ROCM")
     if enable_rocm == "1":
         return True
+
     # Also enable if ROCM_PATH is set and non-empty (non-hermetic ROCm)
     rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
     if rocm_path and rocm_path.strip():
@@ -255,6 +256,7 @@ def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
     if llvm_path:
         repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/llvm")
         repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/lib/llvm")
+
         # Only create amdgcn symlink if it exists
         amdgcn_path = llvm_path + "/amdgcn"
         if files_exist(repository_ctx, [amdgcn_path], bash_bin)[0]:
@@ -283,6 +285,7 @@ def _setup_rocm_distro_dir(repository_ctx):
         # Use system ROCm installation by symlinking it into the repository
         auto_configure_warning("Using non-hermetic ROCm from ROCM_PATH: {}".format(rocm_path))
         repository_ctx.symlink(rocm_path, _DISTRIBUTION_PATH)
+
         # Use the symlinked path (_DISTRIBUTION_PATH) for all operations, not the absolute path
         return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, rocm_path)
 
@@ -302,7 +305,7 @@ def _setup_rocm_distro_dir(repository_ctx):
     if rocm_distro_version not in rocm_redist:
         fail("Unknown ROCM_DISTRO_VERSION: {}. Available versions: {}".format(
             rocm_distro_version,
-            ", ".join(rocm_redist.keys())
+            ", ".join(rocm_redist.keys()),
         ))
 
     repository_ctx.report_progress("Downloading hermetic ROCm distribution: {}".format(rocm_distro_version))
@@ -310,6 +313,7 @@ def _setup_rocm_distro_dir(repository_ctx):
 
 def _create_dummy_repository(repository_ctx):
     """Creates a stub ROCm repository when ROCm is not enabled."""
+
     # Create stub repository using templates with empty values
     stub_dict = {
         "%{rocm_root}": "",
@@ -333,14 +337,7 @@ def _setup_rocm_repository(repository_ctx):
     miopen_version_number = int(rocm_config.miopen_version_number)
     hipruntime_version_number = int(rocm_config.hipruntime_version_number)
 
-    # Handle hermetic vs non-hermetic ROCm
-    if rocm_config.install_path:
-        # Non-hermetic: symlink already created in _setup_rocm_distro_dir
-        # Use "rocm_dist" (relative to rocm/ directory where BUILD file is)
-        rocm_toolkit_path = "rocm_dist"
-    else:
-        # Hermetic: files already extracted to rocm/rocm_dist
-        rocm_toolkit_path = _remove_root_dir(rocm_config.rocm_toolkit_path, "rocm")
+    rocm_toolkit_path = _remove_root_dir(rocm_config.rocm_toolkit_path, "rocm")
 
     # Always use relative paths (either symlink or hermetic dist)
     rocm_path_relative = "rocm_dist"

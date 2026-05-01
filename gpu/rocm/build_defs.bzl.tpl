@@ -25,25 +25,18 @@ def hipcc_config():
     Returns:
         A struct with the following fields:
             - gpu_architectures: List of AMDGPU target architectures (e.g., ["gfx906", "gfx908"])
-            - version_number: ROCm version as integer (e.g., 60000 for ROCm 6.0.0)
             - hipcc_path: Path to the hipcc compiler binary
-            - rocm_path: Path to the ROCm installation root
             - rocm_root: Path to the ROCm root within the distribution (for file labels)
-            - miopen_version: MIOpen version number
-            - hipruntime_version: HIP runtime version number
-            - clang_version: Clang version string
             - lib_paths: List of library paths (for multiple ROCm paths setup)
+            - version_number: ROCm version number
     """
     return struct(
         gpu_architectures = %{rocm_gpu_architectures},
-        version_number = %{rocm_version_number},
         hipcc_path = "%{hipcc_path}",
-        rocm_path = "%{rocm_path}",
         rocm_root = "%{rocm_root}",
-        miopen_version = %{miopen_version_number},
-        hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
         lib_paths = %{rocm_lib_paths},
+        version_number = %{rocm_version_number},
     )
 
 # Alias for compatibility
@@ -77,33 +70,3 @@ def rocm_default_copts():
         "-D__HIP_PLATFORM_AMD__=1",
         "-DTENSORFLOW_USE_ROCM=1",
     ])
-
-def rocm_library(copts = [], deps = [], **kwargs):
-    """Wrapper over cc_library which adds default ROCm/HIP options.
-
-    Args:
-        copts: Additional compiler options.
-        deps: Library dependencies.
-        **kwargs: Other arguments passed to cc_library.
-    """
-    native.cc_library(
-        copts = rocm_default_copts() + ["-x", "rocm"] + copts,
-        deps = deps + ["@config_rocm_hipcc//rocm:hip_runtime"],
-        **kwargs
-    )
-
-def rocm_cc_test(copts = [], deps = [], **kwargs):
-    """Wrapper over cc_test which adds default ROCm/HIP options.
-
-    Args:
-        copts: Additional compiler options.
-        deps: Test dependencies.
-        **kwargs: Other arguments passed to cc_test.
-    """
-    native.cc_test(
-        copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
-        deps = deps + [
-            "@config_rocm_hipcc//rocm:hip_runtime",
-        ],
-        **kwargs
-    )

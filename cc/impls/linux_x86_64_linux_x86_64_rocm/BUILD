@@ -46,7 +46,7 @@ rocm_hipcc_feature(
     clang_version = hipcc_config().clang_version,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
-    rocm_path = hipcc_config().rocm_path,
+    rocm_path = hipcc_config().rocm_root,
     rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
     version = str(hipcc_config().version_number),
     visibility = ["//visibility:public"],
@@ -188,8 +188,8 @@ cc_toolchain_config(
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = [
         # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
-        hipcc_config().rocm_path + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
-        hipcc_config().rocm_path + "/include",
+        hipcc_config().rocm_root + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
+        hipcc_config().rocm_root + "/include",
     ],
     linker = "@config_rocm_hipcc//rocm:ld",
     strip_tool = "@config_rocm_hipcc//rocm:strip",
