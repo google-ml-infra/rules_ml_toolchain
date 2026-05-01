@@ -85,7 +85,7 @@ def _use_downloaded_archive(ctx):
 
     _download_distribution(ctx, dist)
 
-    if ctx.name == "level_zero":
+    if ctx.name.endswith("level_zero"):
         _handle_level_zero(ctx)
 
     build_template = ctx.attr.build_templates[dist_key]

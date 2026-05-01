@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,9 @@
 # limitations under the License.
 # ==============================================================================
 
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+package(default_visibility = ["//visibility:public"])
 
-alias(
-    name = "sycl_headers",
-    actual = "@@oneapi//:headers",
-    visibility = ["//visibility:public"],
-)
-
-# To support hermetic build.
-bzl_library(
-    name = "build_defs_bzl",
-    srcs = ["build_defs.bzl"],
-    visibility = ["//visibility:public"],
-)
+exports_files([
+    "clang_info.bzl.tpl",
+    "local_clang_configure.bzl",
+])

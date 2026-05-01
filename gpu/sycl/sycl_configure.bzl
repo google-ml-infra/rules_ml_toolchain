@@ -87,7 +87,7 @@ def _create_dummy_repository(ctx):
     )
 
     # Ensure build_defs_bzl is added to sycl/BUILD
-    ctx.file("sycl/BUILD", ctx.read(ctx.attr.build))
+    ctx.file("sycl/BUILD", ctx.read(ctx.attr.build_file))
 
 def _sycl_configure_impl(ctx):
     """Implementation of the sycl_configure rule"""
@@ -118,7 +118,6 @@ sycl_configure = repository_rule(
     local = True,
     attrs = {
         "build_defs_tpl": attr.label(default = Label("//gpu/sycl:build_defs.bzl.tpl")),
-        "build_file": attr.label(default = Label("//gpu/sycl:sycl.BUILD")),
-        "build": attr.label(default = Label("//gpu/sycl:BUILD")),
+        "build_file": attr.label(default = Label("//gpu/sycl:BUILD")),
     },
 )

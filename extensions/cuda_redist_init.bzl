@@ -24,10 +24,15 @@ load(
     "cuda_redist_init_repositories",
     "cudnn_redist_init_repository",
 )
+load(
+    "//gpu/cuda:cuda_redist_versions.bzl",
+    "REDIST_VERSIONS_TO_BUILD_TEMPLATES",
+)
 
 def _cuda_redist_init_ext_impl(mctx):
     cuda_redist_init_repositories(
         cuda_redistributions = CUDA_REDISTRIBUTIONS,
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
     )
     cudnn_redist_init_repository(
         cudnn_redistributions = CUDNN_REDISTRIBUTIONS,
