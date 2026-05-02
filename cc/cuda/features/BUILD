@@ -41,23 +41,3 @@ cc_feature(
     compiler_flags = ["-nocudainc"],
     enabled = True,
 )
-
-# '-x cuda' adds by cuda_library, couldn't be added hear because it brokes other non cuda_library target
-#cc_feature(
-#    name = "language",
-#    cc_flags = [
-#        "-x cuda",
-#    ],
-#    enabled = True,
-#)
-
-cc_feature(
-    name = "libc++",
-    compiler_flags = [
-        "-D_ALLOW_UNSUPPORTED_LIBCPP",
-    ],
-    linker_flags = [
-        "-stdlib=libc++",
-    ],
-    enabled = True,
-)

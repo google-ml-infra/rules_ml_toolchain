@@ -141,6 +141,8 @@ cc_toolchain_config(
     compiler_features = [
         # Hermetic libraries feature required before import.
         "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+        # TODO: Add select() for turn off this option when libstdc++ is used
+        #"//cc/features:libc++",
         ":imports_feature",
 
         # Toolchain configuration

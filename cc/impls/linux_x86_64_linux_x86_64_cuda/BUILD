@@ -222,7 +222,7 @@ FEATURES_ESSENTIAL = [
     "//cc/cuda/features:hermetic",
     "//third_party/rules_cc_toolchain/features:hermetic_libraries",
     # TODO: Add select() for turn off this option when libstdc++ is used
-    "//cc/cuda/features:libc++",
+    "//cc/features:libc++",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",

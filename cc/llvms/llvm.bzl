@@ -19,6 +19,7 @@ load(
 )
 
 _LLVM_VERSION = "LLVM_VERSION"
+_STATIC_LIBCXX = "STATIC_LIBCXX"
 
 def _get_platform_arch(ctx):
     """Gets current platform architecture"""
