@@ -84,35 +84,11 @@ cc_feature(
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_x86_64",
-    enabled = True,
+    enabled = True,  # Always enabled for hermetic toolchain
     sysroot = "@sysroot_linux_x86_64//:sysroot",
     target = "x86_64-linux-gnu",
 )
 
-# Local sysroot feature - use system root instead of hermetic sysroot
-# Generic for all Linux architectures
-cc_feature(
-    name = "local_sysroot_linux",
-    enabled = True,
-    compiler_flags = ["--sysroot=/"],
-    linker_flags = ["--sysroot=/"],
-    env_sets = {
-        "HOST_SYSROOT": "/",
-    },
-)
-
-# When using local sysroot, we need to explicitly link default system libraries
-# since we don't use hermetic_libraries feature
-cc_feature(
-    name = "local_sysroot_default_libs",
-    enabled = True,
-    linker_flags = [
-        "-lstdc++",
-        "-lm",
-        "-lpthread",
-        "-ldl",
-    ],
-)
 
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
@@ -190,9 +166,9 @@ cc_feature(
     compiler_flags = [
         "-O0",
     ],
+    expand_if_not_available = "opt",
     #implies = ["generate_pdb_file"],
     provides = ["compilation_mode"],
-    expand_if_not_available = "opt",
 )
 
 cc_feature(
@@ -213,3 +189,38 @@ cc_feature(
     ],
     provides = ["compilation_mode"],
 )
+
+# Use hermetic libstdc++ instead of libc++
+# Provides GLIBCXX_3.4.25 (GCC 8) from hermetic sysroot
+cc_feature(
+    name = "use_libstdcxx",
+    compiler_flags = [
+        "-stdlib=libstdc++",
+    ],
+    enabled = select({
+        "//cc/sysroots:libstdcxx_enabled": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-stdlib=libstdc++",
+    ],
+)
+
+# Statically link hermetic libstdc++ to avoid C++ ABI issues
+# Use this when you need to isolate from system libstdc++ (e.g., ROCm compatibility)
+# When enabled, also enables use_libstdcxx
+cc_feature(
+    name = "static_libstdcxx",
+    compiler_flags = [
+        "-stdlib=libstdc++",
+    ],
+    enabled = select({
+        "//cc/sysroots:static_libstdcxx_enabled": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-stdlib=libstdc++",
+        "-static-libstdc++",
+    ],
+)
+

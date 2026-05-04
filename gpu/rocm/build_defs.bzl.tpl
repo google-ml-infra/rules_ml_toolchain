@@ -25,85 +25,28 @@ def hipcc_config():
     Returns:
         A struct with the following fields:
             - gpu_architectures: List of AMDGPU target architectures (e.g., ["gfx906", "gfx908"])
-            - version_number: ROCm version as integer (e.g., 60000 for ROCm 6.0.0)
             - hipcc_path: Path to the hipcc compiler binary
-            - rocm_path: Path to the ROCm installation root
             - rocm_root: Path to the ROCm root within the distribution (for file labels)
-            - miopen_version: MIOpen version number
-            - hipruntime_version: HIP runtime version number
-            - clang_version: Clang version string
             - lib_paths: List of library paths (for multiple ROCm paths setup)
+            - version_number: ROCm version number
+            - clang_version: Clang version string
+            - include_paths: System include paths (computed from rocm_root and clang_version)
     """
+    rocm_root = "%{rocm_root}"
+    clang_version = "%{clang_version}"
+
+    # System include paths - these depend on ROCm installation location
+    include_paths = [
+        rocm_root + "/llvm/lib/clang/" + clang_version + "/include",
+        rocm_root + "/include",
+    ]
+
     return struct(
         gpu_architectures = %{rocm_gpu_architectures},
-        version_number = %{rocm_version_number},
         hipcc_path = "%{hipcc_path}",
-        rocm_path = "%{rocm_path}",
-        rocm_root = "%{rocm_root}",
-        miopen_version = %{miopen_version_number},
-        hipruntime_version = %{hipruntime_version_number},
-        clang_version = "%{clang_version}",
+        rocm_root = rocm_root,
+        clang_version = clang_version,
         lib_paths = %{rocm_lib_paths},
-    )
-
-# Alias for compatibility
-rocm_config = hipcc_config
-
-def if_rocm(if_true, if_false = []):
-    """Shorthand for select()'ing on whether we're building with ROCm.
-
-    Returns a select statement which evaluates to if_true if we're building
-    with ROCm enabled. Otherwise, the select statement evaluates to if_false.
-
-    Args:
-        if_true: Value to return when building with ROCm.
-        if_false: Value to return when building without ROCm (default: []).
-
-    Returns:
-        A select expression.
-    """
-    return select({
-        "@config_rocm_hipcc//rocm:using_hipcc": if_true,
-        "//conditions:default": if_false,
-    })
-
-def rocm_default_copts():
-    """Default compiler options for ROCm/HIP compilation.
-
-    Returns:
-        List of compiler options to use with HIP code.
-    """
-    return if_rocm([
-        "-D__HIP_PLATFORM_AMD__=1",
-        "-DTENSORFLOW_USE_ROCM=1",
-    ])
-
-def rocm_library(copts = [], deps = [], **kwargs):
-    """Wrapper over cc_library which adds default ROCm/HIP options.
-
-    Args:
-        copts: Additional compiler options.
-        deps: Library dependencies.
-        **kwargs: Other arguments passed to cc_library.
-    """
-    native.cc_library(
-        copts = rocm_default_copts() + ["-x", "rocm"] + copts,
-        deps = deps + ["@config_rocm_hipcc//rocm:hip_runtime"],
-        **kwargs
-    )
-
-def rocm_cc_test(copts = [], deps = [], **kwargs):
-    """Wrapper over cc_test which adds default ROCm/HIP options.
-
-    Args:
-        copts: Additional compiler options.
-        deps: Test dependencies.
-        **kwargs: Other arguments passed to cc_test.
-    """
-    native.cc_test(
-        copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
-        deps = deps + [
-            "@config_rocm_hipcc//rocm:hip_runtime",
-        ],
-        **kwargs
+        version_number = %{rocm_version_number},
+        include_paths = include_paths,
     )

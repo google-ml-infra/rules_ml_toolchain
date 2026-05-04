@@ -56,11 +56,11 @@ cc_toolchain_import(
     name = "imports",
     deps = [
         "@sysroot_linux_x86_64//:includes_c",
-        "@llvm_linux_x86_64//:includes",
         "@sysroot_linux_x86_64//:includes_system",
         "@sysroot_linux_x86_64//:syslibs",
         "@sysroot_linux_x86_64//:openmp",
         "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:includes",
     ],
     visibility = ["//visibility:public"],
 )
@@ -176,6 +176,8 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:language",
     "//third_party/rules_cc_toolchain/features:use_lld",
     "//cc/features:sysroot_linux_x86_64",
+    "//cc/features:use_libstdcxx",
+    "//cc/features:static_libstdcxx",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version

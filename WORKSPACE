@@ -234,9 +234,3 @@ load("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
 
 hipcc_configure(name = "config_rocm_hipcc")
 
-##############################################################
-# Local sysroot configuration
-
-load("//cc/sysroots:local_sysroot_configure.bzl", "local_sysroot_configure")
-
-local_sysroot_configure(name = "local_sysroot_config")

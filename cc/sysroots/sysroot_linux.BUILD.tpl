@@ -72,3 +72,9 @@ alias(
     actual = "@@%{sysroot_repo_name}//:openmp_copyright",
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "stdc++",
+    actual = "@@%{sysroot_repo_name}//:stdc++",
+    visibility = ["//visibility:public"],
+)
