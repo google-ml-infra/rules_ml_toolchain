@@ -36,6 +36,16 @@ package(
 )
 
 # =============================================================================
+# Wrappers
+# =============================================================================
+
+filegroup(
+    name = "wrappers",
+    srcs = glob(["wrappers/*"]),
+    visibility = ["//visibility:public"],
+)
+
+# =============================================================================
 # Filegroups
 # =============================================================================
 
@@ -74,6 +84,7 @@ filegroup(
     name = "compiler",
     srcs = [
         ":imports",
+        ":wrappers",
         "@config_rocm_hipcc//rocm:toolchain_data",
         "@llvm_linux_x86_64//:distro_libs",
     ],
@@ -84,7 +95,7 @@ filegroup(
     srcs = [
         ":imports",
         ":startup_libs",
-        "@config_rocm_hipcc//rocm:ld",
+        ":wrappers",
         "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
@@ -92,7 +103,7 @@ filegroup(
 filegroup(
     name = "ar",
     srcs = [
-        "@config_rocm_hipcc//rocm:ar",
+        ":wrappers",
         "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
@@ -100,7 +111,7 @@ filegroup(
 filegroup(
     name = "strip",
     srcs = [
-        "@config_rocm_hipcc//rocm:strip",
+        ":wrappers",
         "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
@@ -108,7 +119,7 @@ filegroup(
 filegroup(
     name = "objcopy",
     srcs = [
-        "@config_rocm_hipcc//rocm:objcopy",
+        ":wrappers",
         "@config_rocm_hipcc//rocm:toolchain_data",
     ],
 )
@@ -162,17 +173,17 @@ FEATURES_ESSENTIAL = [
 
 cc_toolchain_config(
     name = "config",
-    archiver = "@config_rocm_hipcc//rocm:ar",
-    c_compiler = "@config_rocm_hipcc//rocm:hipcc",
-    cc_compiler = "@config_rocm_hipcc//rocm:hipcc",
+    archiver = "wrappers/llvm-ar",
+    c_compiler = "wrappers/clang",
+    cc_compiler = "wrappers/clang",
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = [
         # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
         hipcc_config().rocm_root + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
         hipcc_config().rocm_root + "/include",
     ],
-    linker = "@config_rocm_hipcc//rocm:ld",
-    strip_tool = "@config_rocm_hipcc//rocm:strip",
+    linker = "wrappers/ld.lld",
+    strip_tool = "wrappers/llvm-strip",
     target_cpu = "x86_64",
     target_system_name = "local",
 )

@@ -339,22 +339,17 @@ def _setup_rocm_repository(repository_ctx):
 
     rocm_toolkit_path = _remove_root_dir(rocm_config.rocm_toolkit_path, "rocm")
 
-    # Always use relative paths (either symlink or hermetic dist)
-    rocm_path_relative = "rocm_dist"
-    hipcc_path_relative = rocm_path_relative + "/bin/hipcc"
-
     bash_bin = get_bash_bin(repository_ctx)
 
     clang_offload_bundler_path = rocm_toolkit_path + "/llvm/bin/clang-offload-bundler"
 
     repository_dict = {
-        "%{rocm_root}": rocm_toolkit_path,
+        "%{rocm_root}": _DISTRIBUTION_PATH,
         "%{rocm_gpu_architectures}": str(rocm_config.amdgpu_targets),
         "%{rocm_version_number}": str(rocm_version_number),
         "%{miopen_version_number}": str(miopen_version_number),
         "%{hipruntime_version_number}": str(hipruntime_version_number),
-        "%{hipcc_path}": hipcc_path_relative,
-        "%{rocm_path}": rocm_path_relative,
+        "%{hipcc_path}": _DISTRIBUTION_PATH + "/bin/hipcc",
         "%{clang_version}": rocm_config.clang_version,
         "%{rocm_lib_paths}": str(rocm_config.rocm_lib_paths),
     }

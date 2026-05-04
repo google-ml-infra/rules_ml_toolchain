@@ -46,23 +46,6 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-# ROCm's C++ runtime libraries for linking GPU kernel .so files
-filegroup(
-    name = "rocm_cxx_runtime",
-    srcs = glob([
-        "%{rocm_root}/llvm/lib/libc++.so*",
-        "%{rocm_root}/llvm/lib/libc++abi.so*",
-        "%{rocm_root}/llvm/lib/libunwind.so*",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "rocm_redist",
-    srcs = glob(["%{rocm_root}/**"]),
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "toolchain_data",
     srcs = glob([
@@ -81,98 +64,33 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "all_files",
-    srcs = glob(["%{rocm_root}/**"]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "rocm_root",
-    srcs = [":all_files"],
-    visibility = ["//visibility:public"],
-)
-
-# Make hipcc available as an executable
-sh_binary(
-    name = "hipcc_bin",
-    srcs = ["%{rocm_root}/bin/hipcc"],
-    data = [":toolchain_data"],
-    visibility = ["//visibility:public"],
-)
-
-# Aliases for individual tools (used by cc_toolchain_config and rocm_compile)
+# Tool aliases for convenience - all just point to toolchain_data
 alias(
     name = "hipcc",
-    actual = "%{rocm_root}/bin/hipcc",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "ld.lld",
-    actual = "%{rocm_root}/llvm/bin/ld.lld",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "llvm-ar",
-    actual = "%{rocm_root}/llvm/bin/llvm-ar",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "llvm-strip",
-    actual = "%{rocm_root}/llvm/bin/llvm-strip",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "llvm-nm",
-    actual = "%{rocm_root}/llvm/bin/llvm-nm",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "llvm-objdump",
-    actual = "%{rocm_root}/llvm/bin/llvm-objdump",
-    visibility = ["//visibility:public"],
-)
-
-# Aliases matching cc_toolchain_config naming conventions
 alias(
     name = "ar",
-    actual = ":llvm-ar",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "ld",
-    actual = ":ld.lld",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "strip",
-    actual = ":llvm-strip",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "objcopy",
-    actual = "%{rocm_root}/llvm/bin/llvm-objcopy",
-    visibility = ["//visibility:public"],
-)
-
-# Individual tool targets for cc_toolchain_config
-exports_files(
-    [
-        "%{rocm_root}/bin/hipcc",
-        "%{rocm_root}/llvm/bin/ld.lld",
-        "%{rocm_root}/llvm/bin/llvm-ar",
-        "%{rocm_root}/llvm/bin/llvm-strip",
-        "%{rocm_root}/llvm/bin/llvm-nm",
-        "%{rocm_root}/llvm/bin/llvm-objdump",
-        "%{rocm_root}/llvm/bin/llvm-objcopy",
-    ],
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )

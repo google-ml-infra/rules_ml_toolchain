@@ -14,11 +14,16 @@
 
 """ROCm compilation rule that compiles GPU code into .pic.o files."""
 
+load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
+
 def _rocm_compile_impl(ctx):
     """Compiles ROCm sources into .pic.o files with embedded GPU kernels (fat binaries)."""
 
     # Get the ROCm toolchain provided as an attribute
     cc_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
+
+    # Get GPU architectures from ROCm configuration
+    gpu_architectures = hipcc_config().gpu_architectures
 
     # Collect compilation contexts from dependencies
     cc_infos = [dep[CcInfo] for dep in ctx.attr.deps if CcInfo in dep]
@@ -42,6 +47,7 @@ def _rocm_compile_impl(ctx):
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         user_compile_flags = ctx.attr.copts,
+        use_pic = True,  # Enable position-independent code
     )
     compiler_flags = cc_common.get_memory_inefficient_command_line(
         feature_configuration = feature_configuration,
@@ -57,7 +63,7 @@ def _rocm_compile_impl(ctx):
         variables = compile_variables,
     )
 
-    # Get compiler from toolchain
+    # Get compiler path from toolchain
     hipcc_path = cc_common.get_tool_for_action(
         feature_configuration = feature_configuration,
         action_name = "c++-compile",
@@ -73,6 +79,10 @@ def _rocm_compile_impl(ctx):
         args = ctx.actions.args()
         args.add("-x", "hip")  # Use standard HIP language mode
         args.add("-c")
+
+        # Add GPU architecture targets for device code generation
+        for arch in gpu_architectures:
+            args.add("--offload-arch=" + arch)
 
         # Add compiler flags from toolchain features
         args.add_all(compiler_flags)
@@ -112,7 +122,7 @@ def _rocm_compile_impl(ctx):
     # Create static library with ar
     static_library = ctx.actions.declare_file("lib" + ctx.label.name + ".a")
 
-    # Get archiver from toolchain
+    # Get archiver path from toolchain
     ar_path = cc_common.get_tool_for_action(
         feature_configuration = feature_configuration,
         action_name = "c++-link-static-library",
