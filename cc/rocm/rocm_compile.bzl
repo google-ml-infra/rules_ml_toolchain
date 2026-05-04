@@ -57,11 +57,11 @@ def _rocm_compile_impl(ctx):
         variables = compile_variables,
     )
 
-    # Use hipcc executable from toolchain
-    hipcc_files = ctx.files._hipcc
-    if len(hipcc_files) != 1:
-        fail("Expected exactly one hipcc file, got: %s" % hipcc_files)
-    hipcc_file = hipcc_files[0]
+    # Get compiler from toolchain
+    hipcc_path = cc_common.get_tool_for_action(
+        feature_configuration = feature_configuration,
+        action_name = "c++-compile",
+    )
 
     # Compile each source file
     objects = []
@@ -93,7 +93,7 @@ def _rocm_compile_impl(ctx):
         args.add("-o", obj)
 
         ctx.actions.run(
-            executable = hipcc_file,
+            executable = hipcc_path,
             arguments = [args],
             inputs = depset(
                 direct = [src] + ctx.files.hdrs,
@@ -112,11 +112,11 @@ def _rocm_compile_impl(ctx):
     # Create static library with ar
     static_library = ctx.actions.declare_file("lib" + ctx.label.name + ".a")
 
-    # Use llvm-ar from toolchain to create static library
-    ar_files = ctx.files._llvm_ar
-    if len(ar_files) != 1:
-        fail("Expected exactly one ar file, got: %s" % ar_files)
-    ar_file = ar_files[0]
+    # Get archiver from toolchain
+    ar_path = cc_common.get_tool_for_action(
+        feature_configuration = feature_configuration,
+        action_name = "c++-link-static-library",
+    )
 
     # Build ar command: ar rcs libname.a obj1.o obj2.o ...
     ar_args = ctx.actions.args()
@@ -125,7 +125,7 @@ def _rocm_compile_impl(ctx):
     ar_args.add_all(objects)
 
     ctx.actions.run(
-        executable = ar_file,
+        executable = ar_path,
         arguments = [ar_args],
         inputs = depset(direct = objects),
         outputs = [static_library],
@@ -182,18 +182,6 @@ rocm_compile = rule(
         "copts": attr.string_list(),
         "_cc_toolchain": attr.label(
             default = "//cc/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
-        ),
-        "_hipcc": attr.label(
-            default = "@config_rocm_hipcc//rocm:hipcc",
-            allow_files = True,
-        ),
-        "_llvm_ar": attr.label(
-            default = "@config_rocm_hipcc//rocm:ar",
-            allow_files = True,
-        ),
-        "_linker": attr.label(
-            default = "@config_rocm_hipcc//rocm:ld",
-            allow_files = True,
         ),
     },
     fragments = ["cpp"],

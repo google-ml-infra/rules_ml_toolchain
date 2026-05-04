@@ -25,7 +25,6 @@
 
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
-load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -34,22 +33,6 @@ package(
     default_visibility = [
         "//cc:__pkg__",
     ],
-)
-
-# =============================================================================
-# ROCm HIPcc Feature
-# =============================================================================
-
-rocm_hipcc_feature(
-    name = "rocm_hipcc_feature",
-    amdgpu_targets = hipcc_config().gpu_architectures,
-    clang_version = hipcc_config().clang_version,
-    enabled = True,
-    hipcc_path = hipcc_config().hipcc_path,
-    rocm_path = hipcc_config().rocm_root,
-    rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
-    version = str(hipcc_config().version_number),
-    visibility = ["//visibility:public"],
 )
 
 # =============================================================================
@@ -148,9 +131,6 @@ filegroup(
 FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
-
-    # ROCm-specific features
-    ":rocm_hipcc_feature",
 
     # Sysroot and C++ library (always hermetic for ROCm)
     ":startup_libs_feature",

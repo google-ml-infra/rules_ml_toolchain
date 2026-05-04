@@ -316,7 +316,7 @@ def _create_dummy_repository(repository_ctx):
 
     # Create stub repository using templates with empty values
     stub_dict = {
-        "%{rocm_root}": "",
+        "%{rocm_root}": "rocm_dist",
         "%{rocm_gpu_architectures}": "[]",
         "%{rocm_version_number}": "0",
         "%{miopen_version_number}": "0",

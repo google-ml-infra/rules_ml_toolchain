@@ -224,20 +224,3 @@ cc_feature(
     ],
 )
 
-# Use system libstdc++ instead of libc++ for compatibility with prebuilt libraries (e.g. ROCm)
-# ROCm libraries require GLIBCXX_3.4.30, so we link against system libstdc++ (GCC 11)
-cc_feature(
-    name = "use_system_libstdcxx",
-    compiler_flags = [
-        "-stdlib=libstdc++",
-    ],
-    enabled = select({
-        "//cc/sysroots:libstdcxx_enabled": True,
-        "//conditions:default": False,
-    }),
-    linker_flags = [
-        "-stdlib=libstdc++",
-        "-L/usr/lib/x86_64-linux-gnu",
-        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
-    ],
-)

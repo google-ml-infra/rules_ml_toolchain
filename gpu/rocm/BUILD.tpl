@@ -26,8 +26,6 @@ exports_files(
 
 cc_library(
     name = "hip_runtime",
-    hdrs = glob(["%{rocm_root}/include/**/*.h"]),
-    includes = ["%{rocm_root}/include"],
     srcs = glob(
         [
             "%{rocm_root}/lib/libamdhip64.so*",
@@ -41,7 +39,10 @@ cc_library(
         ],
         exclude = [
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
-        ]),
+        ],
+    ),
+    hdrs = glob(["%{rocm_root}/include/**/*.h"]),
+    includes = ["%{rocm_root}/include"],
     visibility = ["//visibility:public"],
 )
 
@@ -173,13 +174,5 @@ exports_files(
         "%{rocm_root}/llvm/bin/llvm-objdump",
         "%{rocm_root}/llvm/bin/llvm-objcopy",
     ],
-    visibility = ["//visibility:public"],
-)
-
-config_setting(
-    name = "using_hipcc",
-    define_values = {
-        "using_rocm": "true",
-    },
     visibility = ["//visibility:public"],
 )
