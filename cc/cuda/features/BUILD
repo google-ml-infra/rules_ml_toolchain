@@ -43,12 +43,9 @@ cc_feature(
 )
 
 cc_feature(
-    name = "libc++",
-    #compiler_flags = [
-    #    "-D_ALLOW_UNSUPPORTED_LIBCPP",
-    #],
-    linker_flags = [
-        "-stdlib=libc++",
+    name = "libc++_enable",
+    compiler_flags = [
+        "-D_ALLOW_UNSUPPORTED_LIBCPP",
     ],
     enabled = True,
 )

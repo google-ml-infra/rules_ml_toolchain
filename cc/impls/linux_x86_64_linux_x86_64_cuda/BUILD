@@ -221,8 +221,6 @@ FEATURES_ESSENTIAL = [
     ":cuda_nvcc_feature",
     "//cc/cuda/features:hermetic",
     "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-    # TODO: Add select() for turn off this option when libstdc++ is used
-    "//cc/features:libc++",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",
@@ -261,7 +259,13 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
-]
+] + select({
+     "//common:is_stdlib_libcxx": [
+         "//cc/features:libc++",
+         "//cc/cuda/features:libc++_enable",
+     ],
+     "//conditions:default": [],
+ })
 
 cc_toolchain_config(
     name = "config",

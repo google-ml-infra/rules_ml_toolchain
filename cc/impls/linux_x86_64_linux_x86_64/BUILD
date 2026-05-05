@@ -173,8 +173,6 @@ filegroup(
 
 FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
-    # TODO: Add select() for turn off this option when libstdc++ is used
-    "//cc/features:libc++",
     ":imports_feature",
 
     # Toolchain configuration
@@ -215,7 +213,10 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
-]
+] + select({
+    "//common:is_stdlib_libcxx": [ "//cc/features:libc++", ],
+    "//conditions:default": [],
+})
 
 cc_toolchain_config(
     name = "config",
