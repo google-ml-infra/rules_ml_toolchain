@@ -214,7 +214,9 @@ FEATURES_ESSENTIAL = [
     ":asan",
     ":tsan",
 ] + select({
-    "//common:is_stdlib_libcxx": [ "//cc/features:libc++", ],
+    "//common:is_stdlib_libcxx": [
+        "//cc/features:libc++",
+    ],
     "//conditions:default": [],
 })
 

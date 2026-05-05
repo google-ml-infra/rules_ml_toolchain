@@ -99,12 +99,16 @@ cc_toolchain_import(
     name = "imports",
     deps = [
         "@rules_ml_toolchain//cc/cuda/clang:inject_cuda_runtime_wrapper",
-        #"@sysroot_linux_x86_64//:std_incs",
-        "@llvm_linux_x86_64//:std_incs",
+    ] + select({
+        "//common:is_stdlib_libcxx": [ "@llvm_linux_x86_64//:std_incs" ],
+        "//conditions:default": [ "@sysroot_linux_x86_64//:std_incs" ],
+    }) + [
         "@llvm_linux_x86_64//:compiler_incs",
         "@sysroot_linux_x86_64//:sys_incs",
-        #"@sysroot_linux_x86_64//:std_libs",
-        "@llvm_linux_x86_64//:std_libs",
+    ] + select({
+        "//common:is_stdlib_libcxx": [ "@llvm_linux_x86_64//:std_libs" ],
+        "//conditions:default": [ "@sysroot_linux_x86_64//:std_libs" ],
+    }) + [
         "@sysroot_linux_x86_64//:sys_libs",
         "@sysroot_linux_x86_64//:openmp",
         "@llvm_linux_x86_64//:libclang_rt",
@@ -262,7 +266,7 @@ FEATURES_ESSENTIAL = [
 ] + select({
      "//common:is_stdlib_libcxx": [
          "//cc/features:libc++",
-         "//cc/cuda/features:libc++_enable",
+         "//cc/cuda/features:libc++_x86_enable",
      ],
      "//conditions:default": [],
  })
