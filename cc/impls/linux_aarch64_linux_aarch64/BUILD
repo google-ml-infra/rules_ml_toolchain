@@ -17,6 +17,7 @@
 # Tools: Linux aarch64, Sysroot: Linux aarch64
 # ==============================================================================
 
+load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -47,16 +48,33 @@ cc_toolchain_import_feature(
     toolchain_import = ":startup_libs",
 )
 
+alias(
+    name = "std_incs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_incs" ,
+        "//conditions:default": "@sysroot_linux_aarch64//:std_incs",
+    })
+)
+
+alias(
+    name = "std_libs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_libs" ,
+        "//conditions:default": "@sysroot_linux_aarch64//:std_libs",
+    })
+)
+
 # buildifier: leave-alone
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@sysroot_linux_aarch64//:std_incs",
+        ":std_incs",
         "@llvm_linux_aarch64//:compiler_incs",
         "@sysroot_linux_aarch64//:sys_incs",
+        ":std_libs",
         "@sysroot_linux_aarch64//:sys_libs",
         "@sysroot_linux_aarch64//:openmp",
-        "@sysroot_linux_x86_64//:std_libs",
+        "@llvm_linux_aarch64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
 )
@@ -65,6 +83,10 @@ cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
     toolchain_import = ":imports",
+    static_link_flags = select({
+        "//common:is_static_libcxx": LIBCXX_FLAGS,
+        "//conditions:default": [],
+    }),
 )
 
 # buildifier: leave-alone
