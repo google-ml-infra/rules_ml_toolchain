@@ -81,7 +81,7 @@ Available sysroots
 | linux_glibc_2_31 | x86_64, aarch64 | GCC 10  | 2.31  | C++20                 | Ubuntu 20.04 |
 | linux_glibc_2_35 | x86_64          | GCC 12  | 2.35  | C++23 partial support | Ubuntu 22.04 |
 
-## Linking against `libstdc++` or `libc++`
+## Linking against `libstdc++` or `libc++` on Linux
 By default, `rules_ml_toolchain` links dynamically against `libstdc++` for Linux builds.
 However, you can choose to link against `libc++` instead, using dynamic or static linking.
 
