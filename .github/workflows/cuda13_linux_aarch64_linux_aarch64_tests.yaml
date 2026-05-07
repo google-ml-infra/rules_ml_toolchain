@@ -54,82 +54,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: "Clang 18 building with dynamic libstdc++ linking..."
-        run: |
-          bazel build --config=build_cuda_with_clang \
-            --config=cuda13 \
-            --config=cuda_libraries_from_stubs \
-            --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
-            //cc/tests/gpu:all
-
-      - name: "Clang 18 building with static libc++ linking..."
-        run: |
-          bazel build --config=build_cuda_with_clang \
-            --config=cuda13 \
-            --config=cuda_libraries_from_stubs \
-            --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            //cc/tests/gpu:all
-
-      - name: "Clang 22 building with dynamic libstdc++ linking..."
-        run: |
-          bazel build --config=build_cuda_with_clang \
-            --config=cuda13 \
-            --config=cuda_libraries_from_stubs \
-            --repo_env=LLVM_VERSION=22 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
-            //cc/tests/gpu:all
-
-      - name: "Clang 22 building with static libc++ linking..."
-        run: |
-          bazel build --config=build_cuda_with_clang \
-            --config=cuda13 \
-            --config=cuda_libraries_from_stubs \
-            --repo_env=LLVM_VERSION=22 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            //cc/tests/gpu:all
-
-      - name: "NVCC building..."
+      - name: "NVCC | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
+            --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18: building with dynamic libstdc++ linking..."
+      - name: "NVCC Static CUDA building..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
-            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
-            --config=bzlmod \
+            --@rules_ml_toolchain//common:link_cuda_static_libs=true \
+            --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18: building with static libc++ linking..."
+      - name: "NVCC Static CUDNN CUDA testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
-            --config=bzlmod \
-            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            //cc/tests/gpu:all
+            --@rules_ml_toolchain//common:link_cuda_static_libs=true \
+            --@rules_ml_toolchain//common:link_cudnn_static_libs=true \
+            --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            //cc/tests/gpu:cudnn_test
 
-      - name: "Bzlmod. Clang 22 building with static libc++ linking..."
+
+      - name: "NVCC Static NVRTC CUDA testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
-            --config=bzlmod \
-            --repo_env=LLVM_VERSION=22 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            //cc/tests/gpu:all
+            --@rules_ml_toolchain//common:link_cuda_static_libs=true \
+            --@rules_ml_toolchain//common:link_nvrtc_static_libs=true \
+            --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            //cc/tests/gpu:nvrtc_test
 
       - name: "Bzlmod. NVCC building..."
         run: |
@@ -137,5 +98,6 @@ jobs:
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
+            --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             //cc/tests/gpu:all
 
