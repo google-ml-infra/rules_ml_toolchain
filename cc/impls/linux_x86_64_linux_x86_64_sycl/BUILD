@@ -77,10 +77,10 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:std_incs",
         "@oneapi//:compiler_incs",
         "@sysroot_linux_x86_64//:sys_incs",
+        "@sysroot_linux_x86_64//:std_libs",
         "@sysroot_linux_x86_64//:sys_libs",
         "@oneapi//:core",
         "@oneapi//:libclang_rt",
-        "@sysroot_linux_x86_64//:std_libs",
     ],
 )
 
