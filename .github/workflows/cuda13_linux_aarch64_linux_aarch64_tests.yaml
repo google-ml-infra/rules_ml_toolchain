@@ -54,6 +54,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+        # Clang 22 is minimum required version for CUDA13
+      - name: "Clang 22, Glibc 2.31 | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.31 | Testing with static libc++ linking..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
       - name: "NVCC | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
@@ -95,6 +118,19 @@ jobs:
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
             //cc/tests/gpu:nvrtc_test
+
+      - name: "Bzlmod. Clang 22, Glibc 2.31 | Testing with static libc++ linking..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
 
       - name: "Bzlmod. NVCC testing..."
         run: |
