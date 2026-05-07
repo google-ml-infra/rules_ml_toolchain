@@ -53,8 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: echo "Building / running tests..."
+      - run: echo "Testing..."
       - run: bazel test //cc/tests/cpu:all
 
-      - run: echo "Bzlmod. Building / running tests..."
+      - run: echo "Bzlmod. Testing..."
       - run: bazel test --config=bzlmod //cc/tests/cpu:all

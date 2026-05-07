@@ -54,7 +54,7 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@v5
 
-      - name: "Clang 18 building with dynamic libstdc++ linking..."
+      - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -62,7 +62,7 @@ jobs:
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             //cc/tests/gpu:all
 
-      - name: "Clang 18 building with static libc++ linking..."
+      - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -72,7 +72,7 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "Clang 22 building with dynamic libstdc++ linking..."
+      - name: "Clang 22, Glibc 2.31 | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -81,7 +81,7 @@ jobs:
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             //cc/tests/gpu:all
 
-      - name: "Clang 22 building with static libc++ linking..."
+      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -92,14 +92,14 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "NVCC building..."
+      - name: "NVCC | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18: building with dynamic libstdc++ linking..."
+      - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -108,7 +108,7 @@ jobs:
             --config=bzlmod \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18: building with static libc++ linking..."
+      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -119,7 +119,7 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 22 building with static libc++ linking..."
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -131,7 +131,7 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. NVCC building..."
+      - name: "Bzlmod. NVCC | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda12 \

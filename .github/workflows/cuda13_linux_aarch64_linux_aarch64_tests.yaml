@@ -65,7 +65,7 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
-      - name: "Clang 22, Glibc 2.31 | Testing with static libc++ linking..."
+      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda13 \
@@ -86,7 +86,7 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
-      - name: "NVCC Static CUDA testing..."
+      - name: "NVCC Static CUDA | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
@@ -96,7 +96,7 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
-      - name: "NVCC Static CUDNN CUDA testing..."
+      - name: "NVCC Static CUDNN CUDA | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
@@ -108,7 +108,7 @@ jobs:
             //cc/tests/gpu:cudnn_test
 
 
-      - name: "NVCC Static NVRTC CUDA testing..."
+      - name: "NVCC Static NVRTC CUDA | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
@@ -119,7 +119,7 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:nvrtc_test
 
-      - name: "Bzlmod. Clang 22, Glibc 2.31 | Testing with static libc++ linking..."
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
             --config=cuda13 \
@@ -132,7 +132,7 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. NVCC testing..."
+      - name: "Bzlmod. NVCC | Testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
