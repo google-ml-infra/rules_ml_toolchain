@@ -112,12 +112,12 @@ cc_toolchain_import(
         # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
         "@sysroot_linux_x86_64//:std_incs",
         "@sysroot_linux_x86_64//:sys_incs",
-        "@sysroot_linux_x86_64//:std_libs",
     ] + select({
         # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
         # Hermetic sysroot: use hermetic libs
         "//conditions:default": [
+            "@sysroot_linux_x86_64//:std_libs",
             "@sysroot_linux_x86_64//:sys_libs",
         ],
     }),
