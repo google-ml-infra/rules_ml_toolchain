@@ -62,7 +62,7 @@ jobs:
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             //cc/tests/gpu:all
 
-      - name: "NVCC Static CUDA building..."
+      - name: "NVCC Static CUDA testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
@@ -92,7 +92,7 @@ jobs:
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             //cc/tests/gpu:nvrtc_test
 
-      - name: "Bzlmod. NVCC building..."
+      - name: "Bzlmod. NVCC testing..."
         run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
