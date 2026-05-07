@@ -51,16 +51,17 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@v5
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
 
-      - run: echo "Building / running ASan tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan //cc/sanitizers/tests:asan_test
+      - name: "ASan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --config=asan //cc/sanitizers/tests:asan_test
 
-      - run: echo "Bzlmod. Building / running ASan tests (min LLVM / sysroot)..."
-      - run: bazel test --config=asan --config=bzlmod //cc/sanitizers/tests:asan_test
+      - name: "Bzlmod. ASan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --config=asan --config=bzlmod //cc/sanitizers/tests:asan_test
 
-      - run: echo "Building / running TSan tests (min LLVM / sysroot)..."
-      - run: bazel test --config=tsan --config=tsan_test //cc/sanitizers/tests:tsan_test
+      - name: "TSan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --config=tsan --config=tsan_test //cc/sanitizers/tests:tsan_test
 
-      - run: echo "Bzlmod. Building / running TSan tests (min LLVM / sysroot)..."
-      - run: bazel test --config=tsan --config=tsan_test --config=bzlmod //cc/sanitizers/tests:tsan_test
+      - name: "Bzlmod. TSan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --config=tsan --config=tsan_test --config=bzlmod //cc/sanitizers/tests:tsan_test
