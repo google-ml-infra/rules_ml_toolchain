@@ -51,7 +51,6 @@ def cc_toolchain_deps():
             default_dist = "linux_glibc_2_27",
             dists = {
                 "@sysroot_linux_x86_64_glibc_2_27//:startup_libs": "linux_glibc_2_27",
-                "@sysroot_linux_x86_64_glibc_2_27_gcc13//:startup_libs": "linux_glibc_2_27_gcc13",
                 "@sysroot_linux_x86_64_glibc_2_31//:startup_libs": "linux_glibc_2_31",
                 "@sysroot_linux_x86_64_glibc_2_35//:startup_libs": "linux_glibc_2_35",
             },
@@ -71,16 +70,6 @@ def cc_toolchain_deps():
             #    "//cc/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
             #],
             #patch_args = ["-p1"],
-        )
-
-        # C++17, manylinux_2_27, gcc-8
-        mirrored_http_archive(
-            name = "sysroot_linux_x86_64_glibc_2_27_gcc13",
-            sha256 = "5f3ac12ee97900e9d5acc50069166d13feaedcc540e6232f8b6da872faa91abf",
-            #mirrored_tar_sha256 = "114a7d09078c6a2d29b506033e07442346099847ce6107c78ec3da86388ea4a5",
-            urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/tmp/x86_64_ubuntu18_gcc13-0.1.0.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu18_gcc13:sysroot.BUILD"),
-            strip_prefix = "x86_64_ubuntu18_gcc13-0.1.0",
         )
 
     if "sysroot_linux_x86_64_glibc_2_31" not in native.existing_rules():
