@@ -69,9 +69,10 @@ jobs:
             --config=bzlmod \
             //cc/tests/cpu:all
 
+      # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
       - name: "Bzlmod. Clang 22, Glibc 2.39 | Testing..."
         run: |
-          bazel test \
+          bazel build \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --config=bzlmod \
