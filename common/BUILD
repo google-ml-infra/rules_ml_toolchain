@@ -94,7 +94,7 @@ config_setting(
 )
 
 #######################################################
-# Enable Hermetic C++ support flags
+# Hermetic C++ flags
 
 bool_flag(
     name = "enable_hermetic_cc",
@@ -105,6 +105,30 @@ config_setting(
     name = "is_hermetic_cc_enabled",
     flag_values = {
         ":enable_hermetic_cc": "True",
+    },
+)
+
+string_flag(
+    name = "stdlib",
+    build_setting_default = "libstdc++",
+)
+
+config_setting(
+    name = "is_stdlib_libcxx",
+    flag_values = {
+        ":stdlib": "libc++",
+    },
+)
+
+bool_flag(
+    name = "static_libcxx",
+    build_setting_default = True,
+)
+
+config_setting(
+    name = "is_static_libcxx",
+    flag_values = {
+        ":static_libcxx": "True"
     },
 )
 

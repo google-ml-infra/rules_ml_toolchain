@@ -51,10 +51,25 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@v5
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
 
-      - run: echo "Building / running tests..."
-      - run: bazel test //cc/tests/cpu:all
+      - name: "Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test //cc/tests/cpu:all
 
-      - run: echo "Bzlmod. Building / running tests..."
-      - run: bazel test --config=bzlmod //cc/tests/cpu:all
+      - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel test \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/cpu:all
+
+      - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --config=bzlmod //cc/tests/cpu:all
+
+      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel test --config=bzlmod \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/cpu:all

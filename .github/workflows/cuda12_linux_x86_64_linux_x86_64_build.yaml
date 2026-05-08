@@ -51,35 +51,91 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@v5
-      - run: echo "Clang 18 building..."
-      - run: | 
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: "Clang 18, Glibc 2.27 | Testing..."
+        run: |
           bazel build --config=build_cuda_with_clang \
-            --config=cuda \
+            --config=cuda12 \
             --config=cuda_libraries_from_stubs \
-            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             //cc/tests/gpu:all
 
-      - run: echo "NVCC building..."
-      - run: |
+      - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.31 | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "NVCC building..."
+        run: |
           bazel build --config=build_cuda_with_nvcc \
-            --config=cuda \
+            --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             //cc/tests/gpu:all
 
-      - run: echo "Bzlmod. Clang 18 building..."
-      - run: |
+      - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
+        run: |
           bazel build --config=build_cuda_with_clang \
-            --config=cuda \
+            --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --config=bzlmod \
             //cc/tests/gpu:all
 
-      - run: echo "Bzlmod. NVCC building..."
-      - run: |
+      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Bzlmod. NVCC | Testing..."
+        run: |
           bazel build --config=build_cuda_with_nvcc \
-            --config=cuda \
+            --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
             //cc/tests/gpu:all
+

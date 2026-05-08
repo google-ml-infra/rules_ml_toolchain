@@ -213,3 +213,16 @@ cc_feature(
     ],
     provides = ["compilation_mode"],
 )
+
+cc_feature(
+    name = "libc++",
+    compiler_flags = [
+        # Allows the use of GNU-specific extension keywords that are not part of the standard C or C++ specifications
+        "-fgnu-keywords",
+    ],
+    linker_flags = [
+        "-stdlib=libc++",
+    ],
+    enabled = True,
+)
+

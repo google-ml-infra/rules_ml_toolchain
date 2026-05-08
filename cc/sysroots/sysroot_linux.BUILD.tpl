@@ -20,41 +20,36 @@ alias(
 )
 
 alias(
+    name = "std_incs",
+    actual = "@@%{sysroot_repo_name}//:std_incs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "sys_incs",
+    actual = "@@%{sysroot_repo_name}//:sys_incs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "startup_libs",
     actual = "@@%{sysroot_repo_name}//:startup_libs",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "includes_c",
-    actual = "@@%{sysroot_repo_name}//:includes_c",
+    name = "std_libs",
+    actual = "@@%{sysroot_repo_name}//:std_libs",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "includes",
-    actual = "@@%{sysroot_repo_name}//:includes",
+    name = "sys_libs",
+    actual = "@@%{sysroot_repo_name}//:sys_libs",
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "includes_system",
-    actual = "@@%{sysroot_repo_name}//:includes_system",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "syslibs",
-    actual = "@@%{sysroot_repo_name}//:syslibs",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "pthread",
-    actual = "@@%{sysroot_repo_name}//:pthread",
-    visibility = ["//visibility:public"],
-)
-
+# Libraries for export
 alias(
     name = "openmp",
     actual = "@@%{sysroot_repo_name}//:openmp",

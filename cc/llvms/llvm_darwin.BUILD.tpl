@@ -80,7 +80,7 @@ alias(
 )
 
 alias(
-    name = "includes",
-    actual = "@@%{llvm_repo_name}//:includes",
+    name = "compiler_incs",
+    actual = "@@%{llvm_repo_name}//:compiler_incs",
     visibility = ["//visibility:public"],
 )

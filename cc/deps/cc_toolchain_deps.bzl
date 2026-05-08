@@ -152,6 +152,7 @@ def cc_toolchain_deps():
                 "@llvm19_linux_x86_64//:all": "19",
                 "@llvm20_linux_x86_64//:all": "20",
                 "@llvm21_linux_x86_64//:all": "21",
+                "@llvm22_linux_x86_64//:all": "22",
             },
             build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
@@ -229,11 +230,36 @@ def cc_toolchain_deps():
         # LLVM 21 Linux x86_64
         mirrored_http_archive(
             name = "llvm21_linux_x86_64",
-            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.2/LLVM-21.1.2-Linux-X64.tar.xz"),
-            sha256 = "38dc1e278b8d688d9f4f1077da1dcda623d9e0dd89ffcf03bc18d3492bbd9cb6",
-            mirrored_tar_sha256 = "563f5d0ed531053cf2d726b09b3e023820ff8d771b9ba0f17a2cb32059d96fe8",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-Linux-X64.tar.xz"),
+            sha256 = "b3b7f2801d15d50736acea3c73982994d025b01c2f035b91ae3b49d1b575732b",
+            mirrored_tar_sha256 = "319687348c74aeee915e82a83dd6f6d6b98bc61d8cb7b6b4ac471703ab10b517",
             build_file = Label("//cc/config:llvm21_linux_x86_64.BUILD"),
-            strip_prefix = "LLVM-21.1.2-Linux-X64",
+            strip_prefix = "LLVM-21.1.8-Linux-X64",
+            remote_file_urls = {
+                "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
+                "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
+                "lib/libicu-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicu-copyright.txt"],
+                "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libxml2-copyright.txt"],
+            },
+            remote_file_integrity = {
+                "lib/libicudata.so.66": "sha256-ULA52oarQP7Zc5VIkqpSsLgzEnuUED7GK3HB4Ikc5e0=",
+                "lib/libicuuc.so.66": "sha256-ym++YXsGTEkVzYUT8XGxrd7fgknGmgsvNo+Ph8jFMhs=",
+                "lib/libicu-copyright.txt": "sha256-5VUi2B7caHo0GkQR4HduVMplTpAUfzVKkEWKrO1BFq8=",
+                "lib/libxml2.so.2": "sha256-tMhjAAaQTQYKwvGKlP4mdtb70gD/8/LtfvOrZnL0Msw=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
+            },
+        )
+
+    if "llvm22_linux_x86_64" not in native.existing_rules():
+        # LLVM 22 Linux x86_64
+        mirrored_http_archive(
+            name = "llvm22_linux_x86_64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.4/LLVM-22.1.4-Linux-X64.tar.xz"),
+            sha256 = "cdf232e3bc5d9909ddcf8cb7016802c6745a01e69a596747c684caa894a11567",
+            mirrored_tar_sha256 = "b9b94ef829f1d410e0a458b4c140ee8c0999312b7733cd1375e61736078c1aa2",
+            build_file = Label("//cc/config:llvm22_linux_x86_64.BUILD"),
+            strip_prefix = "LLVM-22.1.4-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
                 "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
@@ -261,6 +287,7 @@ def cc_toolchain_deps():
                 "@llvm18_linux_aarch64//:all": "18",
                 "@llvm20_linux_aarch64//:all": "20",
                 "@llvm21_linux_aarch64//:all": "21",
+                "@llvm22_linux_aarch64//:all": "22",
             },
             build_file_tpl = Label("//cc/llvms:llvm_linux.BUILD.tpl"),
         )
@@ -335,11 +362,44 @@ def cc_toolchain_deps():
         # LLVM 21 Linux aarch64
         mirrored_http_archive(
             name = "llvm21_linux_aarch64",
-            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.5/LLVM-21.1.5-Linux-ARM64.tar.xz"),
-            sha256 = "c9a1ee5d1a1698a8eb0abda1c1e44c812378aec32f89cc4fbbb41865237359a9",
-            mirrored_tar_sha256 = "559693d758ef8b6adddffbdf19fd69eb631cafed48d09099c9638ff820486f2c",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-Linux-ARM64.tar.xz"),
+            sha256 = "65ce0b329514e5643407db2d02a5bd34bf33d159055dafa82825c8385bd01993",
+            mirrored_tar_sha256 = "34f87a8f2b755b0c34bf0df682dda78f5d69071dd14b7ac9db2a6ed6bc02fb60",
             build_file = Label("//cc/config:llvm21_linux_aarch64.BUILD"),
-            strip_prefix = "LLVM-21.1.5-Linux-ARM64",
+            strip_prefix = "LLVM-21.1.8-Linux-ARM64",
+            remote_file_urls = {
+                "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
+                "lib/libz-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz-copyright.txt"],
+                "lib/liblzma.so.5": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/liblzma.so.5"],
+                "lib/liblzma-copying.GPLv2.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/liblzma-copying.GPLv2.txt"],
+                "lib/liblzma-copying.GPLv3.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/liblzma-copying.GPLv3.txt"],
+                "lib/liblzma-copying.LGPLv2.1.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/liblzma-copying.LGPLv2.1.txt"],
+                "lib/liblzma-copying.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/liblzma-copying.txt"],
+                "lib/libxml2.so.2": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libxml2.so.2"],
+                "lib/libxml2-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libxml2-copyright.txt"],
+            },
+            remote_file_integrity = {
+                "lib/libz.so.1": "sha256-rV8Qd2EfXMqm3NRHq71bROnQrI8CR/8dtEGj7VJHAFg=",
+                "lib/libz-copyright.txt": "sha256-xLXv1S2NZl8XVG5po6j8G5AyOG3JaS2cei2cgBy63+Q=",
+                "lib/liblzma.so.5": "sha256-xnKtiQ6N5HGZ4/LZwFnXAV4tFdsp3N4m03jnEmsXEtU=",
+                "lib/liblzma-copying.GPLv2.txt": "sha256-qxX9UmvY3Rip5368E5ZWv00z6X/HI4zRG/YOK5uGZsY=",
+                "lib/liblzma-copying.GPLv3.txt": "sha256-jOtLnuWt7d5Hsx6XXB2QxzrSe2sWWh3NgMfFRetluQM=",
+                "lib/liblzma-copying.LGPLv2.1.txt": "sha256-4jf6VmaAMOkoVR3dYPBd9f6Vf3XquHS70Bfghe1yLnw=",
+                "lib/liblzma-copying.txt": "sha256-SDmAFuIPkWdsEeUNUGbSZor9o8Fhp13P1HMR9S8iDxQ=",
+                "lib/libxml2.so.2": "sha256-9ckknFripHulRXSH/sHWYkczPD/oRFjbVrapESa8n+I=",
+                "lib/libxml2-copyright.txt": "sha256-XUhziEqJASKkubIK1WrG99odeWpb/PBKQnlwrJYhdiY=",
+            },
+        )
+
+    if "llvm22_linux_aarch64" not in native.existing_rules():
+        # LLVM 22 Linux aarch64
+        mirrored_http_archive(
+            name = "llvm22_linux_aarch64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.4/LLVM-22.1.4-Linux-ARM64.tar.xz"),
+            sha256 = "ac8bed48a6481ccc0e14af18f64d44fc1ca8c0ccf630c1d4dc5e97027e87e6fa",
+            mirrored_tar_sha256 = "fdd6aec41abd24c031ec309065fee660bcb6b93b83b49960aaf879bd61b7d88b",
+            build_file = Label("//cc/config:llvm22_linux_aarch64.BUILD"),
+            strip_prefix = "LLVM-22.1.4-Linux-ARM64",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
                 "lib/libz-copyright.txt": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz-copyright.txt"],

@@ -92,7 +92,7 @@ filegroup(
 )
 
 cc_toolchain_import(
-    name = "includes",
+    name = "compiler_incs",
     hdrs = glob([
         "lib/clang/{clang_version}/include/**".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/include/cuda_wrappers/**".format(clang_version = CLANG_VERSION),
@@ -117,6 +117,67 @@ cc_toolchain_import(
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
     }),
+    visibility = ["//visibility:public"],
+)
+
+#============================================================================================
+# Headers and libraries required for linking against libc++
+
+cc_toolchain_import(
+    name = "std_incs",
+    hdrs = glob([
+        "include/c++/v1/**",
+        "include/x86_64-unknown-linux-gnu/c++/v1/**",
+    ]),
+    includes = [
+        "include/c++/v1",
+        "include/x86_64-unknown-linux-gnu/c++/v1",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "libc++",
+    additional_libs = [
+        "lib/x86_64-unknown-linux-gnu/libc++.so.1.0",
+        "lib/x86_64-unknown-linux-gnu/libc++.a",
+    ],
+    shared_library = "lib/x86_64-unknown-linux-gnu/libc++.so",
+    static_library = "lib/x86_64-unknown-linux-gnu/libc++.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libc++abi",
+    additional_libs = [
+        "lib/x86_64-unknown-linux-gnu/libc++abi.so.1.0",
+        "lib/x86_64-unknown-linux-gnu/libc++abi.so.1",
+        "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+    ],
+    shared_library = "lib/x86_64-unknown-linux-gnu/libc++abi.so",
+    static_library = "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libunwind",
+    additional_libs = [
+        "lib/x86_64-unknown-linux-gnu/libunwind.so.1.0",
+        "lib/x86_64-unknown-linux-gnu/libunwind.so.1",
+        "lib/x86_64-unknown-linux-gnu/libunwind.a",
+    ],
+    shared_library = "lib/x86_64-unknown-linux-gnu/libunwind.so",
+    static_library = "lib/x86_64-unknown-linux-gnu/libunwind.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "std_libs",
+    deps = [
+        ":libc++",
+        ":libc++abi",
+        ":libunwind",
+    ],
     visibility = ["//visibility:public"],
 )
 

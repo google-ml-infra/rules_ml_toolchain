@@ -51,10 +51,11 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@sysroot_linux_aarch64//:includes_c",
-        "@llvm_linux_x86_64//:includes",
-        "@sysroot_linux_aarch64//:includes_system",
-        "@sysroot_linux_aarch64//:syslibs",
+        "@sysroot_linux_aarch64//:std_incs",
+        "@llvm_linux_x86_64//:compiler_incs",
+        "@sysroot_linux_aarch64//:sys_incs",
+        "@sysroot_linux_aarch64//:sys_libs",
+        "@sysroot_linux_aarch64//:std_libs",
     ],
     visibility = ["//visibility:public"],
 )

@@ -132,7 +132,8 @@ def cuda_default_copts():
         # Some important CUDA optimizations are only enabled at O3.
         ["-O3"]
     ) + cuda_compiler(
-        if_cuda_clang = [ "-Xcuda-fatbinary", "--compress-all"],
+        # -Xcuda-ptxas --maxrregcount=0 - turn off the global maxrregcount limit to ensure a successful CUDA build. Default value: 255
+        if_cuda_clang = [ "-Xcuda-fatbinary", "--compress-all", "-D__CUDACC__=1", "-Xcuda-ptxas --maxrregcount=0"],
         if_nvcc = [
             "-Xcuda-fatbinary=--compress-all",
             # Ensure that NVCC matches clang's constexpr behavior.

@@ -51,51 +51,94 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@v5
-      - run: echo "NVCC building..."
-      - run: |
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+        # Clang 22 is minimum required version for CUDA13
+      - name: "Clang 22, Glibc 2.31 | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "NVCC | Testing..."
+        run: |
           bazel build \
             --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            --verbose_failures \
             //cc/tests/gpu:all
 
-      - run: echo "NVCC Static CUDA building..."
-      - run: |
+      - name: "NVCC Static CUDA | Testing..."
+        run: |
           bazel build \
             --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            --verbose_failures \
             //cc/tests/gpu:all
 
-      - run: echo "NVCC Static CUDNN CUDA testing..."
-      - run: |
+      - name: "NVCC Static CUDNN CUDA | Testing..."
+        run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
             --@rules_ml_toolchain//common:link_cudnn_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            --verbose_failures \
             //cc/tests/gpu:cudnn_test
 
-      - run: echo "NVCC Static NVRTC CUDA testing..."
-      - run: |
+      - name: "NVCC Static NVRTC CUDA | Testing..."
+        run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
             --@rules_ml_toolchain//common:link_nvrtc_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            --verbose_failures \
             //cc/tests/gpu:nvrtc_test
 
-      - run: echo "Bzlmod. NVCC building..."
-      - run: |
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Bzlmod. NVCC | Testing..."
+        run: |
           bazel build --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
+            --verbose_failures \
             //cc/tests/gpu:all
