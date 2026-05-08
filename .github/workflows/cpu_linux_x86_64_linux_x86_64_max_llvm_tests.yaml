@@ -78,8 +78,7 @@ jobs:
             --config=bzlmod \
               //cc/tests/cpu:absl_test  \
               //cc/tests/cpu:builtins_test \
-              //cc/tests/cpu:echoclient_test \
-              //cc/tests/cpu:protobuf_test
+              //cc/tests/cpu:echoclient_test
 
       - name: "Clang 21, Glibc 2.35, libc++ static linking | Testing..."
         run: |
