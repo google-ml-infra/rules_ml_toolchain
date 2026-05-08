@@ -56,13 +56,13 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build \
+          bazel build --color=yes \
             --platforms=//common:linux_aarch64 \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build \
+          bazel build --color=yes \
             --platforms=//common:linux_aarch64 \
             --config=bzlmod \
             //cc/tests/cpu:all

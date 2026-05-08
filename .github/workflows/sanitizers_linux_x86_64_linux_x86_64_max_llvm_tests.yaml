@@ -56,36 +56,36 @@ jobs:
 
       - name: "ASan Clang 21, Glibc 2.31 | Testing..."
         run: | 
-          bazel test --config=asan \
+          bazel test --color=yes --config=asan \
             --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             //cc/sanitizers/tests:asan_test
 
       - name: "ASan Clang 22, Glibc 2.35 | Testing..."
         run: |
-          bazel test --config=asan \
+          bazel test --color=yes --config=asan \
             --repo_env=LLVM_VERSION=22 --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             //cc/sanitizers/tests:asan_test
 
       - name: "Bzlmod. ASan Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel test --config=asan --config=bzlmod \
+          bazel test --color=yes --config=asan --config=bzlmod \
             --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             //cc/sanitizers/tests:asan_test
 
       - name: "TSan Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel test --config=tsan --config=tsan_test \
+          bazel test --color=yes --config=tsan --config=tsan_test \
             --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             //cc/sanitizers/tests:tsan_test
 
       - name: "TSan Clang 22, Glibc 2.35 | Testing..."
         run: |
-          bazel test --config=tsan --config=tsan_test \
+          bazel test --color=yes --config=tsan --config=tsan_test \
             --repo_env=LLVM_VERSION=22 --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             //cc/sanitizers/tests:tsan_test
 
       - name: "Bzlmod. TSan Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel test --config=tsan --config=tsan_test --config=bzlmod \
+          bazel test --color=yes --config=tsan --config=tsan_test --config=bzlmod \
             --repo_env=LLVM_VERSION=21 --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             //cc/sanitizers/tests:tsan_test

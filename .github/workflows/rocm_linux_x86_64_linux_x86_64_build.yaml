@@ -54,7 +54,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (hermetic HIPcc)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
@@ -63,7 +63,7 @@ jobs:
 
       - name: Test host (CPU) code compilation with ROCm toolchain
         run: |
-          bazel test \
+          bazel test --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
@@ -72,7 +72,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (bzlmod)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
@@ -82,7 +82,7 @@ jobs:
 
       - name: Test host (CPU) code compilation (bzlmod)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
             --repo_env=ROCM_DISTRO_VERSION="rocm_7.12.0_gfx94X" \
@@ -92,7 +92,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (local sysroot)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --@rules_ml_toolchain//cc/sysroots:use_local_sysroot=True \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -102,7 +102,7 @@ jobs:
 
       - name: Test host (CPU) code compilation (local sysroot)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --@rules_ml_toolchain//cc/sysroots:use_local_sysroot=True \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -112,7 +112,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (local sysroot + bzlmod)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --@rules_ml_toolchain//cc/sysroots:use_local_sysroot=True \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \
@@ -123,7 +123,7 @@ jobs:
 
       - name: Test host (CPU) code compilation (local sysroot + bzlmod)
         run: |
-          bazel test \
+          bazel test --color=yes \
             --@rules_ml_toolchain//cc/sysroots:use_local_sysroot=True \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx942" \

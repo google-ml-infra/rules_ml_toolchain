@@ -55,21 +55,21 @@ jobs:
         uses: actions/checkout@v5
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
-        run: bazel test //cc/tests/cpu:all
+        run: bazel test --color=yes //cc/tests/cpu:all
 
       - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel test \
+          bazel test --color=yes \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
-        run: bazel test --config=bzlmod //cc/tests/cpu:all
+        run: bazel test --color=yes --config=bzlmod //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel test --config=bzlmod \
+          bazel test --color=yes --config=bzlmod \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/cpu:all
