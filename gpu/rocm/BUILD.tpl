@@ -26,8 +26,6 @@ exports_files(
 
 cc_library(
     name = "hip_runtime",
-    hdrs = glob(["%{rocm_root}/include/**/*.h"]),
-    includes = ["%{rocm_root}/include"],
     srcs = glob(
         [
             "%{rocm_root}/lib/libamdhip64.so*",
@@ -41,13 +39,10 @@ cc_library(
         ],
         exclude = [
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
-        ]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "rocm_redist",
-    srcs = glob(["%{rocm_root}/**"]),
+        ],
+    ),
+    hdrs = glob(["%{rocm_root}/include/**/*.h"]),
+    includes = ["%{rocm_root}/include"],
     visibility = ["//visibility:public"],
 )
 
@@ -69,22 +64,33 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "all_files",
-    srcs = glob(["%{rocm_root}/**"]),
+# Tool aliases for convenience - all just point to toolchain_data
+alias(
+    name = "hipcc",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "rocm_root",
-    srcs = [":all_files"],
+alias(
+    name = "ar",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )
 
-config_setting(
-    name = "using_hipcc",
-    define_values = {
-        "using_rocm": "true",
-    },
+alias(
+    name = "ld",
+    actual = ":toolchain_data",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "strip",
+    actual = ":toolchain_data",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "objcopy",
+    actual = ":toolchain_data",
     visibility = ["//visibility:public"],
 )

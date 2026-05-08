@@ -147,6 +147,12 @@ hipcc_configure = use_extension("//extensions:hipcc_configure.bzl", "hipcc_confi
 use_repo(hipcc_configure, "config_rocm_hipcc")
 
 ##############################################################
+# ROCm configuration
+
+hipcc_configure = use_extension("//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
+use_repo(hipcc_configure, "config_rocm_hipcc")
+
+##############################################################
 # Hermetic toolchain configuration
 
 toolchain = use_extension("//extensions:toolchain.bzl", "toolchain_ext")
