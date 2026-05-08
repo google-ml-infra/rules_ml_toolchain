@@ -65,6 +65,26 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
+      - name: "Clang 22, Glibc 2.35 | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
       - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
           bazel build --config=build_cuda_with_clang \
@@ -72,6 +92,30 @@ jobs:
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.35, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --verbose_failures \

@@ -69,11 +69,28 @@ jobs:
             --config=bzlmod \
             //cc/tests/cpu:all
 
+      - name: "Bzlmod. Clang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel test \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --config=bzlmod \
+            //cc/tests/cpu:all
+
       - name: "Clang 21, Glibc 2.35, libc++ static linking | Testing..."
         run: |
           bazel test \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/cpu:all
+
+      - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel test \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/cpu:all
