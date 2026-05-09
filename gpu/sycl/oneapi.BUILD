@@ -235,7 +235,7 @@ filegroup(
 )
 
 cc_toolchain_import(
-    name = "includes",
+    name = "compiler_incs",
     hdrs = glob([
         "compiler/{oneapi_version}/lib/clang/{clang_version}/include/**"
             .format(oneapi_version = ONEAPI_VERSION, clang_version = CLANG_VERSION),

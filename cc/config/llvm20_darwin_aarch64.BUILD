@@ -92,7 +92,7 @@ filegroup(
 )
 
 cc_toolchain_import(
-    name = "includes",
+    name = "compiler_incs",
     hdrs = glob([
         "lib/clang/*/*.h",
         "lib/clang/*/include/*.h",

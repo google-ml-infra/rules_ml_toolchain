@@ -19,6 +19,7 @@ load(
 )
 
 _SYSROOT_DIST = "SYSROOT_DIST"
+_STDLIB = "STDLIB"
 
 def _get_sysroot_dist_flag(ctx):
     """Returns sysroot distribution put as environment variable"""

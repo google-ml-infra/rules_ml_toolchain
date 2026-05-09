@@ -17,6 +17,7 @@
 # Tools: Linux x86_64, Sysroot: Linux x86_64
 # ==============================================================================
 
+load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
@@ -51,14 +52,31 @@ cc_toolchain_import_feature(
     toolchain_import = ":startup_libs",
 )
 
+alias(
+    name = "std_incs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs" ,
+        "//conditions:default": "@sysroot_linux_x86_64//:std_incs",
+    })
+)
+
+alias(
+    name = "std_libs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs" ,
+        "//conditions:default": "@sysroot_linux_x86_64//:std_libs",
+    })
+)
+
 # buildifier: leave-alone
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@sysroot_linux_x86_64//:includes_c",
-        "@llvm_linux_x86_64//:includes",
-        "@sysroot_linux_x86_64//:includes_system",
-        "@sysroot_linux_x86_64//:syslibs",
+        ":std_incs",
+        "@llvm_linux_x86_64//:compiler_incs",
+        "@sysroot_linux_x86_64//:sys_incs",
+        ":std_libs",
+        "@sysroot_linux_x86_64//:sys_libs",
         "@sysroot_linux_x86_64//:openmp",
         "@llvm_linux_x86_64//:libclang_rt",
     ],
@@ -69,6 +87,10 @@ cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
     toolchain_import = ":imports",
+    static_link_flags = select({
+        "//common:is_static_libcxx": LIBCXX_FLAGS,
+        "//conditions:default": [],
+    }),
 )
 
 cc_toolchain_import(
@@ -207,7 +229,12 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
-]
+] + select({
+    "//common:is_stdlib_libcxx": [
+        "//cc/features:libc++",
+    ],
+    "//conditions:default": [],
+})
 
 cc_toolchain_config(
     name = "config",

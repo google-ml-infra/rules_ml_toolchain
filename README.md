@@ -71,6 +71,7 @@ Supported versions of LLVM
 | 19      | x |               |               |
 | 20      | x | x             |               |
 | 21      | x | x             |               |
+| 22      | x | x             |               |
 
 Available sysroots
 
@@ -79,6 +80,18 @@ Available sysroots
 | linux_glibc_2_27 | x86_64, aarch64 | GCC 8   | 2.27  | C++17                 | Ubuntu 18.04 |
 | linux_glibc_2_31 | x86_64, aarch64 | GCC 10  | 2.31  | C++20                 | Ubuntu 20.04 |
 | linux_glibc_2_35 | x86_64          | GCC 12  | 2.35  | C++23 partial support | Ubuntu 22.04 |
+
+## Linking against `libstdc++` or `libc++` on Linux
+By default, `rules_ml_toolchain` links dynamically against `libstdc++` for Linux builds.
+However, you can choose to link against `libc++` instead, using dynamic or static linking.
+
+For example, to link statically against `libc++`, developer can use the following configuration
+```
+common --enable_platform_specific_config
+
+build:linux --@rules_ml_toolchain//common:stdlib=libc++
+build:linux --@rules_ml_toolchain//common:static_libcxx=true
+```
 
 ## Configure sanitizers
 For detailed instructions on how to configure and use sanitizers [click this link](cc/sanitizers).

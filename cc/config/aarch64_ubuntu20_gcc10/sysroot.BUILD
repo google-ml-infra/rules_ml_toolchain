@@ -55,7 +55,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "includes_c",
+    name = "std_incs",
     hdrs = glob([
         "usr/include/c++/{gcc_version}/**".format(gcc_version = GCC_VERSION),
         "usr/include/aarch64-linux-gnu/c++/{gcc_version}/*/**".format(gcc_version = GCC_VERSION),
@@ -71,7 +71,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "includes_system",
+    name = "sys_incs",
     hdrs = glob([
         #"usr/local/include/**",            # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
         "usr/include/aarch64-linux-gnu/**",
@@ -86,7 +86,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "gcc",
+    name = "libgcc",
     additional_libs = [
         "lib/aarch64-linux-gnu/libgcc_s.so.1",
         "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
@@ -98,7 +98,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "stdc++",
+    name = "libstdc++",
     additional_libs = [
         "usr/lib/aarch64-linux-gnu/libstdc++.so.6",
         "usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.28",
@@ -109,7 +109,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "dynamic_linker",
+    name = "libdl",
     additional_libs = [
         "lib/ld-linux-aarch64.so.1",
         "lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
@@ -121,7 +121,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "math",
+    name = "libm",
     additional_libs = ["lib/aarch64-linux-gnu/libm.so.6"],
     shared_library = "usr/lib/aarch64-linux-gnu/libm.so",
     static_library = "usr/lib/aarch64-linux-gnu/libm.a",
@@ -129,7 +129,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "pthread",
+    name = "libpthread",
     additional_libs = [
         "lib/aarch64-linux-gnu/libpthread.so.0",
         "lib/aarch64-linux-gnu/libpthread-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
@@ -143,7 +143,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "rt",
+    name = "librt",
     additional_libs = [
         "lib/aarch64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/aarch64-linux-gnu/librt.so.1",
@@ -163,24 +163,30 @@ cc_toolchain_import(
     shared_library = "usr/lib/aarch64-linux-gnu/libc.so",
     static_library = "usr/lib/aarch64-linux-gnu/libc.a",
     visibility = ["//visibility:public"],
-    deps = [
-        ":gcc",
-        ":math",
-        ":stdc++",
-        ":rt",
-    ],
 )
 
-# This is a group of essential system libraries. The actual glibc library is split
-# out to fix link ordering problems that cause false undefined symbol positives.
+# This is a group of GCC libraries
 cc_toolchain_import(
-    name = "syslibs",
-    visibility = ["//visibility:public"],
+    name = "std_libs",
     deps = [
-        ":dynamic_linker",
-        ":libc",
-        ":pthread",
+        ":libgcc",
+        ":libstdc++",
     ],
+    visibility = ["//visibility:public"],
+)
+
+# This is a group of system libraries
+cc_toolchain_import(
+    name = "sys_libs",
+    deps = [
+        ":libdl",
+        ":libc",
+        ":libpthread",
+        ":libm",
+        ":librt",
+        #":libasan",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 #============================================================================================

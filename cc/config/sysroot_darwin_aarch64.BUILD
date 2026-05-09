@@ -28,7 +28,7 @@ sysroot_package(
 )
 
 cc_toolchain_import(
-    name = "includes_c",
+    name = "std_incs",
     hdrs = glob([
         "usr/include/c++/v1/**",
     ]),
@@ -43,7 +43,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "includes_system",
+    name = "sys_incs",
     hdrs = glob([
         "usr/include/**",
         "System/Library/Frameworks/CoreFoundation/**",  # Include created symbolic link directory
@@ -89,7 +89,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "stdc++",
+    name = "libstdc++",
     shared_library = "usr/lib/libc++.tbd",
     #target_compatible_with = select({
     #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
@@ -100,7 +100,7 @@ cc_toolchain_import(
 
 # Redundancy library (for configuration compatibility with Linux system)
 cc_toolchain_import(
-    name = "pthread",
+    name = "libpthread",
     shared_library = "usr/lib/libpthread.tbd",
     visibility = ["//visibility:public"],
 )
@@ -126,18 +126,13 @@ cc_toolchain_import(
 # This is a group of essential system libraries. The actual syslibs library is split
 # out to fix link ordering problems that cause false undefined symbol positives.
 cc_toolchain_import(
-    name = "syslibs",
-    #runtime_path = "usr/lib",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
+    name = "sys_libs",
     visibility = ["//visibility:public"],
     deps = [
         ":system",
         ":libm",
-        ":stdc++",
-        ":pthread",
+        ":libstdc++",
+        ":libpthread",
         ":objc",
         ":core_foundation",
     ],

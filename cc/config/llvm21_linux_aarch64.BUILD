@@ -90,7 +90,7 @@ filegroup(
 )
 
 cc_toolchain_import(
-    name = "includes",
+    name = "compiler_incs",
     hdrs = glob([
         "lib/clang/{clang_version}/include/**".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/include/cuda_wrappers/**".format(clang_version = CLANG_VERSION),
@@ -119,6 +119,67 @@ cc_toolchain_import(
 )
 
 #============================================================================================
+# Headers and libraries required for linking against libc++
+
+cc_toolchain_import(
+    name = "std_incs",
+    hdrs = glob([
+        "include/c++/v1/**",
+        "include/aarch64-unknown-linux-gnu/c++/v1/**",
+    ]),
+    includes = [
+        "include/c++/v1",
+        "include/aarch64-unknown-linux-gnu/c++/v1",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "libc++",
+    additional_libs = [
+        "lib/aarch64-unknown-linux-gnu/libc++.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libc++.a",
+    ],
+    shared_library = "lib/aarch64-unknown-linux-gnu/libc++.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libc++.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libc++abi",
+    additional_libs = [
+        "lib/aarch64-unknown-linux-gnu/libc++abi.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libc++abi.so.1",
+        "lib/aarch64-unknown-linux-gnu/libc++abi.a",
+    ],
+    shared_library = "lib/aarch64-unknown-linux-gnu/libc++abi.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libc++abi.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libunwind",
+    additional_libs = [
+        "lib/aarch64-unknown-linux-gnu/libunwind.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libunwind.so.1",
+        "lib/aarch64-unknown-linux-gnu/libunwind.a",
+    ],
+    shared_library = "lib/aarch64-unknown-linux-gnu/libunwind.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libunwind.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "std_libs",
+    deps = [
+        ":libc++",
+        ":libc++abi",
+        ":libunwind",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+#============================================================================================
 # Sanitizers
 
 filegroup(
@@ -132,8 +193,8 @@ filegroup(
 cc_toolchain_import(
     name = "rt_asan",
     additional_libs = glob([
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
     ]),
     visibility = ["//visibility:public"],
 )

@@ -188,13 +188,16 @@ the target is a C or C++ library.",
     provides = [FeatureInfo],
 )
 
-def _file_to_library_flag(file):
+def _file_to_library_flag(file, static_libs):
     lib_prefix = "lib"
     if file.basename.startswith(lib_prefix):
         library_name = file.basename.replace("." + file.extension, "")
         library_flag = "-l" + library_name[len(lib_prefix):]
     else:
         library_flag = file.path
+
+    if library_flag in static_libs:
+        library_flag = "-Wl,-Bstatic " + library_flag + " -Wl,-Bdynamic"
 
     return library_flag
 
@@ -216,6 +219,7 @@ def _filter_for_shared_obj(flags):
 
 def _import_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+    static_link_flags = ctx.attr.static_link_flags
 
     include_flags = [
         "-isystem " + inc
@@ -258,11 +262,11 @@ def _import_feature_impl(ctx):
     ]).to_list()
 
     linker_flags = depset([
-        _file_to_library_flag(file)
+        _file_to_library_flag(file, static_link_flags)
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ] + [
-        _file_to_library_flag(file)
+        _file_to_library_flag(file, static_link_flags)
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ]).to_list()
@@ -309,11 +313,11 @@ def _import_feature_impl(ctx):
         ))
 
     linker_flags_for_shared_obj = depset(_filter_for_shared_obj([
-        _file_to_library_flag(file)
+        _file_to_library_flag(file, static_link_flags)
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ]) + [
-        _file_to_library_flag(file)
+        _file_to_library_flag(file, static_link_flags)
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ]).to_list()
@@ -346,6 +350,7 @@ cc_toolchain_import_feature = rule(
         "requires": attr.string_list(),
         "implies": attr.string_list(),
         "toolchain_import": attr.label(providers = [CcToolchainImportInfo]),
+        "static_link_flags": attr.string_list(),
     },
     provides = [FeatureInfo, DefaultInfo],
 )

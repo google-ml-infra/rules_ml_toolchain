@@ -20,7 +20,7 @@ load(
 
 exports_files(glob(["bin/*"]))
 
-CLANG_VERSION = "19"
+CLANG_VERSION = "22"
 
 filegroup(
     name = "all",

@@ -55,7 +55,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "includes_c",
+    name = "std_incs",
     hdrs = glob([
         "usr/include/c++/{gcc_version}/**".format(gcc_version = GCC_VERSION),
         "usr/include/x86_64-linux-gnu/c++/{gcc_version}/*/**".format(gcc_version = GCC_VERSION),
@@ -71,7 +71,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "includes_system",
+    name = "sys_incs",
     hdrs = glob([
         #"usr/local/include/**",            # Uncomment this line if files exist in this directory; otherwise, the build will fail with the --incompatible_disallow_empty_glob=false flag
         "usr/include/x86_64-linux-gnu/**",
@@ -86,7 +86,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "gcc",
+    name = "libgcc",
     additional_libs = [
         "lib/x86_64-linux-gnu/libgcc_s.so.1",
         "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
@@ -97,7 +97,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "stdc++",
+    name = "libstdc++",
     additional_libs = [
         "usr/lib/x86_64-linux-gnu/libstdc++.so.6",
         "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25",
@@ -110,13 +110,13 @@ cc_toolchain_import(
 # Inclusion of libstdc++fs is required because the sysroot utilizes GCC version 8.4.
 # This requirement is obsolete for GCC versions 9 and above.
 cc_toolchain_import(
-    name = "stdc++fs",
+    name = "libstdc++fs",
     static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++fs.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
-    name = "dynamic_linker",
+    name = "libdl",
     additional_libs = [
         "lib64/ld-linux-x86-64.so.2",
         "lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
@@ -128,7 +128,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "math",
+    name = "libm",
     additional_libs = [
         "lib/x86_64-linux-gnu/libm.so.6",
         "lib/x86_64-linux-gnu/libmvec-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
@@ -143,7 +143,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "pthread",
+    name = "libpthread",
     additional_libs = [
         "lib/x86_64-linux-gnu/libpthread.so.0",
         "lib/x86_64-linux-gnu/libpthread-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
@@ -158,7 +158,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "rt",
+    name = "librt",
     additional_libs = [
         "lib/x86_64-linux-gnu/librt-{glibc_version}.so".format(glibc_version = GLIBC_VERSION),
         "lib/x86_64-linux-gnu/librt.so.1",
@@ -169,7 +169,7 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "asan",
+    name = "libasan",
     additional_libs = [
         "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libasan.so".format(gcc_version = GCC_VERSION),
         "usr/lib/x86_64-linux-gnu/libasan.so.5",
@@ -187,25 +187,30 @@ cc_toolchain_import(
     ],
     shared_library = "usr/lib/x86_64-linux-gnu/libc.so",
     static_library = "usr/lib/x86_64-linux-gnu/libc.a",
+    visibility = ["//visibility:private"],
+)
+
+# This is a group of GCC libraries
+cc_toolchain_import(
+    name = "std_libs",
     deps = [
-        ":gcc",
-        ":math",
-        ":stdc++",
-        ":stdc++fs",
-        ":rt",
+        ":libgcc",
+        ":libstdc++",
+        ":libstdc++fs",
     ],
     visibility = ["//visibility:public"],
 )
 
-# This is a group of essential system libraries. The actual glibc library is split
-# out to fix link ordering problems that cause false undefined symbol positives.
+# This is a group of system libraries
 cc_toolchain_import(
-    name = "syslibs",
+    name = "sys_libs",
     deps = [
-        ":dynamic_linker",
+        ":libdl",
         ":libc",
-        ":pthread",
-        ":asan",
+        ":libpthread",
+        ":libm",
+        ":librt",
+        ":libasan",
     ],
     visibility = ["//visibility:public"],
 )
