@@ -311,8 +311,9 @@ def _setup_rocm_distro_dir(repository_ctx):
 def _create_dummy_repository(repository_ctx):
     """Creates a stub ROCm repository when ROCm is not enabled."""
     # Create stub repository using templates with empty values
+    repository_ctx.file("rocm/empty/.keep", "")
     stub_dict = {
-        "%{rocm_root}": "",
+        "%{rocm_root}": "empty",
         "%{rocm_gpu_architectures}": "[]",
         "%{rocm_version_number}": "0",
         "%{miopen_version_number}": "0",

@@ -44,7 +44,7 @@ cc_library(
     name = "headers",
     hdrs = glob([
         "level_zero/**/*",
-    ]),
+    ], allow_empty = True),
     includes = [
         ".",
     ],

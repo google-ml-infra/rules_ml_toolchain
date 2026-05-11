@@ -67,7 +67,7 @@ filegroup(
     srcs = glob([
         "bin/**",
         "nvvm/bin/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
@@ -98,7 +98,7 @@ filegroup(
     %{comment}]) + if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = [],
-        %{comment}if_false = glob(["include/crt/**"]),
+        %{comment}if_false = glob(["include/crt/**"], allow_empty = True),
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
@@ -129,4 +129,3 @@ cc_library(
     %{comment})),
     visibility = ["//visibility:public"],
 )
-

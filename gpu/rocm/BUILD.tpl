@@ -28,7 +28,7 @@ exports_files(
 
 cc_library(
     name = "hip_runtime",
-    hdrs = glob(["%{rocm_root}/include/**/*.h"]),
+    hdrs = glob(["%{rocm_root}/include/**/*.h"], allow_empty = True),
     includes = ["%{rocm_root}/include"],
     srcs = glob(
         [
@@ -43,13 +43,15 @@ cc_library(
         ],
         exclude = [
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
-        ]),
+        ],
+        allow_empty = True,
+    ),
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "rocm_redist",
-    srcs = glob(["%{rocm_root}/**"]),
+    srcs = glob(["%{rocm_root}/**"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
@@ -67,13 +69,13 @@ filegroup(
         "%{rocm_root}/amdgcn/**",
         "%{rocm_root}/lib/rocm_sysdeps/lib/*.so*",
         "%{rocm_root}/llvm/lib/*.so*",
-    ]),
+    ], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "all_files",
-    srcs = glob(["%{rocm_root}/**"]),
+    srcs = glob(["%{rocm_root}/**"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 

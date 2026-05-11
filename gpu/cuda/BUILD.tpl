@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_python//python:defs.bzl", "py_library")
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@bazel_skylib//lib:selects.bzl", "selects")
