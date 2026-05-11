@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 licenses(["restricted"])  # NVIDIA proprietary license
 
 load("@cuda_cudart//:version.bzl", _cudart_version = "VERSION")

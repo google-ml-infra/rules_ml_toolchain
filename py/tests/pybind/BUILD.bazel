@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
 load(
     "//py/rules_pywrap:pywrap.default.bzl",
     "pybind_extension",

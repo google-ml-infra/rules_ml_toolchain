@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@local_config_cuda//cuda:build_defs.bzl",

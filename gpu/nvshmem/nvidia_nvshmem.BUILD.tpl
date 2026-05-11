@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@rules_ml_toolchain//gpu:nvidia_common_rules.bzl",

@@ -30,6 +30,8 @@
 # sycl_toolkit_path: /opt/intel/oneapi/compiler/2025.2
 # sycl_version_number: 80000
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "cc_toolchain_import",

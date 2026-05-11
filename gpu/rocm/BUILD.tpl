@@ -13,6 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 licenses(["restricted"])  # MPL2, portions GPL v3, LGPL v3, BSD-like
 
 package(default_visibility = ["//visibility:private"])
