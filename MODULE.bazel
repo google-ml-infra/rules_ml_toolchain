@@ -73,7 +73,7 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
     "3.14",
 ]]
 
-use_repo(pip, "pypi_mods", pypi = "rules_ml_toolchain_pypi")
+use_repo(pip, pypi = "rules_ml_toolchain_pypi")
 
 ### Pybind
 pybind11_internal_configure = use_extension(
