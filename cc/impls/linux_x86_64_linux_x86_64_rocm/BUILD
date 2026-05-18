@@ -115,11 +115,9 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:sys_incs",
         "@llvm_linux_x86_64//:libclang_rt",
     ] + select({
-        # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
-        # Hermetic sysroot: use hermetic libs
         "//conditions:default": [
-            "@sysroot_linux_x86_64//:std_libs",
+            ":std_libs",
             "@sysroot_linux_x86_64//:sys_libs",
         ],
     }),
@@ -280,4 +278,21 @@ cc_toolchain(
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_rocm_id",
+)
+
+# Aliases to select between libc++ and libstdc++
+alias(
+    name = "std_incs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs",
+        "//conditions:default": "@sysroot_linux_x86_64//:std_incs",
+    }),
+)
+
+alias(
+    name = "std_libs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs",
+        "//conditions:default": "@sysroot_linux_x86_64//:std_libs",
+    }),
 )
