@@ -100,62 +100,6 @@ def GetOptionValue(argv, option):
         return sum(vars(args)[option], [])
 
 
-def GetHostCompilerOptions(argv, filter_hermetic_llvm=False, filter_sysroot=False):
-    """Collect include paths and sysroot options from argv.
-
-    This function extracts -isystem, -iquote, --sysroot, and -g flags from
-    the argument list, with optional filtering for GPU compilation.
-
-    Args:
-        argv: A list of strings containing command-line arguments.
-        filter_hermetic_llvm: If True, filter out hermetic LLVM headers.
-            Used for GPU compilation where ROCm provides its own LLVM headers.
-        filter_sysroot: If True, filter out --sysroot flag.
-            Used for GPU compilation to avoid system headers.
-
-    Returns:
-        A list of options ready to be passed to hipcc or clang.
-
-    Notes:
-        - Filters hermetic LLVM headers for GPU (they conflict with ROCm's)
-        - Filters sysroot headers for GPU (incompatible with ROCm clang)
-        - Used by InvokeHipcc to build GPU compiler options
-    """
-    parser = ArgumentParser()
-    parser.add_argument("-isystem", nargs="*", action="append")
-    parser.add_argument("-iquote", nargs="*", action="append")
-    parser.add_argument("--sysroot", nargs=1)
-    parser.add_argument("-g", nargs="*", action="append")
-    parser.add_argument("-no-canonical-prefixes", action="store_true")
-
-    args, _ = parser.parse_known_args(argv)
-
-    opts = []
-
-    if args.isystem:
-        for p in sum(args.isystem, []):
-            # Skip hermetic LLVM headers for GPU compilation - they conflict with ROCm's
-            # ROCm provides its own LLVM headers via --rocm-path
-            if filter_hermetic_llvm and "/llvm" in p and "/clang/" in p:
-                continue
-            # Skip sysroot headers for GPU compilation - they have non-device-compatible operator new
-            # ROCm provides device-compatible standard library headers via cuda_wrappers
-            if filter_sysroot and "/sysroot_" in p:
-                continue
-            opts.extend(["-isystem", p])
-    if args.iquote:
-        for p in sum(args.iquote, []):
-            opts.extend(["-iquote", p])
-    if args.g:
-        opts.append("-g" + "".join(sum(args.g, [])))
-    if args.no_canonical_prefixes:
-        opts.append("-no-canonical-prefixes")
-    if args.sysroot and not filter_sysroot:
-        opts.extend(["--sysroot", args.sysroot[0]])
-
-    return opts
-
-
 def GetHipccOptions(argv):
     """Collect ROCm/hipcc-specific compiler options from argv.
 
