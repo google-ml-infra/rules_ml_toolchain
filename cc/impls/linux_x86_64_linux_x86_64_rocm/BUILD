@@ -1,5 +1,3 @@
-load("@local_sysroot_config//:defs.bzl", "local_sysroot_info")
-
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,12 +83,7 @@ cc_toolchain_import(
 
 alias(
     name = "startup_libs",
-    actual = select({
-        # Local sysroot: startup libs via --sysroot flag
-        "//cc/sysroots:local_sysroot_enabled": ":empty_startup_libs",
-        # Hermetic sysroot: use hermetic startup libs
-        "//conditions:default": "@sysroot_linux_x86_64//:startup_libs",
-    }),
+    actual = "@sysroot_linux_x86_64//:startup_libs",
     visibility = ["//visibility:public"],
 )
 
@@ -109,13 +102,9 @@ cc_toolchain_import(
         "@llvm_linux_x86_64//:compiler_incs",
         "@llvm_linux_x86_64//:libclang_rt",
         "@sysroot_linux_x86_64//:sys_incs",
-    ] + select({
-        "//cc/sysroots:local_sysroot_enabled": [],
-        "//conditions:default": [
-            ":std_libs",
-            "@sysroot_linux_x86_64//:sys_libs",
-        ],
-    }),
+        ":std_libs",
+        "@sysroot_linux_x86_64//:sys_libs",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -188,15 +177,8 @@ filegroup(
 # Features
 # =============================================================================
 
-FEATURES_ESSENTIAL = select({
-    # Local sysroot: DO NOT use hermetic_libraries (no -nostdinc/-nostdinc++)
-    # We want to use system headers and libraries
-    "//cc/sysroots:local_sysroot_enabled": [
-        "//cc/features:local_sysroot_default_libs",
-    ],
-    # Hermetic sysroot: use hermetic_libraries feature
-    "//conditions:default": ["//third_party/rules_cc_toolchain/features:hermetic_libraries"],
-}) + [
+FEATURES_ESSENTIAL = [
+    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
@@ -211,10 +193,7 @@ FEATURES_ESSENTIAL = select({
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-] + select({
-    "//cc/sysroots:local_sysroot_enabled": ["//cc/features:local_sysroot_linux"],
-    "//conditions:default": ["//cc/features:sysroot_linux_x86_64"],
-}) + [
+    "//cc/features:sysroot_linux_x86_64",
     # PIC / PIE flags
     "//third_party/rules_cc_toolchain/features:supports_pic",
     "//third_party/rules_cc_toolchain/features:position_independent_code",
@@ -247,12 +226,7 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
-    cxx_builtin_include_directories = select({
-        # Local sysroot: use dynamically detected system include paths
-        "//cc/sysroots:local_sysroot_enabled": local_sysroot_info.include_directories,
-        # Hermetic sysroot: no system directories
-        "//conditions:default": [],
-    }),
+    cxx_builtin_include_directories = [],
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
