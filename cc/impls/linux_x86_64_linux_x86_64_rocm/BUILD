@@ -104,20 +104,15 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Hermetic LLVM headers
+        # Sysroot C++ headers (must come first for include_next to work correctly)
+        ":std_incs",
         "@llvm_linux_x86_64//:compiler_incs",
         "@llvm_linux_x86_64//:libclang_rt",
-        # Always include hermetic sysroot headers - needed for GPU compilation
-        # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
-        # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
-        "@sysroot_linux_x86_64//:std_incs",
         "@sysroot_linux_x86_64//:sys_incs",
     ] + select({
-        # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
-        # Hermetic sysroot: use hermetic libs
         "//conditions:default": [
-            "@sysroot_linux_x86_64//:std_libs",
+            ":std_libs",
             "@sysroot_linux_x86_64//:sys_libs",
         ],
     }),
@@ -278,4 +273,21 @@ cc_toolchain(
     supports_param_files = 1,
     toolchain_config = ":config",
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_rocm_id",
+)
+
+# Aliases to select between libc++ and libstdc++
+alias(
+    name = "std_incs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs",
+        "//conditions:default": "@sysroot_linux_x86_64//:std_incs",
+    }),
+)
+
+alias(
+    name = "std_libs",
+    actual = select({
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs",
+        "//conditions:default": "@sysroot_linux_x86_64//:std_libs",
+    }),
 )
