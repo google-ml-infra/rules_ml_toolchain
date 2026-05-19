@@ -14,7 +14,7 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "sycl_headers",
-    actual = "@@oneapi//:headers",
+    actual = "@oneapi//:headers",
     visibility = ["//visibility:public"],
 )
 
