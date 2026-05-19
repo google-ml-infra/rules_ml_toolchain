@@ -17,6 +17,8 @@
 # l0_include_dir: /usr/include/level_zero
 # l0_library_dir: /usr/lib/x86_64-linux-gnu
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "cc_toolchain_import",
@@ -42,7 +44,7 @@ cc_library(
     name = "headers",
     hdrs = glob([
         "level_zero/**/*",
-    ]),
+    ], allow_empty = True),
     includes = [
         ".",
     ],

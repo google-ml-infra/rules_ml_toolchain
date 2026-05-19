@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
     "@rules_ml_toolchain//gpu:nvidia_common_rules.bzl",
@@ -12,7 +14,7 @@ filegroup(
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/cuda/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/nv/**",
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/thrust/**",
-    ]),
+    ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

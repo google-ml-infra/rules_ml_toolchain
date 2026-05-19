@@ -56,7 +56,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -64,7 +64,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -74,7 +74,7 @@ jobs:
 
       - name: "Clang 22, Glibc 2.31 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
@@ -83,7 +83,7 @@ jobs:
 
       - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
@@ -94,14 +94,14 @@ jobs:
 
       - name: "NVCC | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -110,7 +110,7 @@ jobs:
 
       - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -121,7 +121,7 @@ jobs:
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -133,7 +133,7 @@ jobs:
 
       - name: "Bzlmod. NVCC | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \

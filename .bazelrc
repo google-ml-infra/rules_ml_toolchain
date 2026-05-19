@@ -1,4 +1,5 @@
 common --noenable_bzlmod
+common --enable_workspace
 common --experimental_repo_remote_exec      # Flag to enable python remote config
 common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 
@@ -16,6 +17,11 @@ build:--os=macos --cxxopt=-std=c++17
 build:--os=windows --cxxopt=-std=c++14
 
 common:bzlmod --enable_bzlmod --noenable_workspace
+
+# Bazel 9 removed native C++ rules/providers from BUILD/.bzl evaluation. This
+# keeps third-party modules that have not yet added explicit rules_cc loads
+# working while this project loads rules_cc directly.
+common:bazel9 --incompatible_autoload_externally=+cc_binary,+cc_library,+cc_test,+cc_import,+cc_proto_library,+CcInfo,+cc_common
 
 common:clang_local --noincompatible_enable_cc_toolchain_resolution
 build:clang_local --@rules_ml_toolchain//common:enable_hermetic_cc=False

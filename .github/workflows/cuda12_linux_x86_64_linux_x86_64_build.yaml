@@ -56,7 +56,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -64,7 +64,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -72,36 +72,76 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "Clang 22, Glibc 2.31 | Testing..."
+      - name: "Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
-            --repo_env=LLVM_VERSION=22 \
+            --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             //cc/tests/gpu:all
 
-      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+      - name: "Clang 22, Glibc 2.35 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            //cc/tests/gpu:all
+
+      - name: "Clang 21, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.35, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
       - name: "NVCC building..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
@@ -110,7 +150,7 @@ jobs:
 
       - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -119,21 +159,45 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+      - name: "Bzlmod. Clang 21, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env=LLVM_VERSION=21 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Bzlmod. Clang 22, Glibc 2.35, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
             --repo_env=LLVM_VERSION=22 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            //cc/tests/gpu:all
+
+      - name: "Bzlmod. Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda12 \
+            --config=cuda_libraries_from_stubs \
+            --config=bzlmod \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. NVCC | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \

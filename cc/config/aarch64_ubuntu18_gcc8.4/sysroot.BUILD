@@ -13,6 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_import")
+
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain:sysroot.bzl",
     "sysroot_package",

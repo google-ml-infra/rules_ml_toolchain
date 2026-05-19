@@ -13,6 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "CcInfo")
+
 def _collect_cc_libraries_impl(ctx):
     """
     Implementation function for the collect_cc_libraries rule. It extracts the libraries and other files

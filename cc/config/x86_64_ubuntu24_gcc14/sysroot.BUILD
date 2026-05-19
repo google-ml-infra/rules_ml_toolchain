@@ -29,8 +29,8 @@ sysroot_package(
     visibility = ["//visibility:public"],
 )
 
-GCC_VERSION = 12
-GLIBC_VERSION = "2.35"
+GCC_VERSION = 14
+GLIBC_VERSION = "2.39"
 
 # Details about C RunTime (CRT) objects:
 # https://docs.oracle.com/cd/E88353_01/html/E37853/crt1.o-7.html
@@ -102,7 +102,7 @@ cc_toolchain_import(
     name = "libstdc++",
     additional_libs = [
         "usr/lib/x86_64-linux-gnu/libstdc++.so.6",
-        "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30",
+        "usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
     ],
     shared_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.so".format(gcc_version = GCC_VERSION),
     static_library = "usr/lib/gcc/x86_64-linux-gnu/{gcc_version}/libstdc++.a".format(gcc_version = GCC_VERSION),

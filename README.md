@@ -77,9 +77,10 @@ Available sysroots
 
 | Name             | Architecture    | GCC    | GLIBC | C++ Standard          | Used OS      |
 |------------------|-----------------|--------|-------|-----------------------|--------------|
-| linux_glibc_2_27 | x86_64, aarch64 | GCC 8   | 2.27  | C++17                 | Ubuntu 18.04 |
-| linux_glibc_2_31 | x86_64, aarch64 | GCC 10  | 2.31  | C++20                 | Ubuntu 20.04 |
-| linux_glibc_2_35 | x86_64          | GCC 12  | 2.35  | C++23 partial support | Ubuntu 22.04 |
+| linux_glibc_2_27 | x86_64, aarch64 | GCC 8  | 2.27  | C++17                 | Ubuntu 18.04 |
+| linux_glibc_2_31 | x86_64, aarch64 | GCC 10 | 2.31  | C++20                 | Ubuntu 20.04 |
+| linux_glibc_2_35 | x86_64          | GCC 12 | 2.35  | C++23 partial support | Ubuntu 22.04 |
+| linux_glibc_2_39 | x86_64          | GCC 14 | 2.39  | C++23 near complete   | Ubuntu 24.04 |
 
 ## Linking against `libstdc++` or `libc++` on Linux
 By default, `rules_ml_toolchain` links dynamically against `libstdc++` for Linux builds.

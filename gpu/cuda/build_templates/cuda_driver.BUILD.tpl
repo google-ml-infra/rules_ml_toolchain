@@ -1,3 +1,5 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_import", "cc_library")
+
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 
 licenses(["restricted"])  # NVIDIA proprietary license

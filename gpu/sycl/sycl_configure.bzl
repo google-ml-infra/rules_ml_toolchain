@@ -54,7 +54,7 @@ def error_gpu_disabled():
 """
 
 _DUMMY_CROSSTOOL_BUILD_FILE = """
-load("//crosstool:error_gpu_disabled.bzl", "error_gpu_disabled")
+load("//:error_gpu_disabled.bzl", "error_gpu_disabled")
 
 error_gpu_disabled()
 """

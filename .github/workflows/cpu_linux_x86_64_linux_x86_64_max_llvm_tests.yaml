@@ -56,31 +56,54 @@ jobs:
 
       - name: "Clang 21, Glibc 2.35 | Testing..."
         run: |
-          bazel test \
+          bazel test --color=yes \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 21, Glibc 2.35 | Testing..."
         run: |
-          bazel test \
+          bazel test --color=yes \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --config=bzlmod \
             //cc/tests/cpu:all
 
+      # TODO: Replace `build` to `test` and run //cc/tests/cpu:all when GitHub runners will be updated to Ubuntu 24
+      - name: "Bzlmod. Clang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel build --color=yes \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --config=bzlmod \
+              //cc/tests/cpu:absl_test  \
+              //cc/tests/cpu:builtins_test \
+              //cc/tests/cpu:echoclient_test
+
       - name: "Clang 21, Glibc 2.35, libc++ static linking | Testing..."
         run: |
-          bazel test \
+          bazel test --color=yes \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             //cc/tests/cpu:all
 
+      # TODO: Replace `build` to `test` and run //cc/tests/cpu:all when GitHub runners will be updated to Ubuntu 24
+      - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+              //cc/tests/cpu:absl_test  \
+              //cc/tests/cpu:builtins_test \
+              //cc/tests/cpu:echoclient_test
+
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel test \
+          bazel test --color=yes \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \

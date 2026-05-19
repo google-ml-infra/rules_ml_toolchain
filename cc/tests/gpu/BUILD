@@ -13,6 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
 load(
     "@local_config_cuda//cuda:build_defs.bzl",
     "cuda_cc_test",

@@ -57,7 +57,7 @@ jobs:
         # Clang 22 is minimum required version for CUDA13
       - name: "Clang 22, Glibc 2.31 | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
@@ -65,9 +65,29 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
+      - name: "Clang 22, Glibc 2.35 | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
       - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
@@ -77,9 +97,33 @@ jobs:
             --verbose_failures \
             //cc/tests/gpu:all
 
+      - name: "Clang 22, Glibc 2.35, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
+      - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --color=yes --config=build_cuda_with_clang \
+            --config=cuda13 \
+            --config=cuda_libraries_from_stubs \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --verbose_failures \
+            //cc/tests/gpu:all
+
       - name: "NVCC | Testing..."
         run: |
-          bazel build \
+          bazel build --color=yes \
             --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
@@ -89,7 +133,7 @@ jobs:
 
       - name: "NVCC Static CUDA | Testing..."
         run: |
-          bazel build \
+          bazel build --color=yes \
             --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
@@ -100,7 +144,7 @@ jobs:
 
       - name: "NVCC Static CUDNN CUDA | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
@@ -111,7 +155,7 @@ jobs:
 
       - name: "NVCC Static NVRTC CUDA | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
@@ -122,7 +166,7 @@ jobs:
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --config=build_cuda_with_clang \
+          bazel build --color=yes --config=build_cuda_with_clang \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -135,7 +179,7 @@ jobs:
 
       - name: "Bzlmod. NVCC | Testing..."
         run: |
-          bazel build --config=build_cuda_with_nvcc \
+          bazel build --color=yes --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \

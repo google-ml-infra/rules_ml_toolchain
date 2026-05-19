@@ -17,6 +17,8 @@
 # l0_include_dir: /usr/include/level_zero
 # l0_library_dir: /usr/lib/x86_64-linux-gnu
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "cc_toolchain_import",
@@ -42,7 +44,7 @@ cc_toolchain_import(
     name = "libs",
     additional_libs = glob([
         "**/*",
-    ]),
+    ], allow_empty = True),
     shared_library = "libze_loader.so",
     visibility = ["//visibility:public"],
 )
@@ -54,7 +56,7 @@ cc_library(
         "lib/liblevel_zero_utils.a",
         "lib/libze_null.so*",
         "lib/libze_tracing_layer.so*",
-    ]),
+    ], allow_empty = True),
     data = ([
         "lib/libze_loader.so.1",
     ]),

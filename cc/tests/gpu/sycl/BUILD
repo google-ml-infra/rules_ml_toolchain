@@ -13,6 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
 load(
     "@local_config_sycl//sycl:build_defs.bzl",
     "sycl_library",

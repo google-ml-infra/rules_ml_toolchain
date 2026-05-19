@@ -17,6 +17,8 @@
 # Tools: Linux x86_64, Sysroot: Linux aarch64
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")

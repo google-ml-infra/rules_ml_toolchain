@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
 # Macros for building CUDA code.
 def if_cuda(if_true, if_false = []):
     """Shorthand for select()'ing on whether we're building with CUDA.
@@ -200,7 +202,7 @@ def cuda_header_library(
     target without virtual includes. This works around the fact that bazel can't
     mix 'includes' and 'include_prefix' in the same target."""
 
-    native.cc_library(
+    cc_library(
         name = name + "_virtual",
         hdrs = hdrs,
         include_prefix = include_prefix,
@@ -209,7 +211,7 @@ def cuda_header_library(
         visibility = ["//visibility:private"],
     )
 
-    native.cc_library(
+    cc_library(
         name = name,
         textual_hdrs = hdrs,
         deps = deps + [":%s_virtual" % name],
@@ -218,7 +220,7 @@ def cuda_header_library(
 
 def cuda_library(copts = [], defines = [], tags = [], deps = [], linkopts = [], implementation_deps = [], **kwargs):
     """Wrapper over cc_library which adds default CUDA options."""
-    native.cc_library(
+    cc_library(
         copts = cuda_default_copts() + copts,
         tags = tags + ["gpu"],
         deps = deps + if_cuda_is_configured([
@@ -238,7 +240,7 @@ def cuda_library(copts = [], defines = [], tags = [], deps = [], linkopts = [], 
 
 def cuda_cc_test(copts = [], **kwargs):
     """Wrapper over cc_test which adds default CUDA options."""
-    native.cc_test(copts = copts + if_cuda(["-DGOOGLE_CUDA=1"]), **kwargs)
+    cc_test(copts = copts + if_cuda(["-DGOOGLE_CUDA=1"]), **kwargs)
 
 EnableCudaInfo = provider()
 
