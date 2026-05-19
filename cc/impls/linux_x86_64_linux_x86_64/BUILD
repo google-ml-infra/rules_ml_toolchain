@@ -198,6 +198,8 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:language",
     "//third_party/rules_cc_toolchain/features:use_lld",
     "//cc/features:sysroot_linux_x86_64",
+    "//cc/features:use_libstdcxx",
+    "//cc/features:static_libstdcxx",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
