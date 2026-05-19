@@ -65,12 +65,14 @@ cc_toolchain_import(
     name = "imports",
     visibility = ["//visibility:public"],
     deps = [
-        # Use sysroot's C and system headers
-        "@sysroot_linux_x86_64//:includes_c",
-        "@sysroot_linux_x86_64//:includes_system",
-        # Use sysroot's libstdc++ (NOT hermetic libc++)
-        # This matches what ROCm libraries were built with
-        "@sysroot_linux_x86_64//:syslibs",
+        # IMPORTANT: std_incs must come before compiler includes for correct stdatomic.h resolution
+        # The sysroot C++ stdatomic.h wrapper uses #include_next to find clang's built-in stdatomic.h
+        "@sysroot_linux_x86_64//:std_incs",
+        "@llvm_linux_x86_64//:compiler_incs",
+        "@sysroot_linux_x86_64//:sys_incs",
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@sysroot_linux_x86_64//:std_libs",
+        "@sysroot_linux_x86_64//:sys_libs",
     ],
 )
 
@@ -173,17 +175,12 @@ FEATURES_ESSENTIAL = [
 
 cc_toolchain_config(
     name = "config",
-    archiver = "wrappers/llvm-ar",
-    c_compiler = "wrappers/clang",
-    cc_compiler = "wrappers/clang",
+    archiver = "@llvm_linux_x86_64//:ar",
+    c_compiler = "@llvm_linux_x86_64//:clang",
+    cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
-    cxx_builtin_include_directories = [
-        # ROCm clang builtin includes (needed for __clang_hip_runtime_wrapper.h, etc.)
-        hipcc_config().rocm_root + "/llvm/lib/clang/" + hipcc_config().clang_version + "/include",
-        hipcc_config().rocm_root + "/include",
-    ],
-    linker = "wrappers/ld.lld",
-    strip_tool = "wrappers/llvm-strip",
+    linker = "@llvm_linux_x86_64//:ld",
+    strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
 )

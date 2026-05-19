@@ -72,12 +72,13 @@ alias(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@sysroot_linux_x86_64//:includes_c",
-        "@sysroot_linux_x86_64//:includes_system",
-        "@sysroot_linux_x86_64//:syslibs",
+        ":std_incs",
+        "@llvm_linux_x86_64//:compiler_incs",
+        "@sysroot_linux_x86_64//:sys_incs",
+        ":std_libs",
+        "@sysroot_linux_x86_64//:sys_libs",
         "@sysroot_linux_x86_64//:openmp",
         "@llvm_linux_x86_64//:libclang_rt",
-        "@llvm_linux_x86_64//:includes",
     ],
     visibility = ["//visibility:public"],
 )
