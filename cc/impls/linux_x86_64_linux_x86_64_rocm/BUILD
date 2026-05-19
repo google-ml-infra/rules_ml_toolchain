@@ -104,14 +104,16 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Hermetic LLVM headers
-        "@llvm_linux_x86_64//:compiler_incs",
-        "@llvm_linux_x86_64//:libclang_rt",
         # Always include hermetic sysroot headers - needed for GPU compilation
         # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
         # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
+        # IMPORTANT: std_incs must come before compiler_incs to ensure correct stdatomic.h resolution
+        # The sysroot C++ stdatomic.h wrapper uses #include_next to find clang's built-in stdatomic.h
         "@sysroot_linux_x86_64//:std_incs",
+        # Hermetic LLVM headers
+        "@llvm_linux_x86_64//:compiler_incs",
         "@sysroot_linux_x86_64//:sys_incs",
+        "@llvm_linux_x86_64//:libclang_rt",
     ] + select({
         # Local sysroot: don't include hermetic libs (use system libs via --sysroot=/)
         "//cc/sysroots:local_sysroot_enabled": [],
