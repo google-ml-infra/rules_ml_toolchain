@@ -59,6 +59,7 @@ cc_toolchain_import(
         "@sysroot_linux_aarch64//:sys_incs",
         "@sysroot_linux_aarch64//:sys_libs",
         "@sysroot_linux_aarch64//:std_libs",
+        "@llvm_linux_aarch64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
 )

@@ -21,17 +21,6 @@ load(
 _LLVM_VERSION = "LLVM_VERSION"
 _STATIC_LIBCXX = "STATIC_LIBCXX"
 
-def _get_platform_arch(ctx):
-    """Gets current platform architecture"""
-    if ctx.os.arch == "amd64":
-        return "x86_64"
-    else:
-        return ctx.os.arch
-
-def _is_compatible_arch(ctx):
-    """Checks if LLVM compatible with current platform"""
-    return ctx.attr.name.endswith(_get_platform_arch(ctx))
-
 def _get_llvm_version_flag(ctx):
     """Returns LLVM version put as environment variable"""
     return get_host_environ(ctx, _LLVM_VERSION)
@@ -62,11 +51,6 @@ def _create_version_file(ctx, major_version):
     )
 
 def _llvm_impl(ctx):
-    if not _is_compatible_arch(ctx):
-        _create_version_file(ctx, "")
-        ctx.file("BUILD", "")
-        return
-
     ver = _get_llvm_version(ctx)
     llvm_label = _get_llvm_label(ctx, ver)
     if not llvm_label:
