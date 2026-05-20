@@ -19,10 +19,11 @@
 
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+load("//cc/config:constants.bzl", "LIBCXX_FLAGS", "LIBSTDCXX_FLAGS")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
-load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
+load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_feature", "cc_toolchain_import_feature")
 
 package(
     default_visibility = [
@@ -89,7 +90,7 @@ alias(
 
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
-    enabled = True,
+    enabled = False,
     toolchain_import = ":startup_libs",
 )
 
@@ -110,6 +111,49 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:sys_libs",
     ],
     visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "use_static_libcxx",
+    flag_values = {
+        "//common:stdlib": "libc++",
+        "//common:static_libcxx": "True",
+    },
+)
+
+config_setting(
+    name = "use_static_libstdcxx",
+    flag_values = {
+        "//common:stdlib": "libstdc++",
+        "//common:static_libcxx": "True",
+    },
+)
+
+# Feature to force static linking of libstdc++
+# Use compiler's built-in flags for static linking
+cc_feature(
+    name = "static_link_libstdcxx",
+    enabled = select({
+        ":use_static_libstdcxx": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-static-libstdc++",
+        "-static-libgcc",
+    ],
+)
+
+# Feature to force static linking of libc++
+# For libc++, we need to use -Wl,-Bstatic since there's no -static-libc++ flag
+cc_feature(
+    name = "static_link_libcxx",
+    enabled = select({
+        ":use_static_libcxx": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-static-libc++",
+    ],
 )
 
 cc_toolchain_import_feature(
@@ -182,7 +226,6 @@ filegroup(
 # =============================================================================
 
 FEATURES_ESSENTIAL = [
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
