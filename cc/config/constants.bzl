@@ -13,19 +13,13 @@
 # limitations under the License.
 # ==============================================================================
 
-# Flags for statically linking libc++
+#
 LIBCXX_FLAGS = [
     "-lc++",
     "-lc++abi",
     "-lunwind",
 ]
 
-# Flags for statically linking libstdc++
-# When using -nodefaultlibs with hermetic builds, we need to explicitly
-# link the C++ standard library. This list ensures all necessary libraries
-# are statically linked.
-# Note: libgcc, libm, libc are already provided by cc_toolchain_import from sysroot
-# We only need to explicitly request static linking for libstdc++
 LIBSTDCXX_FLAGS = [
     "-lstdc++",
 ]

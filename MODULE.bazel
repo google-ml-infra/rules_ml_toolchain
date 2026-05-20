@@ -172,4 +172,10 @@ use_repo(
     "xz",
 )
 
+##############################################################
+# Local sysroot configuration
+
+local_sysroot = use_extension("//extensions:local_sysroot_configure.bzl", "local_sysroot_ext")
+use_repo(local_sysroot, "local_sysroot_config")
+
 register_toolchains("//cc/...")

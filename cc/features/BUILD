@@ -89,6 +89,31 @@ cc_toolchain_sysroot_feature(
     target = "x86_64-linux-gnu",
 )
 
+# Local sysroot feature - use system root instead of hermetic sysroot
+# Generic for all Linux architectures
+cc_feature(
+    name = "local_sysroot_linux",
+    enabled = True,
+    compiler_flags = ["--sysroot=/"],
+    linker_flags = ["--sysroot=/"],
+    env_sets = {
+        "HOST_SYSROOT": "/",
+    },
+)
+
+# When using local sysroot, we need to explicitly link default system libraries
+# since we don't use hermetic_libraries feature
+cc_feature(
+    name = "local_sysroot_default_libs",
+    enabled = True,
+    linker_flags = [
+        "-lstdc++",
+        "-lm",
+        "-lpthread",
+        "-ldl",
+    ],
+)
+
 cc_toolchain_sysroot_feature(
     name = "sysroot_linux_aarch64",
     enabled = True,
