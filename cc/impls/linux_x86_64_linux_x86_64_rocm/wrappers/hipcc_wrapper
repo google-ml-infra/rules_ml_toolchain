@@ -136,7 +136,8 @@ def GetHostCompilerOptions(argv, filter_hermetic_llvm=False, filter_sysroot=Fals
         for p in sum(args.isystem, []):
             # Skip hermetic LLVM headers for GPU compilation - they conflict with ROCm's
             # ROCm provides its own LLVM headers via --rocm-path
-            if filter_hermetic_llvm and "/llvm" in p and "/clang/" in p:
+            # Replace + with / for Bzlmod canonical repo name
+            if filter_hermetic_llvm and "/llvm" in p.replace("+", "/") and "/clang/" in p:
                 continue
             # Skip sysroot headers for GPU compilation - they have non-device-compatible operator new
             # ROCm provides device-compatible standard library headers via cuda_wrappers
@@ -279,7 +280,8 @@ def InvokeHipcc(argv, log=False):
     if args.isystem:
         for p in sum(args.isystem, []):
             # Skip hermetic LLVM headers - ROCm provides its own
-            if "/llvm" in p and "/clang/" in p:
+            # Replace + with / for Bzlmod canonical repo name
+            if "/llvm" in p.replace("+", "/") and "/clang/" in p:
                 continue
             gpu_compiler_options.extend(["-isystem", p])
     if args.sysroot:
@@ -364,7 +366,8 @@ def InvokeHipcc(argv, log=False):
     for inc in include_options:
         # Skip hermetic LLVM headers - they conflict with ROCm's headers
         # ROCm provides its own LLVM headers (including cuda_wrappers) via --rocm-path
-        if "/llvm" in inc and "/clang/" in inc:
+        # Replace + with / for Bzlmod canonical repo name
+        if "/llvm" in inc.replace("+", "/") and "/clang/" in inc:
             continue
         cmd.extend(["-I", inc])
 
