@@ -266,5 +266,6 @@ common:rocm_common --copt=-Wno-gnu-offsetof-extensions
 common:rocm --config=rocm_common
 common:rocm --dynamic_mode=off
 common:rocm --@rules_ml_toolchain//common:enable_hermetic_cc=True
+common:rocm --@rules_ml_toolchain//common:enable_hermetic_libraries=True
 
 try-import %workspace%/.bazelrc.local

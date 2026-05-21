@@ -108,6 +108,18 @@ config_setting(
     },
 )
 
+bool_flag(
+    name = "enable_hermetic_libraries",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_hermetic_libraries_enabled",
+    flag_values = {
+        ":enable_hermetic_libraries": "True",
+    },
+)
+
 string_flag(
     name = "stdlib",
     build_setting_default = "libstdc++",

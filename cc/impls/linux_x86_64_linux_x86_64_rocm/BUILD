@@ -90,7 +90,10 @@ alias(
 
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
-    enabled = False,
+    enabled = select({
+        "//common:is_hermetic_libraries_enabled": True,
+        "//conditions:default": False,
+    }),
     toolchain_import = ":startup_libs",
 )
 
@@ -114,7 +117,7 @@ cc_toolchain_import(
 )
 
 config_setting(
-    name = "use_static_libcxx",
+    name = "is_static_libcxx",
     flag_values = {
         "//common:stdlib": "libc++",
         "//common:static_libcxx": "True",
@@ -122,7 +125,7 @@ config_setting(
 )
 
 config_setting(
-    name = "use_static_libstdcxx",
+    name = "is_static_libstdcxx",
     flag_values = {
         "//common:stdlib": "libstdc++",
         "//common:static_libcxx": "True",
@@ -134,7 +137,7 @@ config_setting(
 cc_feature(
     name = "static_link_libstdcxx",
     enabled = select({
-        ":use_static_libstdcxx": True,
+        ":is_static_libstdcxx": True,
         "//conditions:default": False,
     }),
     linker_flags = [
@@ -143,23 +146,27 @@ cc_feature(
     ],
 )
 
-# Feature to force static linking of libc++
-# For libc++, we need to use -Wl,-Bstatic since there's no -static-libc++ flag
-cc_feature(
-    name = "static_link_libcxx",
-    enabled = select({
-        ":use_static_libcxx": True,
-        "//conditions:default": False,
-    }),
-    linker_flags = [
-        "-static-libc++",
-    ],
-)
-
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
     toolchain_import = ":imports",
+)
+
+# Conditional hermetic libraries feature
+# Disabled by default for XLA (to avoid -nodefaultlibs issues with ROCm)
+# Can be enabled via --@rules_ml_toolchain//common:enable_hermetic_libraries=True
+cc_feature(
+    name = "hermetic_libraries_conditional",
+    cc_flags = ["-nostdinc++"],
+    compiler_flags = ["-nostdinc"],
+    enabled = select({
+        "//common:is_hermetic_libraries_enabled": True,
+        "//conditions:default": False,
+    }),
+    linker_flags = [
+        "-nostdlib",
+        "-nodefaultlibs",
+    ],
 )
 
 # buildifier: leave-alone
@@ -226,6 +233,8 @@ filegroup(
 # =============================================================================
 
 FEATURES_ESSENTIAL = [
+    # Conditional hermetic libraries (disabled by default for XLA)
+    ":hermetic_libraries_conditional",
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
