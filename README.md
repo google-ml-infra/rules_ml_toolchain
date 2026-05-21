@@ -135,16 +135,15 @@ When the executor and the target are the same, a non-hermetic GPU build can stil
 
 For details, look at the `.bazelrc` file, specifically the `cuda_clang_local` configuration.
 
-<!--
 ### Cross-platform builds
 Project supports cross-platform builds only on Linux x86_64 executor 
 and allows build for such targets:
 * Linux aarch64
-* macOS aarch64
+<!--* macOS aarch64-->
 
 #### Build for Linux aarch64
 `bazel build //cc/tests/cpu/... --platforms=//common:linux_aarch64`
-
+<!--
 #### Build for macOS aarch64
 [Prepare SDK](cc/sysroots/darwin_aarch64/README.md) before run the following command.
 
