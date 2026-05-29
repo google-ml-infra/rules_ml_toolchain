@@ -232,6 +232,11 @@ def InvokeHipcc(argv, log=False):
         # Local sysroot is only for host (CPU) compilation, not GPU
         if args.sysroot[0] != "/":
             gpu_compiler_options.extend(["--sysroot", args.sysroot[0]])
+            # Pin GCC to the hermetic sysroot: ROCm's clang ignores --sysroot when
+            # detecting a GCC install and would otherwise grab the host gcc-toolset.
+            gpu_compiler_options.append(
+                "--gcc-toolchain=" + os.path.join(args.sysroot[0], "usr")
+            )
     if args.g:
         gpu_compiler_options.append("-g" + "".join(sum(args.g, [])))
     if args.no_canonical_prefixes:
