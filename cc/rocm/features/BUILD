@@ -49,3 +49,13 @@ cc_feature(
     ],
     enabled = True,
 )
+
+# Use compiler-rt runtime library instead of libgcc
+# This is required for ROCm/HIP compilation to properly link
+# with the LLVM compiler-rt builtins
+cc_feature(
+    name = "rocm_compiler_rt",
+    compiler_flags = ["-rtlib=compiler-rt"],
+    enabled = True,
+    linker_flags = ["-rtlib=compiler-rt"],
+)
