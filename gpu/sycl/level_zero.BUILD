@@ -44,9 +44,11 @@ cc_library(
     name = "headers",
     hdrs = glob([
         "level_zero/**/*",
+        "include/**/*",
     ], allow_empty = True),
     includes = [
         ".",
+        "include",
     ],
     visibility = ["//visibility:public"],
 )
