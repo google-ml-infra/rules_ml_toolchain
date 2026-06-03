@@ -56,15 +56,62 @@ def _get_dist_key(ctx):
 
     return "{}_{}".format(os_id, oneapi_version)
 
-def _build_file(ctx, build_file):
-    """Utility function for writing a BUILD file.
+def _get_dist_version(dist_key):
+    return dist_key[dist_key.rfind("_") + 1:]
+
+_ONEAPI_BUILD_SUBSTITUTIONS = {
+    "2025.1": {
+        "%{advisor_version}": "2021.15",
+        "%{ccl_version}": "2021.15",
+        "%{clang_version}": "20",
+        "%{extra_lib_src_glob}": "__unused_oneapi_lib__",
+        "%{ipp_version}": "2022.1",
+        "%{libsycl_version}": "8",
+        "%{mpi_version}": "2021.15",
+        "%{oneapi_lib_paths}": ":compiler/2025.1/lib,:compiler/2025.1/compiler/lib/intel64_lin",
+        "%{oneapi_version}": "2025.1",
+        "%{tbb_version}": "2022.1",
+        "%{tcm_version}": "1.3",
+        "%{umf_version}": "0.10",
+        "%{vtune_version}": "2025.3",
+    },
+    "2026.0": {
+        "%{advisor_version}": "2026.0",
+        "%{ccl_version}": "2022.0",
+        "%{clang_version}": "22",
+        "%{extra_lib_src_glob}": "2026.0/lib/libur_adapter_level_zero_v2.so*",
+        "%{ipp_version}": "2026.0",
+        "%{libsycl_version}": "9",
+        "%{mpi_version}": "2021.18",
+        "%{oneapi_lib_paths}": ":2026.0/lib,:compiler/2026.0/lib,:compiler/2026.0/opt/compiler/lib",
+        "%{oneapi_version}": "2026.0",
+        "%{tbb_version}": "2023.0",
+        "%{tcm_version}": "1.5",
+        "%{umf_version}": "1.1",
+        "%{vtune_version}": "2026.0",
+    },
+}
+
+def _get_build_substitutions(ctx, dist_key):
+    if ctx.name != "oneapi":
+        return {}
+
+    version = _get_dist_version(dist_key)
+    if version not in _ONEAPI_BUILD_SUBSTITUTIONS:
+        fail("No oneAPI BUILD substitutions found for version {}".format(version))
+
+    return _ONEAPI_BUILD_SUBSTITUTIONS[version]
+
+def _build_file(ctx, build_template, substitutions):
+    """Utility function for writing a BUILD file from a template.
 
     Args:
       ctx: The repository context of the repository rule calling this utility function.
-      build_file: The file to use as the BUILD file for this repository. This attribute is an absolute label.
+      build_template: The template file to use as the BUILD file for this repository. This attribute is an absolute label.
+      substitutions: Template substitutions for the BUILD file.
     """
 
-    ctx.file("BUILD.bazel", ctx.read(build_file))
+    ctx.template("BUILD.bazel", build_template, substitutions)
 
 def _handle_level_zero(ctx):
     # Symlink for includes backward compatibility (example: #include <level_zero/ze_api.h>)
@@ -88,8 +135,9 @@ def _use_downloaded_archive(ctx):
     if ctx.attr.is_level_zero:
         _handle_level_zero(ctx)
 
-    build_template = ctx.attr.build_templates[dist_key]
-    _build_file(ctx, Label(build_template))
+    build_template = Label(ctx.attr.build_templates[dist_key])
+    substitutions = _get_build_substitutions(ctx, dist_key)
+    _build_file(ctx, build_template, substitutions)
 
 def _dist_repo_impl(ctx):
     local_dist_path = None

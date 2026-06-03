@@ -1,0 +1,7 @@
+exports_files([
+    "BUILD",
+    "build_defs.bzl.tpl",
+    "level_zero.BUILD",
+    "oneapi.BUILD.tpl",
+    "zero_loader.BUILD",
+])
