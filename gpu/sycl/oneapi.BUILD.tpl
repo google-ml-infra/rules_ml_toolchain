@@ -317,15 +317,35 @@ cc_toolchain_import(
 cc_library(
     name = "headers",
     hdrs = glob([
+        "ccl/{ccl_version}/include/**".format(ccl_version = CCL_VERSION),
         "mkl/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include/**".format(oneapi_version = ONEAPI_VERSION),
     ], allow_empty = True),
     includes = [
+        "ccl/{ccl_version}/include".format(ccl_version = CCL_VERSION),
         "mkl/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include".format(oneapi_version = ONEAPI_VERSION),
     ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "ccl",
+    srcs = glob([
+        "ccl/{ccl_version}/lib/libccl.so".format(ccl_version = CCL_VERSION),
+    ], allow_empty = True),
+    data = glob([
+        "ccl/{ccl_version}/lib/libccl.so*".format(ccl_version = CCL_VERSION),
+    ], allow_empty = True),
+    hdrs = glob([
+        "ccl/{ccl_version}/include/**".format(ccl_version = CCL_VERSION),
+    ], allow_empty = True),
+    includes = [
+        "ccl/{ccl_version}/include".format(ccl_version = CCL_VERSION),
+    ],
+    linkstatic = 1,
     visibility = ["//visibility:public"],
 )
 
