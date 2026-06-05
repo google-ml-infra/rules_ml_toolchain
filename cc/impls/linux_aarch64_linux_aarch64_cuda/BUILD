@@ -68,6 +68,7 @@ filegroup(
     srcs = if_cuda([
         "@cuda_nvcc//:bin",
         "@cuda_nvcc//:nvvm",
+        "@cuda_nvvm//:cicc",
     ]),
 )
 
