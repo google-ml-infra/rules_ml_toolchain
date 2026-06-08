@@ -152,6 +152,11 @@ cc_feature(
     enabled = True,
 )
 
+cc_feature(
+    name = "no_solib_rpaths",
+    enabled = False,
+)
+
 #cc_feature(
 #    name = "nobuiltin",
 #    compiler_flags = ["-fno-builtin"],
