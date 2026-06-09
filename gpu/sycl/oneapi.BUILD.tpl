@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-# oneAPI variables and system paths example
+# oneAPI template variables and system paths example
 
 # config = find_sycl_config(repository_ctx)
 # sycl_basekit_path = config["sycl_basekit_path"]
@@ -21,13 +21,13 @@
 # sycl_version_number = config["sycl_version_number"]
 # sycl_basekit_version_number = config["sycl_basekit_version_number"]
 
-# mkl_include_dir: /opt/intel/oneapi/mkl/2025.2/include
-# mkl_library_dir: /opt/intel/oneapi/mkl/2025.2/lib
+# mkl_include_dir: /opt/intel/oneapi/mkl/{oneapi_version}/include
+# mkl_library_dir: /opt/intel/oneapi/mkl/{oneapi_version}/lib
 
 # sycl_basekit_path: /opt/intel/oneapi
-# sycl_basekit_version_number: 2025.2
+# sycl_basekit_version_number: {oneapi_version}
 
-# sycl_toolkit_path: /opt/intel/oneapi/compiler/2025.2
+# sycl_toolkit_path: /opt/intel/oneapi/compiler/{oneapi_version}
 # sycl_version_number: 80000
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
@@ -48,14 +48,23 @@ package(
     ],
 )
 
-ONEAPI_VERSION = "2025.1"
-CLANG_VERSION = "20"
+ONEAPI_VERSION = "%{oneapi_version}"
+CLANG_VERSION = "%{clang_version}"
+ADVISOR_VERSION = "%{advisor_version}"
+IPP_VERSION = "%{ipp_version}"
+MPI_VERSION = "%{mpi_version}"
+TBB_VERSION = "%{tbb_version}"
+TCM_VERSION = "%{tcm_version}"
+UMF_VERSION = "%{umf_version}"
+VTUNE_VERSION = "%{vtune_version}"
+ONEAPI_LIBRARY_PATHS = "%{oneapi_lib_paths}".split(",")
+LIBSYCL_VERSION = "%{libsycl_version}"
+EXTRA_LIB_SRC_GLOB = "%{extra_lib_src_glob}"
 
 filegroup(
     name = "all",
     srcs = glob([
-            "advisor/2021.15/**",
-            "ccl/2021.15/**",
+            "advisor/{advisor_version}/**".format(advisor_version = ADVISOR_VERSION),
             "common/{oneapi_version}/**".format(oneapi_version = ONEAPI_VERSION),
             "compiler/{oneapi_version}/**".format(oneapi_version = ONEAPI_VERSION),
             "dal/2025.5/env/**",
@@ -69,14 +78,14 @@ filegroup(
             "dpcpp-ct/**",
             "dpl/**",
             "installer/**",
-            "ipp/2022.1/env/**",
-            "ipp/2022.1/etc/**",
-            "ipp/2022.1/include/**",
-            "ipp/2022.1/lib/lib*",
-            "ipp/2022.1/lib/nonpic/**",
-            "ipp/2022.1/lib/pkgconfig/**",
-            "ipp/2022.1/opt/**",
-            "ipp/2022.1/share/**",
+            "ipp/{ipp_version}/env/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/etc/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/include/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/lib/lib*".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/lib/nonpic/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/lib/pkgconfig/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/opt/**".format(ipp_version = IPP_VERSION),
+            "ipp/{ipp_version}/share/**".format(ipp_version = IPP_VERSION),
             "ippcp/{oneapi_version}/env/**".format(oneapi_version = ONEAPI_VERSION),
             "ippcp/{oneapi_version}/etc/**".format(oneapi_version = ONEAPI_VERSION),
             "ippcp/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
@@ -92,38 +101,35 @@ filegroup(
             "mkl/{oneapi_version}/lib/lib*".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/lib/pkgconfig/**".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/share/**".format(oneapi_version = ONEAPI_VERSION),
-            "mpi/2021.15/bin/**",
-            "mpi/2021.15/env/**",
-            "mpi/2021.15/etc/**",
-            "mpi/2021.15/include/**",
-            "mpi/2021.15/lib/lib*",
-            "mpi/2021.15/lib/mpi/**",
-            "mpi/2021.15/lib/pkgconfig/**",
-            "mpi/2021.15/opt/**",
-            "mpi/2021.15/share/**",
+            "mpi/{mpi_version}/bin/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/env/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/etc/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/include/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/lib/lib*".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/lib/mpi/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/lib/pkgconfig/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/opt/**".format(mpi_version = MPI_VERSION),
+            "mpi/{mpi_version}/share/**".format(mpi_version = MPI_VERSION),
             "pti/0.12/**",
-            "tbb/2022.1/env/**",
-            "tbb/2022.1/etc/**",
-            "tbb/2022.1/include/**",
-            "tbb/2022.1/lib/lib*",
-            "tbb/2022.1/lib/pkgconfig/**",
-            "tbb/2022.1/share/**",
-            "tcm/1.3/**",
-            "umf/0.10/**",
-            "vtune/2025.3/**",
+            "tbb/{tbb_version}/env/**".format(tbb_version = TBB_VERSION),
+            "tbb/{tbb_version}/etc/**".format(tbb_version = TBB_VERSION),
+            "tbb/{tbb_version}/include/**".format(tbb_version = TBB_VERSION),
+            "tbb/{tbb_version}/lib/lib*".format(tbb_version = TBB_VERSION),
+            "tbb/{tbb_version}/lib/pkgconfig/**".format(tbb_version = TBB_VERSION),
+            "tbb/{tbb_version}/share/**".format(tbb_version = TBB_VERSION),
+            "tcm/{tcm_version}/**".format(tcm_version = TCM_VERSION),
+            "umf/{umf_version}/**".format(umf_version = UMF_VERSION),
+            "vtune/{vtune_version}/**".format(vtune_version = VTUNE_VERSION),
         ], allow_empty = True),
 )
 
 oneapi_feature(
     name = "binaries",
     enabled = True,
-    lib_paths = [
-        ":compiler/{oneapi_version}/lib".format(oneapi_version = ONEAPI_VERSION),
-        ":compiler/{oneapi_version}/compiler/lib/intel64_lin".format(oneapi_version = ONEAPI_VERSION),
-    ],
+    lib_paths = ONEAPI_LIBRARY_PATHS,
     icpx_path = ":compiler/{oneapi_version}/bin/icpx".format(oneapi_version = ONEAPI_VERSION),
     clang_path = ":compiler/{oneapi_version}/bin/compiler/clang".format(oneapi_version = ONEAPI_VERSION),
-    version = "2025.1",
+    version = ONEAPI_VERSION,
     verbose = True
 )
 
@@ -323,31 +329,33 @@ cc_library(
 
 cc_library(
     name = "libs",
-    srcs = glob([
-        "compiler/{oneapi_version}/lib/libsycl.so.8".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libirc.so".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libur_loader.so.0".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libimf.so".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libintlc.so.5".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libsvml.so".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libirng.so".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libOpenCL.so*".format(oneapi_version = ONEAPI_VERSION),
-        "compiler/{oneapi_version}/lib/libmpi.so*".format(oneapi_version = ONEAPI_VERSION),
-        "{oneapi_version}/lib/libumf.so*".format(oneapi_version = ONEAPI_VERSION),
-        "{oneapi_version}/lib/libhwloc.so.15".format(oneapi_version = ONEAPI_VERSION),
-        "{oneapi_version}/lib/libur_loader.so*".format(oneapi_version = ONEAPI_VERSION),
-        "{oneapi_version}/lib/libur_adapter_level_zero.so*".format(oneapi_version = ONEAPI_VERSION),
-        "{oneapi_version}/lib/libur_adapter_opencl.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_intel_ilp64.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sequential.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_core.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sycl_blas.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sycl_dft.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sycl_lapack.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sycl_rng.so*".format(oneapi_version = ONEAPI_VERSION),
-        "mkl/{oneapi_version}/lib/libmkl_sycl_sparse.so*".format(oneapi_version = ONEAPI_VERSION),
-
-   ],
+    srcs = glob(
+        [
+            "compiler/{oneapi_version}/lib/libsycl.so.{libsycl_version}"
+                .format(oneapi_version = ONEAPI_VERSION, libsycl_version = LIBSYCL_VERSION),
+            "compiler/{oneapi_version}/lib/libirc.so".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libur_loader.so.0".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libimf.so".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libintlc.so.5".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libsvml.so".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libirng.so".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libOpenCL.so*".format(oneapi_version = ONEAPI_VERSION),
+            "compiler/{oneapi_version}/lib/libmpi.so*".format(oneapi_version = ONEAPI_VERSION),
+            "{oneapi_version}/lib/libumf.so*".format(oneapi_version = ONEAPI_VERSION),
+            "{oneapi_version}/lib/libhwloc.so.15".format(oneapi_version = ONEAPI_VERSION),
+            "{oneapi_version}/lib/libur_loader.so*".format(oneapi_version = ONEAPI_VERSION),
+            "{oneapi_version}/lib/libur_adapter_level_zero.so*".format(oneapi_version = ONEAPI_VERSION),
+            EXTRA_LIB_SRC_GLOB,
+            "{oneapi_version}/lib/libur_adapter_opencl.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_intel_ilp64.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sequential.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_core.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sycl_blas.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sycl_dft.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sycl_lapack.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sycl_rng.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_sycl_sparse.so*".format(oneapi_version = ONEAPI_VERSION),
+        ],
         allow_empty = True,
     ),
     linkopts = [
