@@ -51,7 +51,6 @@ package(
 ONEAPI_VERSION = "%{oneapi_version}"
 CLANG_VERSION = "%{clang_version}"
 ADVISOR_VERSION = "%{advisor_version}"
-CCL_VERSION = "%{ccl_version}"
 IPP_VERSION = "%{ipp_version}"
 MPI_VERSION = "%{mpi_version}"
 TBB_VERSION = "%{tbb_version}"
@@ -66,7 +65,6 @@ filegroup(
     name = "all",
     srcs = glob([
             "advisor/{advisor_version}/**".format(advisor_version = ADVISOR_VERSION),
-            "ccl/{ccl_version}/**".format(ccl_version = CCL_VERSION),
             "common/{oneapi_version}/**".format(oneapi_version = ONEAPI_VERSION),
             "compiler/{oneapi_version}/**".format(oneapi_version = ONEAPI_VERSION),
             "dal/2025.5/env/**",
@@ -317,35 +315,15 @@ cc_toolchain_import(
 cc_library(
     name = "headers",
     hdrs = glob([
-        "ccl/{ccl_version}/include/**".format(ccl_version = CCL_VERSION),
         "mkl/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/include/**".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include/**".format(oneapi_version = ONEAPI_VERSION),
     ], allow_empty = True),
     includes = [
-        "ccl/{ccl_version}/include".format(ccl_version = CCL_VERSION),
         "mkl/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/include".format(oneapi_version = ONEAPI_VERSION),
         "compiler/{oneapi_version}/opt/compiler/include".format(oneapi_version = ONEAPI_VERSION),
     ],
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "ccl",
-    srcs = glob([
-        "ccl/{ccl_version}/lib/libccl.so".format(ccl_version = CCL_VERSION),
-    ], allow_empty = True),
-    data = glob([
-        "ccl/{ccl_version}/lib/libccl.so*".format(ccl_version = CCL_VERSION),
-    ], allow_empty = True),
-    hdrs = glob([
-        "ccl/{ccl_version}/include/**".format(ccl_version = CCL_VERSION),
-    ], allow_empty = True),
-    includes = [
-        "ccl/{ccl_version}/include".format(ccl_version = CCL_VERSION),
-    ],
-    linkstatic = 1,
     visibility = ["//visibility:public"],
 )
 

@@ -50,7 +50,7 @@ def _get_dist_key(ctx):
     oneapi_version = _get_oneapi_version(ctx)
     os_id = _get_os(ctx)
     if not oneapi_version:
-        oneapi_version = "2025.1"
+        oneapi_version = "2026.0"
     if not os_id:
         os_id = "ubuntu_24.10"
 
@@ -62,7 +62,6 @@ def _get_dist_version(dist_key):
 _ONEAPI_BUILD_SUBSTITUTIONS = {
     "2025.1": {
         "%{advisor_version}": "2021.15",
-        "%{ccl_version}": "2021.15",
         "%{clang_version}": "20",
         "%{extra_lib_src_glob}": "__unused_oneapi_lib__",
         "%{ipp_version}": "2022.1",
@@ -77,7 +76,6 @@ _ONEAPI_BUILD_SUBSTITUTIONS = {
     },
     "2026.0": {
         "%{advisor_version}": "2026.0",
-        "%{ccl_version}": "2022.0",
         "%{clang_version}": "22",
         "%{extra_lib_src_glob}": "2026.0/lib/libur_adapter_level_zero_v2.so*",
         "%{ipp_version}": "2026.0",
