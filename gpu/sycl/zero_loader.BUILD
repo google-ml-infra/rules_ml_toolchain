@@ -44,7 +44,9 @@ filegroup(
 cc_toolchain_import(
     name = "libs",
     additional_libs = glob([
-        "**/*",
+        "**/ze_loader.so*",
+        "**/libze_tracing_layer.so*",
+        "**/libze_validation_layer.so*",
     ], allow_empty = True),
     shared_library = "libze_loader.so",
     visibility = ["//visibility:public"],
