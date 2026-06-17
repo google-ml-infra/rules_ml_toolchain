@@ -19,6 +19,10 @@ load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
 )
+load(
+    "//cc/rocm/features:rocm_runtime_library_search_directories.bzl",
+    "rocm_runtime_library_search_directories",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -58,4 +62,21 @@ cc_feature(
     compiler_flags = ["-rtlib=compiler-rt"],
     enabled = True,
     linker_flags = ["-rtlib=compiler-rt"],
+)
+
+# Strip solib rpaths for ROCm wheel builds
+# This feature is always enabled for ROCm builds to ensure wheel portability
+# It prevents Bazel from adding _solib_* and .runfiles paths to the RUNPATH
+# IMPORTANT: This must be named "no_solib_rpaths" to match the not_features
+# condition in toolchain_config.bzl
+cc_feature(
+    name = "no_solib_rpaths",
+    enabled = True,
+)
+
+# ROCm-specific runtime_library_search_directories feature
+# This overrides the default action_config-embedded flag_sets to ensure
+# proper with_features support for no_solib_rpaths
+rocm_runtime_library_search_directories(
+    name = "rocm_runtime_library_search_directories",
 )

@@ -154,6 +154,9 @@ cc_feature(
 
 cc_feature(
     name = "no_solib_rpaths",
+    # Note: This feature must be explicitly requested by targets that want to strip solib rpaths.
+    # It's disabled by default to preserve normal Bazel behavior for most builds.
+    # Wheel builds should explicitly include this in their features list.
     enabled = False,
 )
 
