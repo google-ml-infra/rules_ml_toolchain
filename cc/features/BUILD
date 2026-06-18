@@ -19,6 +19,10 @@ load(
     "cc_toolchain_import_feature",
     "cc_toolchain_sysroot_feature",
 )
+load(
+    "//cc/features:runtime_library_search_directories.bzl",
+    "runtime_library_search_directories",
+)
 
 package(
     default_visibility = [
@@ -232,5 +236,12 @@ cc_feature(
         "-stdlib=libc++",
     ],
     enabled = True,
+)
+
+# Runtime library search directories feature
+# This overrides the default action_config-embedded flag_sets to ensure
+# proper with_features support for no_solib_rpaths
+runtime_library_search_directories(
+    name = "runtime_library_search_directories",
 )
 

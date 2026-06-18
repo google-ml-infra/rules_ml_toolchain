@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""ROCm-specific runtime_library_search_directories feature.
+"""Runtime library search directories feature.
 
 This feature overrides the default runtime_library_search_directories behavior
 to ensure proper with_features support for no_solib_rpaths.
@@ -38,11 +38,11 @@ load(
     "with_feature_set",
 )
 
-def rocm_runtime_library_search_directories_feature():
-    """Returns the runtime_library_search_directories feature for ROCm toolchain.
+def runtime_library_search_directories_feature():
+    """Returns the runtime_library_search_directories feature.
 
-    This is a ROCm-specific override that ensures with_features conditions
-    (specifically not_features = ["no_solib_rpaths"]) are properly evaluated.
+    This ensures with_features conditions (specifically not_features = ["no_solib_rpaths"])
+    are properly evaluated.
 
     Returns:
         A feature() object that can be added to the toolchain's features list.
@@ -117,3 +117,11 @@ def rocm_runtime_library_search_directories_feature():
             ),
         ],
     )
+
+def _runtime_library_search_directories_impl(ctx):
+    return [runtime_library_search_directories_feature()]
+
+runtime_library_search_directories = rule(
+    implementation = _runtime_library_search_directories_impl,
+    provides = [],
+)
