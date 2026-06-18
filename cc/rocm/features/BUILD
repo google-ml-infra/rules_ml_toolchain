@@ -60,7 +60,4 @@ cc_feature(
     linker_flags = ["-rtlib=compiler-rt"],
 )
 
-cc_feature(
-    name = "no_solib_rpaths",
-    enabled = False,
-)
+

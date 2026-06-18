@@ -247,7 +247,7 @@ FEATURES_ESSENTIAL = [
     "//cc/rocm/features:rocm_hermetic",
     "//cc/rocm/features:rocm_warnings",
     "//cc/rocm/features:rocm_compiler_rt",
-    "//cc/rocm/features:no_solib_rpaths",
+    "//cc/features:no_solib_rpaths",
     "//cc/features:runtime_library_search_directories",
 
     # Toolchain configuration
