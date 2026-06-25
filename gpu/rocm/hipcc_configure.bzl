@@ -242,14 +242,21 @@ def _setup_rocm_distro_dir(repository_ctx):
     # Check if rocm_dist attribute is provided (from external source like local_config_rocm)
     rocm_dist_label = repository_ctx.attr.rocm_dist
     if rocm_dist_label:
-        # Extract the source repository name and create symlink
-        # rocm_dist_label is like "@rocm_redist_dist//:rocm_dist"
+        # Extract the source repository name
+        # rocm_dist_label is like "@rocm_redist_dist//:rocm_root" or "@local_config_rocm//rocm:rocm_root"
         rocm_source_repo = str(rocm_dist_label).split("//")[0].lstrip("@")
 
         # Get the path to rocm_dist directory in the source repository
-        # Construct path: external/{repo_name}/rocm_dist
-        rocm_repo_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
-        rocm_dist_path = rocm_repo_path.get_child("rocm_dist")
+        # For a label like "@repo//package:target", we resolve the package path
+        # Use the label's package to find where the BUILD file is
+        label_package = rocm_dist_label.package
+        if label_package:
+            # Label has a package like "rocm" -> resolve "@repo//package:BUILD"
+            package_path = repository_ctx.path(Label("@{}//{}:BUILD".format(rocm_source_repo, label_package))).dirname
+        else:
+            # Label is at root like "//:target" -> resolve "@repo//:BUILD"
+            package_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
+        rocm_dist_path = package_path.get_child("rocm_dist")
 
         auto_configure_warning("Using ROCm from external source: {}".format(rocm_source_repo))
         repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
@@ -318,16 +325,34 @@ def _setup_rocm_repository(repository_ctx):
     # If we have a source repo, reference it directly instead of using globs on symlinks
     # Globs don't work on symlinks created by repository rules
     if rocm_source_repo:
+        # Extract the package path from the rocm_dist label to use in aliases
+        rocm_dist_label = repository_ctx.attr.rocm_dist
+        label_package = rocm_dist_label.package if rocm_dist_label else ""
+        if label_package:
+            # Label has a package like "rocm" -> targets are at "@repo//package:target"
+            # This is the case for XLA's local_config_rocm which has rocm/ subdirectory
+            rocm_root_target = "@{}//{}:rocm_root".format(rocm_source_repo, label_package)
+            # Check if toolchain_data exists separately, otherwise use rocm_root
+            # For XLA's local_config_rocm, toolchain_data exists
+            # We always reference it; if it doesn't exist at build time, it will fail then
+            toolchain_target = "@{}//{}:toolchain_data".format(rocm_source_repo, label_package)
+        else:
+            # Label is at root like "//:target" -> targets are at "@repo//:target"
+            # This is the case for rocm_redist_dist which has BUILD at root
+            # For hermetic repos, rocm_root is the only target (contains toolchain files too)
+            rocm_root_target = "@{}//:rocm_root".format(rocm_source_repo)
+            toolchain_target = "@{}//:rocm_root".format(rocm_source_repo)  # Use rocm_root for both
+
         toolchain_data_def = """alias(
     name = "toolchain_data",
-    actual = "@{}//:rocm_root",
+    actual = "{}",
     visibility = ["//visibility:public"],
-)""".format(rocm_source_repo)
+)""".format(toolchain_target)
         rocm_root_def = """alias(
     name = "rocm_root",
-    actual = "@{}//:rocm_root",
+    actual = "{}",
     visibility = ["//visibility:public"],
-)""".format(rocm_source_repo)
+)""".format(rocm_root_target)
     else:
         # Use the rocm_toolkit_path directly (it's already been determined above)
         toolchain_data_def = """filegroup(
