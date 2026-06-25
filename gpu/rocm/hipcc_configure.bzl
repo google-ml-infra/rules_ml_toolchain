@@ -36,22 +36,18 @@ load(
 
 def _enable_rocm(repository_ctx):
     """Returns whether to build with ROCm support."""
+    # Check if rocm_dist attribute is provided (hermetic ROCm from rocm_hermetic_download)
+    if repository_ctx.attr.rocm_dist:
+        return True
+    # Also check TF_NEED_ROCM for compatibility
     enable_rocm = repository_ctx.os.environ.get("TF_NEED_ROCM")
     if enable_rocm == "1":
-        return True
-    # Also enable if ROCM_PATH is set and non-empty (non-hermetic ROCm)
-    rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
-    if rocm_path and rocm_path.strip():
-        return True
-    # Also enable if rocm_dist attribute is provided (hermetic ROCm from external repo)
-    if repository_ctx.attr.rocm_dist:
         return True
     return False
 
 _TF_ROCM_AMDGPU_TARGETS = "TF_ROCM_AMDGPU_TARGETS"
 _TF_ROCM_CONFIG_REPO = "TF_ROCM_CONFIG_REPO"
-_TF_ROCM_MULTIPLE_PATHS = "TF_ROCM_MULTIPLE_PATHS"
-_LLVM_PATH = "LLVM_PATH"
+# Removed: _TF_ROCM_MULTIPLE_PATHS and _LLVM_PATH - only hermetic builds supported
 _DISTRIBUTION_PATH = "rocm/rocm_dist"
 
 def auto_configure_fail(msg):
@@ -167,114 +163,45 @@ def _remove_root_dir(path, root_dir):
         return path[len(root_dir) + 1:]
     return path
 
-def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
-    """Sets up ROCm from multiple component paths by symlinking into rocm_dist.
-
-    Args:
-        repository_ctx: The repository context.
-        multiple_paths: Colon-separated list of ROCm component paths.
-        bash_bin: Path to bash interpreter.
-
-    Returns:
-        ROCm config struct.
-    """
-    auto_configure_warning("Using ROCm from multiple paths: {}".format(multiple_paths))
-    paths_list = multiple_paths.split(":")
-
-    # Collect lib paths for rpath construction
-    rocm_lib_paths = []
-    for rocm_custom_path in paths_list:
-        lib_path = rocm_custom_path + "/lib/"
-        if files_exist(repository_ctx, [lib_path], bash_bin)[0] and not lib_path in rocm_lib_paths:
-            rocm_lib_paths.append(lib_path)
-
-    # Symlink files from each ROCm component path
-    for rocm_custom_path in paths_list:
-        cmd = "find " + rocm_custom_path + "/* \\( -type f -o -type l \\)"
-        result = execute(repository_ctx, [bash_bin, "-c", cmd])
-        for file_path in result.stdout.strip().split("\n"):
-            if not file_path:
-                continue
-            relative_path = file_path[len(rocm_custom_path):]
-            symlink_path = _DISTRIBUTION_PATH + relative_path
-            if files_exist(repository_ctx, [symlink_path], bash_bin)[0]:
-                # File already present from a previous path, skip
-                continue
-            else:
-                repository_ctx.symlink(file_path, symlink_path)
-
-    # Handle LLVM_PATH separately if provided
-    llvm_path = repository_ctx.os.environ.get(_LLVM_PATH)
-    if llvm_path:
-        repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/llvm")
-        repository_ctx.symlink(llvm_path, _DISTRIBUTION_PATH + "/lib/llvm")
-        # Only create amdgcn symlink if it exists
-        amdgcn_path = llvm_path + "/amdgcn"
-        if files_exist(repository_ctx, [amdgcn_path], bash_bin)[0]:
-            repository_ctx.symlink(amdgcn_path, _DISTRIBUTION_PATH + "/amdgcn")
-
-    return _get_rocm_config(
-        repository_ctx,
-        bash_bin,
-        _DISTRIBUTION_PATH,
-        _DISTRIBUTION_PATH,
-        rocm_lib_paths = rocm_lib_paths,
-    )
+# Removed: _setup_rocm_from_multiple_paths - only hermetic builds supported
 
 def _setup_rocm_distro_dir(repository_ctx):
-    """Sets up the rocm hermetic installation directory to be used in hermetic build"""
+    """Sets up the rocm hermetic installation directory from rocm_dist label"""
     bash_bin = get_bash_bin(repository_ctx)
 
-    # Check for multiple ROCm paths (highest priority)
-    multiple_paths = repository_ctx.os.environ.get(_TF_ROCM_MULTIPLE_PATHS)
-    if multiple_paths:
-        return _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin)
-
-    # Check for non-hermetic ROCm installation via ROCM_PATH
-    rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
-    if rocm_path and rocm_path.strip():
-        # Use system ROCm installation by symlinking it into the repository
-        auto_configure_warning("Using non-hermetic ROCm from ROCM_PATH: {}".format(rocm_path))
-        repository_ctx.symlink(rocm_path, _DISTRIBUTION_PATH)
-        # Use the symlinked path (_DISTRIBUTION_PATH) for all operations, not the absolute path
-        return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, rocm_path)
-
-    # Check if rocm_dist attribute is provided (from external source like local_config_rocm)
+    # rocm_dist attribute must be provided (from rocm_hermetic_download)
     rocm_dist_label = repository_ctx.attr.rocm_dist
-    if rocm_dist_label:
-        # Extract the source repository name
-        # rocm_dist_label is like "@rocm_redist_dist//:rocm_root" or "@local_config_rocm//rocm:rocm_root"
-        rocm_source_repo = str(rocm_dist_label).split("//")[0].lstrip("@")
+    if not rocm_dist_label:
+        auto_configure_fail(
+            "rocm_dist attribute is required. " +
+            "Use rocm_hermetic_download to download ROCm and pass it to hipcc_configure."
+        )
 
-        # Get the path to rocm_dist directory in the source repository
-        # For a label like "@repo//package:target", we resolve the package path
-        # Use the label's package to find where the BUILD file is
-        label_package = rocm_dist_label.package
-        if label_package:
-            # Label has a package like "rocm" -> resolve "@repo//package:BUILD"
-            package_path = repository_ctx.path(Label("@{}//{}:BUILD".format(rocm_source_repo, label_package))).dirname
-        else:
-            # Label is at root like "//:target" -> resolve "@repo//:BUILD"
-            package_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
-        rocm_dist_path = package_path.get_child("rocm_dist")
+    # Extract the source repository name
+    # rocm_dist_label is like "@rocm_redist_dist//:rocm_root"
+    rocm_source_repo = str(rocm_dist_label).split("//")[0].lstrip("@")
 
-        auto_configure_warning("Using ROCm from external source: {}".format(rocm_source_repo))
-        repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
+    # Get the path to rocm_dist directory in the source repository
+    # For a label like "@repo//package:target", we resolve the package path
+    # Use the label's package to find where the BUILD file is
+    label_package = rocm_dist_label.package
+    if label_package:
+        # Label has a package like "rocm" -> resolve "@repo//package:BUILD"
+        package_path = repository_ctx.path(Label("@{}//{}:BUILD".format(rocm_source_repo, label_package))).dirname
+    else:
+        # Label is at root like "//:target" -> resolve "@repo//:BUILD"
+        package_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
+    rocm_dist_path = package_path.get_child("rocm_dist")
 
-        rocm_config_with_source = _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
-        # Add source repo to config as a custom field - merge the struct fields
-        # Filter out built-in methods (to_json, to_proto)
-        config_dict = {k: getattr(rocm_config_with_source, k) for k in dir(rocm_config_with_source) if not k.startswith("to_")}
-        config_dict["rocm_source_repo"] = rocm_source_repo
-        return struct(**config_dict)
+    auto_configure_warning("Using hermetic ROCm from: {}".format(rocm_source_repo))
+    repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
 
-    # If no ROCm source provided, fail
-    auto_configure_fail(
-        "ROCm not found. Please either:\n" +
-        "  1. Set ROCM_PATH to point to system ROCm installation, OR\n" +
-        "  2. Set TF_ROCM_MULTIPLE_PATHS for multiple component paths, OR\n" +
-        "  3. Pass rocm_dist attribute pointing to downloaded ROCm"
-    )
+    rocm_config_with_source = _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
+    # Add source repo to config as a custom field - merge the struct fields
+    # Filter out built-in methods (to_json, to_proto)
+    config_dict = {k: getattr(rocm_config_with_source, k) for k in dir(rocm_config_with_source) if not k.startswith("to_")}
+    config_dict["rocm_source_repo"] = rocm_source_repo
+    return struct(**config_dict)
 
 def _create_dummy_repository(repository_ctx):
     """Creates a stub ROCm repository when ROCm is not enabled."""
