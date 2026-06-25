@@ -242,15 +242,19 @@ sycl_configure(name = "local_config_sycl")
 # ROCm configuration
 
 # Download ROCm redistributable
-load("//gpu/rocm:rocm_redist_download.bzl", "rocm_redist_download")
+load("//gpu/rocm:rocm_hermetic_download.bzl", "rocm_hermetic_download")
 
-rocm_redist_download(name = "rocm_redist_dist")
+rocm_hermetic_download(
+    name = "rocm_redist_dist",
+    url = "https://repo.amd.com/rocm/tarball/therock-dist-linux-gfx908-7.12.0.tar.gz",
+    sha256 = "8645100bd43761253114f175a6b5e5e928a72a437094e9e35d750ea089d41d6c",
+)
 
 load("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
 
 hipcc_configure(
     name = "config_rocm_hipcc",
-    rocm_dist = "@rocm_redist_dist//:rocm_dist",
+    rocm_dist = "@rocm_redist_dist//:rocm_root",
 )
 
 ##############################################################

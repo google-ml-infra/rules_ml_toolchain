@@ -43,6 +43,9 @@ def _enable_rocm(repository_ctx):
     rocm_path = repository_ctx.os.environ.get("ROCM_PATH", "")
     if rocm_path and rocm_path.strip():
         return True
+    # Also enable if rocm_dist attribute is provided (hermetic ROCm from external repo)
+    if repository_ctx.attr.rocm_dist:
+        return True
     return False
 
 _TF_ROCM_AMDGPU_TARGETS = "TF_ROCM_AMDGPU_TARGETS"
@@ -239,11 +242,24 @@ def _setup_rocm_distro_dir(repository_ctx):
     # Check if rocm_dist attribute is provided (from external source like local_config_rocm)
     rocm_dist_label = repository_ctx.attr.rocm_dist
     if rocm_dist_label:
-        rocm_dist_path = repository_ctx.path(rocm_dist_label)
-        if rocm_dist_path.exists:
-            auto_configure_warning("Using ROCm from external source: {}".format(rocm_dist_path))
-            repository_ctx.symlink(str(rocm_dist_path), _DISTRIBUTION_PATH)
-            return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
+        # Extract the source repository name and create symlink
+        # rocm_dist_label is like "@rocm_redist_dist//:rocm_dist"
+        rocm_source_repo = str(rocm_dist_label).split("//")[0].lstrip("@")
+
+        # Get the path to rocm_dist directory in the source repository
+        # Construct path: external/{repo_name}/rocm_dist
+        rocm_repo_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
+        rocm_dist_path = rocm_repo_path.get_child("rocm_dist")
+
+        auto_configure_warning("Using ROCm from external source: {}".format(rocm_source_repo))
+        repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
+
+        rocm_config_with_source = _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
+        # Add source repo to config as a custom field - merge the struct fields
+        # Filter out built-in methods (to_json, to_proto)
+        config_dict = {k: getattr(rocm_config_with_source, k) for k in dir(rocm_config_with_source) if not k.startswith("to_")}
+        config_dict["rocm_source_repo"] = rocm_source_repo
+        return struct(**config_dict)
 
     # If no ROCm source provided, fail
     auto_configure_fail(
@@ -296,8 +312,52 @@ def _setup_rocm_repository(repository_ctx):
 
     clang_offload_bundler_path = rocm_toolkit_path + "/llvm/bin/clang-offload-bundler"
 
+    # Get source repository if available (for referencing files directly)
+    rocm_source_repo = getattr(rocm_config, "rocm_source_repo", "")
+
+    # If we have a source repo, reference it directly instead of using globs on symlinks
+    # Globs don't work on symlinks created by repository rules
+    if rocm_source_repo:
+        toolchain_data_def = """alias(
+    name = "toolchain_data",
+    actual = "@{}//:rocm_root",
+    visibility = ["//visibility:public"],
+)""".format(rocm_source_repo)
+        rocm_root_def = """alias(
+    name = "rocm_root",
+    actual = "@{}//:rocm_root",
+    visibility = ["//visibility:public"],
+)""".format(rocm_source_repo)
+    else:
+        # Use the rocm_toolkit_path directly (it's already been determined above)
+        toolchain_data_def = """filegroup(
+    name = "toolchain_data",
+    srcs = glob([
+        "{}/bin/hipcc",
+        "{}/lib/llvm/**",
+        "{}/llvm/bin/*",
+        "{}/lib/llvm/lib/clang/**/include/**",
+        "{}/lib/llvm/lib/clang/**/lib/**/*.a",
+        "{}/lib/llvm/lib/clang/**/lib/**/*.bc",
+        "{}/llvm/lib/clang/*/include/**",
+        "{}/share/hip/**",
+        "{}/amdgcn/**",
+        "{}/lib/rocm_sysdeps/lib/*.so*",
+        "{}/llvm/lib/*.so*",
+    ], allow_empty = True),
+    visibility = ["//visibility:public"],
+)""".format(rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path)
+        rocm_root_def = """filegroup(
+    name = "rocm_root",
+    srcs = [":all_files"],
+    visibility = ["//visibility:public"],
+)"""
+
     repository_dict = {
         "%{rocm_root}": rocm_toolkit_path,
+        "%{rocm_source_repo}": rocm_source_repo,
+        "%{toolchain_data_def}": toolchain_data_def,
+        "%{rocm_root_def}": rocm_root_def,
         "%{rocm_gpu_architectures}": str(rocm_config.amdgpu_targets),
         "%{rocm_version_number}": str(rocm_version_number),
         "%{miopen_version_number}": str(miopen_version_number),

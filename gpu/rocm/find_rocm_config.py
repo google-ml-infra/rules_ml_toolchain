@@ -70,6 +70,21 @@ def _get_header_version(path, name):
 def _find_rocm_config(rocm_install_path):
 
   def rocm_version_numbers(path):
+    # Check for hermetic ROCm redistributable version file first
+    info_version_file = os.path.join(path, ".info/version")
+    if os.path.exists(info_version_file):
+      with open(info_version_file, "r") as f:
+        version_str = f.read().strip()
+        # Parse version like "7.12.0"
+        parts = version_str.split(".")
+        if len(parts) >= 3:
+          return int(parts[0]), int(parts[1]), int(parts[2])
+        elif len(parts) == 2:
+          return int(parts[0]), int(parts[1]), 0
+        else:
+          raise ConfigError("Invalid version format in {}: {}".format(info_version_file, version_str))
+
+    # Fall back to header files for system ROCm installations
     possible_version_files = [
         "include/rocm-core/rocm_version.h",  # ROCm 5.2
         "include/rocm_version.h",  # ROCm 5.1 and prior
