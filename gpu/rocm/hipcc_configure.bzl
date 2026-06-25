@@ -13,14 +13,12 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Repository rule for ROCm autoconfiguration.
+"""Repository rule for hermetic ROCm autoconfiguration.
 
-`rocm_configure` depends on the following environment variables:
+`hipcc_configure` depends on the following:
 
-  * `ROCM_PATH`: The path to the ROCm toolkit. Default is `/opt/rocm`.
-  * `TF_ROCM_MULTIPLE_PATHS`: Colon-separated list of ROCm component paths (e.g., "/path/to/hip:/path/to/rocblas").
-  * `LLVM_PATH`: Path to ROCm LLVM (used with TF_ROCM_MULTIPLE_PATHS).
-  * `TF_ROCM_AMDGPU_TARGETS`: The AMDGPU targets.
+  * `rocm_dist` attribute: Label pointing to hermetic ROCm distribution from rocm_hermetic_download.
+  * `TF_ROCM_AMDGPU_TARGETS`: The AMDGPU targets (optional, defaults based on ROCm version).
 """
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
@@ -246,70 +244,30 @@ def _setup_rocm_repository(repository_ctx):
 
     clang_offload_bundler_path = rocm_toolkit_path + "/llvm/bin/clang-offload-bundler"
 
-    # Get source repository if available (for referencing files directly)
-    rocm_source_repo = getattr(rocm_config, "rocm_source_repo", "")
+    # Get source repository (always set since we only support hermetic builds)
+    rocm_source_repo = rocm_config.rocm_source_repo
 
-    # If we have a source repo, reference it directly instead of using globs on symlinks
-    # Globs don't work on symlinks created by repository rules
-    if rocm_source_repo:
-        # Extract the package path from the rocm_dist label to use in aliases
-        rocm_dist_label = repository_ctx.attr.rocm_dist
-        label_package = rocm_dist_label.package if rocm_dist_label else ""
-        if label_package:
-            # Label has a package like "rocm" -> targets are at "@repo//package:target"
-            # This is the case for XLA's local_config_rocm which has rocm/ subdirectory
-            rocm_root_target = "@{}//{}:rocm_root".format(rocm_source_repo, label_package)
-            # Check if toolchain_data exists separately, otherwise use rocm_root
-            # For XLA's local_config_rocm, toolchain_data exists
-            # We always reference it; if it doesn't exist at build time, it will fail then
-            toolchain_target = "@{}//{}:toolchain_data".format(rocm_source_repo, label_package)
-        else:
-            # Label is at root like "//:target" -> targets are at "@repo//:target"
-            # This is the case for rocm_redist_dist which has BUILD at root
-            # For hermetic repos, rocm_root is the only target (contains toolchain files too)
-            rocm_root_target = "@{}//:rocm_root".format(rocm_source_repo)
-            toolchain_target = "@{}//:rocm_root".format(rocm_source_repo)  # Use rocm_root for both
-
-        toolchain_data_def = """alias(
-    name = "toolchain_data",
-    actual = "{}",
-    visibility = ["//visibility:public"],
-)""".format(toolchain_target)
-        rocm_root_def = """alias(
-    name = "rocm_root",
-    actual = "{}",
-    visibility = ["//visibility:public"],
-)""".format(rocm_root_target)
+    # Extract the package path from the rocm_dist label to use in aliases
+    rocm_dist_label = repository_ctx.attr.rocm_dist
+    label_package = rocm_dist_label.package
+    if label_package:
+        # Label has a package like "rocm" -> targets are at "@repo//package:target"
+        # This is the case for XLA's local_config_rocm which has rocm/ subdirectory
+        rocm_root_target = "@{}//{}:rocm_root".format(rocm_source_repo, label_package)
+        # For XLA's local_config_rocm, toolchain_data exists separately
+        toolchain_target = "@{}//{}:toolchain_data".format(rocm_source_repo, label_package)
     else:
-        # Use the rocm_toolkit_path directly (it's already been determined above)
-        toolchain_data_def = """filegroup(
-    name = "toolchain_data",
-    srcs = glob([
-        "{}/bin/hipcc",
-        "{}/lib/llvm/**",
-        "{}/llvm/bin/*",
-        "{}/lib/llvm/lib/clang/**/include/**",
-        "{}/lib/llvm/lib/clang/**/lib/**/*.a",
-        "{}/lib/llvm/lib/clang/**/lib/**/*.bc",
-        "{}/llvm/lib/clang/*/include/**",
-        "{}/share/hip/**",
-        "{}/amdgcn/**",
-        "{}/lib/rocm_sysdeps/lib/*.so*",
-        "{}/llvm/lib/*.so*",
-    ], allow_empty = True),
-    visibility = ["//visibility:public"],
-)""".format(rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path, rocm_toolkit_path)
-        rocm_root_def = """filegroup(
-    name = "rocm_root",
-    srcs = [":all_files"],
-    visibility = ["//visibility:public"],
-)"""
+        # Label is at root like "//:target" -> targets are at "@repo//:target"
+        # This is the case for rocm_redist_dist which has BUILD at root
+        # For hermetic repos, rocm_root contains all toolchain files
+        rocm_root_target = "@{}//:rocm_root".format(rocm_source_repo)
+        toolchain_target = "@{}//:rocm_root".format(rocm_source_repo)
 
     repository_dict = {
         "%{rocm_root}": rocm_toolkit_path,
         "%{rocm_source_repo}": rocm_source_repo,
-        "%{toolchain_data_def}": toolchain_data_def,
-        "%{rocm_root_def}": rocm_root_def,
+        "%{toolchain_data_target}": toolchain_target,
+        "%{rocm_root_target}": rocm_root_target,
         "%{rocm_gpu_architectures}": str(rocm_config.amdgpu_targets),
         "%{rocm_version_number}": str(rocm_version_number),
         "%{miopen_version_number}": str(miopen_version_number),
@@ -333,18 +291,14 @@ def _hipcc_autoconf_impl(repository_ctx):
 hipcc_configure = repository_rule(
     implementation = _hipcc_autoconf_impl,
     environ = [
-        "ROCM_PATH",
         "TF_NEED_ROCM",
         "TF_ROCM_AMDGPU_TARGETS",
-        "TF_ROCM_MULTIPLE_PATHS",
-        "LLVM_PATH",
     ],
     attrs = {
         "rocm_dist": attr.label(
-            default = None,
-            doc = "Label to the rocm_dist directory from local_config_rocm " +
-                  "(e.g. @local_config_rocm//rocm:rocm_dist). If provided, " +
-                  "this path will be used instead of downloading ROCm.",
+            mandatory = True,
+            doc = "Label to the hermetic rocm_dist from rocm_hermetic_download " +
+                  "(e.g. @rocm_redist_dist//:rocm_root).",
         ),
         "_find_rocm_config": attr.label(
             default = Label("//gpu/rocm:find_rocm_config.py"),

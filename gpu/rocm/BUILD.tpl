@@ -61,9 +61,17 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-%{toolchain_data_def}
+alias(
+    name = "toolchain_data",
+    actual = "%{toolchain_data_target}",
+    visibility = ["//visibility:public"],
+)
 
-%{rocm_root_def}
+alias(
+    name = "rocm_root",
+    actual = "%{rocm_root_target}",
+    visibility = ["//visibility:public"],
+)
 
 config_setting(
     name = "using_hipcc",

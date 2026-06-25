@@ -16,15 +16,8 @@ def _rocm_hermetic_download_impl(repository_ctx):
     url = repository_ctx.attr.url
     sha256 = repository_ctx.attr.sha256
 
-    if not url:
-        fail("ROCm URL must be provided")
-    if not sha256:
-        fail("ROCm SHA256 hash must be provided")
-
-    # Create marker file
     repository_ctx.file(".index")
 
-    # Download and extract the package
     file_name = _get_file_name(url)
     print("Downloading {}".format(url))
     repository_ctx.report_progress("Downloading and extracting {}, expected hash is {}".format(url, sha256))
