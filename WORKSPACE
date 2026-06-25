@@ -241,9 +241,17 @@ sycl_configure(name = "local_config_sycl")
 ##############################################################
 # ROCm configuration
 
+# Download ROCm redistributable
+load("//gpu/rocm:rocm_redist_download.bzl", "rocm_redist_download")
+
+rocm_redist_download(name = "rocm_redist_dist")
+
 load("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
 
-hipcc_configure(name = "config_rocm_hipcc")
+hipcc_configure(
+    name = "config_rocm_hipcc",
+    rocm_dist = "@rocm_redist_dist//:rocm_dist",
+)
 
 ##############################################################
 # Local sysroot configuration

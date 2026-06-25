@@ -32,11 +32,7 @@ load(
     "get_bash_bin",
     "get_python_bin",
 )
-load(
-    "//gpu/rocm:rocm_redist.bzl",
-    "create_rocm_distro",
-    "rocm_redist",
-)
+# No longer need download logic - consumers handle downloads
 
 def _enable_rocm(repository_ctx):
     """Returns whether to build with ROCm support."""
@@ -54,14 +50,6 @@ _TF_ROCM_CONFIG_REPO = "TF_ROCM_CONFIG_REPO"
 _TF_ROCM_MULTIPLE_PATHS = "TF_ROCM_MULTIPLE_PATHS"
 _LLVM_PATH = "LLVM_PATH"
 _DISTRIBUTION_PATH = "rocm/rocm_dist"
-_ROCM_DISTRO_VERSION = "ROCM_DISTRO_VERSION"
-_ROCM_DISTRO_URL = "ROCM_DISTRO_URL"
-_ROCM_DISTRO_HASH = "ROCM_DISTRO_HASH"
-_ROCM_DISTRO_LINKS = "ROCM_DISTRO_LINKS"
-_TMPDIR = "TMPDIR"
-
-# Default hermetic ROCm redistributable version
-_DEFAULT_ROCM_DISTRO_VERSION = "rocm_7.12.0_gfx908"
 
 def auto_configure_fail(msg):
     """Output failure message when rocm configuration fails."""
@@ -171,48 +159,10 @@ def _canonical_path(p):
     parts = [x for x in p.split("/") if x != ""]
     return paths.join(*parts)
 
-def _get_file_name(url):
-    last_slash_index = url.rfind("/")
-    return url[last_slash_index + 1:]
-
-def _download_package(repository_ctx, pkg):
-    file_name = _get_file_name(pkg["url"])
-
-    print("Downloading {}".format(pkg["url"]))
-    repository_ctx.report_progress("Downloading and extracting {}, expected hash is {}".format(pkg["url"], pkg["sha256"]))  # buildifier: disable=print
-    repository_ctx.download_and_extract(
-        url = pkg["url"],
-        output = _DISTRIBUTION_PATH,
-        sha256 = pkg["sha256"],
-        type = "zip" if pkg["url"].endswith(".whl") else "",
-    )
-
-    if pkg.get("sub_package", None):
-        repository_ctx.report_progress("Extracting {}".format(pkg["sub_package"]))  # buildifier: disable=print
-        repository_ctx.extract(
-            archive = "{}/{}".format(_DISTRIBUTION_PATH, pkg["sub_package"]),
-            output = _DISTRIBUTION_PATH,
-        )
-
-    repository_ctx.delete(file_name)
-
 def _remove_root_dir(path, root_dir):
     if path.startswith(root_dir + "/"):
         return path[len(root_dir) + 1:]
     return path
-
-def _setup_rocm_distro_dir_impl(repository_ctx, rocm_distro):
-    repository_ctx.file("rocm/.index")
-    for pkg in rocm_distro.packages:
-        _download_package(repository_ctx, pkg)
-
-    for entry in rocm_distro.required_softlinks:
-        repository_ctx.symlink(
-            "{}/{}".format(_DISTRIBUTION_PATH, entry.target),
-            "{}/{}".format(_DISTRIBUTION_PATH, entry.link),
-        )
-    bash_bin = get_bash_bin(repository_ctx)
-    return _get_rocm_config(repository_ctx, bash_bin, _canonical_path("{}/{}".format(_DISTRIBUTION_PATH, rocm_distro.rocm_root)), "")
 
 def _setup_rocm_from_multiple_paths(repository_ctx, multiple_paths, bash_bin):
     """Sets up ROCm from multiple component paths by symlinking into rocm_dist.
@@ -286,27 +236,22 @@ def _setup_rocm_distro_dir(repository_ctx):
         # Use the symlinked path (_DISTRIBUTION_PATH) for all operations, not the absolute path
         return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, rocm_path)
 
-    # Check for custom URL-based distro
-    rocm_distro_url = repository_ctx.os.environ.get(_ROCM_DISTRO_URL)
-    if rocm_distro_url:
-        rocm_distro_hash = repository_ctx.os.environ.get(_ROCM_DISTRO_HASH)
-        if not rocm_distro_hash:
-            fail("{} environment variable is required".format(_ROCM_DISTRO_HASH))
-        rocm_distro_links = repository_ctx.os.environ.get(_ROCM_DISTRO_LINKS, "")
-        rocm_distro = create_rocm_distro(rocm_distro_url, rocm_distro_hash, rocm_distro_links)
-        return _setup_rocm_distro_dir_impl(repository_ctx, rocm_distro)
+    # Check if rocm_dist attribute is provided (from external source like local_config_rocm)
+    rocm_dist_label = repository_ctx.attr.rocm_dist
+    if rocm_dist_label:
+        rocm_dist_path = repository_ctx.path(rocm_dist_label)
+        if rocm_dist_path.exists:
+            auto_configure_warning("Using ROCm from external source: {}".format(rocm_dist_path))
+            repository_ctx.symlink(str(rocm_dist_path), _DISTRIBUTION_PATH)
+            return _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
 
-    # Use hermetic redistributable (default: gfx908 for MI100)
-    rocm_distro_version = repository_ctx.os.environ.get(_ROCM_DISTRO_VERSION, _DEFAULT_ROCM_DISTRO_VERSION)
-
-    if rocm_distro_version not in rocm_redist:
-        fail("Unknown ROCM_DISTRO_VERSION: {}. Available versions: {}".format(
-            rocm_distro_version,
-            ", ".join(rocm_redist.keys())
-        ))
-
-    repository_ctx.report_progress("Downloading hermetic ROCm distribution: {}".format(rocm_distro_version))
-    return _setup_rocm_distro_dir_impl(repository_ctx, rocm_redist[rocm_distro_version])
+    # If no ROCm source provided, fail
+    auto_configure_fail(
+        "ROCm not found. Please either:\n" +
+        "  1. Set ROCM_PATH to point to system ROCm installation, OR\n" +
+        "  2. Set TF_ROCM_MULTIPLE_PATHS for multiple component paths, OR\n" +
+        "  3. Pass rocm_dist attribute pointing to downloaded ROCm"
+    )
 
 def _create_dummy_repository(repository_ctx):
     """Creates a stub ROCm repository when ROCm is not enabled."""
@@ -381,13 +326,14 @@ hipcc_configure = repository_rule(
         "TF_ROCM_AMDGPU_TARGETS",
         "TF_ROCM_MULTIPLE_PATHS",
         "LLVM_PATH",
-        "ROCM_DISTRO_VERSION",
-        "ROCM_DISTRO_URL",
-        "ROCM_DISTRO_HASH",
-        "ROCM_DISTRO_LINKS",
-        "TMPDIR",
     ],
     attrs = {
+        "rocm_dist": attr.label(
+            default = None,
+            doc = "Label to the rocm_dist directory from local_config_rocm " +
+                  "(e.g. @local_config_rocm//rocm:rocm_dist). If provided, " +
+                  "this path will be used instead of downloading ROCm.",
+        ),
         "_find_rocm_config": attr.label(
             default = Label("//gpu/rocm:find_rocm_config.py"),
         ),
