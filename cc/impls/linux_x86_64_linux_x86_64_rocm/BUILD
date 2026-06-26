@@ -240,6 +240,7 @@ FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
+    ":static_link_libstdcxx",
 
     # ROCm-specific features
     ":rocm_hipcc_feature",
