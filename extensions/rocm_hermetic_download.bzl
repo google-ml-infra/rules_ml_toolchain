@@ -17,21 +17,18 @@
 
 load(
     "//gpu/rocm:rocm_hermetic_download.bzl",
+    "ROCM_SHA256",
+    "ROCM_URL",
     "rocm_hermetic_download",
 )
 
-# Hardcoded ROCm distribution for testing
-# TODO: Replace with actual ROCm distribution URL and SHA256
-_ROCM_URL = "https://storage.googleapis.com/example/rocm_test_distribution.tar.gz"
-_ROCM_SHA256 = "0000000000000000000000000000000000000000000000000000000000000000"
-
 def _rocm_hermetic_download_ext_impl(mctx):
     """Implementation of the rocm_hermetic_download_ext module extension."""
-    # Simply download the hardcoded ROCm distribution for testing
+    # Download the ROCm distribution for testing (URL and SHA256 from rocm_hermetic_download.bzl)
     rocm_hermetic_download(
         name = "rocm_hermetic_dist",
-        url = _ROCM_URL,
-        sha256 = _ROCM_SHA256,
+        url = ROCM_URL,
+        sha256 = ROCM_SHA256,
     )
 
 rocm_hermetic_download_ext = module_extension(

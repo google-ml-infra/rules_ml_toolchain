@@ -1,5 +1,10 @@
 """Repository rule for downloading hermetic ROCm distribution."""
 
+# Default ROCm distribution for testing
+# ROCm 7.12.0 for gfx908 (from AMD repository)
+ROCM_URL = "https://repo.amd.com/rocm/tarball/therock-dist-linux-gfx908-7.12.0.tar.gz"
+ROCM_SHA256 = "8645100bd43761253114f175a6b5e5e928a72a437094e9e35d750ea089d41d6c"
+
 _DISTRIBUTION_PATH = "rocm_dist"
 
 def _tpl_path(repository_ctx, labelname):

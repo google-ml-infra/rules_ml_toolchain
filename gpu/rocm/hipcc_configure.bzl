@@ -168,23 +168,20 @@ def _setup_rocm_distro_dir(repository_ctx):
     # rocm_dist attribute is mandatory
     rocm_dist_label = repository_ctx.attr.rocm_dist
 
-    # Extract the source repository name
-    # rocm_dist_label is like "@rocm_redist_dist//:rocm_root"
+    # Get the path to the rocm_dist directory from the label
+    # The label points to a filegroup target (e.g., @rocm_hermetic_dist//:rocm_root)
+    # We need to get the directory where the BUILD file is, then find rocm_dist subdirectory
+    rocm_dist_target_path = repository_ctx.path(rocm_dist_label)
+
+    # The target is in a BUILD file, so get its directory
+    # Then look for rocm_dist subdirectory (this is where the actual distribution is)
+    package_dir = rocm_dist_target_path.dirname
+    rocm_dist_path = package_dir.get_child("rocm_dist")
+
+    # Extract repository name for logging (use workspace_name from the label)
     rocm_source_repo = str(rocm_dist_label).split("//")[0].lstrip("@")
-
-    # Get the path to rocm_dist directory in the source repository
-    # For a label like "@repo//package:target", we resolve the package path
-    # Use the label's package to find where the BUILD file is
-    label_package = rocm_dist_label.package
-    if label_package:
-        # Label has a package like "rocm" -> resolve "@repo//package:BUILD"
-        package_path = repository_ctx.path(Label("@{}//{}:BUILD".format(rocm_source_repo, label_package))).dirname
-    else:
-        # Label is at root like "//:target" -> resolve "@repo//:BUILD"
-        package_path = repository_ctx.path(Label("@{}//:BUILD".format(rocm_source_repo))).dirname
-    rocm_dist_path = package_path.get_child("rocm_dist")
-
     auto_configure_warning("Using hermetic ROCm from: {}".format(rocm_source_repo))
+
     repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
 
     rocm_config_with_source = _get_rocm_config(repository_ctx, bash_bin, _DISTRIBUTION_PATH, "")
@@ -240,21 +237,11 @@ def _setup_rocm_repository(repository_ctx):
     # Get source repository (always set since we only support hermetic builds)
     rocm_source_repo = rocm_config.rocm_source_repo
 
-    # Extract the package path from the rocm_dist label to use in aliases
-    rocm_dist_label = repository_ctx.attr.rocm_dist
-    label_package = rocm_dist_label.package
-    if label_package:
-        # Label has a package like "rocm" -> targets are at "@repo//package:target"
-        # This is the case for XLA's local_config_rocm which has rocm/ subdirectory
-        rocm_root_target = "@{}//{}:rocm_root".format(rocm_source_repo, label_package)
-        # For XLA's local_config_rocm, toolchain_data exists separately
-        toolchain_target = "@{}//{}:toolchain_data".format(rocm_source_repo, label_package)
-    else:
-        # Label is at root like "//:target" -> targets are at "@repo//:target"
-        # This is the case for rocm_redist_dist which has BUILD at root
-        # For hermetic repos, rocm_root contains all toolchain files
-        rocm_root_target = "@{}//:rocm_root".format(rocm_source_repo)
-        toolchain_target = "@{}//:rocm_root".format(rocm_source_repo)
+    # Since we symlink the ROCm distribution into this repository,
+    # we point the aliases to local filegroups instead of external repositories
+    # This avoids visibility issues in bzlmod where external repos aren't visible
+    rocm_root_target = ":rocm_redist"
+    toolchain_target = ":rocm_redist"
 
     repository_dict = {
         "%{rocm_root}": rocm_toolkit_path,
