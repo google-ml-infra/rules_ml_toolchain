@@ -22,16 +22,48 @@ load(
 
 def _hipcc_configure_ext_impl(mctx):
     """Implementation of the hipcc_configure_ext module extension."""
-    hipcc_configure(name = "config_rocm_hipcc")
+    # Collect rocm_dist from tags (last one wins)
+    rocm_dist = None
+    for mod in mctx.modules:
+        for tag in mod.tags.configure:
+            if tag.rocm_dist:
+                rocm_dist = tag.rocm_dist
+
+    # rocm_dist is mandatory
+    if not rocm_dist:
+        fail("rocm_dist is required. Use hipcc_configure.configure(rocm_dist = ...) in MODULE.bazel")
+
+    # Create hipcc_configure with the provided rocm_dist
+    hipcc_configure(
+        name = "config_rocm_hipcc",
+        rocm_dist = rocm_dist,
+    )
+
+_configure_tag = tag_class(
+    attrs = {
+        "rocm_dist": attr.label(
+            mandatory = True,
+            doc = "Label to the ROCm distribution (e.g., @rocm_hermetic_dist//:rocm_root or @local_config_rocm//:rocm_root)",
+        ),
+    },
+)
 
 hipcc_configure_ext = module_extension(
     implementation = _hipcc_configure_ext_impl,
+    tag_classes = {"configure": _configure_tag},
     doc = """HIPcc module extension for configuring the ROCm toolchain.
 
 Usage in MODULE.bazel:
 
 ```starlark
+# rules_ml_toolchain tests (uses rocm_hermetic_download):
 hipcc_configure = use_extension("@rules_ml_toolchain//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
+hipcc_configure.configure(rocm_dist = "@rocm_hermetic_dist//:rocm_root")
+use_repo(hipcc_configure, "config_rocm_hipcc")
+
+# XLA (uses local_config_rocm):
+hipcc_configure = use_extension("@rules_ml_toolchain//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
+hipcc_configure.configure(rocm_dist = "@local_config_rocm//:rocm_root")
 use_repo(hipcc_configure, "config_rocm_hipcc")
 ```
 """,

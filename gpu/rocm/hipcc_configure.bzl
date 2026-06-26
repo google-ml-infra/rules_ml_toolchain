@@ -34,10 +34,8 @@ load(
 
 def _enable_rocm(repository_ctx):
     """Returns whether to build with ROCm support."""
-    # Check if rocm_dist attribute is provided (hermetic ROCm from rocm_hermetic_download)
-    if repository_ctx.attr.rocm_dist:
-        return True
-    # Also check TF_NEED_ROCM for compatibility
+    # Check TF_NEED_ROCM environment variable
+    # rocm_dist is always provided (mandatory), but we only use it if TF_NEED_ROCM=1
     enable_rocm = repository_ctx.os.environ.get("TF_NEED_ROCM")
     if enable_rocm == "1":
         return True
@@ -167,13 +165,8 @@ def _setup_rocm_distro_dir(repository_ctx):
     """Sets up the rocm hermetic installation directory from rocm_dist label"""
     bash_bin = get_bash_bin(repository_ctx)
 
-    # rocm_dist attribute must be provided (from rocm_hermetic_download)
+    # rocm_dist attribute is mandatory
     rocm_dist_label = repository_ctx.attr.rocm_dist
-    if not rocm_dist_label:
-        auto_configure_fail(
-            "rocm_dist attribute is required. " +
-            "Use rocm_hermetic_download to download ROCm and pass it to hipcc_configure."
-        )
 
     # Extract the source repository name
     # rocm_dist_label is like "@rocm_redist_dist//:rocm_root"
@@ -297,8 +290,8 @@ hipcc_configure = repository_rule(
     attrs = {
         "rocm_dist": attr.label(
             mandatory = True,
-            doc = "Label to the hermetic rocm_dist from rocm_hermetic_download " +
-                  "(e.g. @rocm_redist_dist//:rocm_root).",
+            doc = "Label to the ROCm distribution " +
+                  "(e.g. @rocm_hermetic_dist//:rocm_root or @local_config_rocm//:rocm_root).",
         ),
         "_find_rocm_config": attr.label(
             default = Label("//gpu/rocm:find_rocm_config.py"),
