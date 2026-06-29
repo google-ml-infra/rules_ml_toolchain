@@ -51,13 +51,31 @@ cc_library(
 
 filegroup(
     name = "rocm_redist",
-    srcs = glob(["%{rocm_root}/**"], allow_empty = True),
+    srcs = glob(
+        ["%{rocm_root}/**"],
+        exclude = [
+            "%{rocm_root}/tests/**",
+            "%{rocm_root}/libexec/**",
+            "%{rocm_root}/lib/llvm/include/**",
+            "%{rocm_root}/lib/rocm_sysdeps/share/terminfo/**",
+        ],
+        allow_empty = True,
+    ),
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "all_files",
-    srcs = glob(["%{rocm_root}/**"], allow_empty = True),
+    srcs = glob(
+        ["%{rocm_root}/**"],
+        exclude = [
+            "%{rocm_root}/tests/**",
+            "%{rocm_root}/libexec/**",
+            "%{rocm_root}/lib/llvm/include/**",
+            "%{rocm_root}/lib/rocm_sysdeps/share/terminfo/**",
+        ],
+        allow_empty = True,
+    ),
     visibility = ["//visibility:public"],
 )
 
