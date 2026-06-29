@@ -56,7 +56,7 @@ rocm_hipcc_feature(
     hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",
     rocm_path = hipcc_config().rocm_path,
-    rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
+    rocm_toolkit = "@config_rocm_hipcc//rocm:toolchain_data",
     version = str(hipcc_config().version_number),
     visibility = ["//visibility:public"],
 )
