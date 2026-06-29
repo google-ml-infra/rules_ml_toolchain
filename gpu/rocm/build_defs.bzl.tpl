@@ -40,12 +40,10 @@ def hipcc_config():
         gpu_architectures = %{rocm_gpu_architectures},
         version_number = %{rocm_version_number},
         hipcc_path = "%{hipcc_path}",
-        rocm_path = "%{rocm_path}",
+        rocm_path = "%{rocm_root}",
         rocm_root = "%{rocm_root}",
-        miopen_version = %{miopen_version_number},
         hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
-        lib_paths = %{rocm_lib_paths},
     )
 
 # Alias for compatibility
