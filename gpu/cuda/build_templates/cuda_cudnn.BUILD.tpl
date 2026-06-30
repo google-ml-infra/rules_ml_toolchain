@@ -9,6 +9,7 @@ load(
 load(
      "@local_config_cuda//cuda:build_defs.bzl",
      "if_static_cudnn",
+     "if_version_equal_or_greater_than",
 )
 
 %{multiline_comment}
@@ -49,6 +50,12 @@ cc_import(
 )
 
 cc_import(
+    name = "cudnn_engines_tensor_ir",
+    hdrs = [":headers"],
+    shared_library = "lib/libcudnn_engines_tensor_ir.so.%{libcudnn_version}",
+)
+
+cc_import(
     name = "cudnn_heuristic",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_heuristic.so.%{libcudnn_heuristic_version}",
@@ -85,6 +92,12 @@ cc_import(
 )
 
 cc_import(
+    name = "cudnn_engines_tensor_ir_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_engines_tensor_ir_static_v%{libcudnn_version}.a",
+)
+
+cc_import(
     name = "cudnn_ops_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_ops_static_v%{libcudnn_version}.a",
@@ -114,7 +127,11 @@ cc_library(
       %{comment} ":lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
       %{comment} ":lib/libcudnn_graph_static_v%{libcudnn_version}.a",
       %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
-      %{comment}], []),
+      %{comment}] + if_version_equal_or_greater_than(
+          %{comment}"%{libcudnn_minor_version}",
+          %{comment}"9.21.0",
+          %{comment}[":lib/libcudnn_engines_tensor_ir_static_v%{libcudnn_version}.a"],
+      %{comment}), []),
     %{comment}deps = if_static_cudnn(
       %{comment}["@zlib//:zlib"],
       %{comment}[":cudnn_engines_precompiled",
@@ -125,7 +142,11 @@ cc_library(
       %{comment}":cudnn_engines_runtime_compiled",
       %{comment}":cudnn_heuristic",
       %{comment}":cudnn_main",
-    %{comment}]) + ["@cuda_nvrtc//:nvrtc"],
+      %{comment}] + if_version_equal_or_greater_than(
+          %{comment}"%{libcudnn_minor_version}",
+          %{comment}"9.21.0",
+          %{comment}[":cudnn_engines_tensor_ir"],
+      %{comment})) + ["@cuda_nvrtc//:nvrtc"],
     %{comment}linkopts = if_static_cudnn(["-lrt"], []) + cuda_rpath_flags("nvidia/cudnn/lib"),
     includes = ["include"],
     visibility = ["//visibility:public"],

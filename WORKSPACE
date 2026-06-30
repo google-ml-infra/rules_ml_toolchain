@@ -241,9 +241,26 @@ sycl_configure(name = "local_config_sycl")
 ##############################################################
 # ROCm configuration
 
+# Download ROCm redistributable
+load(
+    "//gpu/rocm:rocm_hermetic_download.bzl",
+    "ROCM_SHA256",
+    "ROCM_URL",
+    "rocm_hermetic_download",
+)
+
+rocm_hermetic_download(
+    name = "rocm_redist_dist",
+    url = ROCM_URL,
+    sha256 = ROCM_SHA256,
+)
+
 load("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
 
-hipcc_configure(name = "config_rocm_hipcc")
+hipcc_configure(
+    name = "config_rocm_hipcc",
+    rocm_dist = "@rocm_redist_dist//:rocm_root",
+)
 
 ##############################################################
 # Local sysroot configuration

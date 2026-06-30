@@ -20,6 +20,7 @@
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS", "LIBSTDCXX_FLAGS")
+load("//cc/features:runtime_library_search_directories.bzl", "runtime_library_search_directories_feature")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
@@ -55,7 +56,7 @@ rocm_hipcc_feature(
     hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",
     rocm_path = hipcc_config().rocm_path,
-    rocm_toolkit = "@config_rocm_hipcc//rocm:rocm_root",
+    rocm_toolkit = "@config_rocm_hipcc//rocm:toolchain_data",
     version = str(hipcc_config().version_number),
     visibility = ["//visibility:public"],
 )
@@ -239,6 +240,7 @@ FEATURES_ESSENTIAL = [
     # Library imports
     ":imports_feature",
     ":startup_libs_feature",
+    ":static_link_libstdcxx",
 
     # ROCm-specific features
     ":rocm_hipcc_feature",
@@ -246,6 +248,8 @@ FEATURES_ESSENTIAL = [
     "//cc/rocm/features:rocm_hermetic",
     "//cc/rocm/features:rocm_warnings",
     "//cc/rocm/features:rocm_compiler_rt",
+    "//cc/features:no_solib_rpaths",
+    "//cc/features:runtime_library_search_directories",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",

@@ -143,8 +143,16 @@ use_repo(sycl_configure, "local_config_sycl", "oneapi", "level_zero", "zero_load
 ##############################################################
 # ROCm configuration
 
-hipcc_configure = use_extension("//extensions:hipcc_configure.bzl", "hipcc_configure_ext")
-use_repo(hipcc_configure, "config_rocm_hipcc")
+# ROCm hermetic download (for testing only)
+rocm_hermetic = use_extension("//extensions:rocm_hermetic_download.bzl", "rocm_hermetic_download_ext")
+use_repo(rocm_hermetic, "rocm_hermetic_dist")
+
+# ROCm toolchain configuration
+hipcc_configure = use_repo_rule("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
+hipcc_configure(
+    name = "config_rocm_hipcc",
+    rocm_dist = "@rocm_hermetic_dist//:rocm_root",
+)
 
 ##############################################################
 # Hermetic toolchain configuration
