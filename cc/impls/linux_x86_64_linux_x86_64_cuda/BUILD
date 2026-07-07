@@ -18,6 +18,7 @@
 # ==============================================================================
 
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda", "if_cuda_hermetic_clang")
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
