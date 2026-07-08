@@ -84,6 +84,12 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "llvm-symbolizer",
+    srcs = ["bin/llvm-symbolizer"],
+    visibility = ["//visibility:public"],
+)
+
 # LLVM18 needs libtinfo.so.5 library as part of ubuntu 18 distributive
 filegroup(
     name = "distro_libs",

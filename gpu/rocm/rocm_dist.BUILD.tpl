@@ -42,3 +42,23 @@ alias(
     actual = ":rocm_root",
     visibility = ["//visibility:public"],
 )
+
+# llvm-symbolizer for sanitizer stack trace symbolization
+filegroup(
+    name = "llvm-symbolizer",
+    srcs = glob([
+        "%{rocm_root}/llvm/bin/llvm-symbolizer",
+        "%{rocm_root}/lib/llvm/bin/llvm-symbolizer",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+# Distribution libraries needed by llvm-symbolizer
+filegroup(
+    name = "distro_libs",
+    srcs = glob([
+        "%{rocm_root}/llvm/lib/*.so*",
+        "%{rocm_root}/lib/llvm/lib/*.so*",
+    ]),
+    visibility = ["//visibility:public"],
+)
