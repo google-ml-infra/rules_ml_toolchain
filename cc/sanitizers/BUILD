@@ -20,40 +20,17 @@ package(
 
 exports_files([
     "sanitizer_wrapper.bzl",
+    "sanitizer_wrapper.sh.tpl",
     "features.bzl",
 ])
 
-# Linux x86_64 sanitizer wrapper using hermetic LLVM toolchain
-# Basic wrapper with common ASAN/TSAN options, no suppression lists
+# Default sanitizer wrapper
+# Projects should create their own wrappers with custom ignore lists
 sanitizer_wrapper(
-    name = "sanitizer_wrapper_linux_x86_64",
+    name = "sanitizer_wrapper",
     llvm_symbolizer = "@llvm_linux_x86_64//:llvm-symbolizer",
     asan_options = "detect_leaks=0",
     tsan_options = "halt_on_error=1:exitcode=66",
-    # Include distro libs needed by llvm-symbolizer
-    additional_data = ["@llvm_linux_x86_64//:distro_libs"],
-    visibility = ["//visibility:public"],
-)
-
-# Linux aarch64 sanitizer wrapper
-# Basic wrapper with common ASAN/TSAN options, no suppression lists
-sanitizer_wrapper(
-    name = "sanitizer_wrapper_linux_aarch64",
-    llvm_symbolizer = "@llvm_linux_aarch64//:llvm-symbolizer",
-    asan_options = "detect_leaks=0",
-    tsan_options = "halt_on_error=1:exitcode=66",
-    visibility = ["//visibility:public"],
-)
-
-# ROCm sanitizer wrapper using hermetic LLVM toolchain
-# ROCm builds use @llvm_linux_x86_64 as host compiler, so use its symbolizer
-# Basic wrapper with common ASAN/TSAN options, no suppression lists
-sanitizer_wrapper(
-    name = "sanitizer_wrapper_rocm",
-    llvm_symbolizer = "@llvm_linux_x86_64//:llvm-symbolizer",
-    asan_options = "detect_leaks=0",
-    tsan_options = "halt_on_error=1:exitcode=66",
-    # Include distro libs needed by llvm-symbolizer
     additional_data = ["@llvm_linux_x86_64//:distro_libs"],
     visibility = ["//visibility:public"],
 )

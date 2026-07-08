@@ -19,39 +19,40 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 def sanitizer_wrapper(
         name,
         llvm_symbolizer,
+        asan_options,
+        tsan_options,
         asan_ignore_list = None,
         lsan_ignore_list = None,
         tsan_ignore_list = None,
-        asan_options = None,
-        tsan_options = None,
         additional_data = [],
         tags = ["manual"],
         visibility = None):
     """Creates a sanitizer wrapper binary that configures symbolizer and options.
 
-    This macro generates a shell wrapper that:
-    1. Locates llvm-symbolizer in runfiles
-    2. Sets ASAN_OPTIONS/TSAN_OPTIONS with symbolizer path
-    3. Applies ignore lists and custom options
-    4. Executes the wrapped test/binary
-
-    Usage with --run_under:
-        bazel test --config=asan --run_under=//path/to:sanitizer_wrapper //your:test
-
     Args:
         name: Name of the sh_binary wrapper target
-        llvm_symbolizer: Label to llvm-symbolizer binary (e.g., "@llvm_linux_x86_64//:llvm-symbolizer")
-        asan_ignore_list: Optional label to ASAN ignore list file
-        lsan_ignore_list: Optional label to LSAN (leak sanitizer) ignore list file
-        tsan_ignore_list: Optional label to TSAN ignore list file
-        asan_options: Optional string of additional ASAN_OPTIONS (e.g., "detect_leaks=0:malloc_context_size=5")
-        tsan_options: Optional string of additional TSAN_OPTIONS (e.g., "halt_on_error=1:exitcode=66")
-        additional_data: Additional data dependencies for the wrapper
-        tags: Tags for the sh_binary (default: ["manual"])
-        visibility: Visibility of the generated target
+        llvm_symbolizer: Label to llvm-symbolizer binary
+        asan_options: ASAN_OPTIONS string
+        tsan_options: TSAN_OPTIONS string
+        asan_ignore_list: Optional ASAN ignore list file
+        lsan_ignore_list: Optional LSAN ignore list file
+        tsan_ignore_list: Optional TSAN ignore list file
+        additional_data: Additional data dependencies
+        tags: Tags for the sh_binary
+        visibility: Visibility of the target
     """
 
-    # Collect ignore list files
+    # Generate wrapper script
+    script_name = name + "_script"
+    _sanitizer_wrapper_script(
+        name = script_name,
+        asan_options = asan_options,
+        tsan_options = tsan_options,
+        asan_ignore_list = asan_ignore_list,
+        lsan_ignore_list = lsan_ignore_list,
+        tsan_ignore_list = tsan_ignore_list,
+    )
+
     ignore_lists = []
     if asan_ignore_list:
         ignore_lists.append(asan_ignore_list)
@@ -60,148 +61,66 @@ def sanitizer_wrapper(
     if tsan_ignore_list:
         ignore_lists.append(tsan_ignore_list)
 
-    # Generate the wrapper script
-    script_name = name + "_script"
-    _sanitizer_wrapper_script(
-        name = script_name,
-        asan_ignore_list = asan_ignore_list,
-        lsan_ignore_list = lsan_ignore_list,
-        tsan_ignore_list = tsan_ignore_list,
-        asan_options = asan_options,
-        tsan_options = tsan_options,
-        srcs = ignore_lists,
-    )
-
-    # Create the sh_binary with all dependencies
-    data_deps = [llvm_symbolizer] + ignore_lists + additional_data
-
     sh_binary(
         name = name,
         srcs = [":" + script_name],
-        data = data_deps,
+        data = [llvm_symbolizer] + ignore_lists + additional_data,
         tags = tags,
         visibility = visibility,
     )
 
 def _sanitizer_wrapper_script_impl(ctx):
-    """Implementation for generating the sanitizer wrapper script."""
-    output = ctx.outputs.out
+    """Generate sanitizer wrapper script from template."""
+    # Helper to get runfiles path for a file
+    def get_runfiles_path(file):
+        # For external repos, short_path starts with ../repo_name/
+        # For main workspace, short_path is relative to workspace root
+        if file.short_path.startswith("../"):
+            # External repo: ../repo_name/path -> repo_name/path
+            return file.short_path[3:]
+        else:
+            # Main workspace: prepend workspace name
+            workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
+            return workspace_name + "/" + file.short_path
 
-    # Build the script content
-    script_lines = [
-        "#!/bin/bash",
-        "# Auto-generated sanitizer wrapper",
-        "# Configures symbolizer and sanitizer options for tests",
-        "",
-        "set -euo pipefail",
-        "",
-        "# Locate wrapper runfiles directory",
-        'wrapper_runfiles="${RUNFILES_DIR:-$0.runfiles}"',
-        "",
-        "# Find llvm-symbolizer in runfiles",
-        "# This searches for any llvm*_linux_*/bin/llvm-symbolizer to support multiple LLVM versions",
-        'symbolizer=$(find -L "${wrapper_runfiles}" -path "*/llvm*/bin/llvm-symbolizer" -type f 2>/dev/null | head -n 1)',
-        "",
-        'if [ -z "${symbolizer}" ]; then',
-        '  echo "Warning: llvm-symbolizer not found in runfiles, symbolization may not work" >&2',
-        "fi",
-        "",
-    ]
-
-    # Add ASAN configuration
-    asan_opts = []
+    # Build options with proper runfiles paths
+    asan_opts = [ctx.attr.asan_options]
     if ctx.attr.asan_ignore_list:
-        asan_ignore_path = ctx.file.asan_ignore_list.short_path
-        asan_opts.append('suppressions="${wrapper_runfiles}/' + asan_ignore_path + '"')
-    if ctx.attr.asan_options:
-        asan_opts.append(ctx.attr.asan_options)
+        asan_opts.append('suppressions="${wrapper_runfiles}/' + get_runfiles_path(ctx.file.asan_ignore_list) + '"')
 
-    if asan_opts or ctx.attr.asan_ignore_list:
-        script_lines.extend([
-            "# Configure ASAN options",
-            'ASAN_BASE_OPTIONS="' + ":".join(asan_opts) + '"',
-            'if [ -n "${symbolizer}" ]; then',
-            '  ASAN_BASE_OPTIONS="${ASAN_BASE_OPTIONS}:external_symbolizer_path=${symbolizer}"',
-            'fi',
-            'export ASAN_OPTIONS="${ASAN_OPTIONS:-}${ASAN_OPTIONS:+:}${ASAN_BASE_OPTIONS}"',
-            "",
-        ])
-
-    # Add LSAN configuration
     lsan_opts = []
     if ctx.attr.lsan_ignore_list:
-        lsan_ignore_path = ctx.file.lsan_ignore_list.short_path
-        lsan_opts.append('suppressions="${wrapper_runfiles}/' + lsan_ignore_path + '"')
+        lsan_opts.append('suppressions="${wrapper_runfiles}/' + get_runfiles_path(ctx.file.lsan_ignore_list) + '"')
 
-    if lsan_opts:
-        script_lines.extend([
-            "# Configure LSAN (Leak Sanitizer) options",
-            'LSAN_BASE_OPTIONS="' + ":".join(lsan_opts) + '"',
-            'export LSAN_OPTIONS="${LSAN_OPTIONS:-}${LSAN_OPTIONS:+:}${LSAN_BASE_OPTIONS}"',
-            "",
-        ])
-
-    # Add TSAN configuration
-    tsan_opts = []
+    tsan_opts = [ctx.attr.tsan_options]
     if ctx.attr.tsan_ignore_list:
-        tsan_ignore_path = ctx.file.tsan_ignore_list.short_path
-        tsan_opts.append('suppressions="${wrapper_runfiles}/' + tsan_ignore_path + '"')
-    if ctx.attr.tsan_options:
-        tsan_opts.append(ctx.attr.tsan_options)
+        tsan_opts.append('suppressions="${wrapper_runfiles}/' + get_runfiles_path(ctx.file.tsan_ignore_list) + '"')
 
-    if tsan_opts or ctx.attr.tsan_ignore_list:
-        script_lines.extend([
-            "# Configure TSAN options",
-            'TSAN_BASE_OPTIONS="' + ":".join(tsan_opts) + '"',
-            'if [ -n "${symbolizer}" ]; then',
-            '  TSAN_BASE_OPTIONS="${TSAN_BASE_OPTIONS}:external_symbolizer_path=${symbolizer}"',
-            'fi',
-            'export TSAN_OPTIONS="${TSAN_OPTIONS:-}${TSAN_OPTIONS:+:}${TSAN_BASE_OPTIONS}"',
-            "",
-        ])
-
-    # Execute the wrapped binary
-    script_lines.extend([
-        "# Execute the wrapped test/binary",
-        'exec "$@"',
-        "",
-    ])
-
-    ctx.actions.write(
-        output = output,
-        content = "\n".join(script_lines),
+    ctx.actions.expand_template(
+        template = ctx.file.template,
+        output = ctx.outputs.out,
+        substitutions = {
+            "{ASAN_BASE_OPTIONS}": ":".join(asan_opts),
+            "{LSAN_BASE_OPTIONS}": ":".join(lsan_opts),
+            "{TSAN_BASE_OPTIONS}": ":".join(tsan_opts),
+        },
         is_executable = True,
     )
 
-    return [DefaultInfo(files = depset([output]))]
+    return [DefaultInfo(files = depset([ctx.outputs.out]))]
 
 _sanitizer_wrapper_script = rule(
     implementation = _sanitizer_wrapper_script_impl,
     attrs = {
-        "asan_ignore_list": attr.label(
+        "asan_options": attr.string(),
+        "tsan_options": attr.string(),
+        "asan_ignore_list": attr.label(allow_single_file = True),
+        "lsan_ignore_list": attr.label(allow_single_file = True),
+        "tsan_ignore_list": attr.label(allow_single_file = True),
+        "template": attr.label(
+            default = Label("//cc/sanitizers:sanitizer_wrapper.sh.tpl"),
             allow_single_file = True,
-            doc = "ASAN suppressions file",
-        ),
-        "lsan_ignore_list": attr.label(
-            allow_single_file = True,
-            doc = "LSAN suppressions file",
-        ),
-        "tsan_ignore_list": attr.label(
-            allow_single_file = True,
-            doc = "TSAN suppressions file",
-        ),
-        "asan_options": attr.string(
-            doc = "Additional ASAN_OPTIONS (colon-separated)",
-        ),
-        "tsan_options": attr.string(
-            doc = "Additional TSAN_OPTIONS (colon-separated)",
-        ),
-        "srcs": attr.label_list(
-            allow_files = True,
-            doc = "Source files (ignore lists) to trigger rebuild on change",
         ),
     },
-    outputs = {
-        "out": "%{name}.sh",
-    },
+    outputs = {"out": "%{name}.sh"},
 )
