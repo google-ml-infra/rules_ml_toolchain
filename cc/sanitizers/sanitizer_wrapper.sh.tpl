@@ -17,4 +17,6 @@ tsan_opts="{TSAN_BASE_OPTIONS}"
 [ -n "${symbolizer}" ] && tsan_opts="${tsan_opts:+${tsan_opts}:}external_symbolizer_path=${symbolizer}"
 export TSAN_OPTIONS="${TSAN_OPTIONS:-}${TSAN_OPTIONS:+:}${tsan_opts}"
 
+echo "Sanitizer wrapper: wrapper_runfiles=${wrapper_runfiles}" >&2
+echo "Sanitizer wrapper: about to execute: {RUN_UNDER_EXEC}" >&2
 {RUN_UNDER_EXEC}

@@ -105,8 +105,17 @@ def _sanitizer_wrapper_script_impl(ctx):
 
     # Build exec command
     if ctx.attr.run_under:
-        run_under_path = "${wrapper_runfiles}/" + get_runfiles_path(ctx.executable.run_under)
-        exec_cmd = 'exec "%s" "$@"' % run_under_path
+        # For executables, use the executable's runfiles path
+        # sh_binary and other executables have their path in ctx.executable
+        executable_path = ctx.executable.run_under.short_path
+        if executable_path.startswith("../"):
+            # External repo
+            runfiles_path = executable_path[3:]
+        else:
+            # Main workspace
+            workspace_name = ctx.label.workspace_name if ctx.label.workspace_name else ctx.workspace_name
+            runfiles_path = workspace_name + "/" + executable_path
+        exec_cmd = 'exec "${wrapper_runfiles}/%s" "$@"' % runfiles_path
     else:
         exec_cmd = 'exec "$@"'
 
