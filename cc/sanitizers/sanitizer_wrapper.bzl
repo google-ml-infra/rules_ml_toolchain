@@ -24,6 +24,7 @@ def sanitizer_wrapper(
         asan_ignore_list = None,
         lsan_ignore_list = None,
         tsan_ignore_list = None,
+        run_under = None,
         additional_data = [],
         tags = ["manual"],
         visibility = None):
@@ -37,6 +38,7 @@ def sanitizer_wrapper(
         asan_ignore_list: Optional ASAN ignore list file
         lsan_ignore_list: Optional LSAN ignore list file
         tsan_ignore_list: Optional TSAN ignore list file
+        run_under: Optional script to run under (e.g., parallel_gpu_execute)
         additional_data: Additional data dependencies
         tags: Tags for the sh_binary
         visibility: Visibility of the target
@@ -51,6 +53,7 @@ def sanitizer_wrapper(
         asan_ignore_list = asan_ignore_list,
         lsan_ignore_list = lsan_ignore_list,
         tsan_ignore_list = tsan_ignore_list,
+        run_under = run_under,
     )
 
     ignore_lists = []
@@ -61,10 +64,14 @@ def sanitizer_wrapper(
     if tsan_ignore_list:
         ignore_lists.append(tsan_ignore_list)
 
+    data_deps = [llvm_symbolizer] + ignore_lists + additional_data
+    if run_under:
+        data_deps.append(run_under)
+
     sh_binary(
         name = name,
         srcs = [":" + script_name],
-        data = [llvm_symbolizer] + ignore_lists + additional_data,
+        data = data_deps,
         tags = tags,
         visibility = visibility,
     )
@@ -96,6 +103,13 @@ def _sanitizer_wrapper_script_impl(ctx):
     if ctx.attr.tsan_ignore_list:
         tsan_opts.append('suppressions="${wrapper_runfiles}/' + get_runfiles_path(ctx.file.tsan_ignore_list) + '"')
 
+    # Build exec command
+    if ctx.attr.run_under:
+        run_under_path = "${wrapper_runfiles}/" + get_runfiles_path(ctx.executable.run_under)
+        exec_cmd = 'exec "%s" "$@"' % run_under_path
+    else:
+        exec_cmd = 'exec "$@"'
+
     ctx.actions.expand_template(
         template = ctx.file.template,
         output = ctx.outputs.out,
@@ -103,6 +117,7 @@ def _sanitizer_wrapper_script_impl(ctx):
             "{ASAN_BASE_OPTIONS}": ":".join(asan_opts),
             "{LSAN_BASE_OPTIONS}": ":".join(lsan_opts),
             "{TSAN_BASE_OPTIONS}": ":".join(tsan_opts),
+            "{RUN_UNDER_EXEC}": exec_cmd,
         },
         is_executable = True,
     )
@@ -117,6 +132,7 @@ _sanitizer_wrapper_script = rule(
         "asan_ignore_list": attr.label(allow_single_file = True),
         "lsan_ignore_list": attr.label(allow_single_file = True),
         "tsan_ignore_list": attr.label(allow_single_file = True),
+        "run_under": attr.label(executable = True, cfg = "target"),
         "template": attr.label(
             default = Label("//cc/sanitizers:sanitizer_wrapper.sh.tpl"),
             allow_single_file = True,

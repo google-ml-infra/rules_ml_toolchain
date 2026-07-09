@@ -17,4 +17,4 @@ tsan_opts="{TSAN_BASE_OPTIONS}"
 [ -n "${symbolizer}" ] && tsan_opts="${tsan_opts:+${tsan_opts}:}external_symbolizer_path=${symbolizer}"
 export TSAN_OPTIONS="${TSAN_OPTIONS:-}${TSAN_OPTIONS:+:}${tsan_opts}"
 
-exec "$@"
+{RUN_UNDER_EXEC}
