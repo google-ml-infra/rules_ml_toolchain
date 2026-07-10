@@ -14,8 +14,6 @@
 
 """Macro to create sanitizer wrapper targets with llvm-symbolizer support."""
 
-load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
-
 def sanitizer_wrapper(
         name,
         llvm_symbolizer,
@@ -68,7 +66,7 @@ def sanitizer_wrapper(
     if run_under:
         data_deps.append(run_under)
 
-    sh_binary(
+    native.sh_binary(
         name = name,
         srcs = [":" + script_name],
         data = data_deps,
