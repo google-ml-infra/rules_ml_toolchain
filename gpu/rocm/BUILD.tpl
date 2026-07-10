@@ -137,4 +137,18 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
+# ROCm llvm-symbolizer for sanitizer stack trace symbolization
+filegroup(
+    name = "llvm-symbolizer",
+    srcs = glob(["%{rocm_root}/llvm/bin/llvm-symbolizer"]),
+    visibility = ["//visibility:public"],
+)
+
+# Distribution libraries needed by llvm-symbolizer
+filegroup(
+    name = "distro_libs",
+    srcs = glob(["%{rocm_root}/llvm/lib/*.so*"]),
+    visibility = ["//visibility:public"],
+)
+
 
