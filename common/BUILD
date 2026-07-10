@@ -144,6 +144,19 @@ config_setting(
     },
 )
 
+# ROCm-specific flags
+bool_flag(
+    name = "use_rocm_clang",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_rocm_clang_enabled",
+    flag_values = {
+        ":use_rocm_clang": "True",
+    },
+)
+
 #######################################################
 # Enable CUDA support flags
 #

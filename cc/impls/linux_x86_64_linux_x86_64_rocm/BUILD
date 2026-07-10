@@ -54,7 +54,10 @@ rocm_hipcc_feature(
     clang_version = hipcc_config().clang_version,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
-    host_compiler = "@llvm_linux_x86_64//:clang",
+    host_compiler = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:clang",
+        "//conditions:default": "@llvm_linux_x86_64//:clang",
+    }),
     rocm_path = hipcc_config().rocm_path,
     rocm_toolkit = "@config_rocm_hipcc//rocm:toolchain_data",
     version = str(hipcc_config().version_number),
@@ -101,19 +104,31 @@ cc_toolchain_import_feature(
 # buildifier: leave-alone
 cc_toolchain_import(
     name = "imports",
-    deps = [
-        # Always include hermetic sysroot headers - needed for GPU compilation
-        # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
-        # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
-        # IMPORTANT: std_incs must come before compiler_incs to ensure correct stdatomic.h resolution
-        # The sysroot C++ stdatomic.h wrapper uses #include_next to find clang's built-in stdatomic.h
-        "@sysroot_linux_x86_64//:std_incs",
-        # Hermetic LLVM headers
-        "@llvm_linux_x86_64//:compiler_incs",
-        "@sysroot_linux_x86_64//:sys_incs",
-        ":std_libs",
-        "@sysroot_linux_x86_64//:sys_libs",
-    ],
+    deps = select({
+        "//common:is_rocm_clang_enabled": [
+            # Use ROCm compiler builtins but sysroot for C++ stdlib
+            # (ROCm's C++ headers are incomplete - missing __config_site)
+            "@config_rocm_hipcc//rocm:compiler_incs",
+            "@sysroot_linux_x86_64//:std_incs",
+            "@sysroot_linux_x86_64//:sys_incs",
+            "@sysroot_linux_x86_64//:std_libs",
+            "@sysroot_linux_x86_64//:sys_libs",
+        ],
+        "//conditions:default": [
+            # Use hermetic LLVM toolchain
+            # Always include hermetic sysroot headers - needed for GPU compilation
+            # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
+            # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
+            # IMPORTANT: std_incs must come before compiler_incs to ensure correct stdatomic.h resolution
+            # The sysroot C++ stdatomic.h wrapper uses #include_next to find clang's built-in stdatomic.h
+            "@sysroot_linux_x86_64//:std_incs",
+            # Hermetic LLVM headers
+            "@llvm_linux_x86_64//:compiler_incs",
+            "@sysroot_linux_x86_64//:sys_incs",
+            ":std_libs",
+            "@sysroot_linux_x86_64//:sys_libs",
+        ],
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -284,13 +299,28 @@ FEATURES_ESSENTIAL = [
 
 cc_toolchain_config(
     name = "config",
-    archiver = "@llvm_linux_x86_64//:ar",
-    c_compiler = "@llvm_linux_x86_64//:clang",
-    cc_compiler = "@llvm_linux_x86_64//:clang++",
+    archiver = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:ar",
+        "//conditions:default": "@llvm_linux_x86_64//:ar",
+    }),
+    c_compiler = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:clang",
+        "//conditions:default": "@llvm_linux_x86_64//:clang",
+    }),
+    cc_compiler = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:clang++",
+        "//conditions:default": "@llvm_linux_x86_64//:clang++",
+    }),
     compiler_features = FEATURES_ESSENTIAL,
     cxx_builtin_include_directories = [],
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
+    linker = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:ld",
+        "//conditions:default": "@llvm_linux_x86_64//:ld",
+    }),
+    strip_tool = select({
+        "//common:is_rocm_clang_enabled": "@config_rocm_hipcc//rocm:strip",
+        "//conditions:default": "@llvm_linux_x86_64//:strip",
+    }),
     target_cpu = "x86_64",
     target_system_name = "local",
     tool_paths = ROCM_TOOLS,
@@ -311,18 +341,22 @@ cc_toolchain(
     toolchain_identifier = "toolchain_linux_x86_64_linux_x86_64_rocm_id",
 )
 
-# Aliases to select between libc++ and libstdc++
+# Aliases to select between libc++ and libstdc++, and between hermetic LLVM and ROCm LLVM
+# ROCm clang uses sysroot C++ headers (ROCm's headers are incomplete)
 alias(
     name = "std_incs",
     actual = select({
+        "//common:is_rocm_clang_enabled": "@sysroot_linux_x86_64//:std_incs",
         "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs",
         "//conditions:default": "@sysroot_linux_x86_64//:std_incs",
     }),
 )
 
+# ROCm clang uses sysroot libraries (ROCm doesn't ship static C++ libs)
 alias(
     name = "std_libs",
     actual = select({
+        "//common:is_rocm_clang_enabled": "@sysroot_linux_x86_64//:std_libs",
         "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs",
         "//conditions:default": "@sysroot_linux_x86_64//:std_libs",
     }),
