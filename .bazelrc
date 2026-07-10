@@ -9,7 +9,6 @@ build --toolchain_resolution_debug=.*
 build --repo_env=HERMETIC_PYTHON_VERSION=3.11
 build --repo_env=BAZEL_CXXOPTS="-std=c++20"
 build --cxxopt=-std=c++20
-build --copt=-std=c++20
 
 # Used for rules_python bootstrap 1.8.0+
 build --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
