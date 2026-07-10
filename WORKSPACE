@@ -54,6 +54,13 @@ http_archive(
     ],
 )
 
+http_archive(
+    name = "rules_shell",
+    sha256 = "61979b951a28110c48a45c2120d3108d943b7c8d68ac56e2de6b75ac547d0bc5",
+    strip_prefix = "rules_shell-c02969a1822191a179cd70c0cedd076385446a26",
+    urls = ["https://github.com/bazel-contrib/rules_shell/archive/c02969a1822191a179cd70c0cedd076385446a26.tar.gz"],
+)
+
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
