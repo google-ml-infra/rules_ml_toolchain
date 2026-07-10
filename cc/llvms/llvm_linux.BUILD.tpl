@@ -82,7 +82,7 @@ alias(
 
 alias(
     name = "scan_deps",
-    actual = "@@%{llvm_repo_name}//:scan_deps",
+    actual = "@@%{llvm_repo_name}//:bin/clang-scan-deps",
     visibility = ["//visibility:public"],
 )
 

@@ -79,12 +79,6 @@ filegroup(
 )
 
 filegroup(
-    name = "scan_deps",
-    srcs = ["bin/clang-scan-deps"],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
     name = "install_name_tool_darwin",
     srcs = ["bin/llvm-install-name-tool"],
     visibility = ["//visibility:public"],
