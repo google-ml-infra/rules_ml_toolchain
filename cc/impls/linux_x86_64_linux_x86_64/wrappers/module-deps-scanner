@@ -16,7 +16,9 @@
 # ==============================================================================
 
 # allow passing the output of one command as input to the next
-set -o pipefail
+set -xo pipefail
 
-# run specified tool with all arguments
-$CPP_PATH $@
+$CPP_MODULE_DEPS_SCANNER_PATH \
+  -format=p1689 -- \
+  $CPP_PATH \
+  "$@" >"$DEPS_SCANNER_OUTPUT_FILE"

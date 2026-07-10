@@ -45,6 +45,27 @@ cc_test(
 )
 
 #############################################
+# C++ modules
+cc_library(
+    name = "hello_module",
+    copts = ["-std=c++20"],
+    features = [
+        "cpp_modules",
+    ],
+    module_interfaces = ["hello_module.cppm"],
+)
+
+cc_binary(
+    name = "hello_module_main",
+    srcs = ["hello_module_main.cc"],
+    copts = ["-std=c++20"],
+    features = [
+        "cpp_modules",
+    ],
+    deps = [":hello_module"],
+)
+
+#############################################
 # Test compiler Builtins
 cc_test(
     name = "builtins_test",

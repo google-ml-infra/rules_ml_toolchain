@@ -45,14 +45,68 @@ load(
     "CcToolchainImportInfo",
 )
 
+all_compile_actions = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.assemble,
+    ACTION_NAMES.preprocess_assemble,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
+    ACTION_NAMES.clif_match,
+    ACTION_NAMES.lto_backend,
+]
+
+all_cpp_compile_actions = [
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
+    ACTION_NAMES.clif_match,
+]
+
+preprocessor_compile_actions = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.preprocess_assemble,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.clif_match,
+]
+
+codegen_compile_actions = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.assemble,
+    ACTION_NAMES.preprocess_assemble,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp20_module_codegen,
+    ACTION_NAMES.lto_backend,
+]
+
 ALL_ACTIONS = [
     ACTION_NAMES.c_compile,
     ACTION_NAMES.cpp_compile,
     ACTION_NAMES.linkstamp_compile,
     ACTION_NAMES.cc_flags_make_variable,
-    ACTION_NAMES.cpp_module_codegen,
     ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_codegen,
     ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
     ACTION_NAMES.assemble,
     ACTION_NAMES.preprocess_assemble,
     ACTION_NAMES.lto_indexing,
@@ -67,13 +121,36 @@ ALL_ACTIONS = [
     ACTION_NAMES.clif_match,
 ]
 
+all_link_actions = [
+    ACTION_NAMES.cpp_link_executable,
+    ACTION_NAMES.cpp_link_dynamic_library,
+    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+]
+
+lto_index_actions = [
+    ACTION_NAMES.lto_index_for_executable,
+    ACTION_NAMES.lto_index_for_dynamic_library,
+    ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+]
+
 def _cc_feature_impl(ctx):
     flag_sets = []
     env_sets = []
 
+    if ctx.attr.actions and ctx.attr.flags:
+        flag_sets.append(flag_set(
+            actions = ctx.attr.actions,
+            flag_groups = [
+                flag_group(
+                    flags = ctx.attr.flags,
+                    expand_if_available = ctx.attr.expand_if_available if ctx.attr.expand_if_available else None,
+                    expand_if_not_available = ctx.attr.expand_if_not_available if ctx.attr.expand_if_not_available else None,
+                ),
+            ],
+        ))
     if ctx.attr.cc_flags:
         flag_sets.append(flag_set(
-            actions = ALL_CPP_COMPILE_ACTION_NAMES,
+            actions = all_cpp_compile_actions,
             flag_groups = [
                 flag_group(
                     flags = ctx.attr.cc_flags,
@@ -97,7 +174,7 @@ def _cc_feature_impl(ctx):
         ))
     if ctx.attr.compiler_flags:
         flag_sets.append(flag_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES,
+            actions = all_compile_actions,
             flag_groups = [
                 flag_group(
                     flags = ctx.attr.compiler_flags,
@@ -154,6 +231,14 @@ can be enabled any given time.",
             default = [],
             doc = "Other features that are automatically enabled with this \
 feature.",
+        ),
+        "actions": attr.string_list(
+            default = [],
+            doc = "The list of actions which is used for applying 'flags'.",
+        ),
+        "flags": attr.string_list(
+            default = [],
+            doc = "The list of flags to apply when the actions mentioned in the 'actions' attribute are executed.",
         ),
         "cc_flags": attr.string_list(
             default = [],
@@ -222,23 +307,21 @@ def _import_feature_impl(ctx):
     static_link_flags = ctx.attr.static_link_flags
 
     include_flags = [
-        "-isystem " + inc
-        for inc in toolchain_import_info
-            .compilation_context.includes.to_list()
+        arg
+        for inc in toolchain_import_info.compilation_context.includes.to_list()
+        for arg in ("-isystem", inc)
     ]
 
     injected_include_flags = [
-        "-include " + hdr.path
-        for hdr in toolchain_import_info
-            .compilation_context
-            .injected_headers
-            .to_list()
+        arg
+        for hdr in toolchain_import_info.compilation_context.injected_headers.to_list()
+        for arg in ("-include", hdr.path)
     ]
 
     framework_flags = [
-        "-F " + fw
-        for fw in toolchain_import_info
-            .compilation_context.frameworks.to_list()
+        arg
+        for fw in toolchain_import_info.compilation_context.frameworks.to_list()
+        for arg in ("-F", fw)
     ]
 
     linker_runtime_path_flags = depset([
@@ -274,7 +357,19 @@ def _import_feature_impl(ctx):
     flag_sets = []
     if include_flags:
         flag_sets.append(flag_set(
-            actions = ALL_CC_COMPILE_ACTION_NAMES,
+            actions = [
+                ACTION_NAMES.preprocess_assemble,
+                ACTION_NAMES.linkstamp_compile,
+                ACTION_NAMES.c_compile,
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.cpp_header_parsing,
+                ACTION_NAMES.cpp_module_compile,
+                ACTION_NAMES.cpp_module_deps_scanning,
+                ACTION_NAMES.cpp20_module_compile,
+                ACTION_NAMES.clif_match,
+                ACTION_NAMES.objc_compile,
+                ACTION_NAMES.objcpp_compile,
+            ],
             flag_groups = [
                 flag_group(
                     flags = include_flags,
@@ -358,9 +453,20 @@ cc_toolchain_import_feature = rule(
 def _sysroot_feature(ctx):
     flag_sets = [
         flag_set(
-            actions = CC_LINK_EXECUTABLE_ACTION_NAMES +
-                      DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
-                      ALL_CC_COMPILE_ACTION_NAMES,
+            actions = [
+                ACTION_NAMES.preprocess_assemble,
+                ACTION_NAMES.linkstamp_compile,
+                ACTION_NAMES.c_compile,
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.cpp_header_parsing,
+                ACTION_NAMES.cpp_module_compile,
+                ACTION_NAMES.cpp_module_codegen,
+                ACTION_NAMES.cpp_module_deps_scanning,
+                ACTION_NAMES.cpp20_module_compile,
+                ACTION_NAMES.cpp20_module_codegen,
+                ACTION_NAMES.lto_backend,
+                ACTION_NAMES.clif_match,
+            ] + all_link_actions + lto_index_actions,
             flag_groups = [
                 flag_group(
                     flags = [
@@ -373,8 +479,20 @@ def _sysroot_feature(ctx):
 
     flag_sets += [
         flag_set(
-            actions =   ALL_CC_LINK_ACTION_NAMES +
-                        ALL_CC_COMPILE_ACTION_NAMES,
+            actions = [
+                ACTION_NAMES.preprocess_assemble,
+                ACTION_NAMES.linkstamp_compile,
+                ACTION_NAMES.c_compile,
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.cpp_header_parsing,
+                ACTION_NAMES.cpp_module_compile,
+                ACTION_NAMES.cpp_module_codegen,
+                ACTION_NAMES.cpp_module_deps_scanning,
+                ACTION_NAMES.cpp20_module_compile,
+                ACTION_NAMES.cpp20_module_codegen,
+                ACTION_NAMES.lto_backend,
+                ACTION_NAMES.clif_match,
+            ] + all_link_actions + lto_index_actions,
             flag_groups = [
                 flag_group(
                     flags = [

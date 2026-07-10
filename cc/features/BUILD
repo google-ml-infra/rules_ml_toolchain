@@ -14,10 +14,21 @@
 # ==============================================================================
 
 load(
+    "@rules_cc//cc:action_names.bzl",
+    "ACTION_NAMES",
+)
+load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
     "cc_toolchain_import_feature",
     "cc_toolchain_sysroot_feature",
+)
+load(
+    ":features.bzl",
+    "compiler_input_feature",
+    "compiler_output_feature",
+    "user_compile_feature",
+    "unfiltered_compile_feature",
 )
 load(
     "//cc/features:runtime_library_search_directories.bzl",
@@ -84,13 +95,6 @@ cc_feature(
         "-Wno-error=c23-extensions",
     ],
     enabled = True,
-)
-
-cc_toolchain_sysroot_feature(
-    name = "sysroot_linux_x86_64",
-    enabled = True,
-    sysroot = "@sysroot_linux_x86_64//:sysroot",
-    target = "x86_64-linux-gnu",
 )
 
 # Local sysroot feature - use system root instead of hermetic sysroot
@@ -244,4 +248,97 @@ cc_feature(
 runtime_library_search_directories(
     name = "runtime_library_search_directories",
 )
+
+cc_feature(
+    name = "cpp_modules",
+    enabled = False,
+)
+
+cc_feature(
+    name = "cpp20_module_compile_flags",
+    actions = [
+        ACTION_NAMES.cpp20_module_compile,
+    ],
+    flags = [
+        "-fmodule-output=%{cpp_module_output_file}",
+    ],
+    expand_if_available = "cpp_module_output_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "cpp_module_modmap_file",
+    actions = [
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    flags = [
+        "@%{cpp_module_modmap_file}",
+    ],
+    expand_if_available = "cpp_module_modmap_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "dependency_file",
+    actions = [
+        ACTION_NAMES.assemble,
+        ACTION_NAMES.preprocess_assemble,
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.objc_compile,
+        ACTION_NAMES.objcpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.clif_match,
+    ],
+    flags = [
+        "-MD",
+        "-MF",
+        "%{dependency_file}"
+    ],
+    expand_if_available = "dependency_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "random_seed",
+    actions = [
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_module_codegen,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    flags = [
+        "-frandom-seed=%{output_file}",
+    ],
+    expand_if_available = "output_file",
+    enabled = True,
+)
+
+compiler_input_feature(
+    name = "compiler_input_flags",
+    enabled = True,
+)
+
+compiler_output_feature(
+    name = "compiler_output_flags",
+    enabled = True,
+)
+
+user_compile_feature(
+    name = "user_compile_flags",
+    enabled = True,
+)
+
+#unfiltered_compile_feature(
+#    name = "unfiltered_compile_flags",
+#    enabled = True,
+#)
 

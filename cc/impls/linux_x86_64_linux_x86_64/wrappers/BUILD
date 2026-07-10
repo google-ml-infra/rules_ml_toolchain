@@ -25,6 +25,7 @@ filegroup(
         "idler",
         "ld",
         "objcopy",
+        "module-deps-scanner",
     ],
     visibility = ["//visibility:public"],
 )

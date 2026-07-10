@@ -81,6 +81,12 @@ alias(
 )
 
 alias(
+    name = "scan_deps",
+    actual = "@@%{llvm_repo_name}//:scan_deps",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "install_name_tool_darwin",
     actual = "@@%{llvm_repo_name}//:install_name_tool_darwin",
     visibility = ["//visibility:public"],
