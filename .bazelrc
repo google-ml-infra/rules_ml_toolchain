@@ -55,6 +55,7 @@ common:asan --copt=-fno-omit-frame-pointer
 common:asan --action_env=ASAN_OPTIONS=detect_leaks=0
 common:asan --host_action_env=ASAN_OPTIONS=detect_leaks=0
 common:asan --@rules_ml_toolchain//common:asan_options=detect_leaks=0
+common:asan --run_under=//cc/sanitizers:sanitizer_wrapper
 
 common:asan_shared --config=asan
 common:asan_shared --copt=-shared-libasan
@@ -71,6 +72,7 @@ common:asan_shared_py3.13 --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.13.x-asan
 common:tsan --features=tsan
 common:tsan --strip=never
 common:tsan --copt=-g
+common:tsan --run_under=//cc/sanitizers:sanitizer_wrapper
 
 # TSan with shared library config
 common:tsan_shared --config=tsan
@@ -86,8 +88,9 @@ common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_SHA256=19160bafba950761dea5
 common:tsan_shared_py3.14 --repo_env=HERMETIC_PYTHON_PREFIX="cpython-3.14.x-tsan-shared-linux-x86_64-llvm-18.1.8/"
 
 # We need successfully finished tests to check that TSan works. Only for this purpose we add TSan options 'halt_on_error=1:exitcode=66'
-# TODO: How to make it work with different versions of LLVM?
-common:tsan_test --test_env="TSAN_OPTIONS="halt_on_error=1:exitcode=66:external_symbolizer_path=../../external/llvm18_linux_x86_64/bin/llvm-symbolizer"
+# Note: The symbolizer path is now automatically set by the sanitizer_wrapper
+common:tsan_test --config=tsan
+# The wrapper already configures halt_on_error=1:exitcode=66 and the symbolizer path
 
 # Non-hermetic ASan configuration
 common:asan_clang_local --copt=-fsanitize=address
@@ -267,5 +270,20 @@ common:rocm --config=rocm_common
 common:rocm --dynamic_mode=off
 common:rocm --@rules_ml_toolchain//common:enable_hermetic_cc=True
 common:rocm --@rules_ml_toolchain//common:enable_hermetic_libraries=True
+
+# ROCm with ASan (AddressSanitizer)
+common:rocm_asan --config=rocm
+common:rocm_asan --features=asan
+common:rocm_asan --host_features=-asan
+common:rocm_asan --strip=never
+common:rocm_asan --copt=-fno-omit-frame-pointer
+common:rocm_asan --run_under=//cc/sanitizers:sanitizer_wrapper
+
+# ROCm with TSan (ThreadSanitizer)
+common:rocm_tsan --config=rocm
+common:rocm_tsan --features=tsan
+common:rocm_tsan --strip=never
+common:rocm_tsan --copt=-g
+common:rocm_tsan --run_under=//cc/sanitizers:sanitizer_wrapper
 
 try-import %workspace%/.bazelrc.local

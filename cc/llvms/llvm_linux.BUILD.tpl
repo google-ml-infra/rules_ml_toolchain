@@ -81,6 +81,12 @@ alias(
 )
 
 alias(
+    name = "llvm-symbolizer",
+    actual = "@@%{llvm_repo_name}//:bin/llvm-symbolizer",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "install_name_tool_darwin",
     actual = "@@%{llvm_repo_name}//:install_name_tool_darwin",
     visibility = ["//visibility:public"],
