@@ -175,7 +175,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:language",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_aarch64",
+        "//cc/features/linux_aarch64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version

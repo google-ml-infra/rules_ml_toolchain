@@ -21,7 +21,6 @@ load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
     "cc_toolchain_import_feature",
-    "cc_toolchain_sysroot_feature",
 )
 load(
     ":features.bzl",
@@ -122,19 +121,7 @@ cc_feature(
     ],
 )
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot_linux_aarch64",
-    enabled = True,
-    sysroot = "@sysroot_linux_aarch64//:sysroot",
-    target = "aarch64-linux-gnu",
-)
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot_darwin_aarch64",
-    enabled = True,
-    sysroot = "@sysroot_darwin_aarch64//:sysroot",
-    target = "arm64-apple-macosx15.1",
-)
 
 # macOS specific. Needed for llvm-install-name-tool when long paths for libraries are used.
 # Usually bazel generates long loader paths.

@@ -135,7 +135,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:language",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_darwin_aarch64",
+        "//cc/features/darwin_aarch64:sysroot",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
         "//cc/features:max_install_names",

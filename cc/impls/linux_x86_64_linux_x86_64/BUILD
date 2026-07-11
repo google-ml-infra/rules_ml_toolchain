@@ -87,13 +87,6 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot",
-    enabled = True,
-    sysroot = "@sysroot_linux_x86_64//:sysroot",
-    target = "x86_64-linux-gnu",
-)
-
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
@@ -250,7 +243,7 @@ FEATURES_ESSENTIAL = [
     ":asan",
     ":tsan",
 
-    ":sysroot",
+    "//cc/features/linux_x86_64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
     #"//cc/features:unfiltered_compile_flags",
