@@ -95,7 +95,9 @@ filegroup(
     %{comment}srcs = glob([
         %{comment}"include/fatbinary_section.h",
         %{comment}"include/nvPTXCompiler.h",
-    %{comment}]) + if_cuda_newer_than(
+        %{comment}],
+        %{comment}allow_empty = True,
+    %{comment}) + if_cuda_newer_than(
         %{comment}"13_0",
         %{comment}if_true = [],
         %{comment}if_false = glob(["include/crt/**"], allow_empty = True),
