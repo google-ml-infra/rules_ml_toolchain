@@ -4,19 +4,14 @@ common --experimental_repo_remote_exec      # Flag to enable python remote confi
 common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 
 build --toolchain_resolution_debug=.*
-#build --host_cxxopt=-std=c++17
-#build --cxxopt=-std=c++17
+build --no@bazel_tools//tools/test:incompatible_use_default_test_toolchain
 build --repo_env=HERMETIC_PYTHON_VERSION=3.11
 build --repo_env=BAZEL_CXXOPTS="-std=c++20"
-build --cxxopt=-std=c++20
+build --features=c++17
 
 # Used for rules_python bootstrap 1.8.0+
 build --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
 test --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
-
-#build:--os=linux --cxxopt=-std=c++17
-#build:--os=macos --cxxopt=-std=c++17
-#build:--os=windows --cxxopt=-std=c++14
 
 common:bzlmod --enable_bzlmod --noenable_workspace
 
