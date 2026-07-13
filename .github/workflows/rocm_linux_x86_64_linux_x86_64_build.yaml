@@ -54,7 +54,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (hermetic HIPcc)
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --define=using_rocm=true \
@@ -62,7 +62,7 @@ jobs:
 
       - name: Test host (CPU) code compilation with ROCm toolchain
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --define=using_rocm=true \
@@ -70,7 +70,7 @@ jobs:
 
       - name: Test ROCm GPU code compilation (bzlmod)
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --config=bzlmod \
@@ -79,7 +79,7 @@ jobs:
 
       - name: Test host (CPU) code compilation (bzlmod)
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" --color=yes \
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --config=bzlmod \
