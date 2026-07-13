@@ -5,9 +5,7 @@ common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C
 
 build --toolchain_resolution_debug=.*
 build --no@bazel_tools//tools/test:incompatible_use_default_test_toolchain
-build --repo_env=HERMETIC_PYTHON_VERSION=3.11
-#build --cxxopt="-std=c++20"
-#build --features=c++20
+build --repo_env=HERMETIC_PYTHON_VERSION=3.13
 
 # Used for rules_python bootstrap 1.8.0+
 build --@rules_python//python/config_settings:bootstrap_impl=script --repo_env=RULES_PYTHON_ENABLE_PIPSTAR=0
