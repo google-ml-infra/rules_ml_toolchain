@@ -37,16 +37,10 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "startup_libs",
-    actual = "@sysroot_linux_aarch64//:startup_libs",
-    visibility = ["//visibility:public"],
-)
-
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = ":startup_libs",
+    toolchain_import = "@sysroot_linux_aarch64//:startup_libs",
 )
 
 alias(
@@ -96,7 +90,7 @@ filegroup(
     srcs = [
         ":imports",
         ":wrappers",
-        ":startup_libs",
+        "@sysroot_linux_aarch64//:startup_libs",
         "@llvm_linux_aarch64//:all",
     ],
 )
@@ -165,6 +159,8 @@ cc_toolchain_config(
     compiler_features = [
         "//cc/features:include_paths",
         "//cc/features:external_include_paths",
+
+        # Hermetic libraries feature required before import.
         "//third_party/rules_cc_toolchain/features:hermetic_libraries",
         # TODO: Add select() for turn off this option when libstdc++ is used
         #"//cc/features:libc++",
@@ -208,6 +204,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:c++17",
         "//third_party/rules_cc_toolchain/features:c++20",
 
+        #
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",

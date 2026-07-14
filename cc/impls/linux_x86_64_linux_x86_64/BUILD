@@ -41,16 +41,10 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "startup_libs",
-    actual = "@sysroot_linux_x86_64//:startup_libs",
-    visibility = ["//visibility:public"],
-)
-
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = ":startup_libs",
+    toolchain_import = "@sysroot_linux_x86_64//:startup_libs",
 )
 
 alias(
@@ -126,7 +120,7 @@ filegroup(
     srcs = [
         ":imports",
         ":wrappers",
-        ":startup_libs",
+        "@sysroot_linux_x86_64//:startup_libs",
         "@llvm_linux_x86_64//:all",
     ],
 )

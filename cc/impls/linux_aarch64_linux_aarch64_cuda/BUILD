@@ -78,16 +78,10 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "startup_libs",
-    actual = "@sysroot_linux_aarch64//:startup_libs",
-    visibility = ["//visibility:public"],
-)
-
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = ":startup_libs",
+    toolchain_import = "@sysroot_linux_aarch64//:startup_libs",
 )
 
 alias(
@@ -139,7 +133,7 @@ filegroup(
         ":cuda_nvcc",
         ":imports",
         ":wrappers",
-        ":startup_libs",
+        "@sysroot_linux_aarch64//:startup_libs",
         "@llvm_linux_aarch64//:all",
     ],
 )
@@ -153,6 +147,7 @@ filegroup(
         ":wrappers",
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
+        "@llvm_linux_aarch64//:scan_deps",
         "@llvm_linux_aarch64//:distro_libs",
     ],
 )
@@ -165,7 +160,7 @@ filegroup(
         ":cuda_nvcc",
         ":wrappers",
         "@llvm_linux_aarch64//:ld",
-        ":startup_libs",
+        "@sysroot_linux_aarch64//:startup_libs",
         "@llvm_linux_aarch64//:distro_libs",
     ],
 )
@@ -207,6 +202,8 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_aarch64//:clang",
     cc_compiler = "@llvm_linux_aarch64//:clang++",
     compiler_features = [
+        "//cc/features:include_paths",
+        "//cc/features:external_include_paths",
         ":imports_feature",
 
         # Cuda features
@@ -217,6 +214,13 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:hermetic_libraries",
         # TODO: Add select() for turn off this option when libstdc++ is used
         #"//cc/features:libc++",
+
+        # C++ modules
+        "//cc/features:cpp_modules",
+        "//cc/features:cpp_module_modmap_file",
+        "//cc/features:cpp20_module_compile_flags",
+        "//cc/features:dependency_file",
+        "//cc/features:random_seed",
 
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",
@@ -246,14 +250,21 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:c++11",
         "//third_party/rules_cc_toolchain/features:c++14",
         "//third_party/rules_cc_toolchain/features:c++17",
+        "//third_party/rules_cc_toolchain/features:c++20",
 
         #
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
+
+        "//cc/features/linux_aarch64:sysroot",
+        "//cc/features:compiler_input_flags",
+        "//cc/features:compiler_output_flags",
+        #"//cc/features:unfiltered_compile_flags",
     ],
     linker = "@llvm_linux_aarch64//:ld",
     strip_tool = "@llvm_linux_aarch64//:strip",
+    module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
     target_cpu = "aarch64",
     target_system_name = "local",
     tool_paths = CUDA_TOOLS,
