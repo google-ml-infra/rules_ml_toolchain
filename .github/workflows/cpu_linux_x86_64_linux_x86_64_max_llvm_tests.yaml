@@ -56,9 +56,10 @@ jobs:
 
       - name: "Clang 21, Glibc 2.35 | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Clang 21, Glibc 2.31 | C++ modules testing..."
@@ -66,56 +67,62 @@ jobs:
           bazel test --experimental_cpp_modules \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --color=yes \
             //cc/tests/cpu:utils_module_test
 
       - name: "Bzlmod. Clang 21, Glibc 2.35 | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --config=bzlmod \
+            --color=yes \
             //cc/tests/cpu:all
 
       # TODO: Replace `build` to `test` and run //cc/tests/cpu:all when GitHub runners will be updated to Ubuntu 24
       - name: "Bzlmod. Clang 22, Glibc 2.39 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes \
+          bazel build --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --config=bzlmod \
+            --color=yes \
               //cc/tests/cpu:absl_test  \
               //cc/tests/cpu:builtins_test \
               //cc/tests/cpu:echoclient_test
 
       - name: "Clang 21, Glibc 2.35, libc++ static linking | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/cpu:all
 
       # TODO: Replace `build` to `test` and run //cc/tests/cpu:all when GitHub runners will be updated to Ubuntu 24
       - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes \
+          bazel build --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
               //cc/tests/cpu:absl_test  \
               //cc/tests/cpu:builtins_test \
               //cc/tests/cpu:echoclient_test
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --config=bzlmod \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | C++ modules testing..."
@@ -126,4 +133,5 @@ jobs:
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --config=bzlmod \
+            --color=yes \
             //cc/tests/cpu:utils_module_test
