@@ -28,6 +28,8 @@ load(
     "compiler_output_feature",
     "user_compile_feature",
     "unfiltered_compile_feature",
+    "include_paths_feature",
+    "external_include_paths_feature",
 )
 load(
     "//cc/features:runtime_library_search_directories.bzl",
@@ -329,3 +331,12 @@ user_compile_feature(
 #    enabled = True,
 #)
 
+include_paths_feature(
+    name = "include_paths",
+    enabled = True,
+)
+
+external_include_paths_feature(
+    name = "external_include_paths",
+    enabled = True,
+)

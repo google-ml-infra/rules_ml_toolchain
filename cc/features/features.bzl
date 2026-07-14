@@ -230,3 +230,105 @@ unfiltered_compile_feature = rule(
     },
     provides = [FeatureInfo],
 )
+
+def _include_paths_feature_impl(ctx):
+    flag_sets = [
+        flag_set(
+            actions = [
+                ACTION_NAMES.preprocess_assemble,
+                ACTION_NAMES.linkstamp_compile,
+                ACTION_NAMES.c_compile,
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.cpp_header_parsing,
+                ACTION_NAMES.cpp_module_compile,
+                ACTION_NAMES.cpp_module_deps_scanning,
+                ACTION_NAMES.cpp20_module_compile,
+                ACTION_NAMES.clif_match,
+                ACTION_NAMES.objc_compile,
+                ACTION_NAMES.objcpp_compile,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = ["-iquote", "%{quote_include_paths}"],
+                    iterate_over = "quote_include_paths",
+                ),
+                flag_group(
+                    flags = ["-I%{include_paths}"],
+                    iterate_over = "include_paths",
+                ),
+                flag_group(
+                    flags = ["-isystem", "%{system_include_paths}"],
+                    iterate_over = "system_include_paths",
+                ),
+            ],
+        ),
+    ]
+
+    return [
+        feature(
+            name = ctx.label.name,
+            enabled = ctx.attr.enabled,
+            provides = ctx.attr.provides,
+            implies = [target.label.name for target in ctx.attr.implies],
+            flag_sets = flag_sets,
+        ),
+    ]
+
+include_paths_feature = rule(
+    _include_paths_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+    },
+    provides = [FeatureInfo],
+)
+
+def _external_include_paths_feature_impl(ctx):
+    flag_sets = [
+        flag_set(
+            actions = [
+                ACTION_NAMES.preprocess_assemble,
+                ACTION_NAMES.linkstamp_compile,
+                ACTION_NAMES.c_compile,
+                ACTION_NAMES.cpp_compile,
+                ACTION_NAMES.cpp_header_parsing,
+                ACTION_NAMES.cpp_module_compile,
+                ACTION_NAMES.cpp_module_deps_scanning,
+                ACTION_NAMES.cpp20_module_compile,
+                ACTION_NAMES.cpp20_module_codegen,
+                ACTION_NAMES.clif_match,
+                ACTION_NAMES.objc_compile,
+                ACTION_NAMES.objcpp_compile,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = ["-isystem", "%{external_include_paths}"],
+                    iterate_over = "external_include_paths",
+                    expand_if_available = "external_include_paths",
+                ),
+            ],
+        ),
+    ]
+
+    return [
+        feature(
+            name = ctx.label.name,
+            enabled = ctx.attr.enabled,
+            provides = ctx.attr.provides,
+            implies = [target.label.name for target in ctx.attr.implies],
+            flag_sets = flag_sets,
+        ),
+    ]
+
+external_include_paths_feature = rule(
+    _external_include_paths_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.string_list(),
+    },
+    provides = [FeatureInfo],
+)

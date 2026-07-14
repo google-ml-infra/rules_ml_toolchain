@@ -46,6 +46,8 @@ cc_test(
 
 #############################################
 # C++ modules
+
+# Binary with library example
 cc_library(
     name = "hello_module",
     features = [
@@ -63,6 +65,35 @@ cc_binary(
         "cpp_modules",
     ],
     deps = [":hello_module"],
+)
+
+# Tests
+cc_library(
+    name = "utils_module",
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    copts = [
+        "-std=c++20"
+    ],
+    module_interfaces = ["utils_module.cppm"],
+)
+
+cc_test(
+    name = "utils_module_test",
+    srcs = ["utils_module_test.cc"],
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    copts = [
+        "-std=c++20"
+    ],
+    deps = [
+        ":utils_module",
+        "@gtest//:gtest_main",
+    ],
 )
 
 #############################################
