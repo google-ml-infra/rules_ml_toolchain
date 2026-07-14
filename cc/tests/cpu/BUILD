@@ -74,9 +74,6 @@ cc_library(
         "c++20",
         "cpp_modules",
     ],
-    copts = [
-        "-std=c++20"
-    ],
     module_interfaces = ["utils_module.cppm"],
 )
 
@@ -86,9 +83,6 @@ cc_test(
     features = [
         "c++20",
         "cpp_modules",
-    ],
-    copts = [
-        "-std=c++20"
     ],
     deps = [
         ":utils_module",
