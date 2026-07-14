@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +15,10 @@
 # limitations under the License.
 # ==============================================================================
 
-package(default_visibility = ["//visibility:public"])
+# allow passing the output of one command as input to the next
+set -xo pipefail
 
-filegroup(
-    name = "all",
-    srcs = [
-        "ar",
-        "clang",
-        "clang-with-sanitizer",     # Separate tool for additional diagnostic; can be removed in the future releases
-        "clang++",
-        "idler",
-        "ld",
-        "nvcc_wrapper",
-        "objcopy",
-        "module-deps-scanner",
-    ],
-    visibility = ["//visibility:public"],
-)
+$CPP_MODULE_DEPS_SCANNER_PATH \
+  -format=p1689 -- \
+  $CPP_PATH \
+  "$@" >"$DEPS_SCANNER_OUTPUT_FILE"
