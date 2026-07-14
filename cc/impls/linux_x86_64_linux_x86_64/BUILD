@@ -25,10 +25,7 @@ load("//cc/sanitizers:features.bzl",
     "cc_toolchain_import_tsan_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
-load("//third_party/rules_cc_toolchain/features:features.bzl",
-    "cc_toolchain_import_feature",
-    "cc_toolchain_sysroot_feature",
-)
+load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
 
 package(
     default_visibility = [
