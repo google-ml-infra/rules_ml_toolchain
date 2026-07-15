@@ -157,7 +157,7 @@ filegroup(
 )
 
 FEATURES_ESSENTIAL = [
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
+    "//third_party/rules_cc_toolchain/features:hermetic",  # Hermetic libraries feature required before import
     ":imports_feature",
 
     # Toolchain configuration

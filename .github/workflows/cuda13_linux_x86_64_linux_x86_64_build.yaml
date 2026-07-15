@@ -57,12 +57,13 @@ jobs:
         # Clang 22 is minimum required version for CUDA13
       - name: "Clang 22, Glibc 2.31 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --verbose_failures \
+             --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 22, Glibc 2.35 | Testing..."

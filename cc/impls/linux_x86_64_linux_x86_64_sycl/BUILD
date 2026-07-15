@@ -159,7 +159,7 @@ cc_toolchain_config(
         "@oneapi//:binaries",
 
         # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+        "//third_party/rules_cc_toolchain/features:hermetic",
 
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",

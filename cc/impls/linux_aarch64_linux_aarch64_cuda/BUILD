@@ -210,14 +210,14 @@ cc_toolchain_config(
     compiler_features = [
         "//cc/features:include_paths",
         "//cc/features:external_include_paths",
+
+        # Hermetic features required before import
+        "//third_party/rules_cc_toolchain/features:hermetic",
+        "//cc/cuda/features:hermetic_cuda",
+
         ":imports_feature",
-
-        # Cuda features
         ":cuda_nvcc_feature",
-        "//cc/cuda/features:hermetic",
 
-        # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
         # TODO: Add select() for turn off this option when libstdc++ is used
         #"//cc/features:libc++",
 
@@ -251,13 +251,13 @@ cc_toolchain_config(
         "//cc/features:detect_issues",
         #"//cc/features:detect_issues_ext",   # Non-hermetic builds don't include these flags
 
-        # C++ standard configuration
+        # C++ standard flags
         "//third_party/rules_cc_toolchain/features:c++11",
         "//third_party/rules_cc_toolchain/features:c++14",
         "//third_party/rules_cc_toolchain/features:c++17",
         "//third_party/rules_cc_toolchain/features:c++20",
 
-        #
+        # Other flags
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",

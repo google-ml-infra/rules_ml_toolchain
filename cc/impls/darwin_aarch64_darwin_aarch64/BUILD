@@ -122,7 +122,7 @@ cc_toolchain_config(
     cc_compiler = "@llvm_darwin_aarch64//:clang++",
     compiler_features = [
         # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+        "//third_party/rules_cc_toolchain/features:hermetic",
         ":imports_feature",
         "//third_party/rules_cc_toolchain/features:undefined_symbols",
 

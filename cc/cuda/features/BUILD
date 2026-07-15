@@ -37,7 +37,7 @@ cc_feature(
 
 # Hermetic CUDA includes.
 cc_feature(
-    name = "hermetic",
+    name = "hermetic_cuda",
     compiler_flags = ["-nocudainc"],
     enabled = True,
 )

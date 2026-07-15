@@ -186,7 +186,7 @@ filegroup(
 FEATURES_ESSENTIAL = [
     "//cc/features:include_paths",
     "//cc/features:external_include_paths",
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
+    "//third_party/rules_cc_toolchain/features:hermetic",  # Hermetic libraries feature required before import
     ":imports_feature",
 
     # C++ modules
