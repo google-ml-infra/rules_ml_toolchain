@@ -83,10 +83,16 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_x86_64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_x86_64//:startup_libs",
+    toolchain_import = ":startup_libs",
 )
 
 alias(
@@ -164,7 +170,7 @@ filegroup(
         ":cuda_nvcc",
         ":imports",
         ":wrappers",
-        "@sysroot_linux_x86_64//:startup_libs",
+        ":startup_libs",
         "@llvm_linux_x86_64//:all",
     ],
 )
@@ -194,7 +200,7 @@ filegroup(
         ":cuda_nvcc",
         ":wrappers",
         "@llvm_linux_x86_64//:ld",
-        "@sysroot_linux_x86_64//:startup_libs",
+        ":startup_libs",
         "@llvm_linux_x86_64//:distro_libs",
     ],
 )
@@ -233,7 +239,7 @@ filegroup(
 FEATURES_ESSENTIAL = [
     "//cc/features:include_paths",
     "//cc/features:external_include_paths",
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",  # Hermetic libraries feature required before import
+
     ":imports_feature",
     ":cuda_nvcc_feature",
     "//cc/cuda/features:hermetic",
@@ -251,7 +257,6 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:errors",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features/linux_x86_64:sysroot",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version

@@ -78,10 +78,16 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "startup_libs",
+    actual = "@sysroot_linux_aarch64//:startup_libs",
+    visibility = ["//visibility:public"],
+)
+
 cc_toolchain_import_feature(
     name = "startup_libs_feature",
     enabled = True,
-    toolchain_import = "@sysroot_linux_aarch64//:startup_libs",
+    toolchain_import = ":startup_libs",
 )
 
 alias(
@@ -133,7 +139,7 @@ filegroup(
         ":cuda_nvcc",
         ":imports",
         ":wrappers",
-        "@sysroot_linux_aarch64//:startup_libs",
+        ":startup_libs",
         "@llvm_linux_aarch64//:all",
     ],
 )
@@ -160,7 +166,7 @@ filegroup(
         ":cuda_nvcc",
         ":wrappers",
         "@llvm_linux_aarch64//:ld",
-        "@sysroot_linux_aarch64//:startup_libs",
+        ":startup_libs",
         "@llvm_linux_aarch64//:distro_libs",
     ],
 )
@@ -227,7 +233,6 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:errors",
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features/linux_aarch64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
