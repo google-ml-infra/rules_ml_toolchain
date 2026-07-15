@@ -233,6 +233,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:errors",
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:use_lld",
+        "//cc/features/linux_aarch64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -262,7 +263,6 @@ cc_toolchain_config(
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
 
-        "//cc/features/linux_aarch64:sysroot",
         "//cc/features:compiler_input_flags",
         "//cc/features:compiler_output_flags",
         #"//cc/features:unfiltered_compile_flags",

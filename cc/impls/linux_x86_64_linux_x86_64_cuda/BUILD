@@ -259,6 +259,7 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:errors",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
+    "//cc/features/linux_x86_64:sysroot",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -291,9 +292,6 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
-
-    "//cc/features/linux_x86_64:sysroot",
-    #"//cc/features:compiler_input_flags",
 ] + select({
      "//common:is_stdlib_libcxx": [
          "//cc/features:libc++",
