@@ -200,8 +200,7 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:errors",
     "//third_party/rules_cc_toolchain/features:reproducible",
-    # TODO: Resolve conflict with C++ modules abd uncomment language feature
-    #"//third_party/rules_cc_toolchain/features:language",
+    "//cc/features:language",
     "//third_party/rules_cc_toolchain/features:use_lld",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",

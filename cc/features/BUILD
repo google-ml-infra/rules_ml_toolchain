@@ -51,6 +51,27 @@ package(
 )
 
 cc_feature(
+    name = "language",
+    # C language
+    c_flags = [
+        "-xc",
+    ],
+    # C++ language actions and flag (excluding C++ modules)
+    actions = [
+        ACTION_NAMES.linkstamp_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.lto_backend,
+        ACTION_NAMES.clif_match,
+        ACTION_NAMES.objcpp_compile,
+    ],
+    flags = [
+        "-xc++",
+    ],
+    enabled = True,
+)
+
+cc_feature(
     name = "garbage_collect_symbols_mac",
     compiler_flags = [
         "-fdata-sections",
