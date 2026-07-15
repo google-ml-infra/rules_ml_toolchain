@@ -60,6 +60,14 @@ jobs:
             --platforms=//common:linux_aarch64 \
             //cc/tests/cpu:all
 
+      - name: "Clang 18, Glibc 2.27 | C++ modules testing..."
+        run: |
+          bazel build --experimental_cpp_modules \
+            --platforms=//common:linux_aarch64 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31  \
+            -color=yes \
+            //cc/tests/cpu:utils_module_test
+
       - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
           bazel build --cxxopt="-std=c++17" --color=yes \
@@ -142,3 +150,14 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             --config=bzlmod \
             //cc/tests/cpu:all
+
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | C++ modules testing..."
+        run: |
+          bazel build --experimental_cpp_modules \
+            --platforms=//common:linux_aarch64 \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
+            //cc/tests/cpu:utils_module_test
