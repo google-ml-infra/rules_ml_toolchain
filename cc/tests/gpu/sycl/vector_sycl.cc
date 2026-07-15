@@ -49,10 +49,14 @@ int VectorGenerateAndSum(int size) {
         });
     }).wait(); // Wait for the kernel to complete
 
-    // Verify results (data is automatically copied back to host when buffer goes out of scope or accessor is created on host)
+    // Force copy back to host before verification
+    sycl::host_accessor c_host(c_buf, sycl::read_only);
+
+    // Verify results
     for (int i = 0; i < size; ++i) {
-        if (c_h[i] != (a_h[i] + b_h[i])) {
-            std::cout << "Error at index " << i << ": " << c_h[i] << " != " << (a_h[i] + b_h[i]) << std::endl;
+        if (c_host[i] != (a_h[i] + b_h[i])) {
+            std::cout << "Error at index " << i << ": " << c_host[i]
+                      << " != " << (a_h[i] + b_h[i]) << std::endl;
             return 1;
         }
     }
