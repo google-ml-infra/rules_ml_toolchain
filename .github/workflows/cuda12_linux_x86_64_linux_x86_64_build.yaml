@@ -56,112 +56,123 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 22, Glibc 2.35 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 22, Glibc 2.39 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 21, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 22, Glibc 2.35, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "NVCC building..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_nvcc \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --config=bzlmod \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
             --repo_env HERMETIC_CUDA_COMPUTE_CAPABILITIES="sm_50,sm_60,sm_70,sm_80,sm_90" \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 21, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -169,11 +180,12 @@ jobs:
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 22, Glibc 2.35, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -181,11 +193,12 @@ jobs:
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. Clang 22, Glibc 2.39, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_clang \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -193,13 +206,15 @@ jobs:
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/gpu:all
 
       - name: "Bzlmod. NVCC | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_nvcc \
+          bazel build --cxxopt="-std=c++17" --config=build_cuda_with_nvcc \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
+            --color=yes \
             //cc/tests/gpu:all
 

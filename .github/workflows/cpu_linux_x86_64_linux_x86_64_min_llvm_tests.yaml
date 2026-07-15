@@ -56,7 +56,8 @@ jobs:
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" --color=yes \
+          bazel test --cxxopt="-std=c++17" \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Clang 18, Glibc 2.31 | C++ modules testing..."
