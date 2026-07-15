@@ -45,57 +45,6 @@ load(
     "CcToolchainImportInfo",
 )
 
-all_compile_actions = [
-    ACTION_NAMES.c_compile,
-    ACTION_NAMES.cpp_compile,
-    ACTION_NAMES.linkstamp_compile,
-    ACTION_NAMES.assemble,
-    ACTION_NAMES.preprocess_assemble,
-    ACTION_NAMES.cpp_header_parsing,
-    ACTION_NAMES.cpp_module_compile,
-    ACTION_NAMES.cpp_module_codegen,
-    ACTION_NAMES.cpp_module_deps_scanning,
-    ACTION_NAMES.cpp20_module_compile,
-    ACTION_NAMES.cpp20_module_codegen,
-    ACTION_NAMES.clif_match,
-    ACTION_NAMES.lto_backend,
-]
-
-all_cpp_compile_actions = [
-    ACTION_NAMES.cpp_compile,
-    ACTION_NAMES.linkstamp_compile,
-    ACTION_NAMES.cpp_header_parsing,
-    ACTION_NAMES.cpp_module_compile,
-    ACTION_NAMES.cpp_module_codegen,
-    ACTION_NAMES.cpp_module_deps_scanning,
-    ACTION_NAMES.cpp20_module_compile,
-    ACTION_NAMES.cpp20_module_codegen,
-    ACTION_NAMES.clif_match,
-]
-
-preprocessor_compile_actions = [
-    ACTION_NAMES.c_compile,
-    ACTION_NAMES.cpp_compile,
-    ACTION_NAMES.linkstamp_compile,
-    ACTION_NAMES.preprocess_assemble,
-    ACTION_NAMES.cpp_header_parsing,
-    ACTION_NAMES.cpp_module_compile,
-    ACTION_NAMES.cpp_module_deps_scanning,
-    ACTION_NAMES.cpp20_module_compile,
-    ACTION_NAMES.clif_match,
-]
-
-codegen_compile_actions = [
-    ACTION_NAMES.c_compile,
-    ACTION_NAMES.cpp_compile,
-    ACTION_NAMES.linkstamp_compile,
-    ACTION_NAMES.assemble,
-    ACTION_NAMES.preprocess_assemble,
-    ACTION_NAMES.cpp_module_codegen,
-    ACTION_NAMES.cpp20_module_codegen,
-    ACTION_NAMES.lto_backend,
-]
-
 ALL_ACTIONS = [
     ACTION_NAMES.c_compile,
     ACTION_NAMES.cpp_compile,
@@ -121,13 +70,41 @@ ALL_ACTIONS = [
     ACTION_NAMES.clif_match,
 ]
 
-all_link_actions = [
+ALL_COMPILE_ACTIONS = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.assemble,
+    ACTION_NAMES.preprocess_assemble,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
+    ACTION_NAMES.clif_match,
+    ACTION_NAMES.lto_backend,
+]
+
+ALL_CPP_COMPILE_ACTIONS = [
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp_module_deps_scanning,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
+    ACTION_NAMES.clif_match,
+]
+
+ALL_LINK_ACTIONS = [
     ACTION_NAMES.cpp_link_executable,
     ACTION_NAMES.cpp_link_dynamic_library,
     ACTION_NAMES.cpp_link_nodeps_dynamic_library,
 ]
 
-lto_index_actions = [
+LTO_INDEX_ACTIONS = [
     ACTION_NAMES.lto_index_for_executable,
     ACTION_NAMES.lto_index_for_dynamic_library,
     ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
@@ -150,7 +127,7 @@ def _cc_feature_impl(ctx):
         ))
     if ctx.attr.cc_flags:
         flag_sets.append(flag_set(
-            actions = all_cpp_compile_actions,
+            actions = ALL_CPP_COMPILE_ACTIONS,
             flag_groups = [
                 flag_group(
                     flags = ctx.attr.cc_flags,
@@ -174,7 +151,7 @@ def _cc_feature_impl(ctx):
         ))
     if ctx.attr.compiler_flags:
         flag_sets.append(flag_set(
-            actions = all_compile_actions,
+            actions = ALL_COMPILE_ACTIONS,
             flag_groups = [
                 flag_group(
                     flags = ctx.attr.compiler_flags,
@@ -466,7 +443,7 @@ def _sysroot_feature(ctx):
                 ACTION_NAMES.cpp20_module_codegen,
                 ACTION_NAMES.lto_backend,
                 ACTION_NAMES.clif_match,
-            ] + all_link_actions + lto_index_actions,
+            ] + ALL_LINK_ACTIONS + LTO_INDEX_ACTIONS,
             flag_groups = [
                 flag_group(
                     flags = [
@@ -492,7 +469,7 @@ def _sysroot_feature(ctx):
                 ACTION_NAMES.cpp20_module_codegen,
                 ACTION_NAMES.lto_backend,
                 ACTION_NAMES.clif_match,
-            ] + all_link_actions + lto_index_actions,
+            ] + ALL_LINK_ACTIONS + LTO_INDEX_ACTIONS,
             flag_groups = [
                 flag_group(
                     flags = [
