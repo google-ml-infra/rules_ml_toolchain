@@ -218,9 +218,6 @@ cc_toolchain_config(
         ":imports_feature",
         ":cuda_nvcc_feature",
 
-        # TODO: Add select() for turn off this option when libstdc++ is used
-        #"//cc/features:libc++",
-
         # C++ modules
         "//cc/features:cpp_modules",
         "//cc/features:cpp_module_modmap_file",
@@ -262,10 +259,6 @@ cc_toolchain_config(
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
-
-        "//cc/features:compiler_input_flags",
-        "//cc/features:compiler_output_flags",
-        #"//cc/features:unfiltered_compile_flags",
     ],
     linker = "@llvm_linux_aarch64//:ld",
     strip_tool = "@llvm_linux_aarch64//:strip",
