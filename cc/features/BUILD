@@ -347,11 +347,6 @@ user_compile_feature(
     enabled = True,
 )
 
-#unfiltered_compile_feature(
-#    name = "unfiltered_compile_flags",
-#    enabled = True,
-#)
-
 include_paths_feature(
     name = "include_paths",
     enabled = True,

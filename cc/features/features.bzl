@@ -14,7 +14,7 @@ load(
     _feature = "feature",
 )
 
-all_compile_actions = [
+ALL_COMPILE_ACTIONS = [
     ACTION_NAMES.c_compile,
     ACTION_NAMES.cpp_compile,
     ACTION_NAMES.linkstamp_compile,
@@ -166,7 +166,7 @@ compiler_output_feature = rule(
 def _user_compile_feature_impl(ctx):
     flag_sets = [
         flag_set(
-            actions = all_compile_actions,
+            actions = ALL_COMPILE_ACTIONS,
             flag_groups = [
                 flag_group(
                     flags = ["%{user_compile_flags}"],
@@ -189,39 +189,6 @@ def _user_compile_feature_impl(ctx):
 
 user_compile_feature = rule(
     _user_compile_feature_impl,
-    attrs = {
-        "enabled": attr.bool(default = False),
-        "provides": attr.string_list(),
-        "requires": attr.string_list(),
-        "implies": attr.string_list(),
-    },
-    provides = [FeatureInfo],
-)
-
-def _unfiltered_compile_feature_impl(ctx):
-    flag_sets = [
-        flag_set(
-            actions = all_compile_actions,
-            flag_groups = ([
-                flag_group(
-                    flags = ctx.attr.unfiltered_compile_flags,
-                ),
-            ] if ctx.attr.unfiltered_compile_flags else []),
-        ),
-    ]
-
-    return [
-        feature(
-            name = ctx.label.name,
-            enabled = ctx.attr.enabled,
-            provides = ctx.attr.provides,
-            implies = [target.label.name for target in ctx.attr.implies],
-            flag_sets = flag_sets,
-        ),
-    ]
-
-unfiltered_compile_feature = rule(
-    _unfiltered_compile_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),

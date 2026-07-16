@@ -211,7 +211,6 @@ cc_toolchain_config(
         "//cc/features/linux_aarch64:sysroot",
         "//cc/features:compiler_input_flags",
         "//cc/features:compiler_output_flags",
-        #"//cc/features:unfiltered_compile_flags",
     ],
     linker = "@llvm_linux_aarch64//:ld",
     strip_tool = "@llvm_linux_aarch64//:strip",

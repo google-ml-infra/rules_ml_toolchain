@@ -208,7 +208,6 @@ FEATURES_ESSENTIAL = [
 
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
-    #"//cc/features:unfiltered_compile_flags",
 ]
 
 cc_toolchain_config(

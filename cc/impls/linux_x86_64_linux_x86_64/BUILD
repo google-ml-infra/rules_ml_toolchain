@@ -238,7 +238,6 @@ FEATURES_ESSENTIAL = [
     "//cc/features/linux_x86_64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
-    #"//cc/features:unfiltered_compile_flags",
 ] + select({
     "//common:is_stdlib_libcxx": [
         "//cc/features:libc++",
