@@ -62,7 +62,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.31 | C++ modules testing..."
         run: |
-          bazel test --experimental_cpp_modules \
+          bazel test --features=c++20 --experimental_cpp_modules  \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --color=yes \
             //cc/tests/cpu:utils_module_test
@@ -77,7 +77,7 @@ jobs:
 
       - name: "Clang 18, Glibc 2.31, libc++ static linking | C++ modules testing..."
         run: |
-          bazel test --experimental_cpp_modules \
+          bazel test --features=c++20 --experimental_cpp_modules \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
@@ -102,7 +102,7 @@ jobs:
 
       - name: "Bzlmod. Clang 18, Glibc 2.31, libc++ static linking | C++ modules testing..."
         run: |
-          bazel test --experimental_cpp_modules \
+          bazel test --features=c++20 --experimental_cpp_modules \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \

@@ -64,7 +64,7 @@ jobs:
 
       - name: "Clang 21, Glibc 2.31 | C++ modules testing..."
         run: |
-          bazel test --experimental_cpp_modules \
+          bazel test --features=c++20 --experimental_cpp_modules \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --color=yes \
@@ -127,7 +127,7 @@ jobs:
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | C++ modules testing..."
         run: |
-          bazel test --experimental_cpp_modules \
+          bazel test --features=c++20 --experimental_cpp_modules \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \

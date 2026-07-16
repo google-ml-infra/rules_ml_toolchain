@@ -70,8 +70,8 @@ cc_binary(
 # Tests
 cc_library(
     name = "utils_module",
+    # Append c++20 to features if --features=c++20 is missing from the command line
     features = [
-        "c++20",
         "cpp_modules",
     ],
     module_interfaces = ["utils_module.cppm"],
@@ -80,8 +80,8 @@ cc_library(
 cc_test(
     name = "utils_module_test",
     srcs = ["utils_module_test.cc"],
+    # Append c++20 to features if --features=c++20 is missing from the command line
     features = [
-        "c++20",
         "cpp_modules",
     ],
     deps = [
