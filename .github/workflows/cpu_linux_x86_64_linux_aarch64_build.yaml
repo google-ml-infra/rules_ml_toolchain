@@ -148,7 +148,6 @@ jobs:
             --@rules_ml_toolchain//common:static_libcxx=true \
             --color=yes \
             //cc/tests/cpu:all
-            //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
