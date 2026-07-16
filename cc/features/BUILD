@@ -27,7 +27,6 @@ load(
     "compiler_input_feature",
     "compiler_output_feature",
     "user_compile_feature",
-    "unfiltered_compile_feature",
     "include_paths_feature",
     "external_include_paths_feature",
 )
