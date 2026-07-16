@@ -54,7 +54,7 @@ jobs:
 
       - name: Test oneAPI GPU code compilation hermetic SYCL
         run: |
-          bazel test --color=yes \
+          bazel build --color=yes \
             --config=sycl_hermetic \
             --repo_env=ONEAPI_VERSION=2025.1 \
             --repo_env=OS=ubuntu_24.10 \
@@ -70,7 +70,7 @@ jobs:
 
       - name: Test SYCL GPU code compilation bzlmod
         run: |
-          bazel test --color=yes \
+          bazel build --color=yes \
             --config=sycl_hermetic \
             --repo_env=ONEAPI_VERSION=2025.1 \
             --repo_env=OS=ubuntu_24.10 \
