@@ -91,7 +91,7 @@ _ONEAPI_BUILD_SUBSTITUTIONS = {
 }
 
 def _get_build_substitutions(ctx, dist_key):
-    if not ctx.name.endswith("oneapi")
+    if not ctx.name.endswith("oneapi"):
         return {}
 
     version = _get_dist_version(dist_key)
