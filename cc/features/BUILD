@@ -305,7 +305,7 @@ cc_feature(
         ACTION_NAMES.clif_match,
     ],
     flags = [
-        "-MD",
+        "-MMD",
         "-MF",
         "%{dependency_file}"
     ],
