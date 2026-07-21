@@ -397,7 +397,7 @@ def _cc_toolchain_config_impl(ctx):
             "strip": ctx.file.strip_tool,
             "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
             "in": ctx.file.install_name,
-        })] # + _get_layering_features({}),
+        })] + _get_layering_features({}),
     )
 
 cc_toolchain_config = rule(
