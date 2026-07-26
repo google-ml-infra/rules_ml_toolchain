@@ -28,14 +28,12 @@ cc_import(
     name = "cublasLt_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcublasLt_static.a",
-    alwayslink = True,
 )
 
 cc_import(
     name = "cublas_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcublas_static.a",
-    alwayslink = True,
 )
 %{multiline_comment}
 cc_library(

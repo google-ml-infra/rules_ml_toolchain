@@ -22,28 +22,24 @@ cc_import(
     name = "cusolver_lapack_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_lapack_static.a",
-    alwayslink = True,
 )
 
 cc_import(
     name = "cusolver_metis_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_metis_static.a",
-    alwayslink = True,
 )
 
 cc_import(
     name = "cusolver_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_static.a",
-    alwayslink = True,
 )
 
 cc_import(
     name = "metis_static_library",
     hdrs = [":headers"],
     static_library = "lib/libmetis_static.a",
-    alwayslink = True,
 )
 %{multiline_comment}
 cc_library(
