@@ -988,7 +988,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
                 "source_dirs": ["include", "lib"],
             },
         },
-    "cuda_nvfatbin": {
+    "libnvfatbin": {
             "repo_name": "cuda_nvfatbin",
             "version_to_template": {
                 "any": "//gpu/cuda/build_templates:cuda_nvfatbin.BUILD.tpl",
