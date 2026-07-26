@@ -147,7 +147,7 @@ cc_library(
           %{comment}"9.21.0",
           %{comment}[":cudnn_engines_tensor_ir"],
       %{comment})) + ["@cuda_nvrtc//:nvrtc"],
-    %{comment}linkopts = if_static_cudnn(["-lrt"], []) + cuda_rpath_flags("nvidia/cudnn/lib"),
+    %{comment}linkopts = if_static_cudnn(["-lrt", "-Wl,--whole-archive"], []) + cuda_rpath_flags("nvidia/cudnn/lib") + if_static_cudnn(["-Wl,--no-whole-archive"], []),
     includes = ["include"],
     visibility = ["//visibility:public"],
 )
