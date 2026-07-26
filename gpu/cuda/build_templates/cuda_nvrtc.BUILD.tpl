@@ -57,7 +57,7 @@ cc_library(
     %{comment}]),
     %{comment}linkopts = if_cuda_newer_than(
         %{comment}"13_0",
-        %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
+        %{comment}if_true = ["-l:libnvfatbin.so.13"] + cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_nvrtc/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
