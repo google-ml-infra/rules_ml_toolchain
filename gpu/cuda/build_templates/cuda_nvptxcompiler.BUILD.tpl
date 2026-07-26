@@ -10,11 +10,20 @@ cc_import(
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", "lib/libnvptxcompiler_static.a", None),
 )
+
+cc_import(
+    name = "nvfatbin_static_library",
+    hdrs = [":headers"],
+    static_library = if_cuda_newer_than("13_0", "lib/libnvfatbin_static.a", None),
+)
 %{multiline_comment}
 
 cc_library(
     name = "nvptxcompiler",
-    %{comment}deps = [":nvptxcompiler_static_library"],
+    %{comment}deps = [
+        %{comment}":nvptxcompiler_static_library",
+        %{comment}":nvfatbin_static_library",
+    %{comment}],
     visibility = ["//visibility:public"],
 )
 
