@@ -68,6 +68,13 @@ cc_import(
 )
 
 cc_import(
+    name = "cudnn_main_static",
+    hdrs = [":headers"],
+    static_library = "lib/libcudnn_static_v%{libcudnn_version}.a",
+    alwayslink = True,
+)
+
+cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
@@ -129,6 +136,8 @@ cc_library(
     %{comment}alwayslink = if_static_cudnn(True, False),
     %{comment}deps = if_static_cudnn(
       %{comment}["@zlib//:zlib",
+      %{comment} "@cuda_cublas//:cublas",
+      %{comment} ":cudnn_main_static",
       %{comment} ":cudnn_engines_precompiled_static",
       %{comment} ":cudnn_ops_static",
       %{comment} ":cudnn_cnn_static",
@@ -141,7 +150,8 @@ cc_library(
           %{comment}"9.21.0",
           %{comment}[":cudnn_engines_tensor_ir_static"],
       %{comment}),
-      %{comment}[":cudnn_engines_precompiled",
+      %{comment}["@cuda_cublas//:cublas",
+      %{comment}":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
       %{comment}":cudnn_graph",
       %{comment}":cudnn_cnn",
