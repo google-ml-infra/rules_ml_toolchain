@@ -9,6 +9,7 @@ cc_import(
     name = "nvptxcompiler_static_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", "lib/libnvptxcompiler_static.a", None),
+    alwayslink = True,
 )
 %{multiline_comment}
 

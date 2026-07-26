@@ -27,21 +27,31 @@ cc_import(
 cc_import(
     name = "nvrtc_builtins_static_alt",
     static_library = "lib/libnvrtc-builtins_static.alt.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "nvrtc_static",
     static_library = "lib/libnvrtc_static.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "nvrtc_builtins_static",
     static_library = "lib/libnvrtc-builtins_static.a",
+    alwayslink = True,
+)
+
+cc_import(
+    name = "nvfatbin_static",
+    static_library = "lib/libnvfatbin_static.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "nvrtc_static_alt",
     static_library = "lib/libnvrtc_static.alt.a",
+    alwayslink = True,
 )
 %{multiline_comment}
 cc_library(
@@ -49,6 +59,7 @@ cc_library(
     %{comment}deps = if_static_nvrtc([
         %{comment}":nvrtc_static",
         %{comment}":nvrtc_builtins_static",
+        %{comment}":nvfatbin_static",
         %{comment}"@cuda_nvcc//:nvptxcompiler",
     %{comment}],
     %{comment}[

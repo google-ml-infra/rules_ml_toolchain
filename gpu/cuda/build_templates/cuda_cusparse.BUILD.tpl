@@ -22,6 +22,7 @@ cc_import(
     name = "cusparse_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusparse_static.a",
+    alwayslink = True,
 )
 %{multiline_comment}
 cc_library(
