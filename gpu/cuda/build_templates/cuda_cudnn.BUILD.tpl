@@ -68,13 +68,6 @@ cc_import(
 )
 
 cc_import(
-    name = "cudnn_main_static",
-    hdrs = [":headers"],
-    static_library = "lib/libcudnn_static_v%{libcudnn_version}.a",
-    alwayslink = True,
-)
-
-cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
@@ -137,7 +130,6 @@ cc_library(
     %{comment}deps = if_static_cudnn(
       %{comment}["@zlib//:zlib",
       %{comment} "@cuda_cublas//:cublas",
-      %{comment} ":cudnn_main_static",
       %{comment} ":cudnn_engines_precompiled_static",
       %{comment} ":cudnn_ops_static",
       %{comment} ":cudnn_cnn_static",
