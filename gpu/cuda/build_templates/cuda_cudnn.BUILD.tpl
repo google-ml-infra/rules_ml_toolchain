@@ -71,69 +71,76 @@ cc_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_adv_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_adv_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_engines_runtime_compiled_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_engines_precompiled_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_engines_precompiled_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_engines_tensor_ir_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_engines_tensor_ir_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_ops_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_ops_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_heuristic_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 
 cc_import(
     name = "cudnn_cnn_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_cnn_static_v%{libcudnn_version}.a",
+    alwayslink = True,
 )
 %{multiline_comment}
 cc_library(
     name = "cudnn",
     hdrs = [":header_list"],
     %{comment}alwayslink = if_static_cudnn(True, False),
-    %{comment}srcs = if_static_cudnn(
-      %{comment}[":lib/libcudnn_engines_precompiled_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_ops_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_cnn_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_adv_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_graph_static_v%{libcudnn_version}.a",
-      %{comment} ":lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
+    %{comment}deps = if_static_cudnn(
+      %{comment}["@zlib//:zlib",
+      %{comment} ":cudnn_engines_precompiled_static",
+      %{comment} ":cudnn_ops_static",
+      %{comment} ":cudnn_cnn_static",
+      %{comment} ":cudnn_adv_static",
+      %{comment} ":cudnn_heuristic_static",
+      %{comment} ":cudnn_graph_static",
+      %{comment} ":cudnn_engines_runtime_compiled_static",
       %{comment}] + if_version_equal_or_greater_than(
           %{comment}"%{libcudnn_minor_version}",
           %{comment}"9.21.0",
-          %{comment}[":lib/libcudnn_engines_tensor_ir_static_v%{libcudnn_version}.a"],
-      %{comment}), []),
-    %{comment}deps = if_static_cudnn(
-      %{comment}["@zlib//:zlib"],
+          %{comment}[":cudnn_engines_tensor_ir_static"],
+      %{comment}),
       %{comment}[":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
       %{comment}":cudnn_graph",
@@ -147,7 +154,7 @@ cc_library(
           %{comment}"9.21.0",
           %{comment}[":cudnn_engines_tensor_ir"],
       %{comment})) + ["@cuda_nvrtc//:nvrtc"],
-    %{comment}linkopts = if_static_cudnn(["-lrt", "-Wl,--whole-archive"], []) + cuda_rpath_flags("nvidia/cudnn/lib") + if_static_cudnn(["-Wl,--no-whole-archive"], []),
+    %{comment}linkopts = if_static_cudnn(["-lrt"], []) + cuda_rpath_flags("nvidia/cudnn/lib"),
     includes = ["include"],
     visibility = ["//visibility:public"],
 )
