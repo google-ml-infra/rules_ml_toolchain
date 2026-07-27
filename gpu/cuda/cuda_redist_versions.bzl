@@ -849,6 +849,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
         "repo_name": "cuda_curand",
         "version_to_template": {
             "10": "//gpu/cuda/build_templates:cuda_curand.BUILD.tpl",
+            "11": "//gpu/cuda/build_templates:cuda_curand.BUILD.tpl",
         },
         "local": {
             "source_dirs": ["include", "lib"],
