@@ -35,6 +35,7 @@ def hipcc_config():
             - hipruntime_version: HIP runtime version number
             - clang_version: Clang version string
             - lib_paths: List of library paths (for multiple ROCm paths setup)
+            - hipcc_env: Environment variables for hipcc (semicolon-separated KEY=VALUE pairs)
     """
     return struct(
         gpu_architectures = %{rocm_gpu_architectures},
@@ -44,6 +45,7 @@ def hipcc_config():
         rocm_root = "%{rocm_root}",
         hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
+        hipcc_env = "%{hipcc_env}",
     )
 
 # Alias for compatibility
