@@ -9,7 +9,6 @@ load(
 load(
      "@local_config_cuda//cuda:build_defs.bzl",
      "if_static_cudnn",
-     "if_version_equal_or_greater_than",
 )
 
 %{multiline_comment}
@@ -47,12 +46,6 @@ cc_import(
     name = "cudnn_engines_runtime_compiled",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_engines_runtime_compiled.so.%{libcudnn_engines_runtime_compiled_version}",
-)
-
-cc_import(
-    name = "cudnn_engines_tensor_ir",
-    hdrs = [":headers"],
-    shared_library = "lib/libcudnn_engines_tensor_ir.so.%{libcudnn_version}",
 )
 
 cc_import(
@@ -96,13 +89,6 @@ cc_import(
 )
 
 cc_import(
-    name = "cudnn_engines_tensor_ir_static",
-    hdrs = [":headers"],
-    static_library = "lib/libcudnn_engines_tensor_ir_static_v%{libcudnn_version}.a",
-    alwayslink = True,
-)
-
-cc_import(
     name = "cudnn_ops_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_ops_static_v%{libcudnn_version}.a",
@@ -137,11 +123,7 @@ cc_library(
       %{comment} ":cudnn_heuristic_static",
       %{comment} ":cudnn_graph_static",
       %{comment} ":cudnn_engines_runtime_compiled_static",
-      %{comment}] + if_version_equal_or_greater_than(
-          %{comment}"%{libcudnn_minor_version}",
-          %{comment}"9.21.0",
-          %{comment}[":cudnn_engines_tensor_ir_static"],
-      %{comment}),
+      %{comment}],
       %{comment}["@cuda_cublas//:cublas",
       %{comment}":cudnn_engines_precompiled",
       %{comment}":cudnn_ops",
@@ -151,11 +133,7 @@ cc_library(
       %{comment}":cudnn_engines_runtime_compiled",
       %{comment}":cudnn_heuristic",
       %{comment}":cudnn_main",
-      %{comment}] + if_version_equal_or_greater_than(
-          %{comment}"%{libcudnn_minor_version}",
-          %{comment}"9.21.0",
-          %{comment}[":cudnn_engines_tensor_ir"],
-      %{comment})) + ["@cuda_nvrtc//:nvrtc"],
+      %{comment}]) + ["@cuda_nvrtc//:nvrtc"],
     %{comment}linkopts = if_static_cudnn(["-lrt"], []) + cuda_rpath_flags("nvidia/cudnn/lib"),
     includes = ["include"],
     visibility = ["//visibility:public"],
