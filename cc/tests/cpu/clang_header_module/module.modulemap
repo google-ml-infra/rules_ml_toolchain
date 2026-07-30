@@ -1,0 +1,6 @@
+
+module MathUtils {
+    header "math_utils.h"
+
+    export *
+}

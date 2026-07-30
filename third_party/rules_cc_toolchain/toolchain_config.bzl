@@ -88,6 +88,56 @@ ALL_ACTIONS = (
 #    ACTION_NAMES.clif_match,
 #]
 
+def parse_headers_support(parse_headers_tool_path):
+    """
+    Returns action configurations and features for parsing headers.
+
+    Args:
+        parse_headers_tool_path: The path to the tool used for parsing headers.
+
+    Returns:
+        A tuple containing a list of action configurations and a list of features.
+    """
+    if not parse_headers_tool_path:
+        return [], []
+    action_configs = [
+        action_config(
+            action_name = ACTION_NAMES.cpp_header_parsing,
+            tools = [
+                tool(path = parse_headers_tool_path),
+            ],
+            flag_sets = [
+                flag_set(
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                # Note: This treats all headers as C++ headers, which may lead to
+                                # parsing failures for C headers that are not valid C++.
+                                # For such headers, use features = ["-parse_headers"] to selectively
+                                # disable parsing.
+                                "-xc++-header",
+                                "-fsyntax-only",
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+            implies = [
+                # Copied from the legacy feature definition in CppActionConfigs.java.
+                "legacy_compile_flags",
+                "user_compile_flags",
+                "sysroot",
+                "unfiltered_compile_flags",
+                "compiler_input_flags",
+                "compiler_output_flags",
+            ],
+        ),
+    ]
+    features = [
+        feature(name = "parse_headers"),
+    ]
+    return action_configs, features
+
 # Copy of action configuration from @rules_cc//cc/...:unix_cc_toolchain_config_lib.bzl
 def _get_actions_config(ctx):
     action_configs = []
@@ -369,6 +419,28 @@ def _cc_toolchain_config_impl(ctx):
     # Add system builtin include directories if specified
     builtin_include_dirs = ctx.attr.cxx_builtin_include_directories if ctx.attr.cxx_builtin_include_directories else []
 
+    action_configs = _get_actions_config(ctx)
+    features = [
+        label[FeatureInfo]
+        for label in ctx.attr.compiler_features
+    ] + [_label_to_tool_path_feature({
+        "gcc": ctx.file.c_compiler,
+        "cpp": ctx.file.cc_compiler,
+        "ld": ctx.file.linker,
+        "ar": ctx.file.archiver,
+        "strip": ctx.file.strip_tool,
+        "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
+        "headers-parser": ctx.file.headers_parser,
+        "in": ctx.file.install_name,
+    })] + _get_layering_features({})
+
+    parse_headers_action_configs, parse_headers_features = parse_headers_support(
+        parse_headers_tool_path = ctx.file.headers_parser,
+    )
+
+    action_configs += parse_headers_action_configs
+    features += parse_headers_features
+
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         host_system_name = "local",
@@ -381,23 +453,12 @@ def _cc_toolchain_config_impl(ctx):
         abi_version = "unknown",
         abi_libc_version = "unknown",
         cxx_builtin_include_directories = builtin_include_dirs,
-        action_configs = _get_actions_config(ctx),  #_get_link_actions_config(ctx) + _get_module_actions_config(ctx),
+        action_configs = action_configs,
+        features = features,
         tool_paths = [
             tool_path(name = name, path = path)
             for name, path in ctx.attr.tool_paths.items()
         ],
-        features = [
-            label[FeatureInfo]
-            for label in ctx.attr.compiler_features
-        ] + [_label_to_tool_path_feature({
-            "gcc": ctx.file.c_compiler,
-            "cpp": ctx.file.cc_compiler,
-            "ld": ctx.file.linker,
-            "ar": ctx.file.archiver,
-            "strip": ctx.file.strip_tool,
-            "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
-            "in": ctx.file.install_name,
-        })] + _get_layering_features({}),
     )
 
 cc_toolchain_config = rule(
@@ -433,6 +494,7 @@ cc_toolchain_config = rule(
                 "objdump": "wrappers/idler",
                 "strip": "wrappers/strip",
                 "cpp-module-deps-scanner": "wrappers/module-deps-scanner",
+                "headers-parser": "wrappers/headers-parser",
             },
         ),
         "compiler_features": attr.label_list(
@@ -470,6 +532,11 @@ cc_toolchain_config = rule(
         ),
         "module_deps_scanner": attr.label(
             doc = "The searching C++ modules tool.",
+            allow_single_file = True,
+            mandatory = False,
+        ),
+        "headers_parser": attr.label(
+            doc = "The parsing headers tool.",
             allow_single_file = True,
             mandatory = False,
         ),
