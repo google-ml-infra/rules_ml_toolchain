@@ -18,6 +18,7 @@
 # ==============================================================================
 
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda", "if_cuda_hermetic_clang")
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//cc/sanitizers:features.bzl",
@@ -185,6 +186,7 @@ filegroup(
         ":wrappers",
         "@llvm_linux_x86_64//:clang",
         "@llvm_linux_x86_64//:clang++",
+        "@llvm_linux_x86_64//:scan_deps",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:asan_ignorelist",
     ],
@@ -235,17 +237,29 @@ filegroup(
 )
 
 FEATURES_ESSENTIAL = [
+    "//cc/features:include_paths",
+    "//cc/features:external_include_paths",
+
+    # Hermetic features required before import
+    "//third_party/rules_cc_toolchain/features:hermetic",
+    "//cc/cuda/features:hermetic_cuda",
+
     ":imports_feature",
     ":cuda_nvcc_feature",
-    "//cc/cuda/features:hermetic",
-    "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+
+    # C++ modules
+    "//cc/features:cpp_modules",
+    "//cc/features:cpp_module_modmap_file",
+    "//cc/features:cpp20_module_compile_flags",
+    "//cc/features:dependency_file",
+    "//cc/features:random_seed",
 
     # Toolchain configuration
     "//third_party/rules_cc_toolchain/features:warnings",
     "//third_party/rules_cc_toolchain/features:errors",
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features:sysroot_linux_x86_64",
+    "//cc/features/linux_x86_64:sysroot",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -268,6 +282,7 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:c++11",
     "//third_party/rules_cc_toolchain/features:c++14",
     "//third_party/rules_cc_toolchain/features:c++17",
+    "//third_party/rules_cc_toolchain/features:c++20",
 
     # Other flags
     "//cc/features:allow_shlib_undefined",
@@ -293,6 +308,7 @@ cc_toolchain_config(
     compiler_features = FEATURES_ESSENTIAL,
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
+    module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
     target_cpu = "x86_64",
     target_system_name = "local",
     tool_paths = CUDA_TOOLS,

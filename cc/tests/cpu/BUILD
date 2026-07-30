@@ -45,6 +45,60 @@ cc_test(
 )
 
 #############################################
+# C++ modules
+
+# Binary with library example
+cc_library(
+    name = "hello_module",
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    module_interfaces = ["hello_module.cppm"],
+)
+
+cc_binary(
+    name = "hello_module_main",
+    srcs = ["hello_module_main.cc"],
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    deps = [":hello_module"],
+)
+
+# Tests
+cc_library(
+    name = "utils_module",
+    # The c++20 feature can be added as --features=c++20 when the tests run
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    module_interfaces = ["utils_module.cppm"],
+    deps = [
+        "@com_google_absl//absl/algorithm:container",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+    ]
+)
+
+cc_test(
+    name = "utils_module_test",
+    srcs = ["utils_module_test.cc"],
+    # The c++20 feature can be added as --features=c++20 when the tests run
+    features = [
+        "c++20",
+        "cpp_modules",
+    ],
+    deps = [
+        ":utils_module",
+        "@gtest//:gtest_main",
+    ],
+)
+
+#############################################
 # Test compiler Builtins
 cc_test(
     name = "builtins_test",

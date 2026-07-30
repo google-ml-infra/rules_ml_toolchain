@@ -101,20 +101,9 @@ cc_feature(
     enabled = True,
 )
 
-cc_feature(
-    name = "language",
-    c_flags = [
-        "-xc",
-    ],
-    cc_flags = [
-        "-xc++",
-    ],
-    enabled = True,
-)
-
 # Hermetic includes.
 cc_feature(
-    name = "hermetic_libraries",
+    name = "hermetic",
     cc_flags = ["-nostdinc++"],
     compiler_flags = ["-nostdinc"],
     enabled = True,

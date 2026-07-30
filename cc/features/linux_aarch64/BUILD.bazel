@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,37 +15,20 @@
 
 load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
-    "cc_feature",
-    "cc_toolchain_import_feature",
     "cc_toolchain_sysroot_feature",
 )
 
 package(
     default_visibility = [
-        "@rules_ml_toolchain//cc/impls/linux_aarch64_linux_aarch64_cuda:__pkg__",
-        "@rules_ml_toolchain//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
+        "//cc/impls/linux_aarch64_linux_aarch64:__pkg__",
+        "//cc/impls/linux_aarch64_linux_aarch64_cuda:__pkg__",
+        "//cc/impls/linux_x86_64_linux_aarch64:__pkg__",
     ],
 )
 
-cc_feature(
-    name = "warnings",
-    compiler_flags = [
-        "-fcolor-diagnostics",
-    ],
+cc_toolchain_sysroot_feature(
+    name = "sysroot",
     enabled = True,
-)
-
-# Hermetic CUDA includes.
-cc_feature(
-    name = "hermetic_cuda",
-    compiler_flags = ["-nocudainc"],
-    enabled = True,
-)
-
-cc_feature(
-    name = "libc++_x86_enable",
-    compiler_flags = [
-        "-D_ALLOW_UNSUPPORTED_LIBCPP",
-    ],
-    enabled = True,
+    sysroot = "@sysroot_linux_aarch64//:sysroot",
+    target = "aarch64-linux-gnu",
 )

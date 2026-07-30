@@ -6,11 +6,13 @@ bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "protobuf", version = "33.0", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+bazel_dep(name = "rules_shell", version = "0.8.0")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "abseil-cpp", version = "20250814.1", repo_name = "com_google_absl")
-bazel_dep(name = "googletest", version = "1.17.0", repo_name = "gtest")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2", repo_name = "gtest")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_python", version = "1.8.5")
+bazel_dep(name = "zlib", version = "1.3.2")
 
 single_version_override(
     module_name = "protobuf",
@@ -187,4 +189,8 @@ use_repo(
 local_sysroot = use_extension("//extensions:local_sysroot_configure.bzl", "local_sysroot_ext")
 use_repo(local_sysroot, "local_sysroot_config")
 
-register_toolchains("//cc/...")
+# Projects that use rules_ml_toolchain should register toolchains on their end
+register_toolchains(
+    "//cc/...",
+    dev_dependency = True,
+)

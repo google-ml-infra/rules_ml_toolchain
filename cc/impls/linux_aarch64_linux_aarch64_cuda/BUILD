@@ -153,6 +153,7 @@ filegroup(
         ":wrappers",
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
+        "@llvm_linux_aarch64//:scan_deps",
         "@llvm_linux_aarch64//:distro_libs",
     ],
 )
@@ -207,23 +208,29 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_aarch64//:clang",
     cc_compiler = "@llvm_linux_aarch64//:clang++",
     compiler_features = [
+        "//cc/features:include_paths",
+        "//cc/features:external_include_paths",
+
+        # Hermetic features required before import
+        "//third_party/rules_cc_toolchain/features:hermetic",
+        "//cc/cuda/features:hermetic_cuda",
+
         ":imports_feature",
-
-        # Cuda features
         ":cuda_nvcc_feature",
-        "//cc/cuda/features:hermetic",
 
-        # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
-        # TODO: Add select() for turn off this option when libstdc++ is used
-        #"//cc/features:libc++",
+        # C++ modules
+        "//cc/features:cpp_modules",
+        "//cc/features:cpp_module_modmap_file",
+        "//cc/features:cpp20_module_compile_flags",
+        "//cc/features:dependency_file",
+        "//cc/features:random_seed",
 
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",
         "//third_party/rules_cc_toolchain/features:errors",
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_aarch64",
+        "//cc/features/linux_aarch64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -242,18 +249,20 @@ cc_toolchain_config(
         "//cc/features:detect_issues",
         #"//cc/features:detect_issues_ext",   # Non-hermetic builds don't include these flags
 
-        # C++ standard configuration
+        # C++ standard flags
         "//third_party/rules_cc_toolchain/features:c++11",
         "//third_party/rules_cc_toolchain/features:c++14",
         "//third_party/rules_cc_toolchain/features:c++17",
+        "//third_party/rules_cc_toolchain/features:c++20",
 
-        #
+        # Other flags
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
     ],
     linker = "@llvm_linux_aarch64//:ld",
     strip_tool = "@llvm_linux_aarch64//:strip",
+    module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
     target_cpu = "aarch64",
     target_system_name = "local",
     tool_paths = CUDA_TOOLS,

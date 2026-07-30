@@ -55,21 +55,47 @@ jobs:
         uses: actions/checkout@v5
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
-        run: bazel test --color=yes //cc/tests/cpu:all
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --color=yes \
+            //cc/tests/cpu:all
+
+      - name: "Clang 18, Glibc 2.31 | C++ modules testing..."
+        run: |
+          bazel test --features=c++20 --experimental_cpp_modules \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --color=yes \
+            //cc/tests/cpu:utils_module_test
 
       - name: "Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27 | Testing..."
-        run: bazel test --color=yes --config=bzlmod //cc/tests/cpu:all
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --config=bzlmod \
+            --color=yes \
+            //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel test --color=yes --config=bzlmod \
+          bazel test --cxxopt="-std=c++17" --config=bzlmod \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/cpu:all
+
+      - name: "Bzlmod. Clang 18, Glibc 2.31, libc++ static linking | C++ modules testing..."
+        run: |
+          bazel test --features=c++20 --experimental_cpp_modules \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --config=bzlmod \
+            --color=yes \
+            //cc/tests/cpu:utils_module_test

@@ -14,10 +14,21 @@
 # ==============================================================================
 
 load(
+    "@rules_cc//cc:action_names.bzl",
+    "ACTION_NAMES",
+)
+load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
     "cc_toolchain_import_feature",
-    "cc_toolchain_sysroot_feature",
+)
+load(
+    ":features.bzl",
+    "compiler_input_feature",
+    "compiler_output_feature",
+    "user_compile_feature",
+    "include_paths_feature",
+    "external_include_paths_feature",
 )
 load(
     "//cc/features:runtime_library_search_directories.bzl",
@@ -36,6 +47,27 @@ package(
         "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
     ],
+)
+
+cc_feature(
+    name = "language",
+    # C language
+    c_flags = [
+        "-xc",
+    ],
+    # C++ language actions and flag (excluding C++ modules)
+    actions = [
+        ACTION_NAMES.linkstamp_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.lto_backend,
+        ACTION_NAMES.clif_match,
+        ACTION_NAMES.objcpp_compile,
+    ],
+    flags = [
+        "-xc++",
+    ],
+    enabled = True,
 )
 
 cc_feature(
@@ -86,13 +118,6 @@ cc_feature(
     enabled = True,
 )
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot_linux_x86_64",
-    enabled = True,
-    sysroot = "@sysroot_linux_x86_64//:sysroot",
-    target = "x86_64-linux-gnu",
-)
-
 # Local sysroot feature - use system root instead of hermetic sysroot
 # Generic for all Linux architectures
 cc_feature(
@@ -118,19 +143,7 @@ cc_feature(
     ],
 )
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot_linux_aarch64",
-    enabled = True,
-    sysroot = "@sysroot_linux_aarch64//:sysroot",
-    target = "aarch64-linux-gnu",
-)
 
-cc_toolchain_sysroot_feature(
-    name = "sysroot_darwin_aarch64",
-    enabled = True,
-    sysroot = "@sysroot_darwin_aarch64//:sysroot",
-    target = "arm64-apple-macosx15.1",
-)
 
 # macOS specific. Needed for llvm-install-name-tool when long paths for libraries are used.
 # Usually bazel generates long loader paths.
@@ -245,3 +258,102 @@ runtime_library_search_directories(
     name = "runtime_library_search_directories",
 )
 
+cc_feature(
+    name = "cpp_modules",
+    enabled = False,
+)
+
+cc_feature(
+    name = "cpp20_module_compile_flags",
+    actions = [
+        ACTION_NAMES.cpp20_module_compile,
+    ],
+    flags = [
+        "-fmodule-output=%{cpp_module_output_file}",
+    ],
+    expand_if_available = "cpp_module_output_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "cpp_module_modmap_file",
+    actions = [
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    flags = [
+        "@%{cpp_module_modmap_file}",
+    ],
+    expand_if_available = "cpp_module_modmap_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "dependency_file",
+    actions = [
+        ACTION_NAMES.assemble,
+        ACTION_NAMES.preprocess_assemble,
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.objc_compile,
+        ACTION_NAMES.objcpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.clif_match,
+    ],
+    flags = [
+        # -MMD instructs Clang generate a dependency file, but do not include headers found in -isystem directories.
+        # Replace "-MMD" to "-MD" when grpc project will fix 'undeclared inclusion' errors
+        "-MMD",
+        "-MF",
+        "%{dependency_file}"
+    ],
+    expand_if_available = "dependency_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "random_seed",
+    actions = [
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_module_codegen,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    flags = [
+        "-frandom-seed=%{output_file}",
+    ],
+    expand_if_available = "output_file",
+    enabled = True,
+)
+
+compiler_input_feature(
+    name = "compiler_input_flags",
+    enabled = True,
+)
+
+compiler_output_feature(
+    name = "compiler_output_flags",
+    enabled = True,
+)
+
+user_compile_feature(
+    name = "user_compile_flags",
+    enabled = True,
+)
+
+include_paths_feature(
+    name = "include_paths",
+    enabled = True,
+)
+
+external_include_paths_feature(
+    name = "external_include_paths",
+    enabled = True,
+)

@@ -24,6 +24,12 @@ load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
     "ACTION_NAME_GROUPS",
+    "ALL_CC_COMPILE_ACTION_NAMES",
+    "ALL_CC_LINK_ACTION_NAMES",
+    "CC_LINK_EXECUTABLE_ACTION_NAMES",
+    "DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
+    "NODEPS_DYNAMIC_LIBRARY_LINK_ACTION_NAMES",
+    "TRANSITIVE_LINK_ACTION_NAMES",
 )
 load(
     "@rules_cc//cc:cc_toolchain_config_lib.bzl",
@@ -43,325 +49,151 @@ load(
 )
 load("@rules_cc//cc:defs.bzl", "CcToolchainConfigInfo", "cc_common")
 
-ALL_ACTIONS = [
-    ACTION_NAMES.c_compile,
-    ACTION_NAMES.cpp_compile,
-    ACTION_NAMES.linkstamp_compile,
-    ACTION_NAMES.cc_flags_make_variable,
-    ACTION_NAMES.cpp_module_codegen,
-    ACTION_NAMES.cpp_header_parsing,
-    ACTION_NAMES.cpp_module_compile,
-    ACTION_NAMES.assemble,
-    ACTION_NAMES.preprocess_assemble,
-    ACTION_NAMES.lto_indexing,
-    ACTION_NAMES.lto_backend,
-    ACTION_NAMES.lto_index_for_executable,
-    ACTION_NAMES.lto_index_for_dynamic_library,
-    ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
-    ACTION_NAMES.cpp_link_executable,
-    ACTION_NAMES.cpp_link_dynamic_library,
-    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-    ACTION_NAMES.cpp_link_static_library,
-    ACTION_NAMES.clif_match,
-]
-
-def _get_link_actions_config(ctx):
-    tools = [
-        tool(ctx.attr.tool_paths["gcc"]),
+ALL_ACTIONS = (
+    ALL_CC_COMPILE_ACTION_NAMES +
+    ALL_CC_LINK_ACTION_NAMES +
+    CC_LINK_EXECUTABLE_ACTION_NAMES +
+    DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
+    NODEPS_DYNAMIC_LIBRARY_LINK_ACTION_NAMES +
+    TRANSITIVE_LINK_ACTION_NAMES +
+    [
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp_module_codegen,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+        ACTION_NAMES.cpp_link_static_library,
     ]
-    action_configs = [action_config(
-        action_name = action,
-        enabled = True,
-        tools = tools,
-        implies = [],
-        flag_sets = _get_shared_flag() +
-            _get_output_execpath_flag() +
-            _get_runtime_library_search_directories_flags() +
-            _get_library_search_directories_flags() +
-            #_get_asan_lib_flag() +
-            _get_libraries_to_link_flags() +
-            _get_strip_debug_symbols_flag()
-    ) for action in [ACTION_NAMES.cpp_link_dynamic_library, ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-        ACTION_NAMES.lto_index_for_dynamic_library, ACTION_NAMES.lto_index_for_nodeps_dynamic_library]]
+)
 
-    action_configs += [action_config(
-             action_name = action,
-             enabled = True,
-             tools = tools,
-             implies = [],
-             flag_sets = _get_output_execpath_flag() +
-                _get_runtime_library_search_directories_flags() +
-                _get_library_search_directories_flags() +
-                #_get_asan_lib_flag() +
-                _get_libraries_to_link_flags() +
-                _get_strip_debug_symbols_flag()
-         ) for action in [ACTION_NAMES.cpp_link_executable, ACTION_NAMES.lto_index_for_executable]]
+
+#ALL_ACTIONS = [
+#    ACTION_NAMES.c_compile,
+#    ACTION_NAMES.cpp_compile,
+#    ACTION_NAMES.linkstamp_compile,
+#    ACTION_NAMES.cc_flags_make_variable,
+#    ACTION_NAMES.cpp_module_codegen,
+#    ACTION_NAMES.cpp_header_parsing,
+#    ACTION_NAMES.cpp_module_compile,
+#    ACTION_NAMES.assemble,
+#    ACTION_NAMES.preprocess_assemble,
+#    ACTION_NAMES.lto_indexing,
+#    ACTION_NAMES.lto_backend,
+#    ACTION_NAMES.lto_index_for_executable,
+#    ACTION_NAMES.lto_index_for_dynamic_library,
+#    ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+#    ACTION_NAMES.cpp_link_executable,
+#    ACTION_NAMES.cpp_link_dynamic_library,
+#    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+#    ACTION_NAMES.cpp_link_static_library,
+#    ACTION_NAMES.clif_match,
+#]
+
+# Copy of action configuration from @rules_cc//cc/...:unix_cc_toolchain_config_lib.bzl
+def _get_actions_config(ctx):
+    action_configs = []
+
+    llvm_cov = ctx.attr.tool_paths.get("llvm-cov")
+    if llvm_cov:
+        llvm_cov_action = action_config(
+            action_name = ACTION_NAMES.llvm_cov,
+            tools = [
+                tool(
+                    path = llvm_cov,
+                ),
+            ],
+        )
+        action_configs.append(llvm_cov_action)
+
+    objcopy = ctx.attr.tool_paths.get("objcopy")
+    if objcopy:
+        objcopy_action = action_config(
+            action_name = ACTION_NAMES.objcopy_embed_data,
+            tools = [
+                tool(
+                    path = objcopy,
+                ),
+            ],
+        )
+        action_configs.append(objcopy_action)
+
+    validate_static_library = ctx.attr.tool_paths.get("validate_static_library")
+    if validate_static_library:
+        validate_static_library_action = action_config(
+            action_name = ACTION_NAMES.validate_static_library,
+            tools = [
+                tool(
+                    path = validate_static_library,
+                ),
+            ],
+        )
+        action_configs.append(validate_static_library_action)
+
+        symbol_check = feature(
+            name = "symbol_check",
+            implies = [ACTION_NAMES.validate_static_library],
+        )
+    else:
+        symbol_check = None
+
+    deps_scanner = "cpp-module-deps-scanner_not_found"
+    if "cpp-module-deps-scanner" in ctx.attr.tool_paths:
+        deps_scanner = ctx.attr.tool_paths["cpp-module-deps-scanner"]
+    cc = ctx.attr.tool_paths.get("gcc")
+    compile_implies = [
+        # keep same with c++-compile
+        "legacy_compile_flags",
+        "user_compile_flags",
+        "sysroot",
+        "unfiltered_compile_flags",
+        "compiler_input_flags",
+        "compiler_output_flags",
+    ]
+    cpp_module_scan_deps = action_config(
+        action_name = ACTION_NAMES.cpp_module_deps_scanning,
+        tools = [
+            tool(
+                path = deps_scanner,
+            ),
+        ],
+        implies = compile_implies,
+    )
+    action_configs.append(cpp_module_scan_deps)
+
+    cpp20_module_compile = action_config(
+        action_name = ACTION_NAMES.cpp20_module_compile,
+        tools = [
+            tool(
+                path = cc,
+            ),
+        ],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-x",
+                            "c++-module",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        implies = compile_implies,
+    )
+    action_configs.append(cpp20_module_compile)
+
+    cpp20_module_codegen = action_config(
+        action_name = ACTION_NAMES.cpp20_module_codegen,
+        tools = [
+            tool(
+                path = cc,
+            ),
+        ],
+        implies = compile_implies,
+    )
+    action_configs.append(cpp20_module_codegen)
 
     return action_configs
-
-#def _get_sysroot_flags():
-#    # Actions:
-#    #   ACTION_NAMES.preprocess_assemble # NOT ADDED YET!
-#    #   ACTION_NAMES.linkstamp_compile # NOT ADDED YET!
-#    #   ACTION_NAMES.c_compile # NOT ADDED YET!
-#    #   ACTION_NAMES.cpp_compile # NOT ADDED YET!
-#    #   ACTION_NAMES.cpp_header_parsing # NOT ADDED YET!
-#    #   ACTION_NAMES.cpp_module_compile # NOT ADDED YET!
-#    #   ACTION_NAMES.cpp_module_codegen # NOT ADDED YET!
-#    #   ACTION_NAMES.lto_backend # NOT ADDED YET!
-#    #   ACTION_NAMES.clif_match # NOT ADDED YET!
-#    #   ACTION_NAMES.cpp_link_executable
-#    #   ACTION_NAMES.cpp_link_dynamic_library
-#    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-#    #   ACTION_NAMES.lto_index_for_executable
-#    #   ACTION_NAMES.lto_index_for_dynamic_library
-#    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-#    return [flag_set(
-#        flag_groups = [
-#            flag_group(
-#                flags = ["--sysroot=%{sysroot}"],
-#                expand_if_available = "sysroot",
-#            ),
-#        ],
-#    )]
-
-def _get_user_link_flags():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                flags = ["%{user_link_flags}"],
-                iterate_over = "user_link_flags",
-                expand_if_available = "user_link_flags",
-            ),
-        ]
-    )]
-
-def _get_library_search_directories_flags():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                flags = ["-L%{library_search_directories}"],
-                iterate_over = "library_search_directories",
-                expand_if_available = "library_search_directories",
-            ),
-        ],
-    )]
-
-def _get_runtime_library_search_directories_flags():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                iterate_over = "runtime_library_search_directories",
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-Wl,-rpath,$EXEC_ORIGIN/%{runtime_library_search_directories}",
-                        ],
-                        expand_if_true = "is_cc_test",
-                    ),
-                    flag_group(
-                        flags = [
-                            "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
-                        ],
-                        expand_if_false = "is_cc_test",
-                    ),
-                ],
-                expand_if_available =
-                    "runtime_library_search_directories",
-            ),
-        ],
-        with_features = [
-            with_feature_set(
-                features = ["static_link_cpp_runtimes"],
-                not_features = ["no_solib_rpaths"],
-            ),
-        ],
-    ),
-    flag_set(
-        flag_groups = [
-            flag_group(
-                iterate_over = "runtime_library_search_directories",
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}",
-                        ],
-                    ),
-                ],
-                expand_if_available =
-                    "runtime_library_search_directories",
-            ),
-        ],
-        with_features = [
-            with_feature_set(
-                not_features = ["static_link_cpp_runtimes", "no_solib_rpaths"],
-            ),
-        ],
-    )]
-
-def _get_strip_debug_symbols_flag():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                flags = ["-Wl,-S"],
-                expand_if_available = "strip_debug_symbols",
-            ),
-        ],
-    )]
-
-def _get_output_execpath_flag():
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                flags = ["-o", "%{output_execpath}"],
-                expand_if_available = "output_execpath",
-            ),
-        ],
-    )]
-
-def _get_shared_flag():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [flag_group(flags = ["-shared"])],
-    )]
-
-def _get_asan_lib_flag():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [
-            # This flag_group runs before any standard library linking
-            # group (like the one that processes libraries_to_link).
-            flag_group(
-                flags = ["-lasan"],
-            ),
-        ],
-    )]
-
-def _get_libraries_to_link_flags():
-    # Actions:
-    #   ACTION_NAMES.cpp_link_executable
-    #   ACTION_NAMES.cpp_link_dynamic_library
-    #   ACTION_NAMES.cpp_link_nodeps_dynamic_library
-    #   ACTION_NAMES.lto_index_for_executable
-    #   ACTION_NAMES.lto_index_for_dynamic_library
-    #   ACTION_NAMES.lto_index_for_nodeps_dynamic_library
-    return [flag_set(
-        flag_groups = [
-            flag_group(
-                iterate_over = "libraries_to_link",
-                    flag_groups = [
-                    flag_group(
-                        flags = ["-Wl,--start-lib"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "object_file_group",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["-Wl,-whole-archive"],
-                        expand_if_true = "libraries_to_link.is_whole_archive",
-                    ),
-                    flag_group(
-                        flags = ["%{libraries_to_link.object_files}"],
-                        iterate_over = "libraries_to_link.object_files",
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "object_file_group",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["%{libraries_to_link.name}"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "object_file",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["%{libraries_to_link.name}"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "interface_library",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["%{libraries_to_link.name}"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "static_library",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["-l%{libraries_to_link.name}"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "dynamic_library",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["-l:%{libraries_to_link.name}"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "versioned_dynamic_library",
-                        ),
-                    ),
-                    flag_group(
-                        flags = ["-Wl,-no-whole-archive"],
-                        expand_if_true = "libraries_to_link.is_whole_archive",
-                    ),
-                    flag_group(
-                        flags = ["-Wl,--end-lib"],
-                        expand_if_equal = variable_with_value(
-                            name = "libraries_to_link.type",
-                            value = "object_file_group",
-                      ),
-                    ),
-                ],
-                expand_if_available = "libraries_to_link",
-            ),
-            flag_group(
-                flags = ["-Wl,@%{thinlto_param_file}"],
-                expand_if_true = "thinlto_param_file",
-            ),
-        ])]
 
 def _label_to_tool_path_feature(tool_mapping = {}):
     """Creates a feature with an env variable pointing to the label.
@@ -381,7 +213,7 @@ def _label_to_tool_path_feature(tool_mapping = {}):
         env_sets = [env_set(
             actions = ALL_ACTIONS,
             env_entries = [
-                env_entry(name.upper() + "_PATH", file.path)
+                env_entry(name.upper().replace("-", "_") + "_PATH", file.path)
                 for name, file in tool_mapping.items()
                 if file
             ],
@@ -390,18 +222,22 @@ def _label_to_tool_path_feature(tool_mapping = {}):
 
 def _create_artifact_name_patterns(ctx):
     artifact_name_patterns = []
-    if ctx.attr.dynamic_library_extension:
-        artifact_name_pattern(
-            category_name = "dynamic_library",
-            prefix = "lib",
-            extension = ctx.attr.dynamic_library_extension,
-        )
+    is_linux = ctx.attr.target_libc != "macosx"
 
-        artifact_name_patterns = [
+    if is_linux:
+        artifact_name_patterns += [
+            artifact_name_pattern(
+                category_name = "cpp_module",
+                prefix = "",
+                extension = ".pcm",
+            ),
+        ]
+    else:
+        artifact_name_patterns += [
             artifact_name_pattern(
                 category_name = "dynamic_library",
                 prefix = "lib",
-                extension = ctx.attr.dynamic_library_extension,
+                extension = ".dylib",
             ),
         ]
 
@@ -545,6 +381,7 @@ def _cc_toolchain_config_impl(ctx):
         abi_version = "unknown",
         abi_libc_version = "unknown",
         cxx_builtin_include_directories = builtin_include_dirs,
+        action_configs = _get_actions_config(ctx),  #_get_link_actions_config(ctx) + _get_module_actions_config(ctx),
         tool_paths = [
             tool_path(name = name, path = path)
             for name, path in ctx.attr.tool_paths.items()
@@ -558,6 +395,7 @@ def _cc_toolchain_config_impl(ctx):
             "ld": ctx.file.linker,
             "ar": ctx.file.archiver,
             "strip": ctx.file.strip_tool,
+            "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
             "in": ctx.file.install_name,
         })] + _get_layering_features({}),
     )
@@ -594,6 +432,7 @@ cc_toolchain_config = rule(
                 "nm": "wrappers/idler",
                 "objdump": "wrappers/idler",
                 "strip": "wrappers/strip",
+                "cpp-module-deps-scanner": "wrappers/module-deps-scanner",
             },
         ),
         "compiler_features": attr.label_list(
@@ -628,6 +467,11 @@ cc_toolchain_config = rule(
         "strip_tool": attr.label(
             doc = "The strip tool e.g. strip. Maps to tool path 'strip'.",
             allow_single_file = True,
+        ),
+        "module_deps_scanner": attr.label(
+            doc = "The searching C++ modules tool.",
+            allow_single_file = True,
+            mandatory = False,
         ),
         "install_name": attr.label(
             doc = "The install name tool for macOS e.g. install_name_tool/llvm-install-name-tool. Maps to tool path 'nmt'.",
