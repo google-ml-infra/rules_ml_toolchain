@@ -86,6 +86,30 @@ def find_rocm_config(repository_ctx):
     # Parse the dict from stdout.
     return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])
 
+def _hipcc_env(repository_ctx):
+    """Returns the environment variable string for hipcc.
+
+    Args:
+        repository_ctx: The repository context.
+
+    Returns:
+        A string containing environment variables for hipcc.
+    """
+    hipcc_env = ""
+    for name in [
+        "HIP_CLANG_PATH",
+        "DEVICE_LIB_PATH",
+        "HIP_VDI_HOME",
+        "HIPCC_VERBOSE",
+        "HIPCC_COMPILE_FLAGS_APPEND",
+        "HIPCC_LINK_FLAGS_APPEND",
+    ]:
+        env_value = repository_ctx.os.environ.get(name)
+        if env_value:
+            hipcc_env = (hipcc_env + " " + name + "=" + env_value)
+
+    return hipcc_env.strip()
+
 def _get_rocm_config(repository_ctx, bash_bin, install_path):
     """Detects and returns information about the ROCm installation on the system.
 
@@ -240,6 +264,7 @@ def _setup_rocm_repository(repository_ctx):
         "%{hipruntime_version_number}": str(hipruntime_version_number),
         "%{hipcc_path}": hipcc_path_relative,
         "%{clang_version}": rocm_config.clang_version,
+        "%{hipcc_env}": _hipcc_env(repository_ctx),
     }
 
     _tpl(repository_ctx, "rocm:BUILD", repository_dict)
