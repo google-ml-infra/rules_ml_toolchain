@@ -159,14 +159,14 @@ cc_toolchain_config(
         "@oneapi//:binaries",
 
         # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic_libraries",
+        "//third_party/rules_cc_toolchain/features:hermetic",
 
         # Toolchain configuration
         "//third_party/rules_cc_toolchain/features:warnings",
         "//third_party/rules_cc_toolchain/features:errors",
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features:sysroot_linux_x86_64",
+        "//cc/features/linux_x86_64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version

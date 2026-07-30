@@ -56,32 +56,54 @@ jobs:
 
       - name: "Clang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --color=yes \
             //cc/tests/cpu:all
+
+      - name: "Clang 21, Glibc 2.31 | C++ modules testing..."
+        run: |
+          bazel test --features=c++20 --experimental_cpp_modules \
+            --repo_env=LLVM_VERSION=21 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            //cc/tests/cpu:utils_module_test
 
       - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel test --color=yes \
+          bazel test --cxxopt="-std=c++17" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 22, Glibc 2.31 | Testing..."
         run: |
-          bazel test --color=yes --config=bzlmod \
+          bazel test --cxxopt="-std=c++17" --config=bzlmod \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --color=yes \
             //cc/tests/cpu:all
 
       - name: "Bzlmod. Clang 21, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel test --color=yes --config=bzlmod \
+          bazel test --cxxopt="-std=c++17" --config=bzlmod \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
             //cc/tests/cpu:all
+
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | C++ modules testing..."
+        run: |
+          bazel test --features=c++20 --experimental_cpp_modules \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --config=bzlmod \
+            --color=yes \
+            //cc/tests/cpu:utils_module_test

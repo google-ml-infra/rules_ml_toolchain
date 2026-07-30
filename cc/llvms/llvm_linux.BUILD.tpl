@@ -81,6 +81,12 @@ alias(
 )
 
 alias(
+    name = "scan_deps",
+    actual = "@@%{llvm_repo_name}//:bin/clang-scan-deps",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "llvm-symbolizer",
     actual = "@@%{llvm_repo_name}//:bin/llvm-symbolizer",
     visibility = ["//visibility:public"],

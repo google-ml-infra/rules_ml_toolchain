@@ -161,7 +161,8 @@ filegroup(
         %{comment}"include/vector_functions.h",
         %{comment}"include/vector_functions.hpp",
         %{comment}"include/vector_types.h",
-    %{comment}]),
+    %{comment}],
+    %{comment}allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

@@ -54,6 +54,13 @@ http_archive(
     ],
 )
 
+http_archive(
+    name = "rules_shell",
+    sha256 = "61979b951a28110c48a45c2120d3108d943b7c8d68ac56e2de6b75ac547d0bc5",
+    strip_prefix = "rules_shell-c02969a1822191a179cd70c0cedd076385446a26",
+    urls = ["https://github.com/bazel-contrib/rules_shell/archive/c02969a1822191a179cd70c0cedd076385446a26.tar.gz"],
+)
+
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
@@ -127,11 +134,11 @@ protobuf_deps()
 http_archive(
     name = "zlib",
     build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
-    sha256 = "38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
-    strip_prefix = "zlib-1.3.1",
+    sha256 = "d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3",
+    strip_prefix = "zlib-1.3.2",
     urls = [
-        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.xz",
-        "https://zlib.net/zlib-1.3.1.tar.xz",
+        "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.xz",
+        "https://zlib.net/zlib-1.3.2.tar.xz",
     ],
 )
 

@@ -7,7 +7,8 @@ filegroup(
     %{comment}srcs = glob([
         %{comment}"include/nvToolsExt*.h",
         %{comment}"include/nvtx3/**",
-    %{comment}]),
+    %{comment}],
+    %{comment}allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
 )
 

@@ -26,6 +26,7 @@ filegroup(
         "ld",
         "nvcc_wrapper",
         "objcopy",
+        "module-deps-scanner",
     ],
     visibility = ["//visibility:public"],
 )
