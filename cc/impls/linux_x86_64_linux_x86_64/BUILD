@@ -254,7 +254,7 @@ cc_toolchain_config(
     linker = "@llvm_linux_x86_64//:ld",
     strip_tool = "@llvm_linux_x86_64//:strip",
     module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
-    parse_headers_tool = "@llvm_linux_x86_64//:clang",
+    #headers_parser = "@llvm_linux_x86_64//:clang",
     target_cpu = "x86_64",
     target_system_name = "local",
 )

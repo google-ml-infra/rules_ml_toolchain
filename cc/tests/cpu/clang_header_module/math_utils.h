@@ -2,5 +2,6 @@
 #define MATH_UTILS_H
 
 int add(int a, int b);
+//double floor2(double a);
 
 #endif
