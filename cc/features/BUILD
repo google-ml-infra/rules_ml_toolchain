@@ -305,9 +305,7 @@ cc_feature(
         ACTION_NAMES.clif_match,
     ],
     flags = [
-        # -MMD instructs Clang generate a dependency file, but do not include headers found in -isystem directories.
-        # Replace "-MMD" to "-MD" when grpc project will fix 'undeclared inclusion' errors
-        "-MMD",
+        "-MD",
         "-MF",
         "%{dependency_file}"
     ],
