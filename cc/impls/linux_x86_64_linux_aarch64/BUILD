@@ -158,6 +158,7 @@ filegroup(
 )
 
 FEATURES_ESSENTIAL = [
+    "//cc/features:dependency_file",
     "//cc/features:include_paths",
     "//cc/features:external_include_paths",
     "//third_party/rules_cc_toolchain/features:hermetic",  # Hermetic libraries feature required before import
@@ -167,7 +168,6 @@ FEATURES_ESSENTIAL = [
     "//cc/features:cpp_modules",
     "//cc/features:cpp_module_modmap_file",
     "//cc/features:cpp20_module_compile_flags",
-    "//cc/features:dependency_file",
     "//cc/features:random_seed",
 
     # Toolchain configuration
