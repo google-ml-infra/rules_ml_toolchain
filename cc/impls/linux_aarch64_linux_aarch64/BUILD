@@ -157,6 +157,7 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_aarch64//:clang",
     cc_compiler = "@llvm_linux_aarch64//:clang++",
     compiler_features = [
+        "//cc/features:dependency_file",
         "//cc/features:include_paths",
         "//cc/features:external_include_paths",
 
@@ -170,7 +171,6 @@ cc_toolchain_config(
         "//cc/features:cpp_modules",
         "//cc/features:cpp_module_modmap_file",
         "//cc/features:cpp20_module_compile_flags",
-        "//cc/features:dependency_file",
         "//cc/features:random_seed",
 
         # Toolchain configuration
