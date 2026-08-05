@@ -204,6 +204,10 @@ unless it was added to the cache by a request with the same canonical id.
         default = Label("@tar//:bin/tar"),
         allow_single_file = True,
     ),
+    "patch_cmds": attr.string_list(
+        default = [],
+        doc = "Sequence of Bash commands to be applied on Linux/Macos after patches are applied.",
+    ),
 }
 
 mirrored_http_archive = repository_rule(

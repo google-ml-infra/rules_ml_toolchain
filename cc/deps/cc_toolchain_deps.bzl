@@ -186,6 +186,10 @@ def cc_toolchain_deps():
                 "lib/libtinfo.so.5": "sha256-Es/8cnQZDKFpOlLM2DA+cZQH5wfIVX3ft+74HyCO+qs=",
                 "lib/libtinfo5-copyright.txt": "sha256-Xo7pAsiQbdt3ef023Jl5ywi1H76/fAsamut4rzgq9ZA=",
             },
+            patch_cmds = [
+                "find . -name '*.modulemap' -type f -delete",
+                "find . -name 'module.map' -type f -delete",
+            ],
         )
 
     if "llvm19_linux_x86_64" not in native.existing_rules():

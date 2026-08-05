@@ -22,32 +22,17 @@ load(
     "cc_test",
 )
 
-#    copts = [
-#        "-fmodules",
-#        "-fimplicit-module-maps",
-#    ],
-    #features = ["module_maps"],
-
-#    copts = [
-#        "-fimplicit-module-maps",
-#        "-fmodules-cache-path=$(@D)/module-cache",
-#    ],
-
 cc_library(
     name = "math_utils",
     srcs = ["math_utils.cpp"],
     hdrs = [
         "dummy.h",
         "math_utils.h",
-        #"module.modulemap",
     ],
-    #data = [":module.modulemap"],
-    #copts = ["-fmodule-map-file=$(location :module.modulemap)"],
 )
 
 cc_binary(
     name = "app",
     srcs = ["app.cpp"],
     deps = [":math_utils"],
-    #features = ["module_maps"],
 )

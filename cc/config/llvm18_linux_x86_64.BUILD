@@ -26,7 +26,10 @@ CLANG_VERSION = "18"
 
 filegroup(
     name = "all",
-    srcs = glob(["**/*"]),
+    srcs = glob(
+        include = ["**/*"],
+        exclude = ["**/module.modulemap"],
+    ),
     visibility = ["//visibility:public"],
 )
 
@@ -127,10 +130,16 @@ cc_toolchain_import(
 
 cc_toolchain_import(
     name = "std_incs",
-    hdrs = glob([
-        "include/c++/v1/**",
-        "include/x86_64-unknown-linux-gnu/c++/v1/**",
-    ]),
+    hdrs = glob(
+        include = [
+            "include/c++/v1/**",
+            "include/x86_64-unknown-linux-gnu/c++/v1/**",
+        ],
+        exclude = [
+            "**/*.modulemap",
+            "**/module.map",
+        ],
+    ),
     includes = [
         "include/c++/v1",
         "include/x86_64-unknown-linux-gnu/c++/v1",

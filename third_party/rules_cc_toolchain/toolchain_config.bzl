@@ -226,7 +226,26 @@ def _get_actions_config(ctx):
     )
     action_configs.append(cpp20_module_codegen)
 
-
+    cpp_module_compile = action_config(
+        action_name = ACTION_NAMES.cpp_module_compile,
+        tools = [
+            tool(
+                path = cc,
+            ),
+        ],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-xc++", "-Xclang", "-emit-module", "-Xclang", "-x", "-Xclang", "c++-module-map",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    action_configs.append(cpp_module_compile)
 
     return action_configs
 
@@ -388,6 +407,11 @@ def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
             ],
         ),
         feature(
+            name = "header_modules",
+            enabled = True,
+            implies = ["use_header_modules", "module_maps"],
+        ),
+        feature(
             name = "use_header_modules",
             enabled = True,
             flag_sets = [
@@ -400,12 +424,19 @@ def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
                     flag_groups = [
                         flag_group(flags = [
                             "-fmodules",
-                            "-fimplicit-module-maps",
-                            "-fmodules-strict-decluse"
+                            "-fmodules-strict-decluse",
+                            # forcing Clang to search the file system for module maps instead of letting Bazel
+                            # explicitly pass the precompiled .pcm files it generates
+                            # "-fimplicit-module-maps",
                         ]),
+                        flag_group(
+                            iterate_over = "module_files",
+                            flags = ["-fmodule-file=%{module_files}"],
+                        ),
                     ],
                 ),
             ],
+            implies = ["use_module_maps"],
         ),
         feature(name = "compiler_param_file"),
         feature(name = "validates_layering_check_in_textual_hdrs", enabled = True),

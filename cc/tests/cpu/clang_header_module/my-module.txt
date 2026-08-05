@@ -1,0 +1,11 @@
+
+//module StdMath [system] {
+//    header "cmath"
+//    export *
+//}
+
+module MathUtils {
+    header "cc/tests/cpu/clang_header_module/math_utils.h"
+
+    export *
+}
