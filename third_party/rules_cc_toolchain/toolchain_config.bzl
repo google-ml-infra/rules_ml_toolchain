@@ -135,6 +135,10 @@ def _get_actions_config(ctx):
     else:
         symbol_check = None
 
+    deps_scanner = "cpp-module-deps-scanner_not_found"
+    if "cpp-module-deps-scanner" in ctx.attr.tool_paths:
+        deps_scanner = ctx.attr.tool_paths["cpp-module-deps-scanner"]
+    cc = ctx.attr.tool_paths.get("gcc")
     compile_implies = [
         # keep same with c++-compile
         "legacy_compile_flags",
