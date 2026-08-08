@@ -115,6 +115,7 @@ filegroup(
         "@oneapi//:clang++",
         "@oneapi//:clang-offload-bundler",
         "@oneapi//:clang-offload-wrapper",
+        "@oneapi//:clang-offload-deps",
         "@oneapi//:file-table-tform",
         "@oneapi//:llvm-foreach",
         "@oneapi//:llvm-objcopy",
