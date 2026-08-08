@@ -162,6 +162,13 @@ filegroup(
 )
 
 filegroup(
+    name = "clang-offload-deps",
+    srcs = [
+        "compiler/{oneapi_version}/bin/compiler/clang-offload-deps".format(oneapi_version = ONEAPI_VERSION),
+    ],
+)
+
+filegroup(
     name = "file-table-tform",
     srcs = [
         "compiler/{oneapi_version}/bin/compiler/file-table-tform".format(oneapi_version = ONEAPI_VERSION),
@@ -355,8 +362,6 @@ cc_library(
             "mkl/{oneapi_version}/lib/libmkl_sycl_lapack.so*".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/lib/libmkl_sycl_rng.so*".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/lib/libmkl_sycl_sparse.so*".format(oneapi_version = ONEAPI_VERSION),
-            "mkl/{oneapi_version}/lib/libmkl_avx512.so*".format(oneapi_version = ONEAPI_VERSION),
-            "mkl/{oneapi_version}/lib/libmkl_def.so*".format(oneapi_version = ONEAPI_VERSION),
         ],
         allow_empty = True,
     ),
