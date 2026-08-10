@@ -355,6 +355,8 @@ cc_library(
             "mkl/{oneapi_version}/lib/libmkl_sycl_lapack.so*".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/lib/libmkl_sycl_rng.so*".format(oneapi_version = ONEAPI_VERSION),
             "mkl/{oneapi_version}/lib/libmkl_sycl_sparse.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_avx512.so*".format(oneapi_version = ONEAPI_VERSION),
+            "mkl/{oneapi_version}/lib/libmkl_def.so*".format(oneapi_version = ONEAPI_VERSION),
         ],
         allow_empty = True,
     ),
