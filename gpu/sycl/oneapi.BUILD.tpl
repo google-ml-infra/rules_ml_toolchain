@@ -162,6 +162,13 @@ filegroup(
 )
 
 filegroup(
+    name = "clang-offload-deps",
+    srcs = [
+        "compiler/{oneapi_version}/bin/compiler/clang-offload-deps".format(oneapi_version = ONEAPI_VERSION),
+    ],
+)
+
+filegroup(
     name = "file-table-tform",
     srcs = [
         "compiler/{oneapi_version}/bin/compiler/file-table-tform".format(oneapi_version = ONEAPI_VERSION),
