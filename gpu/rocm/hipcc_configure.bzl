@@ -282,6 +282,12 @@ hipcc_configure = repository_rule(
     environ = [
         "TF_NEED_ROCM",
         "TF_ROCM_AMDGPU_TARGETS",
+        "HIP_CLANG_PATH",
+        "DEVICE_LIB_PATH",
+        "HIP_VDI_HOME",
+        "HIPCC_VERBOSE",
+        "HIPCC_COMPILE_FLAGS_APPEND",
+        "HIPCC_LINK_FLAGS_APPEND",
     ],
     attrs = {
         "rocm_dist": attr.label(
