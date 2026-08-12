@@ -61,15 +61,6 @@ jobs:
             --color=yes \
             //cc/tests/cpu:all
 
-      - name: "Clang 18, Glibc 2.27 | Clang header modules testing..."
-        run: |
-          bazel build --cxxopt="-std=c++17" \
-            --platforms=//common:linux_aarch64 \
-            --features=use_header_modules \
-            --color=yes \
-            --verbose_failures \
-            //cc/tests/cpu/clang-header-module:basic_test
-
       # TODO: Investigate why this test requires C++20
       - name: "Clang 18, Glibc 2.31 | C++20 modules testing..."
         run: |

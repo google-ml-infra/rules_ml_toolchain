@@ -61,17 +61,9 @@ jobs:
             --verbose_failures \
             //cc/tests/cpu:all
 
-      - name: "Clang 18, Glibc 2.27 | Clang header modules testing..."
-        run: |
-          bazel test --cxxopt="-std=c++17" \
-            --features=use_header_modules \
-            --color=yes \
-            --verbose_failures \
-            //cc/tests/cpu/clang-header-module:basic_test
-
       - name: "Clang 18, Glibc 2.31 | C++20 modules testing..."
         run: |
-          bazel test --features=c++20 --experimental_cpp_modules  \
+          bazel test --features=c++20 --experimental_cpp_modules \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --color=yes \
             --verbose_failures \
@@ -88,8 +80,9 @@ jobs:
 
       - name: "Clang 18, Glibc 2.31, libc++ static linking | Clang header modules testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" \
+          bazel test --features=c++20 \
             --features=use_header_modules \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --color=yes \
@@ -126,7 +119,7 @@ jobs:
 
       - name: "Bzlmod. Clang 18, Glibc 2.31, libc++ static linking | Clang header modules testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" \
+          bazel test --features=c++20   \
             --features=use_header_modules \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
