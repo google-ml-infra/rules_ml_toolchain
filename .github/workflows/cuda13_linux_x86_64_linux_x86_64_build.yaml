@@ -41,7 +41,7 @@ jobs:
         job_info: [
           {
             runner: "linux-x86-n2-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build:latest",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:4fb9960acd5951234ae4272e93bc262be4111ce32afb77e69b1038b61251dec0",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
@@ -52,7 +52,7 @@ jobs:
       image: ${{ matrix.job_info.container }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5
+        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v4
 
         # Clang 22 is minimum required version for CUDA13
       - name: "Clang 22, Glibc 2.31 | Testing..."

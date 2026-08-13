@@ -41,7 +41,7 @@ jobs:
         job_info: [
           {
             runner: "linux-arm64-c4a-16",
-            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build-arm64:latest",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build-arm64@sha256:1ee5aed2974d479c82125d1e5f91fb985a44bb5363bbff76048f265be95f0051",
           },
         ]
     # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
@@ -52,7 +52,7 @@ jobs:
       image: ${{ matrix.job_info.container }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5
+        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v4
 
       - name: "Clang 18, Glibc 2.27 | Testing..."
         run: |
