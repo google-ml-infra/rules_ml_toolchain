@@ -383,6 +383,7 @@ def _get_header_module_features():
                             "-Wno-modules-ambiguous-internal-linkage",
                             "-Wno-module-import-in-extern-c",
                             "-Wno-modules-import-nested-redundant",
+                            "-DBAZEL_CLANG_USE_HEADER_MODULES_ACTIVE=1",    # flag for testing purpose
                         ]),
                         flag_group(
                             flags = [
