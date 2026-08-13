@@ -150,5 +150,46 @@ and allows build for such targets:
 `bazel build //cc/tests/cpu/... --platforms=//common:macos_aarch64`
 -->
 
+## C++ toolchain features
+### Clang Header Modules
+To manage Clang header modules, use a producer/consumer architecture:
+* **Producers:** Explicitly enable the `header_modules` feature on specific targets that are compatible with and support being compiled as header modules.
+* **Consumers (Global Default):** Enable the `use_header_modules` feature globally across your workspace so that targets consume available modules by default.
+* **Consumers (Opt-Out):** For specific targets that fail to build with header modules, completely disable the feature locally by adding `features = ["-use_header_modules"]` to their rule.
+
+```
+# BUILD.bazel
+
+# ---------------------------------------------------------
+# 1. THE PRODUCER
+# ---------------------------------------------------------
+cc_library(
+    name = "utils_lib",
+    srcs = ["utils.cc"],
+    hdrs = ["utils.h"], 
+    features = ["header_modules"],
+    visibility = ["//visibility:public"],
+)
+
+# ---------------------------------------------------------
+# 2. THE DEFAULT CONSUMER
+# ---------------------------------------------------------
+cc_library(
+    name = "standard_consumer",
+    srcs = ["consumer.cc"],
+    deps = [":utils_lib"],
+)
+
+# ---------------------------------------------------------
+# 3. THE INCOMPATIBLE TARGET
+# ---------------------------------------------------------
+cc_library(
+    name = "incompatible_lib",
+    srcs = ["incompatible.cc"],
+    deps = [":utils_lib"],
+    features = ["-use_header_modules"],
+)
+```
+
 ## Troubleshooting
 Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.
