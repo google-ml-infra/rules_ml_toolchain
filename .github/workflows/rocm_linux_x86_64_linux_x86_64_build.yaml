@@ -50,7 +50,7 @@ jobs:
       image: ${{ matrix.job_info.container }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5
 
       - name: Test ROCm GPU code compilation (hermetic HIPcc)
         run: |
