@@ -30,4 +30,6 @@ jobs:
     with:
       tag_name: ${{ github.ref_name }}
       environment: release
-    secrets: inherit
+    secrets:
+      # Necessary to push to the BCR fork, and to open a pull request against a registry
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
