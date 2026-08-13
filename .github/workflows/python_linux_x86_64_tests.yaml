@@ -51,7 +51,7 @@ jobs:
     container:
       image: ${{ matrix.job_info.container }}
     steps:
-      - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - run: echo "Building / running tests..."
       - run: |
