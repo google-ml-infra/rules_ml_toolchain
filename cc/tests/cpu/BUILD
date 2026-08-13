@@ -99,6 +99,25 @@ cc_test(
 )
 
 #############################################
+# Clang header modules
+cc_library(
+    name = "utils_lib",
+    srcs = ["clang-header-module/utils.cc"],
+    hdrs = ["clang-header-module/utils.h"],
+    features = ["header_modules"],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "clang_header_module_test",
+    srcs = ["clang-header-module/basic_test.cc"],
+    deps = [
+        ":utils_lib",
+        "@gtest//:gtest_main",
+    ],
+)
+
+#############################################
 # Test compiler Builtins
 cc_test(
     name = "builtins_test",
