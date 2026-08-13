@@ -8,12 +8,13 @@ on:
       # Note that we don't use a "v" prefix to help anchor this pattern.
       # This is purely a matter of preference.
       - "*.*.*"
-permissions:
-  id-token: write
-  attestations: write
-  contents: write
+
 jobs:
   release:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.3
     with:
       prerelease: false
@@ -21,6 +22,9 @@ jobs:
       tag_name: ${{ github.ref_name }}
       bazel_test_command: bazel test --config=bzlmod //cc/tests/cpu:all
   publish:
+    permissions:
+      id-token: write
+      contents: read
     needs: release
     uses: ./.github/workflows/publish.yaml
     with:
