@@ -20,6 +20,7 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda", "if_cuda_hermetic_clang")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
+load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -263,12 +264,13 @@ cc_toolchain_config(
     linker = "@llvm_linux_aarch64//:ld",
     strip_tool = "@llvm_linux_aarch64//:strip",
     module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
+    headers_parser = "@llvm_linux_x86_64//:clang",
     target_cpu = "aarch64",
     target_system_name = "local",
     tool_paths = CUDA_TOOLS,
 )
 
-cc_toolchain(
+cc_toolchain_with_cppmap(
     name = "toolchain",
     all_files = ":all",
     ar_files = ":ar",
