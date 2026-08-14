@@ -161,7 +161,7 @@ To manage Clang header modules, use a producer/consumer architecture:
 # BUILD.bazel
 
 # ---------------------------------------------------------
-# 1. THE PRODUCER
+# 1. The producer
 # ---------------------------------------------------------
 cc_library(
     name = "utils_lib",
@@ -172,7 +172,7 @@ cc_library(
 )
 
 # ---------------------------------------------------------
-# 2. THE DEFAULT CONSUMER
+# 2. The consumer
 # ---------------------------------------------------------
 cc_library(
     name = "standard_consumer",
@@ -181,7 +181,7 @@ cc_library(
 )
 
 # ---------------------------------------------------------
-# 3. THE INCOMPATIBLE TARGET
+# 3. The incompatible target
 # ---------------------------------------------------------
 cc_library(
     name = "incompatible_lib",

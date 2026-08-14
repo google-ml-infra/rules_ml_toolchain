@@ -138,7 +138,6 @@ def _get_actions_config(ctx):
     deps_scanner = "cpp-module-deps-scanner_not_found"
     if "cpp-module-deps-scanner" in ctx.attr.tool_paths:
         deps_scanner = ctx.attr.tool_paths["cpp-module-deps-scanner"]
-    cc = ctx.attr.tool_paths.get("gcc")
     compile_implies = [
         # keep same with c++-compile
         "legacy_compile_flags",
@@ -148,10 +147,6 @@ def _get_actions_config(ctx):
         "compiler_input_flags",
         "compiler_output_flags",
     ]
-
-    deps_scanner = "cpp-module-deps-scanner_not_found"
-    if "cpp-module-deps-scanner" in ctx.attr.tool_paths:
-        deps_scanner = ctx.attr.tool_paths["cpp-module-deps-scanner"]
 
     cpp_module_scan_deps = action_config(
         action_name = ACTION_NAMES.cpp_module_deps_scanning,
@@ -535,7 +530,7 @@ def _cc_toolchain_config_impl(ctx):
         abi_version = "unknown",
         abi_libc_version = "unknown",
         cxx_builtin_include_directories = builtin_include_dirs,
-        action_configs = _get_actions_config(ctx),  #_get_link_actions_config(ctx) + _get_module_actions_config(ctx),
+        action_configs = _get_actions_config(ctx),
         tool_paths = [
             tool_path(name = name, path = path)
             for name, path in ctx.attr.tool_paths.items()

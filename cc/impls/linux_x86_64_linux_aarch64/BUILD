@@ -19,6 +19,7 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
+load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -176,7 +177,6 @@ FEATURES_ESSENTIAL = [
     "//third_party/rules_cc_toolchain/features:reproducible",
     "//cc/features:language",
     "//third_party/rules_cc_toolchain/features:use_lld",
-    "//cc/features/linux_aarch64:sysroot",
     ":startup_libs_feature",
     "//third_party/rules_cc_toolchain/features:coverage",
     #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -206,6 +206,7 @@ FEATURES_ESSENTIAL = [
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
 
+    "//cc/features/linux_aarch64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
 ]
@@ -224,7 +225,7 @@ cc_toolchain_config(
     target_system_name = "local",
 )
 
-cc_toolchain(
+cc_toolchain_with_cppmap(
     name = "toolchain",
     all_files = ":all",
     ar_files = ":ar",
