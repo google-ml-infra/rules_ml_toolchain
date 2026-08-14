@@ -61,7 +61,6 @@ jobs:
             --color=yes \
             //cc/tests/cpu:all
 
-      # TODO: Investigate why this test requires C++20
       - name: "Clang 18, Glibc 2.31 | C++20 modules testing..."
         run: |
           bazel build --features=c++20 --experimental_cpp_modules \
