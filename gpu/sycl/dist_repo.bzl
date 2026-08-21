@@ -88,6 +88,20 @@ _ONEAPI_BUILD_SUBSTITUTIONS = {
         "%{umf_version}": "1.1",
         "%{vtune_version}": "2026.0",
     },
+    "2026.1": {
+        "%{advisor_version}": "2026.1",
+        "%{clang_version}": "22",
+        "%{extra_lib_src_glob}": "2026.1/lib/libur_adapter_level_zero_v2.so*",
+        "%{ipp_version}": "2026.0",
+        "%{libsycl_version}": "9",
+        "%{mpi_version}": "2021.18",
+        "%{oneapi_lib_paths}": ":2026.1/lib,:compiler/2026.1/lib,:compiler/2026.1/opt/compiler/lib",
+        "%{oneapi_version}": "2026.1",
+        "%{tbb_version}": "2023.1",
+        "%{tcm_version}": "1.5",
+        "%{umf_version}": "1.1",
+        "%{vtune_version}": "2026.2",
+    },
 }
 
 def _get_build_substitutions(ctx, dist_key):
