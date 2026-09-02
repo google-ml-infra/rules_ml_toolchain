@@ -248,6 +248,7 @@ FEATURES_ESSENTIAL = [
     "//cc/rocm/features:rocm_hermetic",
     "//cc/rocm/features:rocm_warnings",
     "//cc/rocm/features:rocm_compiler_rt",
+    "//cc/rocm/features:rocm_global_symbol_version_script",
     "//cc/features:no_solib_rpaths",
     "//cc/features:runtime_library_search_directories",
 
