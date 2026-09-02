@@ -45,6 +45,10 @@ def python_register_toolchain(name = "python", python_version = None, **kwargs):
         **kwargs: additional arguments to pass to python_register_toolchains.
     """
 
+    rules_python_version_kind = HERMETIC_PYTHON_VERSION_KIND
+    if rules_python_version_kind == "freethreaded":
+        rules_python_version_kind = "ft"
+
     if python_version:
         python_register_toolchains(
             name = get_toolchain_name_per_python_version(name),
@@ -71,7 +75,7 @@ def python_register_toolchain(name = "python", python_version = None, **kwargs):
             # isnt sufficient to configure freethreaded python toolchain.
             # Because this happens in bazel's phase 2 (build/test) and can fail
             # if init_toolchains runs pip parse during phase1 (fetch).
-            python_version_kind = "ft" if "ft" in HERMETIC_PYTHON_VERSION else HERMETIC_PYTHON_VERSION_KIND,
+            python_version_kind = "ft" if "ft" in HERMETIC_PYTHON_VERSION else rules_python_version_kind,
             tool_versions = {
                 tool_version: {
                     "url": HERMETIC_PYTHON_URL,
@@ -86,5 +90,5 @@ def python_register_toolchain(name = "python", python_version = None, **kwargs):
             name = get_toolchain_name_per_python_version(name),
             ignore_root_user_error = True,
             python_version = HERMETIC_PYTHON_VERSION,
-            python_version_kind = HERMETIC_PYTHON_VERSION_KIND,
+            python_version_kind = rules_python_version_kind,
         )
