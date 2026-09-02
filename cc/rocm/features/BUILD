@@ -24,9 +24,9 @@ load(":rocm_global_symbol_version_script_feature.bzl", "rocm_global_symbol_versi
 package(default_visibility = ["//visibility:public"])
 
 config_setting(
-    name = "is_rocm_global_symbol_version_enabled",
+    name = "is_xla_test_global_symbol_version_enabled",
     flag_values = {
-        "//common:enable_rocm_global_symbol_version": "True",
+        "//common:enable_xla_test_global_symbol_version": "True",
     },
 )
 
@@ -75,11 +75,11 @@ cc_feature(
 
 # ROCm global symbol versioning
 # Controls symbol visibility using a linker version script
-# Can be enabled with --@rules_ml_toolchain//common:enable_rocm_global_symbol_version=True
+# Can be enabled with --@rules_ml_toolchain//common:enable_xla_test_global_symbol_version=True
 rocm_global_symbol_version_script_feature(
     name = "rocm_global_symbol_version_script",
     enabled = select({
-        "//cc/rocm/features:is_rocm_global_symbol_version_enabled": True,
+        "//cc/rocm/features:is_xla_test_global_symbol_version_enabled": True,
         "//conditions:default": False,
     }),
     version_script = ":global_symbol_version_script",

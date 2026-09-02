@@ -265,10 +265,10 @@ bool_flag(
     build_setting_default = False,
 )
 
-# Enable ROCm global symbol versioning
+# Enable XLA_TEST global symbol versioning
 # Prevents LLVM symbol clashes between XLA's LLVM and ROCm's libLLVM.so
 bool_flag(
-    name = "enable_rocm_global_symbol_version",
+    name = "enable_xla_test_global_symbol_version",
     build_setting_default = False,
 )
 
