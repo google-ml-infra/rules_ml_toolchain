@@ -265,6 +265,13 @@ bool_flag(
     build_setting_default = False,
 )
 
+# Enable XLA_TEST global symbol versioning
+# Prevents LLVM symbol clashes between XLA's LLVM and ROCm's libLLVM.so
+bool_flag(
+    name = "enable_xla_test_global_symbol_version",
+    build_setting_default = False,
+)
+
 config_setting(
     name = "is_rocm_enabled",
     flag_values = {
@@ -278,6 +285,7 @@ config_setting(
         ":enable_rocm": "False",
     },
 )
+
 
 #######################################################
 # Sanitizers flags
