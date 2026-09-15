@@ -85,8 +85,8 @@ filegroup(
     srcs = [
         ":compiler",
         ":wrappers",
-        "@llvm_darwin_aarch64//:ld",
-        #"@xcode_darwin//:ld",
+        #"@llvm_darwin_aarch64//:ld",
+        "@xcode_darwin//:ld",
     ],
 )
 
@@ -169,12 +169,12 @@ cc_toolchain_config(
         # "@rules_ml_toolchain//cc/features:allow_shlib_undefined",  # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
         "@rules_ml_toolchain//cc/features:supports_start_end_lib_feature",
 
-        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:use_lld",
+        #"@rules_ml_toolchain//third_party/rules_cc_toolchain/features:use_lld",
     ],
     dynamic_library_extension = ".dylib",
     install_name = "@llvm_darwin_aarch64//:install_name_tool_darwin",
-    linker = "@llvm_darwin_aarch64//:ld",
-    #linker = "@xcode_darwin//:ld",
+    #linker = "@llvm_darwin_aarch64//:ld",
+    linker = "@xcode_darwin//:ld",
     strip_tool = "@llvm_darwin_aarch64//:strip",
     target_cpu = "aarch64",
     target_libc = "macosx",
