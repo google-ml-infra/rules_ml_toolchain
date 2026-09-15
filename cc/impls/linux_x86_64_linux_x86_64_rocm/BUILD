@@ -204,6 +204,7 @@ filegroup(
         ":rocm_toolkit_files",
         ":startup_libs",
         ":wrappers",
+        "//cc/rocm/features:global_symbol_version_script",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:ld",
     ],
