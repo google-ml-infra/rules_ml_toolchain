@@ -71,12 +71,19 @@ cc_toolchain_import(
 
 cc_toolchain_import(
     name = "libm",
+    # libSystem.tbd exists as separate "system" target
+    #additional_libs = [
+    #    "usr/lib/libSystem.tbd",
+    #],
     shared_library = "usr/lib/libm.tbd",
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "libstdc++",
+    additional_libs = [
+        "usr/lib/libc++.1.tbd",
+    ],
     shared_library = "usr/lib/libc++.tbd",
     visibility = ["//visibility:public"],
 )
@@ -84,20 +91,26 @@ cc_toolchain_import(
 # Redundancy library (for configuration compatibility with Linux system)
 cc_toolchain_import(
     name = "libpthread",
+    # libSystem.tbd exists as separate "system" target
+    #additional_libs = [
+    #    "usr/lib/libSystem.tbd",
+    #],
     shared_library = "usr/lib/libpthread.tbd",
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "objc",
+    additional_libs = [
+        "usr/lib/libobjc.A.tbd",
+    ],
     shared_library = "usr/lib/libobjc.tbd",
 )
 
 cc_toolchain_import(
     name = "core_foundation",
     additional_libs = [
-        "usr/lib/libobjc.A.tbd",
-        "usr/lib/libobjc.tbd",
+        "System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation.tbd",
     ],
     shared_library = "System/Library/Frameworks/CoreFoundation.framework/CoreFoundation.tbd",
 )
