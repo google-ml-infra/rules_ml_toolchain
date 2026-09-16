@@ -207,6 +207,7 @@ filegroup(
         "//cc/rocm/features:global_symbol_version_script",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:ld",
+        "@llvm_linux_x86_64//:libclang_rt",
     ],
 )
 
