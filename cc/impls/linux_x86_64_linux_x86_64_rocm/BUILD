@@ -95,7 +95,7 @@ cc_toolchain_import_feature(
         "//common:is_hermetic_libraries_enabled": True,
         "//conditions:default": False,
     }),
-    toolchain_import = ":startup_libs",
+    toolchain_import = "@sysroot_linux_x86_64//:startup_libs",
 )
 
 # buildifier: leave-alone
@@ -176,7 +176,7 @@ filegroup(
     srcs = [
         ":imports",
         ":rocm_toolkit_files",
-        ":startup_libs",
+        "@sysroot_linux_x86_64//:startup_libs",
         ":wrappers",
         "@llvm_linux_x86_64//:all",
     ],
@@ -202,11 +202,12 @@ filegroup(
     srcs = [
         ":compiler",
         ":rocm_toolkit_files",
-        ":startup_libs",
+        "@sysroot_linux_x86_64//:startup_libs",
         ":wrappers",
         "//cc/rocm/features:global_symbol_version_script",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:ld",
+        "@llvm_linux_x86_64//:libclang_rt",
     ],
 )
 
