@@ -83,6 +83,7 @@ cc_toolchain_import(
     name = "libstdc++",
     additional_libs = [
         "usr/lib/libc++.1.tbd",
+        "usr/lib/libc++abi.tbd",
     ],
     shared_library = "usr/lib/libc++.tbd",
     visibility = ["//visibility:public"],
