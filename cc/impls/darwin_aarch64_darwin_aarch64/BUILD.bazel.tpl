@@ -63,7 +63,7 @@ filegroup(
         ":imports",
         ":wrappers",
         "@llvm_darwin_aarch64//:all",
-        #"@xcode_darwin//:all",
+        "@xcode_darwin//:all",
     ],
 )
 

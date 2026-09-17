@@ -310,15 +310,15 @@ def _import_feature_impl(ctx):
     linker_dir_flags = depset([
         "-L" + file.dirname
         for file in toolchain_import_info
-            .linking_context.static_libraries.to_list()
-    ] + [
-        "-L" + file.dirname
-        for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ] + [
         "-L" + file.dirname
         for file in toolchain_import_info
             .linking_context.additional_libs.to_list()
+    ] + [
+        "-L" + file.dirname
+        for file in toolchain_import_info
+            .linking_context.static_libraries.to_list()
     ]).to_list()
 
     linker_flags = depset([
