@@ -16,6 +16,10 @@
 """Module extension for ROCm hermetic download (for testing purposes only)."""
 
 load(
+    "//gpu/rocm:hipcc_configure.bzl",
+    "hipcc_configure",
+)
+load(
     "//gpu/rocm:rocm_hermetic_download.bzl",
     "ROCM_SHA256",
     "ROCM_URL",
@@ -31,18 +35,27 @@ def _rocm_hermetic_download_ext_impl(mctx):
         sha256 = ROCM_SHA256,
     )
 
+    # Create config_rocm_hipcc for testing using the hermetic distribution
+    # Note: Production consumers should create their own config_rocm_hipcc
+    # pointing to their local ROCm installation
+    hipcc_configure(
+        name = "config_rocm_hipcc",
+        rocm_dist = "@rocm_hermetic_dist//:rocm_root",
+    )
+
 rocm_hermetic_download_ext = module_extension(
     implementation = _rocm_hermetic_download_ext_impl,
     doc = """ROCm hermetic download module extension for testing.
 
-This extension downloads a hardcoded ROCm distribution for testing purposes only.
-For production use, consumers should provide their own ROCm installation.
+This extension downloads a hardcoded ROCm distribution and creates config_rocm_hipcc
+for testing purposes only. For production use, consumers should provide their own
+ROCm installation and config_rocm_hipcc.
 
 Usage in MODULE.bazel:
 
 ```starlark
 rocm_hermetic = use_extension("@rules_ml_toolchain//extensions:rocm_hermetic_download.bzl", "rocm_hermetic_download_ext")
-use_repo(rocm_hermetic, "rocm_hermetic_dist")
+use_repo(rocm_hermetic, "rocm_hermetic_dist", "config_rocm_hipcc")
 ```
 """,
 )
