@@ -101,7 +101,7 @@ For detailed instructions on how to configure and use sanitizers [click this lin
 ### CPU hermetic tests
 Project supports CPU hermetic builds on:
 * Linux x86_64 / aarch64
-* macOS aarch64 - *In Development*
+* macOS aarch64
 
 The command allows you to run hermetic build tests:
 
