@@ -21,8 +21,6 @@ def _darwin_local_config_cc_impl(rctx):
 
         dest_path = str(wrappers_dir.get_child(dest_filename))
 
-        print("_darwin_local_config_cc_impl: Copying src = %s , dst = %s" % (src_path, dest_path))
-
         result = rctx.execute(["cp", "-R", str(src_path), dest_path])
         if result.return_code != 0:
             fail("Failed to copy %s: %s" % (src_path, result.stderr))

@@ -155,12 +155,6 @@ def cc_toolchain_deps():
             default_path = "cc/sysroots/darwin_aarch64/MacOSX.sdk",
         )
 
-        #new_local_repository(
-        #    name = "sysroot_darwin_aarch64",
-        #    build_file = "//cc/config:sysroot_darwin_aarch64.BUILD",
-        #    path = "cc/sysroots/darwin_aarch64/MacOSX.sdk",
-        #)
-
     if "darwin_local_config_cc" not in native.existing_rules():
         darwin_local_config_cc(
             name = "darwin_local_config_cc",

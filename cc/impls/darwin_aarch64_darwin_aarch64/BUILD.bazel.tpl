@@ -28,7 +28,6 @@ package(
     ],
 )
 
-# TODO: Replace static repository name by dynamic value
 filegroup(
     name = "wrappers",
     srcs = [
@@ -165,7 +164,8 @@ cc_toolchain_config(
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++17",
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++20",
 
-        # "@rules_ml_toolchain//cc/features:allow_shlib_undefined",  # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
+        # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
+        # "@rules_ml_toolchain//cc/features:allow_shlib_undefined",
         "@rules_ml_toolchain//cc/features:supports_start_end_lib_feature",
 
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:use_lld",

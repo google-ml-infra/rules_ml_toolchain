@@ -54,9 +54,6 @@ def _macos_sdk_impl(rctx):
         else:
             fail("Unsupported operation system '" + os_name + "' for macOS targets build.")
 
-    print("============================================")
-    print("_macos_sdk_impl: sdk_path = " + sdk_path)
-
     sub_paths = _get_dir_path(rctx, sdk_path).readdir()
     for path in sub_paths:
         rctx.symlink(path, path.basename)

@@ -33,8 +33,6 @@ def _xcode_macos_impl(ctx):
 
     xcode_toolchain_path = xcode_path + "/Toolchains/XcodeDefault.xctoolchain/"
 
-    print("_xcode_macos_impl: xcode_toolchain_path = " + xcode_toolchain_path)
-
     ctx.template(
         "BUILD",
         ctx.attr.build_file_tpl,
