@@ -101,7 +101,7 @@ For detailed instructions on how to configure and use sanitizers [click this lin
 ### CPU hermetic tests
 Project supports CPU hermetic builds on:
 * Linux x86_64 / aarch64
-* macOS aarch64
+* macOS aarch64 (using LLVM 19 or newer is highly recommended, as it introduces linker updates for Apple platforms)
 
 The command allows you to run hermetic build tests:
 
