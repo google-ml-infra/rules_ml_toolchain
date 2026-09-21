@@ -19,8 +19,21 @@ load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
 )
+load(":rocm_global_symbol_version_script_feature.bzl", "rocm_global_symbol_version_script_feature")
 
 package(default_visibility = ["//visibility:public"])
+
+config_setting(
+    name = "is_xla_test_global_symbol_version_enabled",
+    flag_values = {
+        "//common:enable_xla_test_global_symbol_version": "True",
+    },
+)
+
+filegroup(
+    name = "global_symbol_version_script",
+    srcs = ["global_symbol_version.lds"],
+)
 
 # ROCm-specific preprocessor definitions
 cc_feature(
@@ -60,4 +73,15 @@ cc_feature(
     linker_flags = ["-rtlib=compiler-rt"],
 )
 
-
+# ROCm global symbol versioning
+# Controls symbol visibility using a linker version script
+# Can be enabled with --@rules_ml_toolchain//common:enable_xla_test_global_symbol_version=True
+rocm_global_symbol_version_script_feature(
+    name = "rocm_global_symbol_version_script",
+    enabled = select({
+        "//cc/rocm/features:is_xla_test_global_symbol_version_enabled": True,
+        "//conditions:default": False,
+    }),
+    version_script = ":global_symbol_version_script",
+    visibility = ["//visibility:public"],
+)

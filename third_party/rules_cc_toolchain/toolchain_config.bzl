@@ -138,7 +138,6 @@ def _get_actions_config(ctx):
     deps_scanner = "cpp-module-deps-scanner_not_found"
     if "cpp-module-deps-scanner" in ctx.attr.tool_paths:
         deps_scanner = ctx.attr.tool_paths["cpp-module-deps-scanner"]
-    cc = ctx.attr.tool_paths.get("gcc")
     compile_implies = [
         # keep same with c++-compile
         "legacy_compile_flags",
@@ -148,6 +147,7 @@ def _get_actions_config(ctx):
         "compiler_input_flags",
         "compiler_output_flags",
     ]
+
     cpp_module_scan_deps = action_config(
         action_name = ACTION_NAMES.cpp_module_deps_scanning,
         tools = [
@@ -159,6 +159,38 @@ def _get_actions_config(ctx):
     )
     action_configs.append(cpp_module_scan_deps)
 
+    headers_parser = "headers-parser_not_found"
+    if "headers-parser" in ctx.attr.tool_paths:
+        headers_parser = ctx.attr.tool_paths["headers-parser"]
+
+    clang_header_module_parse = action_config(
+        action_name = ACTION_NAMES.cpp_header_parsing,
+        tools = [
+            tool(
+                path = headers_parser,
+            ),
+        ],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            # Note: This treats all headers as C++ headers, which may lead to
+                            # parsing failures for C headers that are not valid C++.
+                            # For such headers, use features = ["-parse_headers"] to selectively
+                            # disable parsing.
+                            "-xc++-header",
+                            "-fsyntax-only",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        implies = compile_implies,
+    )
+    action_configs.append(clang_header_module_parse)
+
+    cc = ctx.attr.tool_paths.get("gcc")
     cpp20_module_compile = action_config(
         action_name = ACTION_NAMES.cpp20_module_compile,
         tools = [
@@ -192,6 +224,27 @@ def _get_actions_config(ctx):
         implies = compile_implies,
     )
     action_configs.append(cpp20_module_codegen)
+
+    header_module_compile = action_config(
+        action_name = ACTION_NAMES.cpp_module_compile,
+        tools = [
+            tool(
+                path = cc,
+            ),
+        ],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-xc++", "-Xclang", "-emit-module", "-Xclang", "-x", "-Xclang", "c++-module-map",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    action_configs.append(header_module_compile)
 
     return action_configs
 
@@ -242,6 +295,102 @@ def _create_artifact_name_patterns(ctx):
         ]
 
     return artifact_name_patterns
+
+def _get_header_module_features():
+    """Returns features that control header modules."""
+
+    # Configure header modules:
+    #
+    # We have different features for module consumers and producers:
+    # 'header_modules' is enabled for targets that support being compiled as a
+    # header module.
+    # 'use_header_modules' is enabled for targets that want to use the provided
+    # header modules from their transitive closure. We enable this globally and
+    # disable it for targets that do not support builds with header modules.
+
+    # Allow switching off header modules completely by specifying
+    # features=["-use_header_modules"] in a rule.
+    return [
+        feature(
+            name = "header_modules",
+            implies = ["header_module_compile"],
+            requires = [feature_set(features = ["use_header_modules"])],
+        ),
+        feature(
+            name = "header_module_codegen",
+            requires = [feature_set(features = ["header_modules"])],
+        ),
+        feature(
+            name = "header_modules_codegen_functions",
+            implies = ["header_module_codegen"],
+            flag_sets = [
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_module_compile],
+                    flag_groups = [flag_group(flags = ["-Xclang=-fmodules-codegen"])],
+                ),
+            ],
+        ),
+        feature(
+            name = "header_modules_codegen_debuginfo",
+            implies = ["header_module_codegen"],
+            flag_sets = [
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_module_compile],
+                    flag_groups = [
+                        flag_group(flags = ["-Xclang=-fmodules-debuginfo"]),
+                    ],
+                ),
+            ],
+        ),
+        feature(
+            name = "header_module_compile",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [ACTION_NAMES.cpp_module_compile],
+                    flag_groups = [
+                        flag_group(flags = [
+                            "-Xclang=-fmodules-embed-all-files",
+                            "-Xclang=-fmodules-local-submodule-visibility",
+                        ]),
+                    ],
+                ),
+            ],
+        ),
+        feature(
+            name = "use_header_modules",
+            implies = [
+                "use_module_maps",
+            ],
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                        "c++-header-analysis",
+                    ],
+                    flag_groups = [
+                        flag_group(flags = [
+                            "-fmodules",
+                            "-fno-implicit-modules",
+                            "-fno-implicit-module-maps",
+                            "-Wno-modules-ambiguous-internal-linkage",
+                            "-Wno-module-import-in-extern-c",
+                            "-Wno-modules-import-nested-redundant",
+                            "-DBAZEL_CLANG_USE_HEADER_MODULES_ACTIVE=1",    # flag for testing purpose
+                        ]),
+                        flag_group(
+                            flags = [
+                                "-Xclang=-fmodule-file=%{module_files}",
+                            ],
+                            iterate_over = "module_files",
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
 
 def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
     """Returns features for layering check and header parsing."""
@@ -381,7 +530,7 @@ def _cc_toolchain_config_impl(ctx):
         abi_version = "unknown",
         abi_libc_version = "unknown",
         cxx_builtin_include_directories = builtin_include_dirs,
-        action_configs = _get_actions_config(ctx),  #_get_link_actions_config(ctx) + _get_module_actions_config(ctx),
+        action_configs = _get_actions_config(ctx),
         tool_paths = [
             tool_path(name = name, path = path)
             for name, path in ctx.attr.tool_paths.items()
@@ -397,7 +546,7 @@ def _cc_toolchain_config_impl(ctx):
             "strip": ctx.file.strip_tool,
             "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
             "in": ctx.file.install_name,
-        })] + _get_layering_features({}),
+        })] + _get_layering_features({}) + _get_header_module_features(),
     )
 
 cc_toolchain_config = rule(
@@ -433,6 +582,7 @@ cc_toolchain_config = rule(
                 "objdump": "wrappers/idler",
                 "strip": "wrappers/strip",
                 "cpp-module-deps-scanner": "wrappers/module-deps-scanner",
+                "headers-parser": "wrappers/headers-parser",
             },
         ),
         "compiler_features": attr.label_list(
@@ -470,6 +620,11 @@ cc_toolchain_config = rule(
         ),
         "module_deps_scanner": attr.label(
             doc = "The searching C++ modules tool.",
+            allow_single_file = True,
+            mandatory = False,
+        ),
+        "headers_parser": attr.label(
+            doc = "The parsing headers tool.",
             allow_single_file = True,
             mandatory = False,
         ),

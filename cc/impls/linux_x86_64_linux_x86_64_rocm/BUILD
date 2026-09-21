@@ -204,6 +204,7 @@ filegroup(
         ":rocm_toolkit_files",
         ":startup_libs",
         ":wrappers",
+        "//cc/rocm/features:global_symbol_version_script",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:ld",
     ],
@@ -248,6 +249,7 @@ FEATURES_ESSENTIAL = [
     "//cc/rocm/features:rocm_hermetic",
     "//cc/rocm/features:rocm_warnings",
     "//cc/rocm/features:rocm_compiler_rt",
+    "//cc/rocm/features:rocm_global_symbol_version_script",
     "//cc/features:no_solib_rpaths",
     "//cc/features:runtime_library_search_directories",
 
