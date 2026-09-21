@@ -40,15 +40,15 @@ def sycl_build_is_configured():
     """Returns true if SYCL compiler was enabled during the configure process."""
     return %{sycl_build_is_configured}
 
-def if_sycl_is_configured(x):
+def if_sycl_is_configured(x, no_sycl = []):
     """Tests if the SYCL was enabled during the configure process.
 
     Unlike if_sycl(), this does not require that we are building with
     --config=sycl. Used to allow non-SYCL code to depend on SYCL libraries.
     """
     if %{sycl_is_configured}:
-      return select({"//conditions:default": x})
-    return select({"//conditions:default": []})
+      return x
+    return no_sycl
 
 def if_sycl_build_is_configured(if_true, if_false = []):
     if sycl_build_is_configured():
