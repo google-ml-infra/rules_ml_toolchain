@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -122,9 +122,15 @@ cc_toolchain_config(
     archiver = "@llvm_darwin_aarch64//:ar",
     c_compiler = "@llvm_darwin_aarch64//:clang",
     cc_compiler = "@llvm_darwin_aarch64//:clang++",
+    cxx_builtin_include_directories = [
+        "%workspace%/external/%{SYSROOT}/usr/include/c++/v1",
+        "%workspace%/external/%{SYSROOT}/usr/include",
+        "%workspace%/external/%{SYSROOT}/System/Library/Frameworks",
+    ],
     compiler_features = [
         # Hermetic libraries feature required before import.
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:hermetic",
+
         ":imports_feature",
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:undefined_symbols",
 
@@ -147,6 +153,7 @@ cc_toolchain_config(
         "@rules_ml_toolchain//cc/features:dbg",
         "@rules_ml_toolchain//cc/features:fastbuild",
         "@rules_ml_toolchain//cc/features:opt",
+
         "@rules_ml_toolchain//cc/features:garbage_collect_symbols_mac",
         "@rules_ml_toolchain//cc/features:constants_merge",
         "@rules_ml_toolchain//cc/features:detect_issues",
@@ -160,12 +167,8 @@ cc_toolchain_config(
         # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
         # "@rules_ml_toolchain//cc/features:allow_shlib_undefined",
         "@rules_ml_toolchain//cc/features:supports_start_end_lib_feature",
+
         "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:use_lld",
-    ],
-    cxx_builtin_include_directories = [
-        "%workspace%/external/%{SYSROOT}/usr/include/c++/v1",
-        "%workspace%/external/%{SYSROOT}/usr/include",
-        "%workspace%/external/%{SYSROOT}/System/Library/Frameworks",
     ],
     dynamic_library_extension = ".dylib",
     install_name = "@llvm_darwin_aarch64//:install_name_tool_darwin",
