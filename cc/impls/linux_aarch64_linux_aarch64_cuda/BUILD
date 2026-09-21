@@ -94,17 +94,17 @@ cc_toolchain_import_feature(
 alias(
     name = "std_incs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_incs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_incs",
         "//conditions:default": "@sysroot_linux_aarch64//:std_incs",
-    })
+    }),
 )
 
 alias(
     name = "std_libs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_libs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_libs",
         "//conditions:default": "@sysroot_linux_aarch64//:std_libs",
-    })
+    }),
 )
 
 # buildifier: leave-alone
@@ -126,11 +126,11 @@ cc_toolchain_import(
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
-    toolchain_import = ":imports",
     static_link_flags = select({
         "//common:is_static_libcxx": LIBCXX_FLAGS,
         "//conditions:default": [],
     }),
+    toolchain_import = ":imports",
 )
 
 # buildifier: leave-alone
@@ -216,7 +216,6 @@ cc_toolchain_config(
         # Hermetic features required before import
         "//third_party/rules_cc_toolchain/features:hermetic",
         "//cc/cuda/features:hermetic_cuda",
-
         ":imports_feature",
         ":cuda_nvcc_feature",
 
@@ -231,7 +230,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:errors",
         "//third_party/rules_cc_toolchain/features:reproducible",
         "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features/linux_aarch64:sysroot",
+        "//cc/features/linux/aarch64:sysroot",
         ":startup_libs_feature",
         "//third_party/rules_cc_toolchain/features:coverage",
         #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
@@ -261,10 +260,10 @@ cc_toolchain_config(
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
     ],
-    linker = "@llvm_linux_aarch64//:ld",
-    strip_tool = "@llvm_linux_aarch64//:strip",
-    module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
     headers_parser = "@llvm_linux_x86_64//:clang",
+    linker = "@llvm_linux_aarch64//:ld",
+    module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
+    strip_tool = "@llvm_linux_aarch64//:strip",
     target_cpu = "aarch64",
     target_system_name = "local",
     tool_paths = CUDA_TOOLS,

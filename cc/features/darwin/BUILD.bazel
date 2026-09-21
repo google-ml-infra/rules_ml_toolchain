@@ -14,14 +14,14 @@
 # ==============================================================================
 
 load(
+    "//cc/features/darwin:runtime_library_search_directories.bzl",
+    "runtime_library_search_directories",
+)
+load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
     "cc_toolchain_import_feature",
     "cc_toolchain_sysroot_feature",
-)
-
-load(
-    "//cc/features/macos:runtime_library_search_directories.bzl", "runtime_library_search_directories",
 )
 
 package(

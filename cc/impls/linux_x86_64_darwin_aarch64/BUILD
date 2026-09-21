@@ -172,7 +172,7 @@ cc_toolchain_config(
         # Other flags
         # "//cc/features:allow_shlib_undefined",  # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
         #"//cc/features:supports_dynamic_linker", # Link statically for Darwin
-        "//cc/features/darwin_aarch64:sysroot",
+        "//cc/features/darwin/aarch64:sysroot",
         "//cc/features:supports_start_end_lib_feature",
         "//cc/features:compiler_input_flags",
         "//cc/features:compiler_output_flags",

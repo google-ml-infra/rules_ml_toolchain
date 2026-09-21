@@ -20,9 +20,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/layering_check:build_defs.bzl", "cc_toolchain_with_cppmap")
-load("//cc/sanitizers:features.bzl",
+load(
+    "//cc/sanitizers:features.bzl",
     "cc_toolchain_import_asan_feature",
-    "cc_toolchain_import_tsan_feature")
+    "cc_toolchain_import_tsan_feature",
+)
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
@@ -50,17 +52,17 @@ cc_toolchain_import_feature(
 alias(
     name = "std_incs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_incs",
         "//conditions:default": "@sysroot_linux_x86_64//:std_incs",
-    })
+    }),
 )
 
 alias(
     name = "std_libs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_x86_64//:std_libs",
         "//conditions:default": "@sysroot_linux_x86_64//:std_libs",
-    })
+    }),
 )
 
 # buildifier: leave-alone
@@ -81,11 +83,11 @@ cc_toolchain_import(
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
-    toolchain_import = ":imports",
     static_link_flags = select({
         "//common:is_static_libcxx": LIBCXX_FLAGS,
         "//conditions:default": [],
     }),
+    toolchain_import = ":imports",
 )
 
 cc_toolchain_import(
@@ -234,8 +236,7 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
-
-    "//cc/features/linux_x86_64:sysroot",
+    "//cc/features/linux/x86_64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
 ] + select({
@@ -251,10 +252,10 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
-    module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
     headers_parser = "@llvm_linux_x86_64//:clang",
+    linker = "@llvm_linux_x86_64//:ld",
+    module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
+    strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "x86_64",
     target_system_name = "local",
 )
