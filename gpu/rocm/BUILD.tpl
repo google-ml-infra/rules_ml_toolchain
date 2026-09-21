@@ -53,17 +53,33 @@ cc_library(
 )
 
 filegroup(
-    name = "toolchain_data",
+    name = "system_libs_data",
     srcs = glob(
-        ["%{rocm_root}/**"],
-        allow_empty = True,
+        [
+            "%{rocm_root}/lib/rocm_sysdeps/lib/*.so*",
+            "%{rocm_root}/lib/rocm_sysdeps/share/**",
+        ],
         exclude = [
-            "%{rocm_root}/tests/**",
-            "%{rocm_root}/libexec/**",
-            "%{rocm_root}/lib/llvm/include/**",
             "%{rocm_root}/lib/rocm_sysdeps/share/terminfo/**",
         ],
     ),
+)
+
+filegroup(
+    name = "toolchain_data",
+    srcs = glob(
+        include = [
+            "%{rocm_root}/bin/hipcc",
+            "%{rocm_root}/lib/llvm/bin/*",
+            "%{rocm_root}/lib/llvm/lib/clang/*/include/**",
+            "%{rocm_root}/lib/llvm/lib/clang/*/lib/**/*.bc",
+            "%{rocm_root}/lib/llvm/lib/clang/*/lib/**/*.a",
+            "%{rocm_root}/lib/llvm/lib/*.so*",
+            "%{rocm_root}/share/hip/version",
+            "%{rocm_root}/amdgcn/**",
+        ],
+        allow_empty = True,
+    ) + [":system_libs_data"],
     visibility = ["//visibility:public"],
 )
 
