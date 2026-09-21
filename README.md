@@ -68,8 +68,8 @@ Supported versions of LLVM
 | Version | Linux x86_64 | Linux aarch64 | macOS aarch64 |
 |---------|--------------|---------------|---------------|
 | 18      | x | x             | x             |
-| 19      | x |               |               |
-| 20      | x | x             |               |
+| 19      | x | x             | x             |
+| 20      | x | x             | x             |
 | 21      | x | x             |               |
 | 22      | x | x             |               |
 

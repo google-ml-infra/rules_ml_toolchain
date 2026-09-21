@@ -13,21 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-load(
-    "//third_party/rules_cc_toolchain/features:features.bzl",
-    "cc_toolchain_sysroot_feature",
-)
-
-package(
-    default_visibility = [
-        "//cc/impls/darwin_aarch64_darwin_aarch64:__pkg__",
-        "//cc/impls/linux_x86_64_darwin_aarch64:__pkg__",
-    ],
-)
-
-cc_toolchain_sysroot_feature(
-    name = "sysroot",
-    enabled = True,
-    sysroot = "@sysroot_darwin_aarch64//:sysroot",
-    target = "arm64-apple-macosx15.1",
+alias(
+    name = "toolchain",
+    actual = "@darwin_local_config_cc//:toolchain",
 )

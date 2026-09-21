@@ -108,3 +108,13 @@ cc_toolchain_import(
     }),
     visibility = ["//visibility:public"],
 )
+
+cc_toolchain_import(
+    name = "libclang_rt",
+    static_library = "lib/clang/{clang_version}/lib/darwin/libclang_rt.osx.a".format(clang_version = CLANG_VERSION),
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
+    }),
+    visibility = ["//visibility:public"],
+)

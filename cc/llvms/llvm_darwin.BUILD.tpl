@@ -84,3 +84,11 @@ alias(
     actual = "@@%{llvm_repo_name}//:compiler_incs",
     visibility = ["//visibility:public"],
 )
+
+# This library is needed for LiteRT because it uses a compiler-specific
+# built-in functions, and these functions are not provided by sysroot
+alias(
+    name = "libclang_rt",
+    actual = "@@%{llvm_repo_name}//:libclang_rt",
+    visibility = ["//visibility:public"],
+)

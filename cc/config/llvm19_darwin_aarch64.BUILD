@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ load(
 
 exports_files(glob(["bin/*"]))
 
-CLANG_VERSION = "18"
+CLANG_VERSION = "19"
 
 filegroup(
     name = "all",
@@ -94,8 +94,8 @@ filegroup(
 cc_toolchain_import(
     name = "compiler_incs",
     hdrs = glob([
-        "lib/clang/*/include/*.h",
-        "lib/clang/*/include/**/*.h",
+        "lib/clang/{clang_version}/include/*.h".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/include/**/*.h".format(clang_version = CLANG_VERSION),
     ]),
     includes = [
         "lib/clang/{clang_version}".format(clang_version = CLANG_VERSION),

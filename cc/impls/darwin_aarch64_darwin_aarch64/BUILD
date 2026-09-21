@@ -18,20 +18,20 @@
 # ==============================================================================
 
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
-load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
-load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
-load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
+load("@rules_ml_toolchain//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
+load("@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
+load("@rules_ml_toolchain//third_party/rules_cc_toolchain/features:features.bzl", "cc_toolchain_import_feature")
 
 package(
     default_visibility = [
-        "//cc/impls/cpu:__pkg__",
+        "//visibility:public",
     ],
 )
 
 filegroup(
     name = "wrappers",
     srcs = [
-        "//cc/impls/darwin_aarch64_darwin_aarch64/wrappers:all",
+        "@darwin_local_config_cc//wrappers:all",
     ],
     visibility = ["//visibility:public"],
 )
@@ -44,6 +44,7 @@ cc_toolchain_import(
         "@llvm_darwin_aarch64//:compiler_incs",
         "@sysroot_darwin_aarch64//:sys_incs",
         "@sysroot_darwin_aarch64//:sys_libs",
+        "@llvm_darwin_aarch64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
 )
@@ -61,6 +62,7 @@ filegroup(
         ":imports",
         ":wrappers",
         "@llvm_darwin_aarch64//:all",
+        "@xcode_darwin//:all",
     ],
 )
 
@@ -122,44 +124,48 @@ cc_toolchain_config(
     cc_compiler = "@llvm_darwin_aarch64//:clang++",
     compiler_features = [
         # Hermetic libraries feature required before import.
-        "//third_party/rules_cc_toolchain/features:hermetic",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:hermetic",
         ":imports_feature",
-        "//third_party/rules_cc_toolchain/features:undefined_symbols",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:undefined_symbols",
 
         # Toolchain configuration
-        "//third_party/rules_cc_toolchain/features:warnings",
-        "//third_party/rules_cc_toolchain/features:errors",
-        "//third_party/rules_cc_toolchain/features:reproducible",
-        "//third_party/rules_cc_toolchain/features:language",
-        "//third_party/rules_cc_toolchain/features:use_lld",
-        "//cc/features/darwin_aarch64:sysroot",
-        "//third_party/rules_cc_toolchain/features:coverage",
-        #"//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
-        "//cc/features:max_install_names",
-        "//cc/features:no_elaborated_enum_base",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:warnings",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:errors",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:reproducible",
+        "@rules_ml_toolchain//cc/features:language",
+        "@rules_ml_toolchain//cc/features/darwin/aarch64:sysroot",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:coverage",
+        #"@rules_ml_toolchain//cc/features:clang19",    # TODO: Add a selection mechanism based on the Clang version
+        "@rules_ml_toolchain//cc/features:max_install_names",
+        "@rules_ml_toolchain//cc/features:no_elaborated_enum_base",
 
         # PIC / PIE flags
-        "//third_party/rules_cc_toolchain/features:supports_pic",
-        "//third_party/rules_cc_toolchain/features:position_independent_code",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:supports_pic",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:position_independent_code",
 
         # Optimization flags
-        "//cc/features:dbg",
-        "//cc/features:fastbuild",
-        "//cc/features:opt",
-
-        "//cc/features:garbage_collect_symbols_mac",
-        "//cc/features:constants_merge",
-        "//cc/features:detect_issues",
+        "@rules_ml_toolchain//cc/features:dbg",
+        "@rules_ml_toolchain//cc/features:fastbuild",
+        "@rules_ml_toolchain//cc/features:opt",
+        "@rules_ml_toolchain//cc/features:garbage_collect_symbols_mac",
+        "@rules_ml_toolchain//cc/features:constants_merge",
+        "@rules_ml_toolchain//cc/features:detect_issues",
 
         # C++ standard configuration
-        "//third_party/rules_cc_toolchain/features:c++11",
-        "//third_party/rules_cc_toolchain/features:c++14",
-        "//third_party/rules_cc_toolchain/features:c++17",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++11",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++14",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++17",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:c++20",
 
-        #
-        # "//cc/features:allow_shlib_undefined",  # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
-        "//cc/features:supports_dynamic_linker",
-        "//cc/features:supports_start_end_lib_feature",
+        # Instead of --allow-shlib-undefined, macOS uses the -undefined flag with dynamic_lookup as an argument.
+        # "@rules_ml_toolchain//cc/features:allow_shlib_undefined",
+        "@rules_ml_toolchain//cc/features:supports_start_end_lib_feature",
+        "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:use_lld",
+    ],
+    cxx_builtin_include_directories = [
+        "%workspace%/external/%{SYSROOT}/usr/include/c++/v1",
+        "%workspace%/external/%{SYSROOT}/usr/include",
+        "%workspace%/external/%{SYSROOT}/System/Library/Frameworks",
     ],
     dynamic_library_extension = ".dylib",
     install_name = "@llvm_darwin_aarch64//:install_name_tool_darwin",
