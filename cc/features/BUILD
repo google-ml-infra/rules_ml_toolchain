@@ -305,7 +305,7 @@ cc_feature(
         ACTION_NAMES.clif_match,
     ],
     flags = [
-        "-MD",
+	"-MMD",  # -MMD tells Clang to generate the dependency file, but to filter out any headers found via -isystem 
         "-MF",
         "%{dependency_file}"
     ],
