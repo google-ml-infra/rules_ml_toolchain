@@ -85,6 +85,7 @@ filegroup(
         %{comment}"include/common_functions.h",
         %{comment}"include/cooperative_groups/**",
         %{comment}"include/cooperative_groups.h",
+        %{comment}"include/crt/**",
         %{comment}"include/cuComplex.h",
         %{comment}"include/cuda.h",
         %{comment}"include/cudaEGL.h",
