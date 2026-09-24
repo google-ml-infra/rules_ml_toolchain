@@ -176,7 +176,6 @@ use_repo(
     "sysroot_linux_x86_64_glibc_2_27",
     "sysroot_linux_x86_64_glibc_2_31",
     "tar",
-    "xcode_darwin",
     "xz",
 )
 

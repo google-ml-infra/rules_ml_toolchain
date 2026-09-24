@@ -17,7 +17,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("//cc/impls/darwin_aarch64_darwin_aarch64:darwin_local_config_cc.bzl", "darwin_local_config_cc")
 load("//cc/llvms:llvm.bzl", "llvm")
-load("//cc/llvms:xcode_macos.bzl", "xcode_macos")
 load("//cc/sysroots:macos_sdk.bzl", "macos_sdk")
 load("//cc/sysroots:sysroot.bzl", "sysroot")
 load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
@@ -482,11 +481,6 @@ def cc_toolchain_deps():
     ################################################################
     # Darwin (macOS) aarch64 LLVM
     ################################################################
-    # Local macOS XCode (for correct linking)
-    if "xcode_darwin" not in native.existing_rules():
-        xcode_macos(
-            name = "xcode_darwin",
-        )
 
     if "llvm_darwin_aarch64" not in native.existing_rules():
         llvm(

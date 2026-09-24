@@ -56,7 +56,6 @@ def darwin_aarch64_darwin_aarch64_toolchain(
             ":imports",
             ":wrappers",
             Label("@llvm_darwin_aarch64//:all"),
-            Label("@xcode_darwin//:all"),
         ],
     )
 
