@@ -19,6 +19,7 @@ def _darwin_local_config_cc_impl(rctx):
         rctx.attr._build_tpl,
         substitutions = {
             "%{SYSROOT}": rctx.attr.sysroot.name,
+            "%{RULES_ML_TOOLCHAIN}": Label("//:BUILD").repo_name,
         },
     )
 
