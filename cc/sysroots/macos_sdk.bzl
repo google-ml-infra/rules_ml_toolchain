@@ -17,7 +17,7 @@ def _get_dir_path(rctx, path_str):
     path = rctx.workspace_root.get_child(path_str)
     if not path.is_dir:
         fail(
-            ("The repository's path is \"%s\" (absolute: \"%s\") but it does not exist or is not " +
+            ("The repository's path is \"%s\" (absolute: \"%s\") but it is not " +
              "a directory.") % (path_str, path),
         )
     return path
