@@ -13,8 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 
-load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
-
 def _get_dir_path(rctx, path_str):
     path = rctx.workspace_root.get_child(path_str)
     if not path.is_dir:

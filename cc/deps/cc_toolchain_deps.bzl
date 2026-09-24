@@ -14,7 +14,6 @@
 # ==============================================================================
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("//cc/impls/darwin_aarch64_darwin_aarch64:darwin_local_config_cc.bzl", "darwin_local_config_cc")
 load("//cc/llvms:llvm.bzl", "llvm")
 load("//cc/sysroots:macos_sdk.bzl", "macos_sdk")
