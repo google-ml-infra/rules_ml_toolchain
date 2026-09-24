@@ -43,10 +43,8 @@ cc_toolchain_import(
     name = "sys_incs",
     hdrs = glob([
             "usr/include/**",
-            "System/Library/Frameworks/CoreFoundation/**",  # Include created symbolic link directory
             "System/Library/Frameworks/CoreFoundation.framework/**",
         ],
-        allow_empty = True,
     ),
     includes = [
         "usr/include",
@@ -71,10 +69,7 @@ cc_toolchain_import(
 
 cc_toolchain_import(
     name = "libm",
-    # libSystem.tbd exists as separate "system" target
-    #additional_libs = [
-    #    "usr/lib/libSystem.tbd",
-    #],
+    # On macOS, libm is a symbolic link to libSystem.tbd and is defined as a separate system target
     shared_library = "usr/lib/libm.tbd",
     visibility = ["//visibility:public"],
 )
@@ -92,10 +87,7 @@ cc_toolchain_import(
 # Redundancy library (for configuration compatibility with Linux system)
 cc_toolchain_import(
     name = "libpthread",
-    # libSystem.tbd exists as separate "system" target
-    #additional_libs = [
-    #    "usr/lib/libSystem.tbd",
-    #],
+    # On macOS, libpthread is a symbolic link to libSystem.tbd and is defined as a separate system target
     shared_library = "usr/lib/libpthread.tbd",
     visibility = ["//visibility:public"],
 )
