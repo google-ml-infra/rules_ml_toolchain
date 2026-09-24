@@ -25,9 +25,9 @@ def _get_dir_path(rctx, path_str):
 def _macos_sdk_impl(rctx):
     os_name = rctx.os.name
 
-    sdk_path = rctx.os.environ.get("MACOS_SYSROOT_PATH", "")
+    sdk_path = rctx.getenv("MACOS_SYSROOT_PATH", "")
     if not sdk_path:
-        developer_dir = rctx.os.environ.get("DEVELOPER_DIR", "").strip()
+        developer_dir = rctx.getenv("DEVELOPER_DIR", "").strip()
         if os_name.startswith("mac"):
             args = [
                 "env",
