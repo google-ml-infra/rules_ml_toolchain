@@ -27,19 +27,23 @@ load(
 def _rocm_hermetic_download_ext_impl(mctx):
     """Implementation of the rocm_hermetic_download_ext module extension."""
 
-    # Get ROCm URL and hash from environment variables
-    rocm_url = mctx.os.environ.get("ML_TOOLCHAIN_ROCM_HIPCC_ROCM_DISTRO_URL")
-    rocm_sha256 = mctx.os.environ.get("ML_TOOLCHAIN_ROCM_HIPCC_ROCM_DISTRO_HASH")
+    # Only run hermetic ROCm download if TF_NEED_ROCM is set
+    if not mctx.os.environ.get("TF_NEED_ROCM"):
+        return
+
+    # Get ROCm distribution URL and hash from environment variables
+    rocm_url = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL")
+    rocm_sha256 = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH")
 
     if not rocm_url:
         fail(
-            "ML_TOOLCHAIN_ROCM_HIPCC_ROCM_DISTRO_URL environment variable is not set. " +
+            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL environment variable is not set. " +
             "Please set it to the URL of the ROCm distribution tarball or override the extension to provide your custom downloader.",
         )
 
     if not rocm_sha256:
         fail(
-            "ML_TOOLCHAIN_ROCM_HIPCC_ROCM_DISTRO_HASH environment variable is not set. " +
+            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH environment variable is not set. " +
             "Please set it to the SHA256 hash of the ROCm distribution tarball or override the extension to provide your custom downloader.",
         )
 
