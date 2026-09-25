@@ -21,18 +21,37 @@ load(
 )
 load(
     "//gpu/rocm:rocm_hermetic_download.bzl",
-    "ROCM_SHA256",
-    "ROCM_URL",
     "rocm_hermetic_download",
 )
 
 def _rocm_hermetic_download_ext_impl(mctx):
     """Implementation of the rocm_hermetic_download_ext module extension."""
-    # Download the ROCm distribution for testing (URL and SHA256 from rocm_hermetic_download.bzl)
+
+    # Only run hermetic ROCm download if TF_NEED_ROCM is set
+    if not mctx.os.environ.get("TF_NEED_ROCM"):
+        return
+
+    # Get ROCm distribution URL and hash from environment variables
+    rocm_url = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL")
+    rocm_sha256 = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH")
+
+    if not rocm_url:
+        fail(
+            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL environment variable is not set. " +
+            "Please set it to the URL of the ROCm distribution tarball or override the extension to provide your custom downloader.",
+        )
+
+    if not rocm_sha256:
+        fail(
+            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH environment variable is not set. " +
+            "Please set it to the SHA256 hash of the ROCm distribution tarball or override the extension to provide your custom downloader.",
+        )
+
+    # Download the ROCm distribution for testing (URL and SHA256 from environment variables)
     rocm_hermetic_download(
         name = "rocm_hermetic_dist",
-        url = ROCM_URL,
-        sha256 = ROCM_SHA256,
+        url = rocm_url,
+        sha256 = rocm_sha256,
     )
 
     # Create config_rocm_hipcc for testing using the hermetic distribution
