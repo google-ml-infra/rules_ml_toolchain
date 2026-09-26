@@ -13,6 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain:sysroot.bzl",
     "sysroot_package",
@@ -35,20 +36,16 @@ cc_toolchain_import(
     includes = [
         "usr/include/c++/v1",
     ],
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "sys_incs",
     hdrs = glob([
-        "usr/include/**",
-        "System/Library/Frameworks/CoreFoundation/**",  # Include created symbolic link directory
-        "System/Library/Frameworks/CoreFoundation.framework/**",
-    ]),
+            "usr/include/**",
+            "System/Library/Frameworks/CoreFoundation.framework/**",
+        ],
+    ),
     includes = [
         "usr/include",
         "System/Library/Frameworks",
@@ -56,10 +53,6 @@ cc_toolchain_import(
     frameworks = [
         "System/Library/Frameworks",
     ],
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
 )
 
@@ -71,54 +64,46 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "system",
     shared_library = "usr/lib/libSystem.tbd",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "libm",
+    # On macOS, libm is a symbolic link to libSystem.tbd and is defined as a separate system target
     shared_library = "usr/lib/libm.tbd",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "libstdc++",
+    additional_libs = [
+        "usr/lib/libc++.1.tbd",
+        "usr/lib/libc++abi.tbd",
+    ],
     shared_library = "usr/lib/libc++.tbd",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
     visibility = ["//visibility:public"],
 )
 
 # Redundancy library (for configuration compatibility with Linux system)
 cc_toolchain_import(
     name = "libpthread",
+    # On macOS, libpthread is a symbolic link to libSystem.tbd and is defined as a separate system target
     shared_library = "usr/lib/libpthread.tbd",
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "objc",
+    additional_libs = [
+        "usr/lib/libobjc.A.tbd",
+    ],
     shared_library = "usr/lib/libobjc.tbd",
-    #target_compatible_with = select({
-    #    "@platforms//os:macos": ["@platforms//cpu:aarch64"],
-    #    "//conditions:default": ["@platforms//:incompatible"],
-    #}),
 )
 
 cc_toolchain_import(
     name = "core_foundation",
     additional_libs = [
-        "usr/lib/libobjc.A.tbd",
-        "usr/lib/libobjc.tbd",
+        "System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation.tbd",
     ],
     shared_library = "System/Library/Frameworks/CoreFoundation.framework/CoreFoundation.tbd",
 )
@@ -136,4 +121,18 @@ cc_toolchain_import(
         ":objc",
         ":core_foundation",
     ],
+)
+
+#============================================================================================
+# Extra libraries
+#============================================================================================
+cc_library(
+    name = "openmp_import",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "openmp_copyright",
+    srcs = [],
+    visibility = ["//visibility:public"],
 )

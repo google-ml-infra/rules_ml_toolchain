@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ load(
 
 exports_files(glob(["bin/*"]))
 
-CLANG_VERSION = "21"
+CLANG_VERSION = "19"
 
 filegroup(
     name = "all",
@@ -108,7 +108,7 @@ cc_toolchain_import(
 # built-in functions, and these functions are not provided by GCC 8.4.
 cc_toolchain_import(
     name = "libclang_rt",
-    static_library = "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
+    static_library = "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
     visibility = ["//visibility:public"],
 )
 
@@ -119,11 +119,11 @@ cc_toolchain_import(
     name = "std_incs",
     hdrs = glob([
         "include/c++/v1/**",
-        "include/x86_64-unknown-linux-gnu/c++/v1/**",
+        "include/aarch64-unknown-linux-gnu/c++/v1/**",
     ]),
     includes = [
         "include/c++/v1",
-        "include/x86_64-unknown-linux-gnu/c++/v1",
+        "include/aarch64-unknown-linux-gnu/c++/v1",
     ],
     visibility = ["//visibility:public"],
 )
@@ -131,35 +131,35 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "libc++",
     additional_libs = [
-        "lib/x86_64-unknown-linux-gnu/libc++.so.1.0",
-        "lib/x86_64-unknown-linux-gnu/libc++.a",
+        "lib/aarch64-unknown-linux-gnu/libc++.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libc++.a",
     ],
-    shared_library = "lib/x86_64-unknown-linux-gnu/libc++.so",
-    static_library = "lib/x86_64-unknown-linux-gnu/libc++.a",
+    shared_library = "lib/aarch64-unknown-linux-gnu/libc++.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libc++.a",
     visibility = ["//visibility:private"],
 )
 
 cc_toolchain_import(
     name = "libc++abi",
     additional_libs = [
-        "lib/x86_64-unknown-linux-gnu/libc++abi.so.1.0",
-        "lib/x86_64-unknown-linux-gnu/libc++abi.so.1",
-        "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+        "lib/aarch64-unknown-linux-gnu/libc++abi.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libc++abi.so.1",
+        "lib/aarch64-unknown-linux-gnu/libc++abi.a",
     ],
-    shared_library = "lib/x86_64-unknown-linux-gnu/libc++abi.so",
-    static_library = "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+    shared_library = "lib/aarch64-unknown-linux-gnu/libc++abi.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libc++abi.a",
     visibility = ["//visibility:private"],
 )
 
 cc_toolchain_import(
     name = "libunwind",
     additional_libs = [
-        "lib/x86_64-unknown-linux-gnu/libunwind.so.1.0",
-        "lib/x86_64-unknown-linux-gnu/libunwind.so.1",
-        "lib/x86_64-unknown-linux-gnu/libunwind.a",
+        "lib/aarch64-unknown-linux-gnu/libunwind.so.1.0",
+        "lib/aarch64-unknown-linux-gnu/libunwind.so.1",
+        "lib/aarch64-unknown-linux-gnu/libunwind.a",
     ],
-    shared_library = "lib/x86_64-unknown-linux-gnu/libunwind.so",
-    static_library = "lib/x86_64-unknown-linux-gnu/libunwind.a",
+    shared_library = "lib/aarch64-unknown-linux-gnu/libunwind.so",
+    static_library = "lib/aarch64-unknown-linux-gnu/libunwind.a",
     visibility = ["//visibility:private"],
 )
 
@@ -187,17 +187,20 @@ filegroup(
 cc_toolchain_import(
     name = "rt_asan",
     additional_libs = glob([
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.asan*".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.gwp_asan.a".format(clang_version = CLANG_VERSION),
     ]),
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "rt_tsan",
-    additional_libs = glob([
-        "lib/clang/{clang_version}/lib/x86_64-unknown-linux-gnu/libclang_rt.tsan*".format(clang_version = CLANG_VERSION),
-    ]),
+    additional_libs = [
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan.a.syms".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan_cxx.a".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.tsan_cxx.a.syms".format(clang_version = CLANG_VERSION),
+    ],
     visibility = ["//visibility:public"],
 )
 

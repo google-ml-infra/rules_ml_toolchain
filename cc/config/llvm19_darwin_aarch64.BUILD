@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,82 +13,99 @@
 # limitations under the License.
 # ==============================================================================
 
-alias(
+load(
+    "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
+    "cc_toolchain_import",
+)
+
+exports_files(glob(["bin/*"]))
+
+CLANG_VERSION = "19"
+
+filegroup(
     name = "all",
-    actual = "@@%{llvm_repo_name}//:all",
+    srcs = glob(["**/*"]),
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "clang",
-    actual = "@@%{llvm_repo_name}//:clang",
+    srcs = [
+        "bin/clang",
+    ],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "clang++",
-    actual = "@@%{llvm_repo_name}//:clang++",
+    srcs = [
+        "bin/clang++",
+    ],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "ld",
-    actual = "@@%{llvm_repo_name}//:ld",
+    srcs = [
+        "bin/ld.lld",
+    ],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "ar",
-    actual = "@@%{llvm_repo_name}//:ar",
+    srcs = ["bin/llvm-libtool-darwin"],
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "clang-format",
-    actual = "@@%{llvm_repo_name}//:bin/clang-format",
-    visibility = ["//visibility:public"],
-)
-
-alias(
+filegroup(
     name = "objcopy",
-    actual = "@@%{llvm_repo_name}//:objcopy",
+    srcs = ["bin/llvm-objcopy"],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "strip",
-    actual = "@@%{llvm_repo_name}//:strip",
+    srcs = ["bin/llvm-strip"],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "install_name_tool_darwin",
-    actual = "@@%{llvm_repo_name}//:install_name_tool_darwin",
+    srcs = ["bin/llvm-install-name-tool"],
     visibility = ["//visibility:public"],
 )
 
-alias(
+filegroup(
     name = "asan_ignorelist",
-    actual = "@@%{llvm_repo_name}//:asan_ignorelist",
+    srcs = [
+        "lib/clang/{clang_version}/share/asan_ignorelist.txt".format(clang_version = CLANG_VERSION),
+    ],
     visibility = ["//visibility:public"],
 )
 
-alias(
+# Stub for LLVM 18 Linux x86_64, leave it for backward compatibility
+filegroup(
     name = "distro_libs",
-    actual = "@@%{llvm_repo_name}//:distro_libs",
+    srcs = [ ],
     visibility = ["//visibility:public"],
 )
 
-alias(
+cc_toolchain_import(
     name = "compiler_incs",
-    actual = "@@%{llvm_repo_name}//:compiler_incs",
+    hdrs = glob([
+        "lib/clang/{clang_version}/include/*.h".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/include/**/*.h".format(clang_version = CLANG_VERSION),
+    ]),
+    includes = [
+        "lib/clang/{clang_version}".format(clang_version = CLANG_VERSION),
+        "lib/clang/{clang_version}/include".format(clang_version = CLANG_VERSION),
+    ],
     visibility = ["//visibility:public"],
 )
 
-# This library is needed for LiteRT because it uses a compiler-specific
-# built-in functions, and these functions are not provided by sysroot
-alias(
+cc_toolchain_import(
     name = "libclang_rt",
-    actual = "@@%{llvm_repo_name}//:libclang_rt",
+    static_library = "lib/clang/{clang_version}/lib/darwin/libclang_rt.osx.a".format(clang_version = CLANG_VERSION),
     visibility = ["//visibility:public"],
 )

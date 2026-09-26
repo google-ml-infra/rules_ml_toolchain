@@ -31,12 +31,13 @@ load(
     "external_include_paths_feature",
 )
 load(
-    "//cc/features:runtime_library_search_directories.bzl",
+    "//cc/features/linux:runtime_library_search_directories.bzl",
     "runtime_library_search_directories",
 )
 
 package(
     default_visibility = [
+        "@darwin_local_config_cc//:__pkg__",
         "//cc/impls/darwin_aarch64_darwin_aarch64:__pkg__",
         "//cc/impls/linux_aarch64_linux_aarch64:__pkg__",
         "//cc/impls/linux_aarch64_linux_aarch64_cuda:__pkg__",
@@ -142,8 +143,6 @@ cc_feature(
         "-ldl",
     ],
 )
-
-
 
 # macOS specific. Needed for llvm-install-name-tool when long paths for libraries are used.
 # Usually bazel generates long loader paths.
