@@ -27,27 +27,27 @@ load(
 def _rocm_hermetic_download_ext_impl(mctx):
     """Implementation of the rocm_hermetic_download_ext module extension."""
 
-    # Only run hermetic ROCm download if TF_NEED_ROCM is set
-    if not mctx.os.environ.get("TF_NEED_ROCM"):
-        return
-
     # Get ROCm distribution URL and hash from environment variables
-    rocm_url = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL")
-    rocm_sha256 = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH")
+    rocm_url = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL", "")
+    rocm_sha256 = mctx.os.environ.get("ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH", "")
+    tf_need_rocm = mctx.os.environ.get("TF_NEED_ROCM", "0")
 
-    if not rocm_url:
-        fail(
-            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL environment variable is not set. " +
-            "Please set it to the URL of the ROCm distribution tarball or override the extension to provide your custom downloader.",
-        )
+    # If ROCm is needed, validate that URL and hash are provided
+    if tf_need_rocm == "1":
+        if not rocm_url:
+            fail(
+                "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL environment variable is not set. " +
+                "Please set it to the URL of the ROCm distribution tarball or override the extension to provide your custom downloader.",
+            )
 
-    if not rocm_sha256:
-        fail(
-            "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH environment variable is not set. " +
-            "Please set it to the SHA256 hash of the ROCm distribution tarball or override the extension to provide your custom downloader.",
-        )
+        if not rocm_sha256:
+            fail(
+                "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH environment variable is not set. " +
+                "Please set it to the SHA256 hash of the ROCm distribution tarball or override the extension to provide your custom downloader.",
+            )
 
     # Download the ROCm distribution for testing (URL and SHA256 from environment variables)
+    # If URL/hash are empty, this creates a dummy BUILD file
     rocm_hermetic_download(
         name = "rocm_hermetic_dist",
         url = rocm_url,
@@ -57,6 +57,7 @@ def _rocm_hermetic_download_ext_impl(mctx):
     # Create config_rocm_hipcc for testing using the hermetic distribution
     # Note: Production consumers should create their own config_rocm_hipcc
     # pointing to their local ROCm installation
+    # hipcc_configure will check TF_NEED_ROCM and create dummy repo if not set
     hipcc_configure(
         name = "config_rocm_hipcc",
         rocm_dist = "@rocm_hermetic_dist//:rocm_root",
@@ -64,6 +65,11 @@ def _rocm_hermetic_download_ext_impl(mctx):
 
 rocm_hermetic_download_ext = module_extension(
     implementation = _rocm_hermetic_download_ext_impl,
+    environ = [
+        "TF_NEED_ROCM",
+        "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_URL",
+        "ML_TOOLCHAIN_HIPCC_ROCM_DISTRO_HASH",
+    ],
     doc = """ROCm hermetic download module extension for testing.
 
 This extension downloads a hardcoded ROCm distribution and creates config_rocm_hipcc

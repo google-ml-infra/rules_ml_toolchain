@@ -18,25 +18,34 @@ def _rocm_hermetic_download_impl(repository_ctx):
 
     repository_ctx.file(".index")
 
-    file_name = _get_file_name(url)
-    print("Downloading {}".format(url))
-    repository_ctx.report_progress("Downloading and extracting {}, expected hash is {}".format(url, sha256))
+    rocm_root = "invalid"
 
-    repository_ctx.download_and_extract(
-        url = url,
-        output = _DISTRIBUTION_PATH,
-        sha256 = sha256,
-        type = "zip" if url.endswith(".whl") else "",
-    )
+    # If url and sha256 are provided, download and extract the distribution
+    if url and sha256:
+        file_name = _get_file_name(url)
+        print("Downloading {}".format(url))
+        repository_ctx.report_progress("Downloading and extracting {}, expected hash is {}".format(url, sha256))
 
-    repository_ctx.delete(file_name)
+        repository_ctx.download_and_extract(
+            url = url,
+            output = _DISTRIBUTION_PATH,
+            sha256 = sha256,
+            type = "zip" if url.endswith(".whl") else "",
+        )
+
+        repository_ctx.delete(file_name)
+        rocm_root = _DISTRIBUTION_PATH
+    else:
+        # Create an empty rocm_dist directory for dummy repos
+        # This allows hipcc_configure to symlink it without errors
+        repository_ctx.file(_DISTRIBUTION_PATH + "/.keep", "")
 
     # Create BUILD file from template
     repository_ctx.template(
         "BUILD",
         _tpl_path(repository_ctx, "rocm_dist.BUILD.tpl"),
         {
-            "%{rocm_root}": _DISTRIBUTION_PATH,
+            "%{rocm_root}": rocm_root,
         },
     )
 
@@ -44,12 +53,12 @@ rocm_hermetic_download = repository_rule(
     implementation = _rocm_hermetic_download_impl,
     attrs = {
         "url": attr.string(
-            mandatory = True,
-            doc = "URL of the ROCm redistributable tarball to download",
+            default = "",
+            doc = "URL of the ROCm redistributable tarball to download. If not set, creates a dummy BUILD file.",
         ),
         "sha256": attr.string(
-            mandatory = True,
-            doc = "SHA256 hash of the ROCm redistributable tarball",
+            default = "",
+            doc = "SHA256 hash of the ROCm redistributable tarball. If not set, creates a dummy BUILD file.",
         ),
     },
 )

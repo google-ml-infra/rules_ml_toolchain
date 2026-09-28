@@ -141,7 +141,7 @@ use_repo(nvshmem_redist_ext, "nvidia_nvshmem")
 # SYCL configuration
 
 sycl_configure = use_extension("//extensions:sycl_configure.bzl", "sycl_configure_ext")
-use_repo(sycl_configure, "local_config_sycl", "oneapi", "level_zero", "zero_loader")
+use_repo(sycl_configure, "level_zero", "local_config_sycl", "oneapi", "zero_loader")
 
 ##############################################################
 # ROCm configuration
