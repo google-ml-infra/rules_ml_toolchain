@@ -53,17 +53,17 @@ cc_toolchain_import_feature(
 alias(
     name = "std_incs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_incs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_incs",
         "//conditions:default": "@sysroot_linux_aarch64//:std_incs",
-    })
+    }),
 )
 
 alias(
     name = "std_libs",
     actual = select({
-        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_libs" ,
+        "//common:is_stdlib_libcxx": "@llvm_linux_aarch64//:std_libs",
         "//conditions:default": "@sysroot_linux_aarch64//:std_libs",
-    })
+    }),
 )
 
 # buildifier: leave-alone
@@ -84,11 +84,11 @@ cc_toolchain_import(
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
-    toolchain_import = ":imports",
     static_link_flags = select({
         "//common:is_static_libcxx": LIBCXX_FLAGS,
         "//conditions:default": [],
     }),
+    toolchain_import = ":imports",
 )
 
 # buildifier: leave-alone
@@ -205,8 +205,7 @@ FEATURES_ESSENTIAL = [
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
-
-    "//cc/features/linux_aarch64:sysroot",
+    "//cc/features/linux/aarch64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
 ]
@@ -217,10 +216,10 @@ cc_toolchain_config(
     c_compiler = "@llvm_linux_x86_64//:clang",
     cc_compiler = "@llvm_linux_x86_64//:clang++",
     compiler_features = FEATURES_ESSENTIAL,
-    linker = "@llvm_linux_x86_64//:ld",
-    strip_tool = "@llvm_linux_x86_64//:strip",
-    module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
     headers_parser = "@llvm_linux_x86_64//:clang",
+    linker = "@llvm_linux_x86_64//:ld",
+    module_deps_scanner = "@llvm_linux_x86_64//:scan_deps",
+    strip_tool = "@llvm_linux_x86_64//:strip",
     target_cpu = "aarch64",
     target_system_name = "local",
 )

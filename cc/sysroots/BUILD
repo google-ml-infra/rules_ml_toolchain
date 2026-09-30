@@ -2,8 +2,8 @@
 # Not ManyLinux tag compliant libraries for usage in deps attribute
 #=====================================================================
 
-load(":collect_cc_libraries.bzl", "collect_cc_libraries")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load(":collect_cc_libraries.bzl", "collect_cc_libraries")
 
 # Export template file for local_sysroot_configure repository rule
 exports_files(["defs.bzl.tpl"])
@@ -26,6 +26,7 @@ alias(
     actual = select({
         "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_import",
         "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_import",
+        "//common:is_macos_aarch64": "@sysroot_darwin_aarch64//:openmp_import",
     }),
     visibility = ["//visibility:public"],
 )
@@ -35,14 +36,15 @@ alias(
     actual = select({
         "//common:is_linux_x86_64": "@sysroot_linux_x86_64//:openmp_copyright",
         "//common:is_linux_aarch64": "@sysroot_linux_aarch64//:openmp_copyright",
+        "//common:is_macos_aarch64": "@sysroot_darwin_aarch64//:openmp_copyright",
     }),
 )
 
 collect_cc_libraries(
     name = "openmp_libs",
+    visibility = ["//visibility:public"],
     deps = [
         ":openmp",
         ":openmp_copyright",
     ],
-    visibility = ["//visibility:public"],
 )

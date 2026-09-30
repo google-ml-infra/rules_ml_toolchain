@@ -457,8 +457,12 @@ def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
             ],
         ),
         feature(
+            name = "is_workspace_code",
+        ),
+        feature(
             name = "layering_check",
             enabled = False,
+            requires = [feature_set(features = ["is_workspace_code"])],
             flag_sets = [
                 flag_set(
                     actions = [

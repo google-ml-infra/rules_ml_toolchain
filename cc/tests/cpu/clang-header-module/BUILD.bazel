@@ -10,6 +10,7 @@ cc_library(
     srcs = ["utils.cc"],
     hdrs = ["utils.h"],
     features = ["header_modules"],
+    tags = ["clang_header_modules"],
     visibility = ["//visibility:public"],
 )
 

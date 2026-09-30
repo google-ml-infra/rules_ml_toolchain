@@ -41,6 +41,7 @@ package(
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
+        "@darwin_local_config_cc//:__pkg__",
     ],
 )
 

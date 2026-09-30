@@ -94,7 +94,6 @@ filegroup(
 cc_toolchain_import(
     name = "compiler_incs",
     hdrs = glob([
-        "lib/clang/*/*.h",
         "lib/clang/*/include/*.h",
         "lib/clang/*/include/**/*.h",
     ]),
@@ -102,9 +101,11 @@ cc_toolchain_import(
         "lib/clang/{clang_version}".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/include".format(clang_version = CLANG_VERSION),
     ],
-    target_compatible_with = select({
-        "@platforms//os:linux": [],
-        "@platforms//os:macos": [],
-    }),
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "libclang_rt",
+    static_library = "lib/clang/{clang_version}/lib/darwin/libclang_rt.osx.a".format(clang_version = CLANG_VERSION),
     visibility = ["//visibility:public"],
 )

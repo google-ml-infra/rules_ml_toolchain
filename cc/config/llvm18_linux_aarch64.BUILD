@@ -101,10 +101,6 @@ cc_toolchain_import(
         "lib/clang/{clang_version}".format(clang_version = CLANG_VERSION),
         "lib/clang/{clang_version}/include".format(clang_version = CLANG_VERSION),
     ],
-    target_compatible_with = select({
-        "@platforms//os:linux": [],
-        "@platforms//os:macos": [],
-    }),
     visibility = ["//visibility:public"],
 )
 
@@ -113,10 +109,6 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "libclang_rt",
     static_library = "lib/clang/{clang_version}/lib/aarch64-unknown-linux-gnu/libclang_rt.builtins.a".format(clang_version = CLANG_VERSION),
-    target_compatible_with = select({
-        "@platforms//os:linux": [],
-        "@platforms//os:macos": [],
-    }),
     visibility = ["//visibility:public"],
 )
 
