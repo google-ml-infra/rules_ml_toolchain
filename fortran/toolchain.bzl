@@ -66,6 +66,13 @@ def _fortran_toolchain_impl(ctx):
 
     sysroot_path = ctx.attr.sysroot.label.workspace_root
 
+    target = ctx.attr.target
+    if "macosx" in target and hasattr(ctx.fragments, "apple"):
+        macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
+        if macos_min_os:
+            prefix = target.split("macosx")[0]
+            target = "{}macosx{}".format(prefix, macos_min_os)
+
     fortran_toolchain_info = FortranToolchainInfo(
         flang = flang_bin,
         compiler_files = compiler_files,
@@ -74,7 +81,7 @@ def _fortran_toolchain_impl(ctx):
         fortran_libs = fortran_libs,
         fortran_main = fortran_main,
         sysroot_path = sysroot_path,
-        target = ctx.attr.target,
+        target = target,
         target_cpu = ctx.attr.target_cpu,
         compiler_flags = ctx.attr.compiler_flags,
         linker_flags = ctx.attr.linker_flags,
@@ -100,6 +107,7 @@ def _fortran_toolchain_impl(ctx):
 
 fortran_toolchain = rule(
     implementation = _fortran_toolchain_impl,
+    fragments = ["apple"],
     attrs = {
         "flang": attr.label(
             doc = "The flang-new compiler binary target.",

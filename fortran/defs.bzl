@@ -107,13 +107,20 @@ def _compile_fortran_sources(
     local_mod_dirs = []
     mode_flags = _compilation_mode_flags(ctx)
 
+    target = fortran_toolchain.target
+    if "macosx" in target and hasattr(ctx.fragments, "apple"):
+        macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
+        if macos_min_os:
+            prefix = target.split("macosx")[0]
+            target = "{}macosx{}".format(prefix, macos_min_os)
+
     for idx, src in enumerate(srcs):
         stem = src.basename[:-len(src.extension) - 1] if src.extension else src.basename
         obj = ctx.actions.declare_file("_fortran_objs/{}/{}_{}.pic.o".format(ctx.label.name, idx, stem))
         mod_dir = ctx.actions.declare_directory("_fortran_mods/{}/{}_{}".format(ctx.label.name, idx, stem))
 
         args = ctx.actions.args()
-        args.add("--target=" + fortran_toolchain.target)
+        args.add("--target=" + target)
         if fortran_toolchain.sysroot_path:
             args.add("--sysroot=" + fortran_toolchain.sysroot_path)
 
@@ -477,7 +484,7 @@ _BINARY_ATTRS.update({
 fortran_library = rule(
     implementation = _fortran_library_impl,
     attrs = _LIBRARY_ATTRS,
-    fragments = ["cpp"],
+    fragments = ["apple", "cpp"],
     toolchains = [
         "//fortran:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",
@@ -490,7 +497,7 @@ fortran_binary = rule(
     implementation = _fortran_binary_or_test_impl,
     attrs = _BINARY_ATTRS,
     executable = True,
-    fragments = ["cpp"],
+    fragments = ["apple", "cpp"],
     toolchains = [
         "//fortran:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",
@@ -502,7 +509,7 @@ fortran_test = rule(
     implementation = _fortran_binary_or_test_impl,
     attrs = _COMMON_ATTRS,
     test = True,
-    fragments = ["cpp"],
+    fragments = ["apple", "cpp"],
     toolchains = [
         "//fortran:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",

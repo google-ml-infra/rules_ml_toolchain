@@ -42,7 +42,9 @@ fortran_toolchain(
     fortran_libs = "@llvm_darwin_aarch64//:fortran_libs",
     fortran_main = "@llvm_darwin_aarch64//:fortran_main",
     sysroot = "@sysroot_darwin_aarch64//:sysroot",
-    target = "arm64-apple-macosx15.1",
+    # Use the lowest macOS arm64 version supported by LLVM 22 for maximal compatibility
+    # Use flag --macos_minimum_os for overriding this.
+    target = "arm64-apple-macosx11.0",
     target_cpu = "aarch64",
     toolchain_identifier = "fortran_toolchain_darwin_aarch64_darwin_aarch64_id",
 )
