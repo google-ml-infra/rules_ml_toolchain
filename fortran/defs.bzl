@@ -91,9 +91,114 @@ def _collect_deps(deps):
         depset(transitive = fortran_sources, order = "topological"),
     )
 
+# Flags in shared feature definitions that flang-new (-fc1) does not accept directly.
+_FLANG_UNSUPPORTED_COMPILE_FLAGS = {
+    "-nostdinc": True,
+    "-nostdinc++": True,
+    "-no-canonical-prefixes": True,
+    "-Wno-builtin-macro-redefined": True,
+}
+
+# Flags supported by the flang-new driver starting in LLVM 20+.
+_FLANG_LLVM20_PLUS_COMPILE_FLAGS = {
+    "--no-default-config": True,
+    "-fno-rtlib-add-rpath": True,
+    "-nostdlib": True,
+    "-nodefaultlibs": True,
+}
+
+def _configure_fortran_features(ctx, fortran_toolchain):
+    mode = ctx.var.get("COMPILATION_MODE", "fastbuild")
+    features = getattr(fortran_toolchain, "features", [])
+
+    if not features:
+        target = fortran_toolchain.target
+        if "macosx" in target and hasattr(ctx.fragments, "apple"):
+            macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
+            if macos_min_os:
+                prefix = target.split("macosx")[0]
+                target = "{}macosx{}".format(prefix, macos_min_os)
+        return struct(
+            compiler_flags = ["-fPIC"] + _compilation_mode_flags(ctx) + list(fortran_toolchain.compiler_flags),
+            linker_flags = list(fortran_toolchain.linker_flags),
+            env = {},
+            include_dirs = depset(),
+            intrinsic_module_dirs = fortran_toolchain.flang_include_dirs,
+            headers = fortran_toolchain.flang_headers,
+            sysroot_path = fortran_toolchain.sysroot_path,
+            target = target,
+        )
+
+    enabled_names = {}
+    for feature in features:
+        if feature.name in ctx.disabled_features:
+            continue
+        if feature.expand_if_mode and feature.expand_if_mode != mode and feature.name not in ctx.features:
+            continue
+        if feature.enabled or feature.name in ctx.features:
+            enabled_names[feature.name] = True
+            for implied in feature.implies:
+                if implied not in ctx.disabled_features:
+                    enabled_names[implied] = True
+
+    compiler_flags = []
+    linker_flags = []
+    env = {}
+    include_dir_depsets = []
+    intrinsic_dir_depsets = [fortran_toolchain.flang_include_dirs]
+    header_depsets = [fortran_toolchain.flang_headers]
+    sysroot_path = fortran_toolchain.sysroot_path
+    target = fortran_toolchain.target
+
+    for feature in features:
+        if feature.name not in enabled_names:
+            continue
+        compiler_flags.extend(feature.compiler_flags)
+        linker_flags.extend(feature.linker_flags)
+        env.update(feature.env_sets)
+        include_dir_depsets.append(feature.include_dirs)
+        intrinsic_dir_depsets.append(feature.intrinsic_module_dirs)
+        header_depsets.append(feature.headers)
+        if feature.sysroot:
+            sysroot_path = feature.sysroot
+        if feature.target:
+            target = feature.target
+
+    compiler_flags.extend(fortran_toolchain.compiler_flags)
+    linker_flags.extend(fortran_toolchain.linker_flags)
+
+    if "macosx" in target and hasattr(ctx.fragments, "apple"):
+        macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
+        if macos_min_os:
+            prefix = target.split("macosx")[0]
+            target = "{}macosx{}".format(prefix, macos_min_os)
+
+    return struct(
+        compiler_flags = compiler_flags,
+        linker_flags = linker_flags,
+        env = env,
+        include_dirs = depset(transitive = include_dir_depsets),
+        intrinsic_module_dirs = depset(transitive = intrinsic_dir_depsets),
+        headers = depset(transitive = header_depsets),
+        sysroot_path = sysroot_path,
+        target = target,
+    )
+
+def _filter_flang_compile_flags(flang_bin, flags):
+    is_pre_llvm20 = "llvm18" in flang_bin.path or "llvm19" in flang_bin.path
+    filtered = []
+    for flag in flags:
+        if flag in _FLANG_UNSUPPORTED_COMPILE_FLAGS:
+            continue
+        if is_pre_llvm20 and flag in _FLANG_LLVM20_PLUS_COMPILE_FLAGS:
+            continue
+        filtered.append(flag)
+    return filtered
+
 def _compile_fortran_sources(
         ctx,
         fortran_toolchain,
+        fortran_features,
         cc_compilation_context,
         dep_mod_dirs):
     srcs = [f for f in ctx.files.srcs if f.extension in FORTRAN_EXTENSIONS]
@@ -105,14 +210,10 @@ def _compile_fortran_sources(
 
     objects = []
     local_mod_dirs = []
-    mode_flags = _compilation_mode_flags(ctx)
-
-    target = fortran_toolchain.target
-    if "macosx" in target and hasattr(ctx.fragments, "apple"):
-        macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
-        if macos_min_os:
-            prefix = target.split("macosx")[0]
-            target = "{}macosx{}".format(prefix, macos_min_os)
+    compile_flags = _filter_flang_compile_flags(
+        fortran_toolchain.flang,
+        fortran_features.compiler_flags,
+    )
 
     for idx, src in enumerate(srcs):
         stem = src.basename[:-len(src.extension) - 1] if src.extension else src.basename
@@ -120,16 +221,17 @@ def _compile_fortran_sources(
         mod_dir = ctx.actions.declare_directory("_fortran_mods/{}/{}_{}".format(ctx.label.name, idx, stem))
 
         args = ctx.actions.args()
-        args.add("--target=" + target)
-        if fortran_toolchain.sysroot_path:
-            args.add("--sysroot=" + fortran_toolchain.sysroot_path)
+        if fortran_features.target:
+            args.add("--target=" + fortran_features.target)
+        if fortran_features.sysroot_path:
+            args.add("--sysroot=" + fortran_features.sysroot_path)
 
-        args.add("-fPIC")
-        args.add_all(mode_flags)
-        args.add_all(fortran_toolchain.compiler_flags)
+        args.add_all(compile_flags)
 
-        # Built-in Fortran intrinsic module directories (iso_c_binding, iso_fortran_env, etc.)
-        args.add_all(fortran_toolchain.flang_include_dirs, format_each = "-I%s")
+        # Hermetic built-in Fortran intrinsic module directories (iso_c_binding, iso_fortran_env, etc.)
+        args.add_all(fortran_features.intrinsic_module_dirs, before_each = "-fintrinsic-modules-path")
+        args.add_all(fortran_features.intrinsic_module_dirs, format_each = "-I%s")
+        args.add_all(fortran_features.include_dirs, format_each = "-I%s")
 
         # C/C++ preprocessor defines and include paths for .F/.F90 preprocessed files
         args.add_all(cc_compilation_context.defines, format_each = "-D%s")
@@ -157,7 +259,7 @@ def _compile_fortran_sources(
             direct = [src] + getattr(ctx.files, "hdrs", []) + local_mod_dirs,
             transitive = [
                 fortran_toolchain.compiler_files,
-                fortran_toolchain.flang_headers,
+                fortran_features.headers,
                 cc_compilation_context.headers,
                 dep_mod_dirs,
             ],
@@ -168,6 +270,7 @@ def _compile_fortran_sources(
             progress_message = "Compiling Fortran {}".format(src.short_path),
             executable = fortran_toolchain.flang,
             arguments = [args],
+            env = fortran_features.env,
             inputs = inputs,
             outputs = [obj, mod_dir],
         )
@@ -210,6 +313,7 @@ def _collect_runfiles(ctx, extra_files = []):
 
 def _fortran_library_impl(ctx):
     fortran_toolchain = ctx.toolchains["//fortran:toolchain_type"].fortran_toolchain
+    fortran_features = _configure_fortran_features(ctx, fortran_toolchain)
     cc_toolchain = find_cpp_toolchain(ctx)
     feature_configuration = cc_common.configure_features(
         ctx = ctx,
@@ -229,10 +333,10 @@ def _fortran_library_impl(ctx):
     self_compilation_context = cc_common.create_compilation_context(
         headers = depset(
             direct = ctx.files.hdrs,
-            transitive = [fortran_toolchain.flang_headers],
+            transitive = [fortran_features.headers],
         ),
         includes = depset(local_includes),
-        system_includes = fortran_toolchain.flang_include_dirs,
+        system_includes = fortran_features.intrinsic_module_dirs,
         defines = depset(ctx.attr.defines),
     )
     merged_compilation_context = cc_common.merge_compilation_contexts(
@@ -242,6 +346,7 @@ def _fortran_library_impl(ctx):
     objects, local_mod_dirs = _compile_fortran_sources(
         ctx = ctx,
         fortran_toolchain = fortran_toolchain,
+        fortran_features = fortran_features,
         cc_compilation_context = merged_compilation_context,
         dep_mod_dirs = dep_mod_dirs,
     )
@@ -268,7 +373,7 @@ def _fortran_library_impl(ctx):
             feature_configuration = feature_configuration,
             cc_toolchain = cc_toolchain,
             compilation_outputs = compilation_outputs,
-            user_link_flags = fortran_toolchain.linker_flags + ctx.attr.linkopts,
+            user_link_flags = fortran_features.linker_flags + ctx.attr.linkopts,
             linking_contexts = linking_contexts,
             name = ctx.label.name,
             alwayslink = ctx.attr.alwayslink,
@@ -283,7 +388,7 @@ def _fortran_library_impl(ctx):
     else:
         user_linker_input = cc_common.create_linker_input(
             owner = ctx.label,
-            user_link_flags = depset(fortran_toolchain.linker_flags + ctx.attr.linkopts),
+            user_link_flags = depset(fortran_features.linker_flags + ctx.attr.linkopts),
         )
         self_linking_context = cc_common.create_linking_context(
             linker_inputs = depset([user_linker_input]),
@@ -321,6 +426,7 @@ def _fortran_library_impl(ctx):
 
 def _fortran_binary_or_test_impl(ctx):
     fortran_toolchain = ctx.toolchains["//fortran:toolchain_type"].fortran_toolchain
+    fortran_features = _configure_fortran_features(ctx, fortran_toolchain)
     cc_toolchain = find_cpp_toolchain(ctx)
     feature_configuration = cc_common.configure_features(
         ctx = ctx,
@@ -337,8 +443,8 @@ def _fortran_binary_or_test_impl(ctx):
     ) = _collect_deps(ctx.attr.deps)
 
     self_compilation_context = cc_common.create_compilation_context(
-        headers = fortran_toolchain.flang_headers,
-        system_includes = fortran_toolchain.flang_include_dirs,
+        headers = fortran_features.headers,
+        system_includes = fortran_features.intrinsic_module_dirs,
         defines = depset(ctx.attr.defines),
     )
     merged_compilation_context = cc_common.merge_compilation_contexts(
@@ -348,6 +454,7 @@ def _fortran_binary_or_test_impl(ctx):
     objects, local_mod_dirs = _compile_fortran_sources(
         ctx = ctx,
         fortran_toolchain = fortran_toolchain,
+        fortran_features = fortran_features,
         cc_compilation_context = merged_compilation_context,
         dep_mod_dirs = dep_mod_dirs,
     )
@@ -382,7 +489,7 @@ def _fortran_binary_or_test_impl(ctx):
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         compilation_outputs = compilation_outputs,
-        user_link_flags = fortran_toolchain.linker_flags + ctx.attr.linkopts,
+        user_link_flags = fortran_features.linker_flags + ctx.attr.linkopts,
         linking_contexts = linking_contexts,
         name = ctx.label.name,
         output_type = "dynamic_library" if linkshared else "executable",

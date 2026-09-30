@@ -16,6 +16,10 @@
 """Fortran toolchain definition and provider."""
 
 load(
+    "//fortran/features:features.bzl",
+    "FortranFeatureInfo",
+)
+load(
     "//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "CcToolchainImportInfo",
 )
@@ -34,6 +38,7 @@ FortranToolchainInfo = provider(
         "target_cpu": "str: Target CPU architecture.",
         "compiler_flags": "list of str: Default Fortran compiler flags.",
         "linker_flags": "list of str: Default Fortran linker flags.",
+        "features": "list of FortranFeatureInfo: Configured features for the Fortran toolchain.",
         "toolchain_identifier": "str: Unique identifier for the toolchain.",
     },
 )
@@ -42,9 +47,29 @@ def _fortran_toolchain_impl(ctx):
     flang_files = ctx.files.flang
     flang_bin = flang_files[0] if flang_files else None
 
-    flang_incs_info = ctx.attr.flang_incs[CcToolchainImportInfo]
-    flang_headers = flang_incs_info.compilation_context.headers
-    flang_include_dirs = flang_incs_info.compilation_context.includes
+    features = [f[FortranFeatureInfo] for f in ctx.attr.compiler_features]
+
+    header_depsets = []
+    intrinsic_dir_depsets = []
+    if ctx.attr.flang_incs:
+        flang_incs_info = ctx.attr.flang_incs[CcToolchainImportInfo]
+        header_depsets.append(flang_incs_info.compilation_context.headers)
+        intrinsic_dir_depsets.append(flang_incs_info.compilation_context.includes)
+
+    sysroot_path = ctx.attr.sysroot.label.workspace_root if ctx.attr.sysroot else ""
+    target = ctx.attr.target
+
+    for feature in features:
+        header_depsets.append(feature.headers)
+        intrinsic_dir_depsets.append(feature.intrinsic_module_dirs)
+        if feature.enabled:
+            if not sysroot_path and feature.sysroot:
+                sysroot_path = feature.sysroot
+            if not target and feature.target:
+                target = feature.target
+
+    flang_headers = depset(transitive = header_depsets)
+    flang_include_dirs = depset(transitive = intrinsic_dir_depsets)
 
     fortran_libs_info = ctx.attr.fortran_libs[CcToolchainImportInfo]
     fortran_libs = depset(
@@ -64,9 +89,6 @@ def _fortran_toolchain_impl(ctx):
         ],
     )
 
-    sysroot_path = ctx.attr.sysroot.label.workspace_root
-
-    target = ctx.attr.target
     if "macosx" in target and hasattr(ctx.fragments, "apple"):
         macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
         if macos_min_os:
@@ -85,6 +107,7 @@ def _fortran_toolchain_impl(ctx):
         target_cpu = ctx.attr.target_cpu,
         compiler_flags = ctx.attr.compiler_flags,
         linker_flags = ctx.attr.linker_flags,
+        features = features,
         toolchain_identifier = ctx.attr.toolchain_identifier,
     )
 
@@ -121,10 +144,14 @@ fortran_toolchain = rule(
             cfg = "exec",
             mandatory = True,
         ),
+        "compiler_features": attr.label_list(
+            doc = "List of FortranFeatureInfo targets configuring compiler/linker flags, imports, and sysroot.",
+            providers = [FortranFeatureInfo],
+            default = [],
+        ),
         "flang_incs": attr.label(
             doc = "Built-in Fortran intrinsic modules and headers.",
             providers = [CcToolchainImportInfo],
-            mandatory = True,
         ),
         "fortran_libs": attr.label(
             doc = "Fortran runtime static libraries.",
@@ -137,12 +164,11 @@ fortran_toolchain = rule(
             mandatory = True,
         ),
         "sysroot": attr.label(
-            doc = "Target sysroot package.",
-            mandatory = True,
+            doc = "Target sysroot package (can also be supplied via compiler_features).",
         ),
         "target": attr.string(
-            doc = "Target triple (e.g. x86_64-linux-gnu).",
-            mandatory = True,
+            doc = "Target triple (e.g. x86_64-linux-gnu; can also be supplied via compiler_features).",
+            default = "",
         ),
         "target_cpu": attr.string(
             doc = "Target CPU name (e.g. x86_64, aarch64).",
