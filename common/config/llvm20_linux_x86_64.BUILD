@@ -212,3 +212,53 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+#============================================================================================
+# Fortran
+
+filegroup(
+    name = "flang",
+    srcs = [
+        "bin/flang-new",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "flang_incs",
+    hdrs = glob([
+        "include/flang/**",
+    ]),
+    includes = [
+        "include/flang",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "libfortran_runtime",
+    static_library = "lib/libFortranRuntime.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libfortran_decimal",
+    static_library = "lib/libFortranDecimal.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "fortran_libs",
+    deps = [
+        ":libfortran_runtime",
+        ":libfortran_decimal",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "fortran_main",
+    srcs = [],
+    visibility = ["//visibility:public"],
+)
+

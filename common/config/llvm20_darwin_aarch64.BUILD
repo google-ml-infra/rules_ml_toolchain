@@ -110,3 +110,49 @@ cc_toolchain_import(
     static_library = "lib/clang/{clang_version}/lib/darwin/libclang_rt.osx.a".format(clang_version = CLANG_VERSION),
     visibility = ["//visibility:public"],
 )
+
+#============================================================================================
+# Fortran
+
+filegroup(
+    name = "flang",
+    srcs = glob(
+        ["bin/flang-new"],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "flang_incs",
+    hdrs = glob(
+        ["include/flang/**"],
+        allow_empty = True,
+    ),
+    includes = [
+        "include/flang",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "fortran_libs",
+    additional_libs = glob(
+        [
+            "lib/libFortranRuntime.a",
+            "lib/libFortranDecimal.a",
+            "lib/clang/{clang_version}/lib/darwin/libflang_rt.runtime.a".format(clang_version = CLANG_VERSION),
+        ],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "fortran_main",
+    srcs = glob(
+        ["lib/libFortran_main.a"],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)

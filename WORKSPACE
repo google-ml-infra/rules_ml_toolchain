@@ -156,7 +156,11 @@ load("//common/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
 cc_toolchain_deps()
 
-register_toolchains("//cc/...")
+register_toolchains(
+    "//cc/...",
+    "//fortran/...",
+)
+
 
 ##############################################################
 # CUDA
