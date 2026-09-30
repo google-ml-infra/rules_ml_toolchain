@@ -66,10 +66,10 @@ def cc_toolchain_deps():
             sha256 = "9a06397f9dc4fe2237d126f964f1a3c942ce0036ba51976ea0d7fce0bc3e2fb7",
             mirrored_tar_sha256 = "114a7d09078c6a2d29b506033e07442346099847ce6107c78ec3da86388ea4a5",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
+            build_file = Label("//common/config/x86_64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu18_gcc8.4-0.2.1",
             #patches = [
-            #    "//cc/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
+            #    "//common/config/x86_64_ubuntu18_gcc8.4:gcc8.4-refwrap-fix.patch",
             #],
             #patch_args = ["-p1"],
         )
@@ -81,7 +81,7 @@ def cc_toolchain_deps():
             sha256 = "a26dc443b20bff6b46324a77fcc112aab484364d39125daff345e142bbdea74c",
             mirrored_tar_sha256 = "fc66481ff952118e2c25f85c6a1fdbad840234fec9971ff5c44b3bd818178aa2",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu20_gcc10-0.2.0.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu20_gcc10:sysroot.BUILD"),
+            build_file = Label("//common/config/x86_64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu20_gcc10-0.2.0",
         )
 
@@ -92,7 +92,7 @@ def cc_toolchain_deps():
             sha256 = "cfbb04651bebe18ec949a5df16bde26d4f138344eff1e5bb345c33d428be190e",
             mirrored_tar_sha256 = "4516c5f043360adb9317f513a27a0e4a0d5d93bfeaca4ef039c234612bcf1df9",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu22_gcc12-0.2.0.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu22_gcc12:sysroot.BUILD"),
+            build_file = Label("//common/config/x86_64_ubuntu22_gcc12:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu22_gcc12-0.2.0",
         )
 
@@ -103,7 +103,7 @@ def cc_toolchain_deps():
             sha256 = "0b106bb2c63afab88207b0ab5d9232cd2e2b9e7097fb205fb255909f936f92b3",
             mirrored_tar_sha256 = "9372d5cd905f425cf78b17f546039aae2c4c2826e600d185b931f78155b32325",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/x86_64/x86_64_ubuntu24_gcc14-0.1.0.tar.xz"),
-            build_file = Label("//cc/config/x86_64_ubuntu24_gcc14:sysroot.BUILD"),
+            build_file = Label("//common/config/x86_64_ubuntu24_gcc14:sysroot.BUILD"),
             strip_prefix = "x86_64_ubuntu24_gcc14-0.1.0",
         )
 
@@ -128,7 +128,7 @@ def cc_toolchain_deps():
             sha256 = "ef657b4fc199500d0b0208352b3a821a4d5b9c3900367c4dc02627548b4f85f3",
             mirrored_tar_sha256 = "345e7973f2a1298e13620d13f5bee94ce08afe504892ce5117d59d23a0182a2a",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu18_gcc8.4-0.2.1.tar.xz"),
-            build_file = Label("//cc/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
+            build_file = Label("//common/config/aarch64_ubuntu18_gcc8.4:sysroot.BUILD"),
             strip_prefix = "aarch64_ubuntu18_gcc8.4-0.2.1",
         )
 
@@ -139,7 +139,7 @@ def cc_toolchain_deps():
             sha256 = "a6011ddc4629c5fb56642474321a48cd05a28c7569418c8bdb9c5494379cf197",
             mirrored_tar_sha256 = "f4ad4a301f88ab0e2772f5d7c94db5c4c5656fac4c4b901c1b37d01a5742223f",
             urls = tf_mirror_urls("https://storage.googleapis.com/ml-sysroot-testing/aarch64/aarch64_ubuntu20_gcc10-0.2.0.tar.xz"),
-            build_file = Label("//cc/config/aarch64_ubuntu20_gcc10:sysroot.BUILD"),
+            build_file = Label("//common/config/aarch64_ubuntu20_gcc10:sysroot.BUILD"),
             strip_prefix = "aarch64_ubuntu20_gcc10-0.2.0",
         )
 
@@ -149,7 +149,7 @@ def cc_toolchain_deps():
     if "sysroot_darwin_aarch64" not in native.existing_rules():
         macos_sdk(
             name = "sysroot_darwin_aarch64",
-            build_file = "@rules_ml_toolchain//cc/config:sysroot_darwin_aarch64.BUILD",
+            build_file = "@rules_ml_toolchain//common/config:sysroot_darwin_aarch64.BUILD",
             default_path = "cc/sysroots/darwin_aarch64/MacOSX.sdk",
         )
 
@@ -183,7 +183,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz"),
             sha256 = "54ec30358afcc9fb8aa74307db3046f5187f9fb89fb37064cdde906e062ebf36",
             mirrored_tar_sha256 = "01b8e95e34e7d0117edd085577529b375ec422130ed212d2911727545314e6c2",
-            build_file = Label("//cc/config:llvm18_linux_x86_64.BUILD"),
+            build_file = Label("//common/config:llvm18_linux_x86_64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
             remote_file_urls = {
                 "lib/libtinfo.so.5": ["https://storage.googleapis.com/ml-sysroot-testing/libtinfo/libtinfo.so.5"],
@@ -202,7 +202,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz"),
             sha256 = "4a5ec53951a584ed36f80240f6fbf8fdd46b4cf6c7ee87cc2d5018dc37caf679",
             mirrored_tar_sha256 = "ecb0a20f3976ccb6f20fe98baeef45cd80c59d7aec971098094518283f1157ff",
-            build_file = Label("//cc/config:llvm19_linux_x86_64.BUILD"),
+            build_file = Label("//common/config:llvm19_linux_x86_64.BUILD"),
             strip_prefix = "LLVM-19.1.7-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
@@ -227,7 +227,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.8/LLVM-20.1.8-Linux-X64.tar.xz"),
             sha256 = "1ead36b3dfcb774b57be530df42bec70ab2d239fbce9889447c7a29a4ddc1ae6",
             mirrored_tar_sha256 = "57152ed2a054a06dc3fc7abe35da02696fe80d07884de94621726e1ae8d9a53f",
-            build_file = Label("//cc/config:llvm20_linux_x86_64.BUILD"),
+            build_file = Label("//common/config:llvm20_linux_x86_64.BUILD"),
             strip_prefix = "LLVM-20.1.8-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
@@ -252,7 +252,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-Linux-X64.tar.xz"),
             sha256 = "b3b7f2801d15d50736acea3c73982994d025b01c2f035b91ae3b49d1b575732b",
             mirrored_tar_sha256 = "319687348c74aeee915e82a83dd6f6d6b98bc61d8cb7b6b4ac471703ab10b517",
-            build_file = Label("//cc/config:llvm21_linux_x86_64.BUILD"),
+            build_file = Label("//common/config:llvm21_linux_x86_64.BUILD"),
             strip_prefix = "LLVM-21.1.8-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
@@ -277,7 +277,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.4/LLVM-22.1.4-Linux-X64.tar.xz"),
             sha256 = "cdf232e3bc5d9909ddcf8cb7016802c6745a01e69a596747c684caa894a11567",
             mirrored_tar_sha256 = "b9b94ef829f1d410e0a458b4c140ee8c0999312b7733cd1375e61736078c1aa2",
-            build_file = Label("//cc/config:llvm22_linux_x86_64.BUILD"),
+            build_file = Label("//common/config:llvm22_linux_x86_64.BUILD"),
             strip_prefix = "LLVM-22.1.4-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
@@ -319,7 +319,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-aarch64-linux-gnu.tar.xz"),
             sha256 = "dcaa1bebbfbb86953fdfbdc7f938800229f75ad26c5c9375ef242edad737d999",
             mirrored_tar_sha256 = "26a52cc6c658736f822546f220216178ac50d75ac1809bf8608395c8edd7c2c1",
-            build_file = Label("//cc/config:llvm18_linux_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm18_linux_aarch64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-aarch64-linux-gnu",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
@@ -352,7 +352,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-aarch64-linux-gnu.tar.xz"),
             sha256 = "a73d9326e5d756e3937df6a9f621664d76403b59119f741901106b387e53a6ae",
             mirrored_tar_sha256 = "9f8aa21e6bbc9cb1c641bfa5ed2f9ac28b8aff54ce65d4de99ceb9f43e5a4fc2",
-            build_file = Label("//cc/config:llvm19_linux_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm19_linux_aarch64.BUILD"),
             strip_prefix = "clang+llvm-19.1.7-aarch64-linux-gnu",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
@@ -385,7 +385,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.8/LLVM-20.1.8-Linux-ARM64.tar.xz"),
             sha256 = "b855cc17d935fdd83da82206b7a7cfc680095efd1e9e8182c4a05e761958bef8",
             mirrored_tar_sha256 = "3c932449de47078a5a5c39499e1d741da6df29e767502803c1c7194022720a07",
-            build_file = Label("//cc/config:llvm20_linux_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm20_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-Linux-ARM64",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
@@ -418,7 +418,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-Linux-ARM64.tar.xz"),
             sha256 = "65ce0b329514e5643407db2d02a5bd34bf33d159055dafa82825c8385bd01993",
             mirrored_tar_sha256 = "34f87a8f2b755b0c34bf0df682dda78f5d69071dd14b7ac9db2a6ed6bc02fb60",
-            build_file = Label("//cc/config:llvm21_linux_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm21_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-21.1.8-Linux-ARM64",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
@@ -451,7 +451,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.4/LLVM-22.1.4-Linux-ARM64.tar.xz"),
             sha256 = "ac8bed48a6481ccc0e14af18f64d44fc1ca8c0ccf630c1d4dc5e97027e87e6fa",
             mirrored_tar_sha256 = "fdd6aec41abd24c031ec309065fee660bcb6b93b83b49960aaf879bd61b7d88b",
-            build_file = Label("//cc/config:llvm22_linux_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm22_linux_aarch64.BUILD"),
             strip_prefix = "LLVM-22.1.4-Linux-ARM64",
             remote_file_urls = {
                 "lib/libz.so.1": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/aarch64-linux/v2/libz.so.1"],
@@ -499,7 +499,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-arm64-apple-macos11.tar.xz"),
             sha256 = "4573b7f25f46d2a9c8882993f091c52f416c83271db6f5b213c93f0bd0346a10",
             mirrored_tar_sha256 = "abf9636295730364bfe4cfa6b491dc8476587bd6d7271e3011dafdb5e382bcdf",
-            build_file = Label("//cc/config:llvm18_darwin_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm18_darwin_aarch64.BUILD"),
             strip_prefix = "clang+llvm-18.1.8-arm64-apple-macos11",
         )
 
@@ -509,7 +509,7 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-macOS-ARM64.tar.xz"),
             sha256 = "d93bf12952d89fe4ec7501c40475718b722407da6a8d651f05c995863468e570",
             mirrored_tar_sha256 = "72ac0dbeb561dd4890bf73dfab6e9f241f296889835f86bc958d2837c9a03192",
-            build_file = Label("//cc/config:llvm19_darwin_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm19_darwin_aarch64.BUILD"),
             strip_prefix = "LLVM-19.1.7-macOS-ARM64",
         )
 
@@ -519,6 +519,6 @@ def cc_toolchain_deps():
             urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.8/LLVM-20.1.8-macOS-ARM64.tar.xz"),
             sha256 = "a9a22f450d35f1f73cd61ab6a17c6f27d8f6051d56197395c1eb397f0c9bbec4",
             mirrored_tar_sha256 = "19f015fd93ef0a9963e4cebe02b051e6d357b4ab86bb060ca8ad5141d7284289",
-            build_file = Label("//cc/config:llvm20_darwin_aarch64.BUILD"),
+            build_file = Label("//common/config:llvm20_darwin_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-macOS-ARM64",
         )

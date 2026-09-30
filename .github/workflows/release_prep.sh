@@ -39,7 +39,7 @@ http_archive(
 )
 
 load(
-    "@rules_ml_toolchain//cc/deps:cc_toolchain_deps.bzl",
+    "@rules_ml_toolchain//common/deps:cc_toolchain_deps.bzl",
     "cc_toolchain_deps",
 )
 

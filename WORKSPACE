@@ -152,7 +152,7 @@ http_archive(
 ##############################################################
 # Hermetic toolchain configuration
 
-load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
+load("//common/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
 cc_toolchain_deps()
 
@@ -258,8 +258,8 @@ load(
 
 rocm_hermetic_download(
     name = "rocm_redist_dist",
-    url = ROCM_URL,
     sha256 = ROCM_SHA256,
+    url = ROCM_URL,
 )
 
 load("//gpu/rocm:hipcc_configure.bzl", "hipcc_configure")
