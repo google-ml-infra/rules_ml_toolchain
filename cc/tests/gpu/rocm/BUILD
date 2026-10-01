@@ -25,6 +25,7 @@ rocm_library(
     srcs = ["vector_hip.hip.cc"],
     hdrs = ["vector_hip.hip.h"],
     tags = ["rocm-only"],
+    deps = ["@config_rocm_hipcc//rocm:hip_runtime"],
 )
 
 rocm_cc_test(
@@ -33,9 +34,9 @@ rocm_cc_test(
         "vector_hip_test.cc",
     ],
     tags = [
-        "rocm-only",
         "gpu",
         "manual",  # Requires actual GPU hardware - run manually only
+        "rocm-only",
     ],
     deps = [
         ":vector_hip",
