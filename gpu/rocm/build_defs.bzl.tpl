@@ -80,7 +80,7 @@ def rocm_default_copts():
         "-DTENSORFLOW_USE_ROCM=1",
     ])
 
-def rocm_library(copts = [], deps = [], **kwargs):
+def rocm_library(copts = [], **kwargs):
     """Wrapper over cc_library which adds default ROCm/HIP options.
 
     Args:
@@ -90,7 +90,6 @@ def rocm_library(copts = [], deps = [], **kwargs):
     """
     cc_library(
         copts = rocm_default_copts() + ["-x", "rocm"] + copts,
-        deps = deps + ["@config_rocm_hipcc//rocm:hip_runtime"],
         **kwargs
     )
 
