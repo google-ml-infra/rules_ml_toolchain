@@ -428,6 +428,13 @@ cc_toolchain_import_feature = rule(
 )
 
 def _sysroot_feature(ctx):
+    target = ctx.attr.target
+    if "macosx" in target and hasattr(ctx.fragments, "apple"):
+        macos_min_os = getattr(ctx.fragments.apple, "macos_minimum_os_flag", None)
+        if macos_min_os:
+            prefix = target.split("macosx")[0]
+            target = "{}macosx{}".format(prefix, macos_min_os)
+
     flag_sets = [
         flag_set(
             actions = [
@@ -447,7 +454,7 @@ def _sysroot_feature(ctx):
             flag_groups = [
                 flag_group(
                     flags = [
-                        "--target=" + ctx.attr.target,
+                        "--target=" + target,
                     ],
                 ),
             ],
@@ -491,6 +498,7 @@ def _sysroot_feature(ctx):
 
 cc_toolchain_sysroot_feature = rule(
     _sysroot_feature,
+    fragments = ["apple"],
     attrs = {
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),

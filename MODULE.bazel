@@ -188,5 +188,7 @@ use_repo(local_sysroot, "local_sysroot_config")
 # Projects that use rules_ml_toolchain should register toolchains on their end
 register_toolchains(
     "//cc/...",
+    "//fortran/...",
     dev_dependency = True,
 )
+

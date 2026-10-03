@@ -1,0 +1,5 @@
+"""Unit tests for Fortran module file propagation."""
+
+load(":module_propagation_test.bzl", "module_propagation_test_suite")
+
+module_propagation_test_suite(name = "module_propagation_test")
