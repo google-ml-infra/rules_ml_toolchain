@@ -37,39 +37,8 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
-        "//common:essential",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//fortran/impls/linux_x86_64_linux_x86_64:toolchain",
-    toolchain_type = ":toolchain_type",
-)
-
-# Target platform: Linux x86_64, CUDA
-
-# Essentials
-toolchain(
-    name = "linux_x86_64_linux_x86_64_cuda",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-        "//common:essential",
-    ],
-    target_settings = [
-        "//common:is_cuda_enabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//fortran/impls/linux_x86_64_linux_x86_64_cuda:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
@@ -83,12 +52,6 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//fortran/impls/linux_x86_64_linux_aarch64:toolchain",
     toolchain_type = ":toolchain_type",
@@ -105,56 +68,7 @@ toolchain(
         "@platforms//cpu:aarch64",
         "@platforms//os:macos",
     ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
     toolchain = "//fortran/impls/linux_x86_64_darwin_aarch64:toolchain",
-    toolchain_type = ":toolchain_type",
-)
-
-# Target platform: Linux x86_64, SYCL
-toolchain(
-    name = "linux_x86_64_linux_x86_64_sycl",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_enabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//fortran/impls/linux_x86_64_linux_x86_64_sycl:toolchain",
-    toolchain_type = ":toolchain_type",
-)
-
-# Target platform: Linux x86_64, ROCm
-toolchain(
-    name = "linux_x86_64_linux_x86_64_rocm",
-    exec_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-        "//common:essential",
-    ],
-    target_settings = [
-        "//common:is_rocm_enabled",
-        "//common:is_cuda_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//fortran/impls/linux_x86_64_linux_x86_64_rocm:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
@@ -162,7 +76,7 @@ toolchain(
 # Executor platform: aarch64
 #=====================================================================
 
-# Target platform: Linux aarch64, Essential (Default) toolchain
+# Target platform: Linux aarch64
 toolchain(
     name = "linux_aarch64_linux_aarch64",
     exec_compatible_with = [
@@ -173,34 +87,7 @@ toolchain(
         "@platforms//cpu:aarch64",
         "@platforms//os:linux",
     ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
     toolchain = "//fortran/impls/linux_aarch64_linux_aarch64:toolchain",
-    toolchain_type = ":toolchain_type",
-)
-
-# Target platform: Linux aarch64, CUDA
-toolchain(
-    name = "linux_aarch64_linux_aarch64_cuda",
-    exec_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-    ],
-    target_compatible_with = [
-        "@platforms//cpu:aarch64",
-        "@platforms//os:linux",
-    ],
-    target_settings = [
-        "//common:is_cuda_enabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
-    ],
-    toolchain = "//fortran/impls/linux_aarch64_linux_aarch64_cuda:toolchain",
     toolchain_type = ":toolchain_type",
 )
 
@@ -219,12 +106,6 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:aarch64",
         "@platforms//os:macos",
-    ],
-    target_settings = [
-        "//common:is_cuda_disabled",
-        "//common:is_rocm_disabled",
-        "//common:is_sycl_disabled",
-        "//common:is_hermetic_cc_enabled",
     ],
     toolchain = "//fortran/impls/darwin_aarch64_darwin_aarch64:toolchain",
     toolchain_type = ":toolchain_type",
