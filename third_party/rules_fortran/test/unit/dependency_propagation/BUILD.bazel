@@ -1,0 +1,5 @@
+"""Unit tests for dependency propagation."""
+
+load(":dependency_propagation_test.bzl", "dependency_propagation_test_suite")
+
+dependency_propagation_test_suite(name = "dependency_propagation_test")

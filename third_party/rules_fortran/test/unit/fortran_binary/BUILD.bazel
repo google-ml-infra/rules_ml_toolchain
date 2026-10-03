@@ -1,0 +1,5 @@
+"""Unit tests for fortran_binary rule."""
+
+load(":fortran_binary_test.bzl", "fortran_binary_test_suite")
+
+fortran_binary_test_suite(name = "fortran_binary_test")

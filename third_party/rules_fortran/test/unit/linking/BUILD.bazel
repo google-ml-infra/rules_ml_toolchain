@@ -1,0 +1,5 @@
+"""Unit tests for linking behavior."""
+
+load(":linking_test.bzl", "linking_test_suite")
+
+linking_test_suite(name = "linking_test")
