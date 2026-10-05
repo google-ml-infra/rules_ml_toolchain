@@ -22,6 +22,9 @@ cc_import(
     name = "nvjitlink_static_library",
     hdrs = [":headers"],
     static_library = "lib/libnvJitLink_static.a",
+    # libnvJitLink_static.a calls into libnvptxcompiler_static.a, which NVIDIA
+    # requires to be linked after it.
+    deps = ["@cuda_nvcc//:nvptxcompiler"],
 )
 %{multiline_comment}
 cc_library(
