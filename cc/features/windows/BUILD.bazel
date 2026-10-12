@@ -149,6 +149,8 @@ cc_feature(
     ],
     enabled = True,
     flags = [
+        "-nobuiltininc",
+        "-no-canonical-prefixes",
         "/DNOMINMAX",
         "/D_CRT_SECURE_NO_DEPRECATE",
         "/D_CRT_SECURE_NO_WARNINGS",
