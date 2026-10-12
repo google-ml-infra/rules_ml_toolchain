@@ -252,6 +252,7 @@ genrule(
     srcs = [":protogen"],
     outs = ["protogen.pyd"],
     cmd = "cp $(location :protogen) $@",
+    cmd_bat = "copy /Y \"$(location :protogen)\" \"$@\" >NUL",
 )
 
 py_binary(
@@ -270,6 +271,7 @@ genrule(
         "my.proto",
     ],
     cmd = "$(execpath :protogen_tool) -f $@",
+    cmd_bat = "$(execpath :protogen_tool) -f $@",
     tools = [":protogen_tool"],
 )
 
@@ -308,6 +310,7 @@ genrule(
     srcs = [":protoclient"],
     outs = ["protoclient.pyd"],
     cmd = "cp $(location :protoclient) $@",
+    cmd_bat = "copy /Y \"$(location :protoclient)\" \"$@\" >NUL",
 )
 
 py_binary(
