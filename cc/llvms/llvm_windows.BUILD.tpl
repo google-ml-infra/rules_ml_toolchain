@@ -32,6 +32,12 @@ alias(
 )
 
 alias(
+    name = "clang-cl",
+    actual = "@@%{llvm_repo_name}//:clang-cl",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "ar",
     actual = "@@%{llvm_repo_name}//:ar",
     visibility = ["//visibility:public"],
@@ -44,14 +50,80 @@ alias(
 )
 
 alias(
+    name = "llvm-lib",
+    actual = "@@%{llvm_repo_name}//:llvm-lib",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-ml",
+    actual = "@@%{llvm_repo_name}//:llvm-ml",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "lld",
     actual = "@@%{llvm_repo_name}//:lld",
     visibility = ["//visibility:public"],
 )
 
 alias(
+    name = "lld-link",
+    actual = "@@%{llvm_repo_name}//:lld-link",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "ld",
+    actual = "@@%{llvm_repo_name}//:ld",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "objcopy",
+    actual = "@@%{llvm_repo_name}//:objcopy",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-objcopy",
+    actual = "@@%{llvm_repo_name}//:bin/llvm-objcopy.exe",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "strip",
+    actual = "@@%{llvm_repo_name}//:strip",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "scan_deps",
+    actual = "@@%{llvm_repo_name}//:scan_deps",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "llvm-symbolizer",
+    actual = "@@%{llvm_repo_name}//:bin/llvm-symbolizer.exe",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "distro_libs",
     actual = "@@%{llvm_repo_name}//:distro_libs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "asan_ignorelist",
+    actual = "@@%{llvm_repo_name}//:asan_ignorelist",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "rt_asan",
+    actual = "@@%{llvm_repo_name}//:rt_asan",
     visibility = ["//visibility:public"],
 )
 

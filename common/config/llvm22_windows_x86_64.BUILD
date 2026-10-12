@@ -47,8 +47,29 @@ filegroup(
 )
 
 filegroup(
+    name = "clang-cl",
+    srcs = glob(
+        ["bin/clang-cl.exe"],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "ar",
     srcs = ["bin/llvm-ar.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-lib",
+    srcs = ["bin/llvm-lib.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-ml",
+    srcs = ["bin/llvm-ml64.exe"],
     visibility = ["//visibility:public"],
 )
 
@@ -61,6 +82,36 @@ filegroup(
         ],
         allow_empty = True,
     ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lld-link",
+    srcs = ["bin/lld-link.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ld",
+    srcs = ["bin/lld-link.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "objcopy",
+    srcs = ["bin/llvm-objcopy.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "strip",
+    srcs = ["bin/llvm-strip.exe"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "scan_deps",
+    srcs = ["bin/clang-scan-deps.exe"],
     visibility = ["//visibility:public"],
 )
 
@@ -78,8 +129,7 @@ cc_toolchain_import(
     hdrs = glob(
         [
             "lib/clang/*/*.h",
-            "lib/clang/*/include/*.h",
-            "lib/clang/*/include/**/*.h",
+            "lib/clang/*/include/**",
         ],
         allow_empty = True,
     ),
@@ -94,6 +144,27 @@ cc_toolchain_import(
     name = "libclang_rt",
     additional_libs = glob(
         ["lib/clang/{clang_version}/lib/*/clang_rt.builtins-*.lib".format(clang_version = CLANG_VERSION)],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+#============================================================================================
+# Sanitizers
+
+filegroup(
+    name = "asan_ignorelist",
+    srcs = glob(
+        ["lib/clang/{clang_version}/share/asan_ignorelist.txt".format(clang_version = CLANG_VERSION)],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "rt_asan",
+    additional_libs = glob(
+        ["lib/clang/{clang_version}/lib/*/clang_rt.asan*".format(clang_version = CLANG_VERSION)],
         allow_empty = True,
     ),
     visibility = ["//visibility:public"],

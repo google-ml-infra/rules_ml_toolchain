@@ -18,6 +18,7 @@ load("//cc/impls/darwin_aarch64_darwin_aarch64:darwin_local_config_cc.bzl", "dar
 load("//cc/llvms:llvm.bzl", "llvm")
 load("//cc/sysroots:macos_sdk.bzl", "macos_sdk")
 load("//cc/sysroots:sysroot.bzl", "sysroot")
+load("//cc/sysroots:windows_msvc.bzl", "windows_msvc")
 load("//common:mirrored_http_archive.bzl", "mirrored_http_archive")
 load("//common:repo.bzl", "tf_mirror_urls")
 load("//common:tar_extraction_utils.bzl", "tool_archive")
@@ -546,3 +547,9 @@ def toolchain_deps():
             build_file = Label("//common/config:llvm22_windows_x86_64.BUILD"),
             strip_prefix = "",
         )
+
+    if "sysroot_windows_x86_64" not in native.existing_rules():
+        windows_msvc(
+            name = "sysroot_windows_x86_64",
+        )
+

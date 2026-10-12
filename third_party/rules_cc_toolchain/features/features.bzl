@@ -282,18 +282,29 @@ def _filter_for_shared_obj(flags):
 def _import_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
     static_link_flags = ctx.attr.static_link_flags
+    is_windows = ctx.attr.is_windows
 
-    include_flags = [
-        arg
-        for inc in toolchain_import_info.compilation_context.includes.to_list()
-        for arg in ("-isystem", inc)
-    ]
-
-    injected_include_flags = [
-        arg
-        for hdr in toolchain_import_info.compilation_context.injected_headers.to_list()
-        for arg in ("-include", hdr.path)
-    ]
+    if is_windows:
+        include_flags = [
+            arg
+            for inc in toolchain_import_info.compilation_context.includes.to_list()
+            for arg in ("-imsvc", inc)
+        ]
+        injected_include_flags = [
+            "/FI" + hdr.path
+            for hdr in toolchain_import_info.compilation_context.injected_headers.to_list()
+        ]
+    else:
+        include_flags = [
+            arg
+            for inc in toolchain_import_info.compilation_context.includes.to_list()
+            for arg in ("-isystem", inc)
+        ]
+        injected_include_flags = [
+            arg
+            for hdr in toolchain_import_info.compilation_context.injected_headers.to_list()
+            for arg in ("-include", hdr.path)
+        ]
 
     framework_flags = [
         arg
@@ -301,32 +312,33 @@ def _import_feature_impl(ctx):
         for arg in ("-F", fw)
     ]
 
-    linker_runtime_path_flags = depset([
+    linker_runtime_path_flags = [] if is_windows else depset([
         "-Wl,-rpath," + path
         for path in toolchain_import_info
             .linking_context.runtime_paths.to_list()
     ]).to_list()
 
+    lib_dir_prefix = "/LIBPATH:" if is_windows else "-L"
     linker_dir_flags = depset([
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ] + [
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ] + [
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.additional_libs.to_list()
     ]).to_list()
 
     linker_flags = depset([
-        _file_to_library_flag(file, static_link_flags)
+        (file.path if is_windows else _file_to_library_flag(file, static_link_flags))
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ] + [
-        _file_to_library_flag(file, static_link_flags)
+        (file.path if is_windows else _file_to_library_flag(file, static_link_flags))
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ]).to_list()
@@ -385,11 +397,11 @@ def _import_feature_impl(ctx):
         ))
 
     linker_flags_for_shared_obj = depset(_filter_for_shared_obj([
-        _file_to_library_flag(file, static_link_flags)
+        (file.path if is_windows else _file_to_library_flag(file, static_link_flags))
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ]) + [
-        _file_to_library_flag(file, static_link_flags)
+        (file.path if is_windows else _file_to_library_flag(file, static_link_flags))
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ]).to_list()
@@ -412,19 +424,20 @@ def _import_feature_impl(ctx):
         implies = ctx.attr.implies,
         provides = ctx.attr.provides,
     )
-    return [library_feature, ctx.attr.toolchain_import[DefaultInfo]]
+    return [library_feature, ctx.attr.toolchain_import[DefaultInfo], toolchain_import_info]
 
 cc_toolchain_import_feature = rule(
     _import_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
+        "is_windows": attr.bool(default = False),
         "provides": attr.string_list(),
         "requires": attr.string_list(),
         "implies": attr.string_list(),
         "toolchain_import": attr.label(providers = [CcToolchainImportInfo]),
         "static_link_flags": attr.string_list(),
     },
-    provides = [FeatureInfo, DefaultInfo],
+    provides = [FeatureInfo, DefaultInfo, CcToolchainImportInfo],
 )
 
 def _sysroot_feature(ctx):
