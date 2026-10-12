@@ -286,9 +286,8 @@ def _import_feature_impl(ctx):
 
     if is_windows:
         include_flags = [
-            arg
+            "-imsvc" + inc
             for inc in toolchain_import_info.compilation_context.includes.to_list()
-            for arg in ("-imsvc", inc)
         ]
         injected_include_flags = [
             "/FI" + hdr.path
