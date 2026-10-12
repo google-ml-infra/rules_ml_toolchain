@@ -27,6 +27,23 @@ exports_files(
 )
 
 cc_library(
+    name = "rocm_defines",
+    defines = ["MIOPEN_BETA_API=1"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "rocm_headers",
+    hdrs = glob(
+        ["%{rocm_root}/include/**/*.h"],
+        allow_empty = True,
+    ),
+    defines = ["MIOPEN_BETA_API=1"],
+    includes = ["%{rocm_root}/include"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "hip_runtime",
     srcs = glob(
         [
@@ -44,12 +61,8 @@ cc_library(
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
         ],
     ),
-    hdrs = glob(
-        ["%{rocm_root}/include/**/*.h"],
-        allow_empty = True,
-    ),
-    includes = ["%{rocm_root}/include"],
     visibility = ["//visibility:public"],
+    deps = [":rocm_headers"],
 )
 
 filegroup(
@@ -85,8 +98,8 @@ filegroup(
 
 config_setting(
     name = "using_hipcc",
-    define_values = {
-        "using_rocm": "true",
+    values = {
+        "define": "using_rocm_hipcc=true",
     },
     visibility = ["//visibility:public"],
 )

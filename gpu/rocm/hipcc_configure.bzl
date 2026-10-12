@@ -219,6 +219,7 @@ def _create_dummy_repository(repository_ctx):
     # Create stub repository using templates with empty values
     repository_ctx.file("rocm/empty/.keep", "")
     stub_dict = {
+        "%{repo_name}": repository_ctx.name,
         "%{rocm_root}": "empty",
         "%{rocm_gpu_architectures}": "[]",
         "%{rocm_version_number}": "0",
@@ -257,6 +258,7 @@ def _setup_rocm_repository(repository_ctx):
     rocm_source_repo = rocm_config.rocm_source_repo
 
     repository_dict = {
+        "%{repo_name}": repository_ctx.name,
         "%{rocm_root}": rocm_toolkit_path,
         "%{rocm_source_repo}": rocm_source_repo,
         "%{rocm_gpu_architectures}": str(rocm_config.amdgpu_targets),
