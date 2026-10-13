@@ -26,6 +26,7 @@ def hipcc_config():
 
     Returns:
         A struct with the following fields:
+            - repo_name: Name of the repository containing this configuration
             - gpu_architectures: List of AMDGPU target architectures (e.g., ["gfx906", "gfx908"])
             - version_number: ROCm version as integer (e.g., 60000 for ROCm 6.0.0)
             - hipcc_path: Path to the hipcc compiler binary
@@ -38,6 +39,7 @@ def hipcc_config():
             - hipcc_env: Environment variables for hipcc (semicolon-separated KEY=VALUE pairs)
     """
     return struct(
+        repo_name = "%{repo_name}",
         gpu_architectures = %{rocm_gpu_architectures},
         version_number = %{rocm_version_number},
         hipcc_path = "%{hipcc_path}",
@@ -65,7 +67,7 @@ def if_rocm(if_true, if_false = []):
         A select expression.
     """
     return select({
-        "@config_rocm_hipcc//rocm:using_hipcc": if_true,
+        str(Label("//rocm:using_hipcc")): if_true,
         "//conditions:default": if_false,
     })
 
@@ -85,11 +87,12 @@ def rocm_library(copts = [], **kwargs):
 
     Args:
         copts: Additional compiler options.
-        deps: Library dependencies.
-        **kwargs: Other arguments passed to cc_library.
+        **kwargs: Other arguments passed to cc_library (including deps).
     """
+    deps = kwargs.pop("deps", [])
     cc_library(
         copts = rocm_default_copts() + ["-x", "rocm"] + copts,
+        deps = deps + [str(Label("//rocm:rocm_defines"))],
         **kwargs
     )
 
@@ -104,7 +107,7 @@ def rocm_cc_test(copts = [], deps = [], **kwargs):
     cc_test(
         copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
         deps = deps + [
-            "@config_rocm_hipcc//rocm:hip_runtime",
+            str(Label("//rocm:hip_runtime")),
         ],
         **kwargs
     )
