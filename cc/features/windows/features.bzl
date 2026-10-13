@@ -894,6 +894,7 @@ def _windows_sysroot_feature_impl(ctx):
         flag_sets.append(
             flag_set(
                 actions = [
+                    ACTION_NAMES.assemble,
                     ACTION_NAMES.preprocess_assemble,
                     ACTION_NAMES.c_compile,
                     ACTION_NAMES.linkstamp_compile,

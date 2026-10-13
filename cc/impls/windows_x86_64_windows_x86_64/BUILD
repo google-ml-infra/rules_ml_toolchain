@@ -213,7 +213,7 @@ cc_toolchain_config(
     abi_libc_version = "local",
     abi_version = "local",
     archiver = "@llvm_windows_x86_64//:llvm-lib",
-    assembler = "@llvm_windows_x86_64//:llvm-ml",
+    assembler = "@llvm_windows_x86_64//:clang-cl",
     c_compiler = "@llvm_windows_x86_64//:clang-cl",
     cc_compiler = "@llvm_windows_x86_64//:clang-cl",
     compiler = "clang-cl",

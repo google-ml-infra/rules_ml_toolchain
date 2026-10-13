@@ -137,6 +137,7 @@ cc_feature(
 cc_feature(
     name = "default_compile_flags",
     actions = [
+        ACTION_NAMES.preprocess_assemble,
         ACTION_NAMES.c_compile,
         ACTION_NAMES.linkstamp_compile,
         ACTION_NAMES.cpp_compile,
