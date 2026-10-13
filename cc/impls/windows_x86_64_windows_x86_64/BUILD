@@ -193,6 +193,7 @@ FEATURES_ESSENTIAL = [
     "//cc/features/windows:unfiltered_compile_flags",
     "//cc/features/windows:archive_param_file",
     "//cc/features/windows:compiler_param_file",
+    "//cc/features/windows:windows_quoting_for_param_files",
     "//cc/features/windows:compiler_output_flags",
     "//cc/features/windows:compiler_input_flags",
     "//cc/features/windows:def_file",

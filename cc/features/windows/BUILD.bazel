@@ -399,6 +399,11 @@ cc_feature(
     enabled = True,
 )
 
+cc_feature(
+    name = "windows_quoting_for_param_files",
+    enabled = True,
+)
+
 windows_compiler_output_flags_feature(
     name = "compiler_output_flags",
 )
