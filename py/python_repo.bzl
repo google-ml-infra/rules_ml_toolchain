@@ -168,10 +168,15 @@ def _get_python_version(ctx):
     if not version:
         print_warning = True
         if ctx.attr.default_python_version == "system":
-            python_version_result = ctx.execute(["python3", "--version"])
-            if python_version_result.return_code == 0:
-                version = python_version_result.stdout
-            else:
+            candidates = [["python3", "--version"], ["python", "--version"], ["py", "-3", "--version"]]
+            found = False
+            for cmd in candidates:
+                python_version_result = ctx.execute(cmd)
+                if python_version_result.return_code == 0 and python_version_result.stdout.strip():
+                    version = python_version_result.stdout
+                    found = True
+                    break
+            if not found:
                 fail("""
 Cannot match hermetic Python version to system Python version.
 System Python was not found.""")
@@ -194,6 +199,7 @@ file:
     return version, kind
 
 def _parse_python_version(version_str):
+    version_str = version_str.strip()
     if version_str.startswith("Python "):
         py_ver_chunks = version_str[7:].split(".")
         return "%s.%s" % (py_ver_chunks[0], py_ver_chunks[1]), ""
