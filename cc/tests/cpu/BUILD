@@ -121,18 +121,30 @@ cc_library(
     name = "echo",
     srcs = ["echo.cc"],
     hdrs = ["echo.h"],
+    features = ["windows_export_all_symbols"],
     alwayslink = True,
 )
 
 cc_binary(
     name = "echo_dynamic",
+    features = ["windows_export_all_symbols"],
     linkshared = True,
     deps = [":echo"],
+)
+
+filegroup(
+    name = "echo_dynamic_if_lib",
+    srcs = [":echo_dynamic"],
+    output_group = "interface_library",
 )
 
 cc_import(
     name = "echo_import",
     hdrs = ["echo.h"],
+    interface_library = select({
+        "@platforms//os:windows": ":echo_dynamic_if_lib",
+        "//conditions:default": None,
+    }),
     shared_library = ":echo_dynamic",
 )
 
@@ -235,10 +247,21 @@ genrule(
     cmd = "cp $(location :protogen) $@",
 )
 
+genrule(
+    name = "protogen_pyd",
+    srcs = [":protogen"],
+    outs = ["protogen.pyd"],
+    cmd = "cp $(location :protogen) $@",
+    cmd_bat = "copy /Y \"$(location :protogen)\" \"$@\" >NUL",
+)
+
 py_binary(
     name = "protogen_tool",
     srcs = ["protogen_tool.py"],
-    data = [":protogen.so"],
+    data = select({
+        "@platforms//os:windows": [":protogen.pyd"],
+        "//conditions:default": [":protogen.so"],
+    }),
     main = "protogen_tool.py",
 )
 
@@ -248,6 +271,7 @@ genrule(
         "my.proto",
     ],
     cmd = "$(execpath :protogen_tool) -f $@",
+    cmd_bat = "$(execpath :protogen_tool) -f $@",
     tools = [":protogen_tool"],
 )
 
@@ -281,17 +305,31 @@ genrule(
     cmd = "cp $(location :protoclient) $@",
 )
 
+genrule(
+    name = "protoclient_pyd",
+    srcs = [":protoclient"],
+    outs = ["protoclient.pyd"],
+    cmd = "cp $(location :protoclient) $@",
+    cmd_bat = "copy /Y \"$(location :protoclient)\" \"$@\" >NUL",
+)
+
 py_binary(
     name = "protoclient_tool",
     srcs = ["protoclient_tool.py"],
-    data = [":protoclient.so"],
+    data = select({
+        "@platforms//os:windows": [":protoclient.pyd"],
+        "//conditions:default": [":protoclient.so"],
+    }),
     deps = [],
 )
 
 py_test(
     name = "protoclient_tool_test",
     srcs = ["protoclient_tool_test.py"],
-    data = [":protoclient.so"],
+    data = select({
+        "@platforms//os:windows": [":protoclient.pyd"],
+        "//conditions:default": [":protoclient.so"],
+    }),
     deps = [],
 )
 
@@ -317,6 +355,7 @@ test_suite(
         ":absl_test",
         ":builtins_test",
         ":echoclient_test",
+        ":hello_world_test",
         ":protobuf_test",
         ":protoclient_tool_test",
         #":openmp_test",

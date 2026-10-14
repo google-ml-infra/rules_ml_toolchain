@@ -1,0 +1,120 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI - Fortran Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  # Don't cancel in-progress jobs for main branch
+  cancel-in-progress: ${{ github.ref != 'main' }}
+
+jobs:
+  run-tests:
+    name: "Fortran Linux x86_64 -> Linux x86_64 tests. Max LLVM/sysroot. Runner ${{ matrix.job_info.runner }}"
+    defaults:
+      run:
+        # Explicitly set the shell to bash
+        shell: bash
+    strategy:
+      matrix:
+        job_info: [
+          {
+            runner: "linux-x86-n2-16",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build@sha256:4fb9960acd5951234ae4272e93bc262be4111ce32afb77e69b1038b61251dec0",
+          },
+        ]
+    # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
+    # workflow is required.
+    # See go/ml-github-actions/getting_started/using_runners.md#supported-runner-scale-set.
+    runs-on: ${{ matrix.job_info.runner }}
+    container:
+      image: ${{ matrix.job_info.container }}
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: "Flang 21, Glibc 2.35 | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=21 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Bzlmod. Flang 21, Glibc 2.35 | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=21 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --config=bzlmod \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
+      - name: "Bzlmod. Flang 22, Glibc 2.39 | Testing..."
+        run: |
+          bazel build --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --config=bzlmod \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Flang 21, Glibc 2.35, libc++ static linking | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=21 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
+      - name: "Flang 22, Glibc 2.39, libc++ static linking | Testing..."
+        run: |
+          bazel build --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Bzlmod. Flang 22, Glibc 2.31, libc++ static linking | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --repo_env=LLVM_VERSION=22 \
+            --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --config=bzlmod \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all

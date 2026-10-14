@@ -1,0 +1,89 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI - Fortran Linux aarch64 -> Linux aarch64 tests. Min LLVM/sysroot
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  # Don't cancel in-progress jobs for main branch
+  cancel-in-progress: ${{ github.ref != 'main' }}
+
+jobs:
+  run-tests:
+    name: "Fortran Linux aarch64 -> Linux aarch64 tests. Min LLVM/sysroot. Runner ${{ matrix.job_info.runner }}"
+    defaults:
+      run:
+        # Explicitly set the shell to bash
+        shell: bash
+    strategy:
+      matrix:
+        job_info: [
+          {
+            runner: "linux-arm64-c4a-16",
+            container: "us-docker.pkg.dev/ml-oss-artifacts-published/ml-public-container/ml-build-arm64@sha256:1ee5aed2974d479c82125d1e5f91fb985a44bb5363bbff76048f265be95f0051",
+          },
+        ]
+    # Use self-hosted runners. For a Linux runner, a corresponding container image used for the
+    # workflow is required.
+    # See go/ml-github-actions/getting_started/using_runners.md#supported-runner-scale-set.
+    runs-on: ${{ matrix.job_info.runner }}
+    container:
+      image: ${{ matrix.job_info.container }}
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: "Flang 18, Glibc 2.27 | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Flang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Bzlmod. Flang 18, Glibc 2.27 | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --config=bzlmod \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all
+
+      - name: "Bzlmod. Flang 18, Glibc 2.27, libc++ static linking | Testing..."
+        run: |
+          bazel test --cxxopt="-std=c++17" \
+            --@rules_ml_toolchain//common:stdlib=libc++ \
+            --@rules_ml_toolchain//common:static_libcxx=true \
+            --config=bzlmod \
+            --color=yes \
+            --verbose_failures \
+            //fortran/tests:all

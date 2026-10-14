@@ -39,11 +39,11 @@ http_archive(
 )
 
 load(
-    "@rules_ml_toolchain//cc/deps:cc_toolchain_deps.bzl",
-    "cc_toolchain_deps",
+    "@rules_ml_toolchain//common/deps:toolchain_deps.bzl",
+    "toolchain_deps",
 )
 
-cc_toolchain_deps()
+toolchain_deps()
 
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")

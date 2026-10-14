@@ -85,10 +85,14 @@ ASAN_LINKER_FLAGS = [
 
 def _import_asan_feature_impl(ctx):
     toolchain_import_info = ctx.attr.toolchain_import[CcToolchainImportInfo]
+    is_windows = ctx.attr.is_windows
 
     flag_sets = []
 
-    compiler_flags = depset([
+    compiler_flags = [
+        "/Oy-",
+        "-fsanitize=address",
+    ] if is_windows else depset([
         flag
         for flag in ASAN_COMPILER_FLAGS
     ]).to_list()
@@ -103,21 +107,24 @@ def _import_asan_feature_impl(ctx):
             ],
         ))
 
-    linker_flags = depset([
+    linker_flags = [
+        "/INFERASANLIBS",
+    ] if is_windows else depset([
         flag
         for flag in ASAN_LINKER_FLAGS
     ]).to_list()
 
+    lib_dir_prefix = "/LIBPATH:" if is_windows else "-L"
     linker_dir_flags = depset([
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
     ] + [
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.dynamic_libraries.to_list()
     ] + [
-        "-L" + file.dirname
+        lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.additional_libs.to_list()
     ]).to_list()
@@ -145,6 +152,7 @@ cc_toolchain_import_asan_feature = rule(
     _import_asan_feature_impl,
     attrs = {
         "enabled": attr.bool(default = False),
+        "is_windows": attr.bool(default = False),
         "provides": attr.string_list(),
         "implies": attr.string_list(),
         "toolchain_import": attr.label(

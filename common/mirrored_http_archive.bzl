@@ -20,7 +20,7 @@ To use these rules, load them in your `WORKSPACE` file as follows:
 
 ```python
 load(
-    "@rules_ml_toolchain//cc/deps:mirrored_http_archive.bzl",
+    "@rules_ml_toolchain//common/deps:mirrored_http_archive.bzl",
     "mirrored_http_archive",
 )
 ```

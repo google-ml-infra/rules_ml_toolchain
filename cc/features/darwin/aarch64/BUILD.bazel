@@ -30,5 +30,7 @@ cc_toolchain_sysroot_feature(
     name = "sysroot",
     enabled = True,
     sysroot = "@sysroot_darwin_aarch64//:sysroot",
-    target = "arm64-apple-macosx15.1",
+    # Use the lowest macOS arm64 version supported by LLVM 22 for maximal compatibility
+    # Use flag --macos_minimum_os for overriding this.
+    target = "arm64-apple-macosx11.0",
 )
