@@ -3,6 +3,11 @@ common --enable_workspace
 common --experimental_repo_remote_exec      # Flag to enable python remote config
 common --incompatible_enable_cc_toolchain_resolution     # Only for bazel 6.5: C++ rules use platforms to select toolchains when you set this
 
+# Reusing sandbox directories across invocations fails under gVisor (used by the
+# self-hosted CI runners) with "Could not copy inputs into sandbox ... (File exists)"
+# when a later `bazel test` in the same output base switches toolchain configs.
+common --noreuse_sandbox_directories
+
 #build --toolchain_resolution_debug=.*
 build --no@bazel_tools//tools/test:incompatible_use_default_test_toolchain
 build --repo_env=HERMETIC_PYTHON_VERSION=3.13
