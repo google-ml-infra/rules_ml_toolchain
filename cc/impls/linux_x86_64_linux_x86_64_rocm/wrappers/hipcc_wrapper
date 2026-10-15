@@ -233,7 +233,7 @@ def InvokeHipcc(argv, log=False):
         if args.sysroot[0] != "/":
             gpu_compiler_options.extend(["--sysroot", args.sysroot[0]])
     if args.g:
-        gpu_compiler_options.append("-g" + "".join(sum(args.g, [])))
+        gpu_compiler_options.append("-g" + " -g".join(set(sum(args.g, []))))
     if args.no_canonical_prefixes:
         gpu_compiler_options.append("-no-canonical-prefixes")
 
