@@ -77,9 +77,7 @@ filegroup(
         %{comment}"include/nvperf_cuda_host.h",
         %{comment}"include/nvperf_host.h",
         %{comment}"include/nvperf_target.h",
-    %{comment}],
-    # Needed because include/generated_cudart_removed_meta.h was removed in CUDA 13.4.
-    %{comment}allow_empty = True) + if_version_equal_or_greater_than(
+    %{comment}]) + if_version_equal_or_greater_than(
         %{comment}"%{libcupti_minor_version}",
         %{comment}"2024.0",
         %{comment}["include/cupti_common.h"],
