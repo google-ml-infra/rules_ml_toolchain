@@ -123,7 +123,7 @@ filegroup(
         ":compiler",
         ":wrappers",
         "@llvm_linux_x86_64//:ld",
-        "@sysroot_linux_aarch64//:startup_libs",
+        ":startup_libs",
         "@llvm_linux_x86_64//:distro_libs",
     ],
 )
