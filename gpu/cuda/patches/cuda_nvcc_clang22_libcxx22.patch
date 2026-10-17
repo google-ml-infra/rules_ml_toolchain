@@ -397,13 +397,13 @@ diff -ruN a/include/crt/math_functions.h b/include/crt/math_functions.h
 +#else
 +#  define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 0
 +#endif
-+
++#if !defined(_NV_RSQRT_SPECIFIER)
 +#if defined(_NV_GLIBC_VERSION_GE_2_42)
 +# define _NV_RSQRT_SPECIFIER noexcept(true)
 +#else
 +# define _NV_RSQRT_SPECIFIER
 +#endif
-+
++#endif
  /*******************************************************************************
  *                                                                              *
  *                                                                              *
@@ -1213,16 +1213,26 @@ diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
  }
  
  #if defined(_WIN32)
-@@ -2950,7 +2984,7 @@
+@@ -2950,7 +2984,17 @@
  *                                                                              *
  *******************************************************************************/
  
++#if !defined(__NV_GLIBC_PROVIDES_IEC_60559_FUNCS)
++#  define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 0
++#endif
++#if !defined(_NV_RSQRT_SPECIFIER)
++#  if defined(_NV_GLIBC_VERSION_GE_2_42)
++#    define _NV_RSQRT_SPECIFIER noexcept(true)
++#  else
++#    define _NV_RSQRT_SPECIFIER
++#  endif
++#endif
 -__func__(double rsqrt(const double a))
 +__func__(double rsqrt(const double a)) _NV_RSQRT_SPECIFIER
  {
    return 1.0 / sqrt(a);
  }
-@@ -2979,6 +3013,7 @@
+@@ -2979,6 +3023,7 @@
    return t;
  }
  
@@ -1230,7 +1240,7 @@ diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
  __func__(double sinpi(double a))
  {
    int n;
-@@ -3043,6 +3078,18 @@
+@@ -3043,6 +3088,18 @@
    return a;
  }
  
@@ -1249,7 +1259,7 @@ diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
  __func__(void sincospi(const double a, double *sptr, double *cptr))
  {
    *sptr = sinpi(a);
-@@ -3330,7 +3377,7 @@
+@@ -3330,7 +3387,7 @@
    return t1;
  }
  
@@ -1258,7 +1268,7 @@ diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
  {
    return static_cast<float>(rsqrt(static_cast<double>(a)));
  }
-@@ -3340,16 +3387,6 @@
+@@ -3340,16 +3397,6 @@
    return static_cast<float>(rcbrt(static_cast<double>(a)));
  }
  
@@ -1275,7 +1285,7 @@ diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
  __func__(void sincospif(const float a, float *sptr, float *cptr))
  {
    double s, c;
-@@ -3390,9 +3427,21 @@
+@@ -3390,9 +3437,21 @@
  
  #endif /* !__CUDACC__ */
  
