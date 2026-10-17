@@ -1,0 +1,1309 @@
+diff -ruN a/include/crt/host_config.h b/include/crt/host_config.h
+--- a/include/crt/host_config.h	2025-05-27 09:41:21.000000000 +0000
++++ b/include/crt/host_config.h	2026-10-16 23:32:07.546741219 +0000
+@@ -114,9 +114,9 @@
+ #endif /* __ICC */
+ 
+ #if defined(__GRCO_CLANG_COMPILER__)
+-#if (__GRCO_CLANG_COMPILER__ == 1) && ((__clang_major__ < 16) || (__clang_major__ > 19))
+-#error -- unsupported Grace clang version! The version must be 16.x to 19.x. The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
+-#endif  /* (__GRCO_CLANG_COMPILER__ == 1) && ((__clang_major__ < 16) || (__clang_major__ > 19)) */
++#if (__GRCO_CLANG_COMPILER__ == 1) && ((__clang_major__ < 16) || (__clang_major__ > 22))
++#error -- unsupported Grace clang version! The version must be 16.x to 22.x. The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
++#endif  /* (__GRCO_CLANG_COMPILER__ == 1) && ((__clang_major__ < 16) || (__clang_major__ > 22)) */
+ 
+ #endif /* __GRCO_CLANG_COMPILER__  */
+ 
+@@ -146,17 +146,17 @@
+ 
+ 
+ #if defined(__HORIZON__)
+-#if (__clang_major__ >= 20) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3))
+-#error -- unsupported HOS clang version! The version must be must be less than 20 and greater than 3.2 . The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
+-#endif  /* (__clang_major__ >= 20) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3)) */
++#if (__clang_major__ >= 22) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3))
++#error -- unsupported HOS clang version! The version must be must be less than 22 and greater than 3.2 . The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
++#endif  /* (__clang_major__ >= 22) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3)) */
+ #endif /* __HORIZON__  */
+ 
+ #if defined(__clang__) && !defined(__ibmxl_vrm__) && !defined(__ICC) && !defined(__HORIZON__) && !defined(__APPLE__) && !defined(__GRCO_CLANG_COMPILER__)
+ 
+-#if (__clang_major__ >= 20) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3))
+-#error -- unsupported clang version! clang version must be less than 20 and greater than 3.2 . The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
++#if (__clang_major__ >= 23) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3))
++#error -- unsupported clang version! clang version must be less than 23 and greater than 3.2 . The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
+ 
+-#endif  /* (__clang_major__ >=  20) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3)) */
++#endif  /* (__clang_major__ >=  23) || (__clang_major__ < 3) || ((__clang_major__ == 3) &&  (__clang_minor__ < 3)) */
+ 
+ #endif /* defined(__clang__) && !defined(__ibmxl_vrm__) && !defined(__ICC) && !defined(__HORIZON__) && !defined(__APPLE__) && !defined(__GRCO_CLANG_COMPILER__) */
+ 
+diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
+--- a/include/crt/host_defines.h	2025-05-27 09:41:21.000000000 +0000
++++ b/include/crt/host_defines.h	2026-10-16 23:28:51.062890322 +0000
+@@ -62,10 +62,305 @@
+ 
+ #if defined(__CUDACC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && !defined(_ALLOW_UNSUPPORTED_LIBCPP)
+ #include <ctype.h>
+-#if ((defined(_MSC_VER ) && (defined(_M_X64) || defined(_M_AMD64))) ||\
+-     (defined(__x86_64__) || defined(__amd64__))) && defined(_LIBCPP_VERSION) && !(defined(__HORIZON__) || defined(__ANDROID__) || defined(__QNX__))
++#if ((defined(_MSC_VER ) && (defined(_M_X64) || defined(_M_AMD64))) || (defined(__x86_64__) || defined(__amd64__))) \
++  && defined(_LIBCPP_VERSION) \
++  && !(defined(__linux__) && (_LIBCPP_VERSION >= 220000)) \
++  && !(defined(__HORIZON__) || defined(__ANDROID__) || defined(__QNX__))
+ #error "libc++ is not supported on x86 system"
+ #endif
+ #endif
++#if defined(__NVCC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && defined(__cplusplus)
++#include <ctype.h>
++#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
++#define _LIBCPP___ALGORITHM_SIMD_UTILS_H
++#define _LIBCPP_HAS_ALGORITHM_VECTOR_UTILS 0
++#define _LIBCPP_VECTORIZE_ALGORITHMS 0
++#define __builtin_lt_synthesizes_from_spaceship(...) false
++#define _BitInt(N) long long
++#define static_assert(...) static_assert(true, "")
++#if __has_builtin(__builtin_common_type)
++#include <__type_traits/conditional.h>
++#include <__type_traits/decay.h>
++#include <__type_traits/is_same.h>
++#include <__type_traits/remove_cvref.h>
++#include <__type_traits/void_t.h>
++#include <__utility/declval.h>
++_LIBCPP_BEGIN_NAMESPACE_STD
++#if _LIBCPP_STD_VER >= 20
++template <class _Tp, class _Up>
++using __nv_cond_type = decltype(false ? std::declval<_Tp>() : std::declval<_Up>());
++template <class _Tp, class _Up, class = void>
++struct __nv_common_type3 {};
++template <class _Tp, class _Up>
++struct __nv_common_type3<_Tp, _Up, void_t<__nv_cond_type<const _Tp&, const _Up&>>> {
++  using type = remove_cvref_t<__nv_cond_type<const _Tp&, const _Up&>>;
++};
++template <class _Tp, class _Up, class = void>
++struct __nv_common_type2_imp : __nv_common_type3<_Tp, _Up> {};
++#else
++template <class _Tp, class _Up, class = void>
++struct __nv_common_type2_imp {};
++#endif
++template <class _Tp, class _Up>
++struct __nv_common_type2_imp<_Tp, _Up, __void_t<decltype(true ? std::declval<_Tp>() : std::declval<_Up>())> > {
++  using type = __decay_t<decltype(true ? std::declval<_Tp>() : std::declval<_Up>())>;
++};
++template <class, class = void>
++struct __nv_common_type_impl {};
++template <class... _Tp>
++struct __nv_common_types;
++template <class... _Tp>
++struct common_type;
++template <class _Tp, class _Up>
++struct __nv_common_type_impl<__nv_common_types<_Tp, _Up>, __void_t<typename common_type<_Tp, _Up>::type> > {
++  typedef typename common_type<_Tp, _Up>::type type;
++};
++template <class _Tp, class _Up, class _Vp, class... _Rest>
++struct __nv_common_type_impl<__nv_common_types<_Tp, _Up, _Vp, _Rest...>, __void_t<typename common_type<_Tp, _Up>::type> >
++    : __nv_common_type_impl<__nv_common_types<typename common_type<_Tp, _Up>::type, _Vp, _Rest...> > {};
++template <template <class...> class _CommonTypeT, template <class> class _TypeIdentity, class _Empty, class... _Args>
++struct __nv_builtin_common_type;
++template <template <class...> class _CommonTypeT, template <class> class _TypeIdentity, class _Empty>
++struct __nv_builtin_common_type<_CommonTypeT, _TypeIdentity, _Empty> : _Empty {};
++template <template <class...> class _CommonTypeT, template <class> class _TypeIdentity, class _Empty, class _Tp>
++struct __nv_builtin_common_type<_CommonTypeT, _TypeIdentity, _Empty, _Tp> : common_type<_Tp, _Tp> {};
++template <template <class...> class _CommonTypeT, template <class> class _TypeIdentity, class _Empty, class _Tp, class _Up>
++struct __nv_builtin_common_type<_CommonTypeT, _TypeIdentity, _Empty, _Tp, _Up>
++    : __conditional_t<_IsSame<_Tp, __decay_t<_Tp> >::value && _IsSame<_Up, __decay_t<_Up> >::value,
++                      __nv_common_type2_imp<_Tp, _Up>,
++                      common_type<__decay_t<_Tp>, __decay_t<_Up> > > {};
++template <template <class...> class _CommonTypeT, template <class> class _TypeIdentity, class _Empty, class _Tp, class _Up, class _Vp, class... _Rest>
++struct __nv_builtin_common_type<_CommonTypeT, _TypeIdentity, _Empty, _Tp, _Up, _Vp, _Rest...>
++    : __nv_common_type_impl<__nv_common_types<_Tp, _Up, _Vp, _Rest...> > {};
++_LIBCPP_END_NAMESPACE_STD
++#define __builtin_common_type __nv_builtin_common_type
++#endif
++#if __has_builtin(__builtin_invoke)
++#include <__type_traits/enable_if.h>
++#include <__type_traits/is_base_of.h>
++#include <__type_traits/is_member_pointer.h>
++#include <__type_traits/is_reference_wrapper.h>
++_LIBCPP_BEGIN_NAMESPACE_STD
++template <class _DecayedFp>
++struct __nv_member_pointer_class_type {};
++template <class _Ret, class _ClassType>
++struct __nv_member_pointer_class_type<_Ret _ClassType::*> {
++  typedef _ClassType type;
++};
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0>,
++          class _ClassT = typename __nv_member_pointer_class_type<_DecayFp>::type>
++using __nv_enable_if_bullet1 =
++    __enable_if_t<is_member_function_pointer<_DecayFp>::value &&
++                  (is_same<_ClassT, _DecayA0>::value || is_base_of<_ClassT, _DecayA0>::value)>;
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0> >
++using __nv_enable_if_bullet2 =
++    __enable_if_t<is_member_function_pointer<_DecayFp>::value && __is_reference_wrapper<_DecayA0>::value>;
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0>,
++          class _ClassT = typename __nv_member_pointer_class_type<_DecayFp>::type>
++using __nv_enable_if_bullet3 =
++    __enable_if_t<is_member_function_pointer<_DecayFp>::value &&
++                  !(is_same<_ClassT, _DecayA0>::value || is_base_of<_ClassT, _DecayA0>::value) &&
++                  !__is_reference_wrapper<_DecayA0>::value>;
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0>,
++          class _ClassT = typename __nv_member_pointer_class_type<_DecayFp>::type>
++using __nv_enable_if_bullet4 =
++    __enable_if_t<is_member_object_pointer<_DecayFp>::value &&
++                  (is_same<_ClassT, _DecayA0>::value || is_base_of<_ClassT, _DecayA0>::value)>;
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0> >
++using __nv_enable_if_bullet5 =
++    __enable_if_t<is_member_object_pointer<_DecayFp>::value && __is_reference_wrapper<_DecayA0>::value>;
++template <class _Fp, class _A0, class _DecayFp = __decay_t<_Fp>, class _DecayA0 = __decay_t<_A0>,
++          class _ClassT = typename __nv_member_pointer_class_type<_DecayFp>::type>
++using __nv_enable_if_bullet6 =
++    __enable_if_t<is_member_object_pointer<_DecayFp>::value &&
++                  !(is_same<_ClassT, _DecayA0>::value || is_base_of<_ClassT, _DecayA0>::value) &&
++                  !__is_reference_wrapper<_DecayA0>::value>;
++template <class _Fp, class _A0, class... _Args, class = __nv_enable_if_bullet1<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype((std::declval<_A0>().*std::declval<_Fp>())(std::declval<_Args>()...))
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0, _Args&&... __args)
++    _NOEXCEPT_(noexcept((static_cast<_A0&&>(__a0).*__f)(static_cast<_Args&&>(__args)...)))
++               { return (static_cast<_A0&&>(__a0).*__f)(static_cast<_Args&&>(__args)...); }
++template <class _Fp, class _A0, class... _Args, class = __nv_enable_if_bullet2<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype((std::declval<_A0>().get().*std::declval<_Fp>())(std::declval<_Args>()...))
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0, _Args&&... __args)
++    _NOEXCEPT_(noexcept((__a0.get().*__f)(static_cast<_Args&&>(__args)...)))
++               { return (__a0.get().*__f)(static_cast<_Args&&>(__args)...); }
++template <class _Fp, class _A0, class... _Args, class = __nv_enable_if_bullet3<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype(((*std::declval<_A0>()).*std::declval<_Fp>())(std::declval<_Args>()...))
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0, _Args&&... __args)
++    _NOEXCEPT_(noexcept(((*static_cast<_A0&&>(__a0)).*__f)(static_cast<_Args&&>(__args)...)))
++               { return ((*static_cast<_A0&&>(__a0)).*__f)(static_cast<_Args&&>(__args)...); }
++template <class _Fp, class _A0, class = __nv_enable_if_bullet4<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype(std::declval<_A0>().*std::declval<_Fp>())
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0)
++    _NOEXCEPT_(noexcept(static_cast<_A0&&>(__a0).*__f))
++               { return static_cast<_A0&&>(__a0).*__f; }
++template <class _Fp, class _A0, class = __nv_enable_if_bullet5<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype(std::declval<_A0>().get().*std::declval<_Fp>())
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0)
++    _NOEXCEPT_(noexcept(__a0.get().*__f))
++               { return __a0.get().*__f; }
++template <class _Fp, class _A0, class = __nv_enable_if_bullet6<_Fp, _A0> >
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype((*std::declval<_A0>()).*std::declval<_Fp>())
++__nv_builtin_invoke(_Fp&& __f, _A0&& __a0)
++    _NOEXCEPT_(noexcept((*static_cast<_A0&&>(__a0)).*__f))
++               { return (*static_cast<_A0&&>(__a0)).*__f; }
++template <class _Fp, class... _Args>
++inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR
++decltype(std::declval<_Fp>()(std::declval<_Args>()...))
++__nv_builtin_invoke(_Fp&& __f, _Args&&... __args)
++    _NOEXCEPT_(noexcept(static_cast<_Fp&&>(__f)(static_cast<_Args&&>(__args)...)))
++               { return static_cast<_Fp&&>(__f)(static_cast<_Args&&>(__args)...); }
++_LIBCPP_END_NAMESPACE_STD
++#define __builtin_invoke std::__nv_builtin_invoke
++#endif
++#define _LIBCPP___ALGORITHM_FOR_EACH_H
++#include <__algorithm/for_each_segment.h>
++#include <__algorithm/specialized_algorithms.h>
++#include <__functional/identity.h>
++#include <__iterator/segmented_iterator.h>
++#include <__type_traits/invoke.h>
++_LIBCPP_BEGIN_NAMESPACE_STD
++template <class _InputIterator, class _Sent, class _Func, class _Proj>
++_LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 _InputIterator
++__for_each(_InputIterator __first, _Sent __last, _Func& __func, _Proj& __proj) {
++#ifndef _LIBCPP_CXX03_LANG
++  using _SpecialAlg = __specialized_algorithm<_Algorithm::__for_each, __iterator_pair<_InputIterator, _Sent>>;
++  if constexpr (_SpecialAlg::__has_algorithm) {
++    _SpecialAlg()(__first, __last, __func, __proj);
++    return __last;
++  } else if constexpr (is_same<_InputIterator, _Sent>::value && __is_segmented_iterator_v<_InputIterator>) {
++    using __local_iterator_t = typename __segmented_iterator_traits<_InputIterator>::__local_iterator;
++    std::__for_each_segment(__first, __last, [&](__local_iterator_t __lfirst, __local_iterator_t __llast) {
++      std::__for_each(__lfirst, __llast, __func, __proj);
++    });
++    return __last;
++  }
++#endif
++  for (; __first != __last; ++__first)
++    std::__invoke(__func, std::__invoke(__proj, *__first));
++  return __first;
++}
++template <class _InputIterator, class _Func>
++_LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 _Func
++for_each(_InputIterator __first, _InputIterator __last, _Func __f) {
++  __identity __proj;
++  std::__for_each(__first, __last, __f, __proj);
++  return __f;
++}
++_LIBCPP_END_NAMESPACE_STD
++#if _LIBCPP_STD_VER >= 20
++#include <__algorithm/comp.h>
++#include <__algorithm/min.h>
++#include <__algorithm/unwrap_iter.h>
++#include <__fwd/bit_reference.h>
++#include <__iterator/distance.h>
++#include <__iterator/iterator_traits.h>
++#include <__memory/pointer_traits.h>
++#include <__string/constexpr_c_functions.h>
++#include <__type_traits/desugars_to.h>
++#include <__type_traits/is_equality_comparable.h>
++#include <__type_traits/is_volatile.h>
++#include <__utility/move.h>
++#pragma push_macro("_LIBCPP_STD_VER")
++#undef _LIBCPP_STD_VER
++#define _LIBCPP_STD_VER 11
++#include <__algorithm/equal.h>
++#pragma pop_macro("_LIBCPP_STD_VER")
++_LIBCPP_BEGIN_NAMESPACE_STD
++template <bool __known_equal_length, class _Iter1, class _Sent1, class _Iter2, class _Sent2, class _Pred, class _Proj1, class _Proj2>
++[[__nodiscard__]] inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 bool __equal_impl(
++    _Iter1 __first1, _Sent1 __last1, _Iter2 __first2, _Sent2 __last2, _Pred& __comp, _Proj1& __proj1, _Proj2& __proj2) {
++  if constexpr (__known_equal_length) {
++    return std::__equal_iter_impl(
++        std::move(__first1), std::move(__last1), std::move(__first2), __comp, __proj1, __proj2);
++  } else {
++    while (__first1 != __last1 && __first2 != __last2) {
++      if (!std::__invoke(__comp, std::__invoke(__proj1, *__first1), std::__invoke(__proj2, *__first2)))
++        return false;
++      ++__first1;
++      ++__first2;
++    }
++    return __first1 == __last1 && __first2 == __last2;
++  }
++}
++template <class _InputIterator1, class _InputIterator2, class _BinaryPredicate>
++[[__nodiscard__]] inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 bool
++equal(_InputIterator1 __first1, _InputIterator1 __last1, _InputIterator2 __first2, _InputIterator2 __last2, _BinaryPredicate __pred) {
++  constexpr bool __both_random_access =
++      __has_random_access_iterator_category<_InputIterator1>::value &&
++      __has_random_access_iterator_category<_InputIterator2>::value;
++  if constexpr (__both_random_access) {
++    if (std::distance(__first1, __last1) != std::distance(__first2, __last2))
++      return false;
++  }
++  __identity __proj;
++  return std::__equal_impl<__both_random_access>(
++      std::__unwrap_iter(__first1), std::__unwrap_iter(__last1), std::__unwrap_iter(__first2), std::__unwrap_iter(__last2),
++      __pred, __proj, __proj);
++}
++template <class _InputIterator1, class _InputIterator2>
++[[__nodiscard__]] inline _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 bool
++equal(_InputIterator1 __first1, _InputIterator1 __last1, _InputIterator2 __first2, _InputIterator2 __last2) {
++  return std::equal(__first1, __last1, __first2, __last2, __equal_to());
++}
++_LIBCPP_END_NAMESPACE_STD
++#define _LIBCPP___ALGORITHM_RANGES_EQUAL_H
++#include <__algorithm/unwrap_range.h>
++#include <__functional/ranges_operations.h>
++#include <__iterator/concepts.h>
++#include <__iterator/indirectly_comparable.h>
++#include <__ranges/access.h>
++#include <__ranges/concepts.h>
++#include <__ranges/size.h>
++_LIBCPP_BEGIN_NAMESPACE_STD
++namespace ranges {
++struct __equal {
++  template <input_iterator _Iter1, sentinel_for<_Iter1> _Sent1, input_iterator _Iter2, sentinel_for<_Iter2> _Sent2,
++            class _Pred = ranges::equal_to, class _Proj1 = identity, class _Proj2 = identity>
++    requires indirectly_comparable<_Iter1, _Iter2, _Pred, _Proj1, _Proj2>
++  [[nodiscard]] _LIBCPP_HIDE_FROM_ABI constexpr bool operator()(
++      _Iter1 __first1, _Sent1 __last1, _Iter2 __first2, _Sent2 __last2,
++      _Pred __pred = {}, _Proj1 __proj1 = {}, _Proj2 __proj2 = {}) const {
++    constexpr bool __both_sized = sized_sentinel_for<_Sent1, _Iter1> && sized_sentinel_for<_Sent2, _Iter2>;
++    if constexpr (__both_sized) {
++      if (__last1 - __first1 != __last2 - __first2)
++        return false;
++    }
++    auto [__ufirst1, __ulast1] = std::__unwrap_range(std::move(__first1), std::move(__last1));
++    auto [__ufirst2, __ulast2] = std::__unwrap_range(std::move(__first2), std::move(__last2));
++    return std::__equal_impl<__both_sized>(
++        std::move(__ufirst1), std::move(__ulast1), std::move(__ufirst2), std::move(__ulast2), __pred, __proj1, __proj2);
++  }
++  template <input_range _Range1, input_range _Range2,
++            class _Pred = ranges::equal_to, class _Proj1 = identity, class _Proj2 = identity>
++    requires indirectly_comparable<iterator_t<_Range1>, iterator_t<_Range2>, _Pred, _Proj1, _Proj2>
++  [[nodiscard]] _LIBCPP_HIDE_FROM_ABI constexpr bool operator()(
++      _Range1&& __range1, _Range2&& __range2, _Pred __pred = {}, _Proj1 __proj1 = {}, _Proj2 __proj2 = {}) const {
++    constexpr bool __both_sized = sized_range<_Range1> && sized_range<_Range2>;
++    if constexpr (__both_sized) {
++      if (ranges::size(__range1) != ranges::size(__range2))
++        return false;
++    }
++    auto [__ufirst1, __ulast1] = std::__unwrap_range(ranges::begin(__range1), ranges::end(__range1));
++    auto [__ufirst2, __ulast2] = std::__unwrap_range(ranges::begin(__range2), ranges::end(__range2));
++    return std::__equal_impl<__both_sized>(
++        std::move(__ufirst1), std::move(__ulast1), std::move(__ufirst2), std::move(__ulast2), __pred, __proj1, __proj2);
++  }
++};
++inline namespace __cpo {
++inline constexpr auto equal = __equal{};
++} // namespace __cpo
++} // namespace ranges
++_LIBCPP_END_NAMESPACE_STD
++#endif
++#endif
++#endif
+ 
+ /* CUDA JIT mode (__CUDACC_RTC__) also uses GNU style attributes */
+diff -ruN a/include/crt/math_functions.h b/include/crt/math_functions.h
+--- a/include/crt/math_functions.h	2025-05-27 09:41:21.000000000 +0000
++++ b/include/crt/math_functions.h	2026-10-16 23:35:37.495266768 +0000
+@@ -60,6 +60,27 @@
+ #if !defined(__MATH_FUNCTIONS_H__)
+ #define __MATH_FUNCTIONS_H__
+ 
++#if (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 180000)
++#define NV_MATH_BEGIN_NAMESPACE_STD    _LIBCPP_BEGIN_NAMESPACE_STD namespace __math {
++#define NV_MATH_END_NAMESPACE_STD      } _LIBCPP_END_NAMESPACE_STD
++#if _LIBCPP_VERSION >= 190000
++#define _LIBCPP_INLINE_VISIBILITY
++#endif /* _LIBCPP_VERSION >= 190000 */
++#define NV_MATH_NOEXCEPT               _NOEXCEPT
++#define NV_MATH_NOEXCEPT_OR_THROW      _NOEXCEPT
++#if _LIBCPP_VERSION >= 190000
++#define NV_INT_OR_BOOL                  bool
++#else
++#define NV_INT_OR_BOOL int
++#endif /* _LIBCPP_VERSION >= 190000 */
++#else
++#define NV_MATH_BEGIN_NAMESPACE_STD 
++#define NV_MATH_END_NAMESPACE_STD 
++#define NV_INT_OR_BOOL int
++#define NV_MATH_NOEXCEPT
++#define NV_MATH_NOEXCEPT_OR_THROW       throw()
++#endif /*  (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 180000) */
++
+ #if defined(__QNX__) && (__GNUC__ >= 5) && defined(__CUDACC__)
+ #if __has_include(<__config>)
+ #include <__config>
+@@ -97,6 +118,26 @@
+  * may change without notice.
+  */
+ 
++#if defined(__GNUC__) && !defined(__ANDROID__) && !defined(__QNX__) && !defined(__APPLE__) && !defined(__HORIZON__)
++#  include <features.h> /* For GLIBC macros */
++#  if __GLIBC_PREREQ(2,41) && (__GLIBC_USE_ISOC23 || defined(__STDC_WANT_IEC_60559_FUNCS_EXT__))
++#    define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 1
++#  else
++#    define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 0
++#  endif
++# if __GLIBC_PREREQ(2,42)
++#    define _NV_GLIBC_VERSION_GE_2_42 1
++# endif
++#else
++#  define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 0
++#endif
++#if !defined(_NV_RSQRT_SPECIFIER)
++#if defined(_NV_GLIBC_VERSION_GE_2_42)
++# define _NV_RSQRT_SPECIFIER noexcept(true)
++#else
++# define _NV_RSQRT_SPECIFIER
++#endif
++#endif
+ /*******************************************************************************
+ *                                                                              *
+ *                                                                              *
+@@ -572,6 +613,7 @@
+ #if defined(__QNX__) && !defined(_LIBCPP_VERSION)
+ } /* std */
+ #endif
++
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+  * \brief Calculate the reciprocal of the square root of the input argument.
+@@ -594,7 +636,7 @@
+  *
+  * \note_accuracy_double
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 rsqrt(double x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 rsqrt(double x) _NV_RSQRT_SPECIFIER;
+ 
+ /**
+  * \ingroup CUDA_MATH_SINGLE
+@@ -618,7 +660,7 @@
+  *
+  * \note_accuracy_single
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  rsqrtf(float x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  rsqrtf(float x) _NV_RSQRT_SPECIFIER;
+ 
+ #if defined(__QNX__) && !defined(_LIBCPP_VERSION)
+ namespace std {
+@@ -2531,6 +2573,12 @@
+  * \note_accuracy_single
+  */
+ extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  rcbrtf(float x);
++
++#if __NV_GLIBC_PROVIDES_IEC_60559_FUNCS
++#define __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER __THROW
++#else
++#define __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER
++#endif
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+  * \brief Calculate the sine of the input argument 
+@@ -2553,7 +2601,7 @@
+  *
+  * \note_accuracy_double
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 sinpi(double x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 sinpi(double x) __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER;
+ /**
+  * \ingroup CUDA_MATH_SINGLE
+  * \brief Calculate the sine of the input argument 
+@@ -2576,7 +2624,7 @@
+  *
+  * \note_accuracy_single
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  sinpif(float x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  sinpif(float x) __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER;
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+  * \brief Calculate the cosine of the input argument 
+@@ -2598,7 +2646,7 @@
+  *
+  * \note_accuracy_double
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 cospi(double x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ double                 cospi(double x) __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER;
+ /**
+  * \ingroup CUDA_MATH_SINGLE
+  * \brief Calculate the cosine of the input argument 
+@@ -2620,7 +2668,9 @@
+  *
+  * \note_accuracy_single
+  */
+-extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  cospif(float x);
++extern __DEVICE_FUNCTIONS_DECL__ __device_builtin__ float                  cospif(float x) __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER;
++#undef __NV_IEC_60559_FUNCS_EXCEPTION_SPECIFIER
++
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+  * \brief  Calculate the sine and cosine of the first input argument 
+@@ -4701,30 +4751,43 @@
+ static __inline__ __DEVICE_FUNCTIONS_DECL__ bool isinf(const double a);
+ static __inline__ __DEVICE_FUNCTIONS_DECL__ bool isinf(const long double a);
+ #else /* ! __QNX__ */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const float x);
++NV_MATH_BEGIN_NAMESPACE_STD
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const float x) NV_MATH_NOEXCEPT;
+ #if defined(__ICC)
+ __forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const double x) throw();
+ #else /* !__ICC */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const double x);
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const double x) NV_MATH_NOEXCEPT;
+ #endif /* __ICC */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const long double x);
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int signbit(const long double x) NV_MATH_NOEXCEPT;
++#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
++template <class> __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool signbit(float x) _NOEXCEPT;
++template <class> __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool signbit(double x) _NOEXCEPT;
++template <class> __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool signbit(long double x) _NOEXCEPT;
++#endif
++
++#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 190000
++#define __NV_ISFINITE_INLINE_ATTR
++#else
++#define __NV_ISFINITE_INLINE_ATTR __forceinline__
++#endif
+ 
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isfinite(const float x);
++__NV_ISFINITE_INLINE_ATTR __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isfinite(const float x) NV_MATH_NOEXCEPT;
+ #if defined(__ICC)
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isfinite(const double x) throw();
++__NV_ISFINITE_INLINE_ATTR __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isfinite(const double x) throw();
+ #else /* !__ICC */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isfinite(const double x);
++__NV_ISFINITE_INLINE_ATTR __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isfinite(const double x) NV_MATH_NOEXCEPT;
+ #endif /* __ICC */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isfinite(const long double x);
+-
+-#if (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000
++__NV_ISFINITE_INLINE_ATTR __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isfinite(const long double x) NV_MATH_NOEXCEPT;
++#undef __NV_ISFINITE_INLINE_ATTR
++  
++#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000
+ template <typename T>
+ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool __libcpp_isnan(T) _NOEXCEPT;
+ inline _LIBCPP_INLINE_VISIBILITY __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isnan(float x) _NOEXCEPT;
+-#else /* !((defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000) */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isnan(float x);
+-#endif /* (defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000 */
+-#if defined(__ANDROID__) || defined(__HORIZON__)
++#else /* !(defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000) */
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isnan(float x) NV_MATH_NOEXCEPT;
++#endif /* defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000 */
++#if defined(__ANDROID__) || defined(__HORIZON__) || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000)
+ #if !defined(_LIBCPP_VERSION)
+ __forceinline__
+ #endif  /* !defined(_LIBCPP_VERSION) */
+@@ -4733,28 +4796,30 @@
+ _LIBCPP_INLINE_VISIBILITY _LIBCPP_PREFERRED_OVERLOAD __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isnan(double x) _NOEXCEPT;
+ #endif /* _LIBCPP_PREFERRED_OVERLOAD */
+ #else /* _LIBCPP_VERSION < 7000 */
+-__DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isnan(double x);
++__DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isnan(double x)  NV_MATH_NOEXCEPT;
+ #endif /* _LIBCPP_VERSION >= 7000 */
+-#else /* !(__ANDROID__ || __HORIZON__) */
++#else /* !(__ANDROID__ || __HORIZON__ || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000)) */
+ __forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isnan(double x) throw();
+-#endif /* __ANDROID__ */
+-#if (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000
++#endif /* __ANDROID__ || __HORIZON__ || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000) */
++#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000
+ inline _LIBCPP_INLINE_VISIBILITY  __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isnan(long double x) _NOEXCEPT;
+-#else /* !( (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000) */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isnan(long double x);
+-#endif /* (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000 */
++#else /* !( defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000) */
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isnan(long double x);
++#endif /* defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000 */
+ 
++// __FLOAT_BITS/__DOUBLE_BITS are not defined in libc++, they're defined in musl
+ #if (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000
+ static __inline__ __cudart_builtin__ __DEVICE_FUNCTIONS_DECL__ unsigned __FLOAT_BITS(float __f);
+ static __inline__ __cudart_builtin__ __DEVICE_FUNCTIONS_DECL__ unsigned long long __DOUBLE_BITS(double __f);
+ template <typename T>
+ __cudart_builtin__ __DEVICE_FUNCTIONS_DECL__ bool __libcpp_isinf(T) _NOEXCEPT;
+ inline _LIBCPP_INLINE_VISIBILITY __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isinf(float x) _NOEXCEPT;
+-#else /* !( (defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000) */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isinf(float x);
++#elif defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
++inline _LIBCPP_INLINE_VISIBILITY __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isinf(float x) _NOEXCEPT;
++#else /* !((defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000) */
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isinf(float x) NV_MATH_NOEXCEPT;
+ #endif /* (defined(__ANDROID__) || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000 */
+-
+-#if defined(__ANDROID__) || defined(__HORIZON__)
++#if defined(__ANDROID__) || defined(__HORIZON__) || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000)
+ #if !defined(_LIBCPP_VERSION)
+ __forceinline__
+ #endif  /* !defined(_LIBCPP_VERSION) */
+@@ -4763,16 +4828,17 @@
+ _LIBCPP_INLINE_VISIBILITY _LIBCPP_PREFERRED_OVERLOAD __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isinf(double x) _NOEXCEPT;
+ #endif /* _LIBCPP_PREFERRED_OVERLOAD */
+ #else /* _LIBCPP_VERSION < 7000 */
+-__DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isinf(double x);
++__DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isinf(double x) NV_MATH_NOEXCEPT;
+ #endif /* _LIBCPP_VERSION >= 7000 */
+-#else /* ! (__ANDROID__  || __HORIZON__) */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isinf(double x) throw();
+-#endif /* __ANDROID__ || __HORIZON__ */
+-#if (defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000
++#else /* !(__ANDROID__ || __HORIZON__ || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000)) */
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isinf(double x) throw();
++#endif /* __ANDROID__ || __HORIZON__ || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 220000) */
++#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000
+ inline _LIBCPP_INLINE_VISIBILITY __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ bool isinf(long double x) _NOEXCEPT;
+-#else /* !( (defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000) */
+-__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int isinf(long double x);
+-#endif  /* (defined(__ANDROID__)  || defined(__HORIZON__)) && _LIBCPP_VERSION >= 8000 */
++#else /* !( defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000) */
++__forceinline__ __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__  NV_INT_OR_BOOL isinf(long double x) NV_MATH_NOEXCEPT;
++#endif  /* defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 8000 */
++NV_MATH_END_NAMESPACE_STD
+ #endif /* __QNX__  */
+ 
+ #endif /* ((defined _GLIBCXX_MATH_H) && _GLIBCXX_MATH_H) && (__cplusplus >= 201103L) */
+@@ -5311,19 +5370,43 @@
+ #else /* __CUDACC_RTC__ ||
+          (!defined(_MSC_VER) || _MSC_VER < 1800) &&
+          (!defined(_LIBCPP_VERSION) || (_LIBCPP_VERSION < 1101)) */
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long int __cdecl abs(long int) throw();
++#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION > 210000)
++NV_MATH_BEGIN_NAMESPACE_STD
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float       __cdecl abs(float __x) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ double      __cdecl abs(double __x) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long double __cdecl abs(long double __x) NV_MATH_NOEXCEPT_OR_THROW;
++ 
++template <class> extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ int       __cdecl abs(int __x) NV_MATH_NOEXCEPT_OR_THROW;
++template <class> extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long      __cdecl abs(long __x) NV_MATH_NOEXCEPT_OR_THROW;
++template <class> extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long long __cdecl abs(long long __x) NV_MATH_NOEXCEPT_OR_THROW;
++NV_MATH_END_NAMESPACE_STD
++#else
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long int __cdecl abs(long int) NV_MATH_NOEXCEPT_OR_THROW;
+ #if defined(_LIBCPP_VERSION)
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long long int __cdecl abs(long long int) throw();
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ long long int __cdecl abs(long long int) NV_MATH_NOEXCEPT_OR_THROW;
+ #endif /* defined(_LIBCPP_VERSION) */
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl abs(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ double   __cdecl abs(double) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl fabs(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl ceil(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl floor(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sqrt(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl pow(float, float) throw();
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl abs(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ double   __cdecl abs(double) NV_MATH_NOEXCEPT_OR_THROW;
++#endif
++NV_MATH_BEGIN_NAMESPACE_STD
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl fabs(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl ceil(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl floor(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sqrt(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl pow(float, float) NV_MATH_NOEXCEPT_OR_THROW;
+ #if defined(_LIBCPP_VERSION)
+-#if (defined (__ANDROID__) || defined(__HORIZON__)) && (_LIBCPP_VERSION >= 9000)
++#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 9000)
++#if _LIBCPP_VERSION > 210000 || (_LIBCPP_VERSION == 210000 && !defined(__ANDROID__))
++template <class _A1, class _A2,
++	  std::__enable_if_t<std::is_arithmetic<_A1>::value && std::is_arithmetic<_A2>::value, int>>
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__
++std::__promote_t<_A1, _A2> pow(_A1 __lcpp_x, _A2 __lcpp_y) __NV_NOEXCEPT;
++#elif _LIBCPP_VERSION >= 180000
++template <class _A1, class _A2,
++	  std::__enable_if_t<std::is_arithmetic<_A1>::value && std::is_arithmetic<_A2>::value, int>>
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__
++typename std::__promote<_A1, _A2>::type pow(_A1 __lcpp_x, _A2 __lcpp_y) __NV_NOEXCEPT;
++#else
+ template <class _A1, class _A2>
+ extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__
+ #if _LIBCPP_VERSION >= 14000
+@@ -5336,6 +5419,7 @@
+     std::is_arithmetic<_A2>::value,
+     std::__promote<_A1, _A2>
+ >::type pow(_A1 __lcpp_x, _A2 __lcpp_y) __NV_NOEXCEPT;
++#endif /* _LIBCPP_VERSION > 210000 || (_LIBCPP_VERSION == 210000 && !defined(__ANDROID__)) */
+ #elif (defined(__APPLE__) && __clang_major__ >= 7) || _LIBCPP_VERSION >= 3800 || defined(__QNX__)
+ template <class _Tp, class _Up>
+ extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__
+@@ -5362,28 +5446,29 @@
+ #if (defined(_MSC_VER) && (_MSC_VER >= 1928)) && !(defined __CUDA_INTERNAL_SKIP_CPP_HEADERS__)
+ template <class _Ty1, class _Ty2, ::std:: enable_if_t< ::std:: is_arithmetic_v<_Ty1> && ::std:: is_arithmetic_v<_Ty2>, int> > [[nodiscard]] __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ ::std:: _Common_float_type_t<_Ty1, _Ty2> __cdecl pow(_Ty1 _Left, _Ty2 _Right) noexcept;
+ #else
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl pow(float, int) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ double   __cdecl pow(double, int) throw();
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl pow(float, int) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ double   __cdecl pow(double, int) NV_MATH_NOEXCEPT_OR_THROW;
+ #endif /* (defined(_MSC_VER) && (_MSC_VER >= 1928)) && !(defined __CUDA_INTERNAL_SKIP_CPP_HEADERS__) */
+ #endif /* !(defined(__GNUC__) && __cplusplus >= 201103L) */
+ #endif /* defined(_LIBCPP_VERSION) */
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl log(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl log10(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl fmod(float, float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl modf(float, float*) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl exp(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl frexp(float, int*) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl ldexp(float, int) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl asin(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sin(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sinh(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl acos(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl cos(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl cosh(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl atan(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl atan2(float, float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl tan(float) throw();
+-extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl tanh(float) throw();
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl log(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl log10(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl fmod(float, float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl modf(float, float*) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl exp(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl frexp(float, int*) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl ldexp(float, int) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl asin(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sin(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl sinh(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl acos(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl cos(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl cosh(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl atan(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl atan2(float, float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl tan(float) NV_MATH_NOEXCEPT_OR_THROW;
++extern __DEVICE_FUNCTIONS_DECL__ __cudart_builtin__ float    __cdecl tanh(float) NV_MATH_NOEXCEPT_OR_THROW;
++NV_MATH_END_NAMESPACE_STD
+ #endif /* __CUDACC_RTC__ ||
+           (!defined(_MSC_VER) || _MSC_VER < 1800) &&
+           (!defined(_LIBCPP_VERSION) || (_LIBCPP_VERSION < 1101)) */
+@@ -5424,6 +5509,7 @@
+ #endif
+ #else /* !(defined(__QNX__) && (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION < 8000)) */
+ #define __NV_NOEXCEPT _NOEXCEPT
++NV_MATH_BEGIN_NAMESPACE_STD
+ #endif /* defined(__QNX__) && (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION < 8000) */
+ __host__ __device__ __cudart_builtin__ float logb(float a) __NV_NOEXCEPT;
+ __host__ __device__ __cudart_builtin__ int ilogb(float a) __NV_NOEXCEPT;
+@@ -5500,6 +5586,7 @@
+ #endif
+ #endif /* defined(__QNX__) && (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION < 8000) */
+ #undef __NV_NOEXCEPT
++NV_MATH_END_NAMESPACE_STD
+ #else /* !(defined(__QNX__ ) || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 3800)) */
+ #if ((defined _GLIBCXX_MATH_H) && _GLIBCXX_MATH_H) && (__cplusplus >= 201103L)
+ namespace std {
+@@ -5786,7 +5873,7 @@
+ 
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+- * \brief Calculate the minimum value of the input \p float arguments.
++ * \brief Calculate the minimum value of the input \p double arguments.
+  *
+  * Calculate the minimum value of the arguments \p a and \p b.
+  * Behavior is equivalent to ::fmin() function.
+@@ -5916,7 +6003,7 @@
+ 
+ /**
+  * \ingroup CUDA_MATH_DOUBLE
+- * \brief Calculate the maximum value of the input \p float arguments.
++ * \brief Calculate the maximum value of the input \p double arguments.
+  *
+  * Calculate the maximum value of the arguments \p a and \p b.
+  * Behavior is equivalent to ::fmax() function.
+@@ -5983,14 +6070,20 @@
+ 
+ #endif /* _WIN32 */
+ 
+-__func__(double rsqrt(double a));
++__func__(double rsqrt(double a) _NV_RSQRT_SPECIFIER);
+ 
+ __func__(double rcbrt(double a));
+ 
++#if ! __NV_GLIBC_PROVIDES_IEC_60559_FUNCS
+ __func__(double sinpi(double a));
+ 
+ __func__(double cospi(double a));
+ 
++__func__(float sinpif(float a));
++
++__func__(float cospif(float a));
++#endif
++
+ __func__(void sincospi(double a, double *sptr, double *cptr));
+ 
+ __func__(double erfinv(double a));
+@@ -6003,14 +6096,10 @@
+ 
+ __func__(double erfcx(double a));
+ 
+-__func__(float rsqrtf(float a));
++__func__(float rsqrtf(float a) _NV_RSQRT_SPECIFIER);
+ 
+ __func__(float rcbrtf(float a));
+ 
+-__func__(float sinpif(float a));
+-
+-__func__(float cospif(float a));
+-
+ __func__(void sincospif(float a, float *sptr, float *cptr));
+ 
+ __func__(float erfinvf(float a));
+@@ -6242,6 +6331,14 @@
+ #endif /* !__CUDACC__ */
+ 
+ #undef EXCLUDE_FROM_RTC
++#undef NV_MATH_BEGIN_NAMESPACE_STD
++#undef NV_MATH_END_NAMESPACE_STD
++#undef NV_INT_OR_BOOL
++#undef NV_MATH_NOEXCEPT
++#undef NV_MATH_NOEXCEPT_OR_THROW
++#if (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 190000)
++#undef _LIBCPP_INLINE_VISIBILITY
++#endif /*(defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 190000) */
+ 
+ #if !defined(__CUDACC_RTC__)
+ 
+diff -ruN a/include/crt/math_functions.hpp b/include/crt/math_functions.hpp
+--- a/include/crt/math_functions.hpp	2025-05-27 09:41:21.000000000 +0000
++++ b/include/crt/math_functions.hpp	2026-10-16 23:35:56.176757930 +0000
+@@ -57,9 +57,33 @@
+ #define __UNDEF_CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS_MATH_FUNCTIONS_HPP__
+ #endif
+ 
++
+ #if !defined(__MATH_FUNCTIONS_HPP__)
+ #define __MATH_FUNCTIONS_HPP__
+ 
++#if (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 180000)
++#define NV_MATH_BEGIN_NAMESPACE_STD    _LIBCPP_BEGIN_NAMESPACE_STD namespace __math {
++#define NV_MATH_END_NAMESPACE_STD      } _LIBCPP_END_NAMESPACE_STD
++#if _LIBCPP_VERSION >= 190000
++#define _LIBCPP_INLINE_VISIBILITY
++#endif /* _LIBCPP_VERSION >= 190000 */
++#define NV_MATH_NOEXCEPT               _NOEXCEPT
++#define NV_MATH_NOEXCEPT_OR_THROW      _NOEXCEPT
++#if _LIBCPP_VERSION >= 190000
++#define NV_INT_OR_BOOL                  bool
++#else
++#define NV_INT_OR_BOOL int
++#endif /* _LIBCPP_VERSION >= 190000 */
++#define NV_MATH_USE_TEMPLATE            0
++#else
++#define NV_MATH_BEGIN_NAMESPACE_STD 
++#define NV_MATH_END_NAMESPACE_STD 
++#define NV_INT_OR_BOOL int
++#define NV_MATH_NOEXCEPT
++#define NV_MATH_NOEXCEPT_OR_THROW       throw()
++#define NV_MATH_USE_TEMPLATE            1
++#endif /*  (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 180000) */
++
+ /*******************************************************************************
+ *                                                                              *
+ *                                                                              *
+@@ -89,17 +113,17 @@
+ __host__ __device__ __cudart_builtin__ int signbit(const double x) { return __signbit(x); }
+ __host__ __device__ __cudart_builtin__ int signbit(const long double x) { return __signbitl(static_cast<double>(x));}
+ 
+-__host__ __device__ __cudart_builtin__ int isfinite(const float x) { return __finitef(x); }
+-__host__ __device__ __cudart_builtin__ int isfinite(const double x) { return __finite(x); }
+-__host__ __device__ __cudart_builtin__ int isfinite(const long double x) { return __finitel(static_cast<double>(x)); }
+-
+-__host__ __device__ __cudart_builtin__ int isnan(const float x) { return __isnanf(x); }
+-__host__ __device__ __cudart_builtin__ int isnan(const double x) { return __isnan(x); }
+-__host__ __device__ __cudart_builtin__ int isnan(const long double x) { return __isnanl(static_cast<double>(x)); }
+-
+-__host__ __device__ __cudart_builtin__ int isinf(const float x) { return __isinff(x); }
+-__host__ __device__ __cudart_builtin__ int isinf(const double x) { return __isinf(x); }
+-__host__ __device__ __cudart_builtin__ int isinf(const long double x) { return __isinfl(static_cast<double>(x)); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) { return __finitef(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) { return __finite(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x) { return __finitel(static_cast<double>(x)); }
++
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float x) { return __isnanf(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double x) { return __isnan(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double x) { return __isnanl(static_cast<double>(x)); }
++
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float x) { return __isinff(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double x) { return __isinf(x); }
++__host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double x) { return __isinfl(static_cast<double>(x)); }
+ 
+ __host__ __device__ __cudart_builtin__ long long int abs(const long long int a) { return llabs(a); }
+ 
+@@ -150,20 +174,20 @@
+ __forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const double x) { return __signbitd(x); }
+ __forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) { return __signbitl(x);}
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const float x) { return __isfinitef(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x) { return __isfinited(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double x) { return __isfinite(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) { return __isfinitef(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) { return __isfinited(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x) { return __isfinite(x); }
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const double x) throw()  { return __isnand(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double x) throw()  { return __isnand(x); }
+ #if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 7000
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const float x) { return __isnanf(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const long double x) { return __isnan(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float x) { return __isnanf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double x) { return __isnan(x); }
+ #endif /* defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 7000 */
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const double x) throw()  { return __isinfd(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double x) throw()  { return __isinfd(x); }
+ #if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 7000
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const float x) { return __isinff(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const long double x) { return __isinf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float x) { return __isinff(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double x) { return __isinf(x); }
+ #endif /* defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 7000 */
+ #else /* __APPLE__ */
+ 
+@@ -281,46 +305,48 @@
+ #endif /* defined(__CUDA_ARCH__) */
+ }
+ 
+-#elif ( (defined(__ANDROID__) || defined(__HORIZON__)) && defined(_LIBCPP_VERSION))
++#elif (defined(_LIBCPP_VERSION) && (defined(__ANDROID__) || defined(__HORIZON__) || _LIBCPP_VERSION >= 220000) )
+ #if defined(__CUDA_ARCH__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const float x) { return __signbitf(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const double x) { return __signbit(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) { return __signbitl(x);}
+-
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const float x) { return __finitef(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x) { return __finite(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double x) { return __finitel(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const float x) NV_MATH_NOEXCEPT { return __signbitf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const double x) NV_MATH_NOEXCEPT { return __signbit(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) NV_MATH_NOEXCEPT { return __signbitl(x);}
++
++#if _LIBCPP_VERSION < 190000
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) NV_MATH_NOEXCEPT { return __finitef(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) NV_MATH_NOEXCEPT { return __finite(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x) NV_MATH_NOEXCEPT { return __finitel(x); }
++#endif
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const double x)  { return __isnan(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double x)  { return __isnan(x); }
+ #if _LIBCPP_VERSION < 8000
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const float x) { return __isnanf(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const long double x) { return __isnanl(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float x) NV_MATH_NOEXCEPT { return __isnanf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double x) NV_MATH_NOEXCEPT { return __isnanl(x); }
+ #endif  /* _LIBCPP_VERSION < 8000 */
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const double x) { return __isinf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double x) NV_MATH_NOEXCEPT { return __isinf(x); }
+ #if _LIBCPP_VERSION < 8000
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const float x) { return __isinff(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const long double x) { return __isinfl(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float x) NV_MATH_NOEXCEPT { return __isinff(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double x) NV_MATH_NOEXCEPT { return __isinfl(x); }
+ #endif /* _LIBCPP_VERSION < 8000 */
+ #else /* !defined(__CUDA_ARCH__) */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const float x) { return signbit<float>(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const double x) { return signbit<double>(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) { return signbit<long double>(x);}
+-
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const float x) { return isfinite<float>(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x) { return isfinite<double>(x); }
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double x) { return isfinite<long double>(x); }
+-
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const float x) NV_MATH_NOEXCEPT { return signbit<float>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const double x) NV_MATH_NOEXCEPT { return signbit<double>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) NV_MATH_NOEXCEPT { return signbit<long double>(x);}
++
++#if NV_MATH_USE_TEMPLATE
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) NV_MATH_NOEXCEPT { return isfinite<float>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) NV_MATH_NOEXCEPT { return isfinite<double>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x) NV_MATH_NOEXCEPT { return isfinite<long double>(x); }
++#endif /* NV_MATH_USE_TEMPLATE*/
+ #if _LIBCPP_VERSION < 8000
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const float x) { return isnan<float>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float x) NV_MATH_NOEXCEPT { return isnan<float>(x); }
+ /* int isnan(double) provided by math.h */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const long double x) { return isnan<long double>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double x) NV_MATH_NOEXCEPT { return isnan<long double>(x); }
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const float x) { return isinf<float>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float x) NV_MATH_NOEXCEPT { return isinf<float>(x); }
+ /* int isinf(double) provided by math.h */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const long double x) { return isinf<long double>(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double x) NV_MATH_NOEXCEPT { return isinf<long double>(x); }
+ #endif /* _LIBCPP_VERSION < 8000 */
+-
+ #endif  /* defined(__CUDA_ARCH__) */
+ 
+ #else /* !__QNX__ */
+@@ -333,7 +359,7 @@
+ __forceinline__ __host__ __device__ __cudart_builtin__ int signbit(const long double x) { return __signbitl(x);}
+ 
+ #if defined(__ANDROID__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const float x) {
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) {
+ #if defined(__CUDA_ARCH__)
+   return __finitef(x);
+ #else	/* !__CUDA_ARCH__ */
+@@ -341,11 +367,11 @@
+ #endif /* __CUDA_ARCH__ */
+ }
+ #else /* !__ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const float x) { return __finitef(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float x) { return __finitef(x); }
+ #endif  /* __ANDROID__ */
+ 
+ #if defined(__ANDROID__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x)
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x)
+ {
+ #ifdef __CUDA_ARCH__
+   return __finite(x);
+@@ -354,13 +380,13 @@
+ #endif  /* __CUDA_ARCH__ */
+ }
+ #elif defined(__ICC)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x) throw() { return __finite(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) throw() { return __finite(x); }
+ #else
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const double x) { return __finite(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double x) { return __finite(x); }
+ #endif /* __ANDROID__ */
+ 
+ #if defined(__ANDROID__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double x)
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x)
+ {
+ #ifdef __CUDA_ARCH__
+    return __finitel(x);
+@@ -369,24 +395,24 @@
+ #endif  /* __CUDA_ARCH__ */
+ }
+ #else /* !__ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double x) { return __finitel(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double x) { return __finitel(x); }
+ #endif  /* __ANDROID__ */
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const float x) { return __isnanf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float x) { return __isnanf(x); }
+ #if defined(__ANDROID__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const double x) { return __isnan(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double x) { return __isnan(x); }
+ #else /* !__ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const double x) throw()  { return __isnan(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double x) throw()  { return __isnan(x); }
+ #endif /* __ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isnan(const long double x) { return __isnanl(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double x) { return __isnanl(x); }
+ 
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const float x) { return __isinff(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float x) { return __isinff(x); }
+ #if defined(__ANDROID__)
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const double x) { return __isinf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double x) { return __isinf(x); }
+ #else /* !__ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const double x) throw()  { return __isinf(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double x) throw()  { return __isinf(x); }
+ #endif /* __ANDROID__ */
+-__forceinline__ __host__ __device__ __cudart_builtin__ int isinf(const long double x) { return __isinfl(x); }
++__forceinline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double x) { return __isinfl(x); }
+ #endif /* __QNX__ || __HORIZON__ */
+ 
+ #endif /* ((defined _GLIBCXX_MATH_H) && _GLIBCXX_MATH_H) && (__cplusplus >= 201103L) */
+@@ -425,7 +451,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isinf(const long double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const long double a)
+ {
+   return __isinfl(a);
+ }
+@@ -441,7 +467,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isinf(const double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const double a)
+ {
+   return __isinf(a);
+ }
+@@ -457,7 +483,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isinf(const float a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isinf(const float a)
+ {
+   return __isinff(a);
+ }
+@@ -473,7 +499,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isnan(const long double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const long double a)
+ {
+   return __isnanl(a);
+ }
+@@ -489,7 +515,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isnan(const double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const double a)
+ {
+   return __isnan(a);
+ }
+@@ -505,7 +531,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isnan(const float a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isnan(const float a)
+ {
+   return __isnanf(a);
+ }
+@@ -521,7 +547,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isfinite(const long double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const long double a)
+ {
+   return __finitel(a);
+ }
+@@ -537,7 +563,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isfinite(const double a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const double a)
+ {
+   return __finite(a);
+ }
+@@ -553,7 +579,7 @@
+ #endif /* (!defined(_MSC_VER) || _MSC_VER < 1800) */
+ 
+ #if (!defined(_MSC_VER) || _MSC_VER < 1800)
+-static __inline__ __host__ __device__ __cudart_builtin__ int isfinite(const float a)
++static __inline__ __host__ __device__ __cudart_builtin__ NV_INT_OR_BOOL isfinite(const float a)
+ {
+   return __finitef(a);
+ }
+@@ -893,7 +919,7 @@
+ #if defined(_MSC_VER) && !defined(__CUDA_ARCH__)
+ #pragma warning (pop)
+ #endif /* _MSC_VER && !defined(__CUDA_ARCH__) */
+-    retval = static_cast<long int>(min(static_cast<int>(a), static_cast<int>(b)));
++    retval = static_cast<long int>(::min(static_cast<int>(a), static_cast<int>(b)));
+   } else {
+     retval = static_cast<long int>(llmin(static_cast<long long int>(a), static_cast<long long int>(b)));
+   }
+@@ -1021,7 +1047,7 @@
+ #if defined(_MSC_VER) && !defined(__CUDA_ARCH__)
+ #pragma warning (pop)
+ #endif /* _MSC_VER && !defined(__CUDA_ARCH__) */
+-    retval = static_cast<long int>(max(static_cast<int>(a), static_cast<int>(b)));
++    retval = static_cast<long int>(::max(static_cast<int>(a), static_cast<int>(b)));
+   } else {
+     retval = static_cast<long int>(llmax(static_cast<long long int>(a), static_cast<long long int>(b)));
+   }
+@@ -1134,44 +1160,52 @@
+ 
+ __HELPER_FUNC_LINKAGE int min(const int a, const int b)
+ {
+-  return (a < b) ? a : b;
++  if (a < b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE unsigned int umin(const unsigned int a, const unsigned int b)
+ {
+-  return (a < b) ? a : b;
++  if (a < b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE long long int llmin(const long long int a, const long long int b)
+ {
+-  return (a < b) ? a : b;
++  if (a < b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE unsigned long long int ullmin(const unsigned long long int a,
+                                                     const unsigned long long int b)
+ {
+-  return (a < b) ? a : b;
++  if (a < b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE int max(const int a, const int b)
+ {
+-  return (a > b) ? a : b;
++  if (a > b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE unsigned int umax(const unsigned int a, const unsigned int b)
+ {
+-  return (a > b) ? a : b;
++  if (a > b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE long long int llmax(const long long int a, const long long int b)
+ {
+-  return (a > b) ? a : b;
++  if (a > b) return a;
++  return b;
+ }
+ 
+ __HELPER_FUNC_LINKAGE unsigned long long int ullmax(const unsigned long long int a,
+                                                     const unsigned long long int b)
+ {
+-  return (a > b) ? a : b;
++  if (a > b) return a;
++  return b;
+ }
+ 
+ #if defined(_WIN32)
+@@ -2950,7 +2984,17 @@
+ *                                                                              *
+ *******************************************************************************/
+ 
++#if !defined(__NV_GLIBC_PROVIDES_IEC_60559_FUNCS)
++#  define __NV_GLIBC_PROVIDES_IEC_60559_FUNCS 0
++#endif
++#if !defined(_NV_RSQRT_SPECIFIER)
++#  if defined(_NV_GLIBC_VERSION_GE_2_42)
++#    define _NV_RSQRT_SPECIFIER noexcept(true)
++#  else
++#    define _NV_RSQRT_SPECIFIER
++#  endif
++#endif
+-__func__(double rsqrt(const double a))
++__func__(double rsqrt(const double a)) _NV_RSQRT_SPECIFIER
+ {
+   return 1.0 / sqrt(a);
+ }
+@@ -2979,6 +3023,7 @@
+   return t;
+ }
+ 
++#if ! __NV_GLIBC_PROVIDES_IEC_60559_FUNCS
+ __func__(double sinpi(double a))
+ {
+   int n;
+@@ -3043,6 +3088,18 @@
+   return a;
+ }
+ 
++__func__(float sinpif(const float a))
++{
++  return static_cast<float>(sinpi(static_cast<double>(a)));
++}
++
++__func__(float cospif(const float a))
++{
++  return static_cast<float>(cospi(static_cast<double>(a)));
++}
++
++#endif /* ! __NV_GLIBC_PROVIDES_IEC_60559_FUNCS */
++
+ __func__(void sincospi(const double a, double *sptr, double *cptr))
+ {
+   *sptr = sinpi(a);
+@@ -3330,7 +3387,7 @@
+   return t1;
+ }
+ 
+-__func__(float rsqrtf(const float a))
++__func__(float rsqrtf(const float a) _NV_RSQRT_SPECIFIER) 
+ {
+   return static_cast<float>(rsqrt(static_cast<double>(a)));
+ }
+@@ -3340,16 +3397,6 @@
+   return static_cast<float>(rcbrt(static_cast<double>(a)));
+ }
+ 
+-__func__(float sinpif(const float a))
+-{
+-  return static_cast<float>(sinpi(static_cast<double>(a)));
+-}
+-
+-__func__(float cospif(const float a))
+-{
+-  return static_cast<float>(cospi(static_cast<double>(a)));
+-}
+-
+ __func__(void sincospif(const float a, float *sptr, float *cptr))
+ {
+   double s, c;
+@@ -3390,9 +3437,21 @@
+ 
+ #endif /* !__CUDACC__ */
+ 
++#undef NV_MATH_BEGIN_NAMESPACE_STD
++#undef NV_MATH_END_NAMESPACE_STD
++#undef NV_INT_OR_BOOL
++#undef NV_MATH_NOEXCEPT
++#undef NV_MATH_NOEXCEPT_OR_THROW
++#undef NV_MATH_USE_TEMPLATE
++
++#if (defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 190000)
++#undef _LIBCPP_INLINE_VISIBILITY
++#endif /*(defined(__HORIZON__) || defined(_LIBCPP_VERSION)) && (_LIBCPP_VERSION >= 190000) */
++
+ #endif /* !__MATH_FUNCTIONS_HPP__ */
+ 
+ #if defined(__UNDEF_CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS_MATH_FUNCTIONS_HPP__)
+ #undef __CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS__
+ #undef __UNDEF_CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS_MATH_FUNCTIONS_HPP__
+ #endif
++

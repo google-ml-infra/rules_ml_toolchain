@@ -17,6 +17,7 @@
 load(
     "//gpu:nvidia_common_rules.bzl",
     "get_local_templates",
+    "get_patch_to_versions_dict",
     "get_redistribution_urls",
     "get_version_and_template_lists",
     "redist_init_repository",
@@ -106,6 +107,9 @@ def cuda_redist_init_repositories(
             use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
             target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
             local_source_dirs = local_source_dirs,
+            patches = get_patch_to_versions_dict(
+                repo_data.get("version_to_patches", {}),
+            ),
             repository_symlinks = {
                 Label("@cuda_cudart//:include/cuda.h"): "include/cuda.h",
                 Label("@cuda_nvdisasm//:bin/nvdisasm"): "bin/nvdisasm",

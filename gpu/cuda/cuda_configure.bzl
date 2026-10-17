@@ -626,9 +626,9 @@ def _create_local_cuda_repository(repository_ctx):
     hermetic_wrappers_headers = ""
     if _use_hermetic_toolchains(repository_ctx):
         if _is_linux_x86_64(repository_ctx):
-            hermetic_wrappers_headers = "@llvm_linux_x86_64//:cuda_wrappers_headers"
+            hermetic_wrappers_headers = str(Label("@llvm_linux_x86_64//:cuda_wrappers_headers"))
         elif _is_linux_aarch64(repository_ctx):
-            hermetic_wrappers_headers = "@llvm_linux_aarch64//:cuda_wrappers_headers"
+            hermetic_wrappers_headers = str(Label("@llvm_linux_aarch64//:cuda_wrappers_headers"))
         else:
             print("This OS or architecture isn't supported by Hermetic C++.")
 

@@ -274,11 +274,11 @@ def cc_toolchain_deps():
         # LLVM 22 Linux x86_64
         mirrored_http_archive(
             name = "llvm22_linux_x86_64",
-            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.4/LLVM-22.1.4-Linux-X64.tar.xz"),
-            sha256 = "cdf232e3bc5d9909ddcf8cb7016802c6745a01e69a596747c684caa894a11567",
-            mirrored_tar_sha256 = "b9b94ef829f1d410e0a458b4c140ee8c0999312b7733cd1375e61736078c1aa2",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/LLVM-22.1.8-Linux-X64.tar.xz"),
+            sha256 = "df0e1ecf16caf3489a272a5eea4eec9b0d82878f6477fa309504f918a0006384",
+            mirrored_tar_sha256 = "34741554172cd8bb9bf84354d755b9bf018bbfaf24f032ef9190fb0c75e02089",
             build_file = Label("//cc/config:llvm22_linux_x86_64.BUILD"),
-            strip_prefix = "LLVM-22.1.4-Linux-X64",
+            strip_prefix = "LLVM-22.1.8-Linux-X64",
             remote_file_urls = {
                 "lib/libicudata.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicudata.so.66"],
                 "lib/libicuuc.so.66": ["https://storage.googleapis.com/ml-sysroot-testing/llvm/x86_64-linux/libicuuc.so.66"],
