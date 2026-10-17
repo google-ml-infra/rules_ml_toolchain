@@ -1,0 +1,3 @@
+exports_files([
+    "cuda_nvcc_clang22_libcxx22.patch",
+])
