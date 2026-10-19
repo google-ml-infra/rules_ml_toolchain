@@ -41,7 +41,7 @@ diff -ruN a/include/crt/host_config.h b/include/crt/host_config.h
 diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
 --- a/include/crt/host_defines.h	2025-05-27 09:41:21.000000000 +0000
 +++ b/include/crt/host_defines.h	2026-10-16 23:28:51.062890322 +0000
-@@ -62,10 +62,305 @@
+@@ -62,10 +62,428 @@
  
  #if defined(__CUDACC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && !defined(_ALLOW_UNSUPPORTED_LIBCPP)
  #include <ctype.h>
@@ -56,13 +56,136 @@ diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
  #endif
 +#if defined(__NVCC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && defined(__cplusplus)
 +#include <ctype.h>
++#if defined(__clang__) && (__clang_major__ >= 22)
++#define _Nullable
++#define _Nonnull
++#define _Null_unspecified
++#define lifetimebound __nv_no_lifetimebound
++#define __lifetimebound__ __nv_no_lifetimebound
++#define __is_bitwise_cloneable(...) false
++#define __builtin_is_cpp_trivially_relocatable(...) false
++#define __builtin_lt_synthesizes_from_spaceship(...) false
++#define __builtin_le_synthesizes_from_spaceship(...) false
++#define __builtin_gt_synthesizes_from_spaceship(...) false
++#define __builtin_ge_synthesizes_from_spaceship(...) false
++#define __builtin_is_implicit_lifetime(...) false
++#define __builtin_is_virtual_base_of(...) false
++#define __AMX_AVX512INTRIN_H
++#define __AMXFP8INTRIN_H
++#define __AMXMOVRSINTRIN_H
++#define __AMX_TF32INTRIN_H
++#define __AVX10_2_512BF16INTRIN_H
++#define __AVX10_2_512CONVERTINTRIN_H
++#define __AVX10_2_512MINMAXINTRIN_H
++#define __AVX10_2_512NIINTRIN_H
++#define __AVX10_2_512SATCVTDSINTRIN_H
++#define __AVX10_2_512SATCVTINTRIN_H
++#define __AVX10_2BF16INTRIN_H
++#define __AVX10_2CONVERTINTRIN_H
++#define __AVX10_2COPYINTRIN_H
++#define __AVX10_2MINMAXINTRIN_H
++#define __AVX10_2NIINTRIN_H
++#define __AVX10_2SATCVTDSINTRIN_H
++#define __AVX10_2SATCVTINTRIN_H
++#define __MOVRS_AVX10_2_512INTRIN_H
++#define __MOVRS_AVX10_2INTRIN_H
++#define __MOVRSINTRIN_H
++#define __SM4EVEXINTRIN_H
++template <class _Tp>
++__attribute__((always_inline)) inline _Tp __nv_builtin_elementwise_sqrt(_Tp __x) {
++  if constexpr (sizeof(_Tp) == sizeof(float) && __is_floating_point(_Tp)) {
++    return __builtin_sqrtf(__x);
++  } else if constexpr (sizeof(_Tp) == sizeof(double) && __is_floating_point(_Tp)) {
++    return __builtin_sqrt(__x);
++  } else if constexpr (sizeof(_Tp) == 2 && __is_floating_point(_Tp)) {
++    return static_cast<_Tp>(__builtin_sqrtf(static_cast<float>(__x)));
++  } else {
++    _Tp __r{};
++    for (unsigned __i = 0; __i < sizeof(_Tp) / sizeof(__x[0]); ++__i)
++      __r[__i] = __nv_builtin_elementwise_sqrt(__x[__i]);
++    return __r;
++  }
++}
++#define __builtin_elementwise_sqrt __nv_builtin_elementwise_sqrt
++template <class _Tp>
++__attribute__((always_inline)) inline constexpr _Tp __nv_builtin_elementwise_fma(_Tp __x, _Tp __y, _Tp __z) {
++  return __x * __y + __z;
++}
++#define __builtin_elementwise_fma __nv_builtin_elementwise_fma
++template <class _Tp>
++__attribute__((always_inline)) inline constexpr _Tp __nv_builtin_elementwise_fshl(_Tp __x, _Tp __y, _Tp __z) {
++  if constexpr (__is_integral(_Tp)) {
++    constexpr unsigned _Bits = sizeof(_Tp) * 8;
++    unsigned __s = static_cast<unsigned>(__z) % _Bits;
++    return __s == 0 ? __x : static_cast<_Tp>((__x << __s) | (__y >> (_Bits - __s)));
++  } else {
++    _Tp __r{};
++    for (unsigned __i = 0; __i < sizeof(_Tp) / sizeof(__x[0]); ++__i)
++      __r[__i] = __nv_builtin_elementwise_fshl(__x[__i], __y[__i], __z[__i]);
++    return __r;
++  }
++}
++#define __builtin_elementwise_fshl __nv_builtin_elementwise_fshl
++template <class _Tp>
++__attribute__((always_inline)) inline constexpr _Tp __nv_builtin_elementwise_fshr(_Tp __x, _Tp __y, _Tp __z) {
++  if constexpr (__is_integral(_Tp)) {
++    constexpr unsigned _Bits = sizeof(_Tp) * 8;
++    unsigned __s = static_cast<unsigned>(__z) % _Bits;
++    return __s == 0 ? __y : static_cast<_Tp>((__y >> __s) | (__x << (_Bits - __s)));
++  } else {
++    _Tp __r{};
++    for (unsigned __i = 0; __i < sizeof(_Tp) / sizeof(__x[0]); ++__i)
++      __r[__i] = __nv_builtin_elementwise_fshr(__x[__i], __y[__i], __z[__i]);
++    return __r;
++  }
++}
++#define __builtin_elementwise_fshr __nv_builtin_elementwise_fshr
++template <class _Tp>
++__attribute__((always_inline)) inline constexpr _Tp __nv_builtin_elementwise_popcount(_Tp __x) {
++  if constexpr (__is_integral(_Tp)) {
++    if constexpr (sizeof(_Tp) < sizeof(unsigned)) {
++      return static_cast<_Tp>(__builtin_popcount(static_cast<unsigned>(__x) & ((1U << (sizeof(_Tp) * 8)) - 1U)));
++    } else if constexpr (sizeof(_Tp) == sizeof(unsigned)) {
++      return static_cast<_Tp>(__builtin_popcount(static_cast<unsigned>(__x)));
++    } else {
++      return static_cast<_Tp>(__builtin_popcountll(static_cast<unsigned long long>(__x)));
++    }
++  } else {
++    _Tp __r{};
++    for (unsigned __i = 0; __i < sizeof(_Tp) / sizeof(__x[0]); ++__i)
++      __r[__i] = __nv_builtin_elementwise_popcount(__x[__i]);
++    return __r;
++  }
++}
++#define __builtin_elementwise_popcount __nv_builtin_elementwise_popcount
++template <class _Tp>
++__attribute__((always_inline)) inline constexpr _Tp __nv_builtin_elementwise_clzg(_Tp __x, _Tp __y) {
++  if constexpr (__is_integral(_Tp)) {
++    if (__x == 0) return __y;
++    if constexpr (sizeof(_Tp) < sizeof(unsigned)) {
++      unsigned __u = static_cast<unsigned>(__x) & ((1U << (sizeof(_Tp) * 8)) - 1U);
++      return static_cast<_Tp>(__builtin_clz(__u) - (sizeof(unsigned) - sizeof(_Tp)) * 8);
++    } else if constexpr (sizeof(_Tp) == sizeof(unsigned)) {
++      return static_cast<_Tp>(__builtin_clz(static_cast<unsigned>(__x)));
++    } else {
++      return static_cast<_Tp>(__builtin_clzll(static_cast<unsigned long long>(__x)));
++    }
++  } else {
++    _Tp __r{};
++    for (unsigned __i = 0; __i < sizeof(_Tp) / sizeof(__x[0]); ++__i)
++      __r[__i] = __nv_builtin_elementwise_clzg(__x[__i], __y[__i]);
++    return __r;
++  }
++}
++#define __builtin_elementwise_clzg __nv_builtin_elementwise_clzg
++#endif
 +#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
 +#define _LIBCPP___ALGORITHM_SIMD_UTILS_H
 +#define _LIBCPP_HAS_ALGORITHM_VECTOR_UTILS 0
 +#define _LIBCPP_VECTORIZE_ALGORITHMS 0
-+#define __builtin_lt_synthesizes_from_spaceship(...) false
 +#define _BitInt(N) long long
 +#define static_assert(...) static_assert(true, "")
++#define explicit(...)
 +#if __has_builtin(__builtin_common_type)
 +#include <__type_traits/conditional.h>
 +#include <__type_traits/decay.h>
