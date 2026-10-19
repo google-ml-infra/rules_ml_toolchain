@@ -1,0 +1,3 @@
+"""Common test utilities."""
+
+exports_files(["common.bzl"])

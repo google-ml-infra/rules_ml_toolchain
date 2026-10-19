@@ -48,6 +48,10 @@ load(
     "with_feature_set",
 )
 load("@rules_cc//cc:defs.bzl", "CcToolchainConfigInfo", "cc_common")
+load(
+    "//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
+    "CcToolchainImportInfo",
+)
 
 ALL_ACTIONS = (
     ALL_CC_COMPILE_ACTION_NAMES +
@@ -88,8 +92,212 @@ ALL_ACTIONS = (
 #    ACTION_NAMES.clif_match,
 #]
 
+def _get_windows_actions_config(ctx):
+    assembler_file = ctx.file.assembler if ctx.file.assembler else ctx.file.c_compiler
+    scanner_file = ctx.file.module_deps_scanner if ctx.file.module_deps_scanner else ctx.file.cc_compiler
+
+    assemble_action = action_config(
+        action_name = ACTION_NAMES.assemble,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "sysroot",
+        ],
+        tools = [tool(tool = assembler_file)],
+    )
+
+    preprocess_assemble_action = action_config(
+        action_name = ACTION_NAMES.preprocess_assemble,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "sysroot",
+        ],
+        tools = [tool(tool = assembler_file)],
+    )
+
+    c_compile_action = action_config(
+        action_name = ACTION_NAMES.c_compile,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+        ],
+        tools = [tool(tool = ctx.file.c_compiler)],
+    )
+
+    linkstamp_compile_action = action_config(
+        action_name = ACTION_NAMES.linkstamp_compile,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "default_compile_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+            "unfiltered_compile_flags",
+        ],
+        tools = [tool(tool = ctx.file.c_compiler)],
+    )
+
+    cpp_compile_action = action_config(
+        action_name = ACTION_NAMES.cpp_compile,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+        ],
+        tools = [tool(tool = ctx.file.cc_compiler)],
+    )
+
+    cpp_link_executable_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_executable,
+        implies = [
+            "nologo",
+            "linkstamps",
+            "output_execpath_flags",
+            "input_param_flags",
+            "user_link_flags",
+            "linker_subsystem_flag",
+            "linker_param_file",
+            "msvc_env",
+            "no_stripping",
+        ],
+        tools = [tool(tool = ctx.file.linker)],
+    )
+
+    cpp_link_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_dynamic_library,
+        implies = [
+            "nologo",
+            "shared_flag",
+            "linkstamps",
+            "output_execpath_flags",
+            "input_param_flags",
+            "user_link_flags",
+            "linker_subsystem_flag",
+            "linker_param_file",
+            "msvc_env",
+            "no_stripping",
+            "has_configured_linker_path",
+            "def_file",
+        ],
+        tools = [tool(tool = ctx.file.linker)],
+    )
+
+    cpp_link_nodeps_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        implies = [
+            "nologo",
+            "shared_flag",
+            "linkstamps",
+            "output_execpath_flags",
+            "input_param_flags",
+            "user_link_flags",
+            "linker_subsystem_flag",
+            "linker_param_file",
+            "msvc_env",
+            "no_stripping",
+            "has_configured_linker_path",
+            "def_file",
+        ],
+        tools = [tool(tool = ctx.file.linker)],
+    )
+
+    cpp_link_static_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_static_library,
+        implies = [
+            "nologo",
+            "archiver_flags",
+            "input_param_flags",
+            "linker_param_file",
+            "msvc_env",
+        ],
+        tools = [tool(tool = ctx.file.archiver)],
+    )
+
+    cpp_module_scan_deps = action_config(
+        action_name = ACTION_NAMES.cpp_module_deps_scanning,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+        ],
+        tools = [tool(tool = scanner_file)],
+    )
+
+    cpp20_module_compile = action_config(
+        action_name = ACTION_NAMES.cpp20_module_compile,
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "/TP",
+                            "/interface",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+        ],
+        tools = [tool(tool = ctx.file.cc_compiler)],
+    )
+
+    cpp20_module_codegen = action_config(
+        action_name = ACTION_NAMES.cpp20_module_codegen,
+        implies = [
+            "compiler_input_flags",
+            "compiler_output_flags",
+            "nologo",
+            "msvc_env",
+            "user_compile_flags",
+            "sysroot",
+        ],
+        tools = [tool(tool = ctx.file.cc_compiler)],
+    )
+
+    return [
+        assemble_action,
+        preprocess_assemble_action,
+        c_compile_action,
+        linkstamp_compile_action,
+        cpp_compile_action,
+        cpp_link_executable_action,
+        cpp_link_dynamic_library_action,
+        cpp_link_nodeps_dynamic_library_action,
+        cpp_link_static_library_action,
+        cpp_module_scan_deps,
+        cpp20_module_compile,
+        cpp20_module_codegen,
+    ]
+
 # Copy of action configuration from @rules_cc//cc/...:unix_cc_toolchain_config_lib.bzl
 def _get_actions_config(ctx):
+    if ctx.attr.target_libc == "msvcrt":
+        return _get_windows_actions_config(ctx)
+
     action_configs = []
 
     llvm_cov = ctx.attr.tool_paths.get("llvm-cov")
@@ -274,6 +482,40 @@ def _label_to_tool_path_feature(tool_mapping = {}):
     )
 
 def _create_artifact_name_patterns(ctx):
+    if ctx.attr.target_libc == "msvcrt":
+        return [
+            artifact_name_pattern(
+                category_name = "object_file",
+                prefix = "",
+                extension = ".obj",
+            ),
+            artifact_name_pattern(
+                category_name = "static_library",
+                prefix = "",
+                extension = ".lib",
+            ),
+            artifact_name_pattern(
+                category_name = "alwayslink_static_library",
+                prefix = "",
+                extension = ".lo.lib",
+            ),
+            artifact_name_pattern(
+                category_name = "executable",
+                prefix = "",
+                extension = ".exe",
+            ),
+            artifact_name_pattern(
+                category_name = "dynamic_library",
+                prefix = "",
+                extension = ".dll",
+            ),
+            artifact_name_pattern(
+                category_name = "interface_library",
+                prefix = "",
+                extension = ".if.lib",
+            ),
+        ]
+
     artifact_name_patterns = []
     is_linux = ctx.attr.target_libc != "macosx"
 
@@ -520,19 +762,28 @@ def _get_layering_features(extra_module_maps, extra_flags_per_feature = {}):
 
 def _cc_toolchain_config_impl(ctx):
     # Add system builtin include directories if specified
-    builtin_include_dirs = ctx.attr.cxx_builtin_include_directories if ctx.attr.cxx_builtin_include_directories else []
+    builtin_include_dirs = list(ctx.attr.cxx_builtin_include_directories) if ctx.attr.cxx_builtin_include_directories else []
+    if ctx.attr.target_libc == "msvcrt":
+        for label in ctx.attr.compiler_features:
+            if CcToolchainImportInfo in label:
+                for inc in label[CcToolchainImportInfo].compilation_context.includes.to_list():
+                    inc_dir = "%workspace%/" + inc
+                    if inc_dir not in builtin_include_dirs:
+                        builtin_include_dirs.append(inc_dir)
+
+    extra_features = [] if ctx.attr.target_libc == "msvcrt" else (_get_layering_features({}) + _get_header_module_features())
 
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
-        host_system_name = "local",
+        host_system_name = ctx.attr.host_system_name,
         target_system_name = ctx.attr.target_system_name,
         target_cpu = ctx.attr.target_cpu,
         target_libc = ctx.attr.target_libc,
         artifact_name_patterns = _create_artifact_name_patterns(ctx),
-        toolchain_identifier = "aarch64_linux_clang_id",
-        compiler = "clang",
-        abi_version = "unknown",
-        abi_libc_version = "unknown",
+        toolchain_identifier = ctx.attr.toolchain_identifier,
+        compiler = ctx.attr.compiler,
+        abi_version = ctx.attr.abi_version,
+        abi_libc_version = ctx.attr.abi_libc_version,
         cxx_builtin_include_directories = builtin_include_dirs,
         action_configs = _get_actions_config(ctx),
         tool_paths = [
@@ -547,15 +798,20 @@ def _cc_toolchain_config_impl(ctx):
             "cpp": ctx.file.cc_compiler,
             "ld": ctx.file.linker,
             "ar": ctx.file.archiver,
+            "ml": ctx.file.assembler,
             "strip": ctx.file.strip_tool,
             "cpp-module-deps-scanner": ctx.file.module_deps_scanner,
             "in": ctx.file.install_name,
-        })] + _get_layering_features({}) + _get_header_module_features(),
+        })] + extra_features,
     )
 
 cc_toolchain_config = rule(
     implementation = _cc_toolchain_config_impl,
     attrs = {
+        "host_system_name": attr.string(
+            doc = "Host system name.",
+            default = "local",
+        ),
         "target_system_name": attr.string(
             doc = "Target system name.",
             mandatory = True,
@@ -568,6 +824,22 @@ cc_toolchain_config = rule(
             doc = "Target libc.",
             mandatory = False,
             default = "unknown",
+        ),
+        "compiler": attr.string(
+            doc = "Compiler name.",
+            default = "clang",
+        ),
+        "abi_version": attr.string(
+            doc = "ABI version.",
+            default = "unknown",
+        ),
+        "abi_libc_version": attr.string(
+            doc = "ABI libc version.",
+            default = "unknown",
+        ),
+        "toolchain_identifier": attr.string(
+            doc = "Toolchain identifier.",
+            default = "aarch64_linux_clang_id",
         ),
         "dynamic_library_extension": attr.string(
             doc = "Dynamic library extension.",
@@ -613,6 +885,11 @@ cc_toolchain_config = rule(
             doc = "The archiver e.g. ar/llvm-ar. Maps to tool path 'ar'.",
             allow_single_file = True,
             mandatory = True,
+        ),
+        "assembler": attr.label(
+            doc = "The assembler tool e.g. llvm-ml. Maps to tool path 'ml'.",
+            allow_single_file = True,
+            mandatory = False,
         ),
         "cxx_builtin_include_directories": attr.string_list(
             doc = "List of builtin include directories for the toolchain. Needed for non-hermetic system includes.",

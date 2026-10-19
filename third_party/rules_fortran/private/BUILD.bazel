@@ -1,0 +1,16 @@
+"""Private implementation for rules_fortran."""
+
+package(
+    default_visibility = [
+        "//fortran:__subpackages__",
+        "//third_party/rules_fortran:__subpackages__",
+    ],
+)
+
+exports_files([
+    "compile.bzl",
+    "fortran_binary.bzl",
+    "fortran_library.bzl",
+    "fortran_test.bzl",
+    "providers.bzl",
+])

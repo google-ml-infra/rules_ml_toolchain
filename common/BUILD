@@ -55,6 +55,14 @@ platform(
     ],
 )
 
+platform(
+    name = "windows_x86_64",
+    constraint_values = [
+        "@platforms//os:windows",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
 config_setting(
     name = "is_linux_x86_64",
     constraint_values = [
@@ -98,6 +106,15 @@ config_setting(
     constraint_values = [
         "@platforms//os:macos",
         "@platforms//cpu:aarch64",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "is_windows_x86_64",
+    constraint_values = [
+        "@platforms//os:windows",
+        "@platforms//cpu:x86_64",
     ],
     visibility = ["//visibility:public"],
 )

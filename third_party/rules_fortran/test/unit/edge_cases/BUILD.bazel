@@ -1,0 +1,5 @@
+"""Unit tests for edge cases."""
+
+load(":edge_cases_test.bzl", "edge_cases_test_suite")
+
+edge_cases_test_suite(name = "edge_cases_test")

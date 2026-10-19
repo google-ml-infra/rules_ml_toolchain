@@ -1,0 +1,474 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+load(
+    "@rules_cc//cc:action_names.bzl",
+    "ACTION_NAMES",
+)
+load(
+    "@sysroot_windows_x86_64//:defs.bzl",
+    "MSVC_ENV_INCLUDE",
+    "MSVC_ENV_LIB",
+    "MSVC_ENV_PATH",
+    "MSVC_ENV_TMP",
+)
+load(
+    "//cc/features/windows:features.bzl",
+    "ALL_COMPILE_ACTIONS",
+    "ALL_CPP_COMPILE_ACTIONS",
+    "ALL_LINK_ACTIONS",
+    "windows_archiver_flags_feature",
+    "windows_compiler_output_flags_feature",
+    "windows_disable_assertions_feature",
+    "windows_dynamic_link_msvcrt_feature",
+    "windows_external_include_paths_feature",
+    "windows_generate_pdb_file_feature",
+    "windows_include_paths_feature",
+    "windows_input_param_flags_feature",
+    "windows_linkstamps_feature",
+    "windows_msvc_compile_env_feature",
+    "windows_msvc_env_feature",
+    "windows_msvc_link_env_feature",
+    "windows_parse_showincludes_feature",
+    "windows_preprocessor_defines_feature",
+    "windows_smaller_binary_feature",
+    "windows_static_link_msvcrt_feature",
+    "windows_unfiltered_compile_flags_feature",
+    "windows_user_compile_flags_feature",
+    "windows_user_link_flags_feature",
+)
+load(
+    "//third_party/rules_cc_toolchain/features:features.bzl",
+    "cc_feature",
+)
+
+package(
+    default_visibility = [
+        "//cc/impls/windows_x86_64_windows_x86_64:__pkg__",
+    ],
+)
+
+MSVC_CL_COMPILE_ACTIONS = [
+    ACTION_NAMES.c_compile,
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.cpp20_module_compile,
+    ACTION_NAMES.cpp20_module_codegen,
+]
+
+cc_feature(
+    name = "no_legacy_features",
+)
+
+cc_feature(
+    name = "nologo",
+    actions = ALL_COMPILE_ACTIONS + ALL_LINK_ACTIONS + [
+        ACTION_NAMES.cpp_link_static_library,
+    ],
+    flags = ["/nologo"],
+)
+
+cc_feature(
+    name = "has_configured_linker_path",
+)
+
+cc_feature(
+    name = "no_stripping",
+)
+
+cc_feature(
+    name = "copy_dynamic_libraries_to_binary",
+)
+
+cc_feature(
+    name = "targets_windows",
+    enabled = True,
+    implies = [":copy_dynamic_libraries_to_binary"],
+)
+
+cc_feature(
+    name = "default_cpp_std",
+    actions = ALL_CPP_COMPILE_ACTIONS,
+    enabled = True,
+    flags = ["/std:c++17"],
+)
+
+cc_feature(
+    name = "c++11",
+    actions = ALL_CPP_COMPILE_ACTIONS,
+    flags = ["/std:c++14"],
+    provides = ["cc_standard"],
+)
+
+cc_feature(
+    name = "c++14",
+    actions = ALL_CPP_COMPILE_ACTIONS,
+    flags = ["/std:c++14"],
+    provides = ["cc_standard"],
+)
+
+cc_feature(
+    name = "c++17",
+    actions = ALL_CPP_COMPILE_ACTIONS,
+    flags = ["/std:c++17"],
+    provides = ["cc_standard"],
+)
+
+cc_feature(
+    name = "c++20",
+    actions = ALL_CPP_COMPILE_ACTIONS,
+    flags = ["/std:c++20"],
+    provides = ["cc_standard"],
+)
+
+cc_feature(
+    name = "default_compile_flags",
+    actions = [
+        ACTION_NAMES.preprocess_assemble,
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.linkstamp_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.cpp_module_codegen,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    enabled = True,
+    flags = [
+        "-nobuiltininc",
+        "-no-canonical-prefixes",
+        "/DNOMINMAX",
+        "/D_CRT_SECURE_NO_DEPRECATE",
+        "/D_CRT_SECURE_NO_WARNINGS",
+        "/bigobj",
+        "/Zm500",
+        "/EHsc",
+        "/wd4351",
+        "/wd4291",
+        "/wd4250",
+        "/wd4996",
+        "/D_WIN32_WINNT=0x0601",
+    ],
+)
+
+windows_msvc_compile_env_feature(
+    name = "msvc_compile_env",
+    msvc_env_include = MSVC_ENV_INCLUDE,
+)
+
+windows_msvc_link_env_feature(
+    name = "msvc_link_env",
+    msvc_env_lib = MSVC_ENV_LIB,
+)
+
+windows_msvc_env_feature(
+    name = "msvc_env",
+    implies = [
+        ":msvc_compile_env",
+        ":msvc_link_env",
+    ],
+    msvc_env_path = MSVC_ENV_PATH,
+    msvc_env_tmp = MSVC_ENV_TMP,
+)
+
+windows_include_paths_feature(
+    name = "include_paths",
+    enabled = True,
+)
+
+windows_external_include_paths_feature(
+    name = "external_include_paths",
+)
+
+windows_preprocessor_defines_feature(
+    name = "preprocessor_defines",
+    enabled = True,
+)
+
+windows_parse_showincludes_feature(
+    name = "parse_showincludes",
+    enabled = True,
+)
+
+cc_feature(
+    name = "no_dotd_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "shorten_virtual_includes",
+    enabled = True,
+)
+
+windows_generate_pdb_file_feature(
+    name = "generate_pdb_file",
+)
+
+cc_feature(
+    name = "generate_linkmap",
+    actions = [ACTION_NAMES.cpp_link_executable],
+    expand_if_available = "output_execpath",
+    flags = ["/MAP:%{output_execpath}.map"],
+)
+
+cc_feature(
+    name = "shared_flag",
+    actions = [
+        ACTION_NAMES.cpp_link_dynamic_library,
+        ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+    ],
+    flags = ["/DLL"],
+)
+
+windows_linkstamps_feature(
+    name = "linkstamps",
+)
+
+cc_feature(
+    name = "output_execpath_flags",
+    actions = ALL_LINK_ACTIONS,
+    expand_if_available = "output_execpath",
+    flags = ["/OUT:%{output_execpath}"],
+)
+
+windows_archiver_flags_feature(
+    name = "archiver_flags",
+    arch = "X64",
+)
+
+windows_input_param_flags_feature(
+    name = "input_param_flags",
+)
+
+cc_feature(
+    name = "linker_subsystem_flag",
+    actions = ALL_LINK_ACTIONS,
+    flags = ["/SUBSYSTEM:CONSOLE"],
+)
+
+windows_user_link_flags_feature(
+    name = "user_link_flags",
+)
+
+cc_feature(
+    name = "default_link_flags",
+    actions = ALL_LINK_ACTIONS,
+    enabled = True,
+    flags = ["/MACHINE:X64"],
+)
+
+cc_feature(
+    name = "linker_param_file",
+    actions = ALL_LINK_ACTIONS + [
+        ACTION_NAMES.cpp_link_static_library,
+    ],
+    expand_if_available = "linker_param_file",
+    flags = ["@%{linker_param_file}"],
+)
+
+windows_static_link_msvcrt_feature(
+    name = "static_link_msvcrt",
+)
+
+windows_dynamic_link_msvcrt_feature(
+    name = "dynamic_link_msvcrt",
+    enabled = True,
+)
+
+cc_feature(
+    name = "frame_pointer",
+    actions = MSVC_CL_COMPILE_ACTIONS,
+    flags = ["/Oy-"],
+)
+
+cc_feature(
+    name = "dbg",
+    actions = MSVC_CL_COMPILE_ACTIONS,
+    flags = [
+        "/Od",
+        "/Z7",
+    ],
+    implies = [":generate_pdb_file"],
+    linker_flags = [
+        "/DEBUG:FULL",
+        "/INCREMENTAL:NO",
+    ],
+    provides = ["compilation_mode"],
+)
+
+cc_feature(
+    name = "fastbuild",
+    actions = MSVC_CL_COMPILE_ACTIONS,
+    flags = [
+        "/Od",
+        "/Z7",
+    ],
+    implies = [":generate_pdb_file"],
+    linker_flags = [
+        "/DEBUG:FASTLINK",
+        "/INCREMENTAL:NO",
+    ],
+    provides = ["compilation_mode"],
+)
+
+cc_feature(
+    name = "opt",
+    actions = MSVC_CL_COMPILE_ACTIONS,
+    flags = ["/O2"],
+    implies = [":frame_pointer"],
+    provides = ["compilation_mode"],
+)
+
+windows_disable_assertions_feature(
+    name = "disable_assertions",
+    enabled = True,
+)
+
+cc_feature(
+    name = "determinism",
+    actions = [
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.cpp_compile,
+    ],
+    enabled = True,
+    flags = [
+        "/wd4117",
+        "-D__DATE__=\"redacted\"",
+        "-D__TIMESTAMP__=\"redacted\"",
+        "-D__TIME__=\"redacted\"",
+        "-Wno-builtin-macro-redefined",
+    ],
+)
+
+cc_feature(
+    name = "treat_warnings_as_errors",
+    actions = MSVC_CL_COMPILE_ACTIONS + ALL_LINK_ACTIONS,
+    flags = ["/WX"],
+)
+
+windows_smaller_binary_feature(
+    name = "smaller_binary",
+    enabled = True,
+)
+
+cc_feature(
+    name = "remove_unreferenced_code",
+    actions = MSVC_CL_COMPILE_ACTIONS,
+    enabled = True,
+    flags = ["/Zc:inline"],
+)
+
+cc_feature(
+    name = "ignore_noisy_warnings",
+    actions = [ACTION_NAMES.cpp_link_static_library],
+    enabled = True,
+    flags = ["/ignore:4221"],
+)
+
+windows_user_compile_flags_feature(
+    name = "user_compile_flags",
+    enabled = True,
+)
+
+windows_unfiltered_compile_flags_feature(
+    name = "unfiltered_compile_flags",
+    enabled = True,
+)
+
+cc_feature(
+    name = "archive_param_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "compiler_param_file",
+    enabled = True,
+)
+
+cc_feature(
+    name = "windows_quoting_for_param_files",
+    enabled = True,
+)
+
+windows_compiler_output_flags_feature(
+    name = "compiler_output_flags",
+)
+
+cc_feature(
+    name = "compiler_input_flags",
+    actions = [
+        ACTION_NAMES.assemble,
+        ACTION_NAMES.preprocess_assemble,
+        ACTION_NAMES.c_compile,
+        ACTION_NAMES.linkstamp_compile,
+        ACTION_NAMES.cpp_compile,
+        ACTION_NAMES.cpp_header_parsing,
+        ACTION_NAMES.cpp_module_compile,
+        ACTION_NAMES.cpp_module_codegen,
+        ACTION_NAMES.cpp_module_deps_scanning,
+        ACTION_NAMES.cpp20_module_compile,
+        ACTION_NAMES.cpp20_module_codegen,
+    ],
+    expand_if_available = "source_file",
+    flags = [
+        "/c",
+        "%{source_file}",
+    ],
+)
+
+cc_feature(
+    name = "def_file",
+    actions = ALL_LINK_ACTIONS,
+    expand_if_available = "def_file_path",
+    flags = [
+        "/DEF:%{def_file_path}",
+        "/ignore:4070",
+    ],
+)
+
+cc_feature(
+    name = "windows_export_all_symbols",
+)
+
+cc_feature(
+    name = "no_windows_export_all_symbols",
+)
+
+cc_feature(
+    name = "supports_dynamic_linker",
+    enabled = True,
+)
+
+cc_feature(
+    name = "supports_interface_shared_libraries",
+    enabled = True,
+)
+
+cc_feature(
+    name = "symbol_check",
+    actions = [ACTION_NAMES.cpp_link_static_library],
+    flags = ["/WX:4006"],
+)
+
+cc_feature(
+    name = "cpp20_module_compile_flags",
+    actions = [ACTION_NAMES.cpp20_module_compile],
+    enabled = True,
+    expand_if_available = "cpp_module_output_file",
+    flags = ["/ifcOutput%{cpp_module_output_file}"],
+)

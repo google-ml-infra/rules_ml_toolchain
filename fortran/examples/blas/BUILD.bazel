@@ -1,0 +1,74 @@
+load("@bazel_skylib//rules:native_binary.bzl", "native_test")
+load("@rules_ml_toolchain//fortran:defs.bzl", "fortran_test")
+load("@rules_python//python:defs.bzl", "py_test")
+
+# Example: Simple BLAS DGEMM test
+fortran_test(
+    name = "main",
+    srcs = ["main.f90"],
+    copts = ["-O2"],
+    deps = ["@blas//:double"],
+)
+
+# Level 1 tests (no input files, run directly from @blas)
+[
+    native_test(
+        name = "%sblat1" % prefix,
+        size = "small",
+        src = "@blas//:%sblat1" % prefix,
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]
+
+# Level 2 tests (input files from @blas external repo)
+[
+    py_test(
+        name = "%sblat2" % prefix,
+        size = "medium",
+        srcs = ["run.py"],
+        args = [
+            "$(location @blas//:%sblat2)" % prefix,
+            "$(location @blas//:TESTING/%sblat2.in)" % prefix,
+        ],
+        data = [
+            "@blas//:%sblat2" % prefix,
+            "@blas//:TESTING/%sblat2.in" % prefix,
+        ],
+        main = "run.py",
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]
+
+# Level 3 tests (input files from @blas external repo)
+[
+    py_test(
+        name = "%sblat3" % prefix,
+        size = "medium",
+        srcs = ["run.py"],
+        args = [
+            "$(location @blas//:%sblat3)" % prefix,
+            "$(location @blas//:TESTING/%sblat3.in)" % prefix,
+        ],
+        data = [
+            "@blas//:%sblat3" % prefix,
+            "@blas//:TESTING/%sblat3.in" % prefix,
+        ],
+        main = "run.py",
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]

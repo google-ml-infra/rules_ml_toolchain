@@ -1,0 +1,100 @@
+From 548f62369e201d6ddeed4abd296102d2d11de1d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@quansight.com>
+Date: Thu, 6 Nov 2025 17:52:51 +0100
+Subject: [PATCH] Implement MSVC complex types
+
+Implement the support for the `_Fcomplex` and `_Dcomplex` types used
+by MSVC in place of the standard C99 complex types.  This is necessary
+to make LAPACK build out of the box with MSVC, since it does not
+implement the default C99 types.
+
+See: https://learn.microsoft.com/en-us/cpp/c-runtime-library/complex-math-support
+
+Signed-off-by: Michał Górny <mgorny@quansight.com>
+---
+ LAPACKE/include/lapack.h                    |  8 ++++++++
+ LAPACKE/include/lapacke_config.h            | 10 ++++++++++
+ LAPACKE/utils/lapacke_make_complex_double.c |  2 ++
+ LAPACKE/utils/lapacke_make_complex_float.c  |  2 ++
+ 4 files changed, 22 insertions(+)
+
+diff --git a/LAPACKE/include/lapack.h b/LAPACKE/include/lapack.h
+index f9a254512c..a9f110fdc6 100644
+--- a/LAPACKE/include/lapack.h
++++ b/LAPACKE/include/lapack.h
+@@ -47,8 +47,12 @@
+ #else
+ #include <complex>
+ #endif
++#if _MSC_VER
++#define lapack_complex_float    _Fcomplex
++#else
+ #define lapack_complex_float    float _Complex
+ #endif
++#endif
+ 
+ #ifndef lapack_complex_float_real
+ #define lapack_complex_float_real(z)       (creal(z))
+@@ -65,8 +69,12 @@
+ #else
+ #include <complex>
+ #endif
++#if _MSC_VER
++#define lapack_complex_double   _Dcomplex
++#else
+ #define lapack_complex_double   double _Complex
+ #endif
++#endif
+ 
+ #ifndef lapack_complex_double_real
+ #define lapack_complex_double_real(z)      (creal(z))
+diff --git a/LAPACKE/include/lapacke_config.h b/LAPACKE/include/lapacke_config.h
+index c64fc4416a..753d4587ad 100644
+--- a/LAPACKE/include/lapacke_config.h
++++ b/LAPACKE/include/lapacke_config.h
+@@ -99,6 +99,16 @@ typedef struct { double real, imag; } _lapack_complex_double;
+ #define lapack_complex_double_real(z)       ((z).real())
+ #define lapack_complex_double_imag(z)       ((z).imag())
+ 
++#elif _MSC_VER
++
++#include <complex.h>
++#define lapack_complex_float    _Fcomplex
++#define lapack_complex_double   _Dcomplex
++#define lapack_complex_float_real(z)       (crealf(z))
++#define lapack_complex_float_imag(z)       (cimagf(z))
++#define lapack_complex_double_real(z)      (creal(z))
++#define lapack_complex_double_imag(z)      (cimag(z))
++
+ #else
+ 
+ #include <complex.h>
+diff --git a/LAPACKE/utils/lapacke_make_complex_double.c b/LAPACKE/utils/lapacke_make_complex_double.c
+index f6fb74b18f..da59ce5d12 100644
+--- a/LAPACKE/utils/lapacke_make_complex_double.c
++++ b/LAPACKE/utils/lapacke_make_complex_double.c
+@@ -43,6 +43,8 @@ lapack_complex_double lapack_make_complex_double( double re, double im ) {
+     z = re + im * I;
+ #elif defined(LAPACK_COMPLEX_CPP)
+     z = std::complex<double>(re,im);
++#elif _MSC_VER
++    z = _Cbuild(re, im);
+ #else /* C99 is default */
+     z = re + im*I;
+ #endif
+diff --git a/LAPACKE/utils/lapacke_make_complex_float.c b/LAPACKE/utils/lapacke_make_complex_float.c
+index c04eb084cd..580b068376 100644
+--- a/LAPACKE/utils/lapacke_make_complex_float.c
++++ b/LAPACKE/utils/lapacke_make_complex_float.c
+@@ -43,6 +43,8 @@ lapack_complex_float lapack_make_complex_float( float re, float im ) {
+     z = re + im * I;
+ #elif defined(LAPACK_COMPLEX_CPP)
+     z = std::complex<float>(re,im);
++#elif _MSC_VER
++    z = _FCbuild(re, im);
+ #else /* C99 is default */
+     z = re + im*I;
+ #endif
+-- 
+2.47.0
+
