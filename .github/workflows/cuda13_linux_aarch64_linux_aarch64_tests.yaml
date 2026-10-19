@@ -123,7 +123,7 @@ jobs:
 
       - name: "NVCC Static NVRTC CUDA | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++20" --color=yes --config=build_cuda_with_nvcc \
+          bazel build --cxxopt="-std=c++17" --color=yes --config=build_cuda_with_nvcc \
             --config=cuda13 \
             --config=cuda_libraries_from_stubs \
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
