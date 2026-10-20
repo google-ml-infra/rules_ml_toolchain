@@ -41,7 +41,7 @@ diff -ruN a/include/crt/host_config.h b/include/crt/host_config.h
 diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
 --- a/include/crt/host_defines.h	2025-05-27 09:41:21.000000000 +0000
 +++ b/include/crt/host_defines.h	2026-10-16 23:28:51.062890322 +0000
-@@ -62,10 +62,428 @@
+@@ -62,10 +62,437 @@
  
  #if defined(__CUDACC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && !defined(_ALLOW_UNSUPPORTED_LIBCPP)
  #include <ctype.h>
@@ -178,6 +178,14 @@ diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
 +  }
 +}
 +#define __builtin_elementwise_clzg __nv_builtin_elementwise_clzg
++#if defined(__CUDA_ARCH__) && defined(__CUDACC_RELAXED_CONSTEXPR__) && (defined(__x86_64__) || defined(__i386__))
++#include <stddef.h>
++#include <stdlib.h>
++#pragma push_macro("constexpr")
++#define constexpr
++#include <x86intrin.h>
++#pragma pop_macro("constexpr")
++#endif
 +#endif
 +#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
 +#define _LIBCPP___ALGORITHM_SIMD_UTILS_H
