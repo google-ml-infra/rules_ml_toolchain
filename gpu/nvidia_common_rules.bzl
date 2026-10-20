@@ -447,9 +447,16 @@ def _apply_patches(repository_ctx, cuda_version):
     if not repository_ctx.attr.patches or not cuda_version:
         return
     major_cuda_version = cuda_version.split(".")[0]
+    llvm_version = get_env_var(repository_ctx, "LLVM_VERSION") or ""
+    major_llvm_version = llvm_version.split(".")[0] if llvm_version else ""
     for patch_file, versions in repository_ctx.attr.patches.items():
-        for dist_version in versions.split(","):
-            if dist_version in ["any", cuda_version, major_cuda_version]:
+        for version_spec in versions.split(","):
+            cuda_ver, _, llvm_ver = version_spec.partition(":")
+            if not llvm_ver:
+                llvm_ver = "any"
+            cuda_match = cuda_ver in ["any", cuda_version, major_cuda_version]
+            llvm_match = llvm_ver in ["any", llvm_version, major_llvm_version] if llvm_version else (llvm_ver == "any")
+            if cuda_match and llvm_match:
                 repository_ctx.patch(patch_file, strip = 1)
                 break
 
@@ -485,7 +492,7 @@ _redist_repo = repository_rule(
             allow_single_file = True,
         ),
     },
-    environ = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"],
+    environ = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION", "LLVM_VERSION"],
 )
 
 def redist_init_repository(
@@ -582,13 +589,23 @@ def get_patch_to_versions_dict(version_to_patches):
     # buildifier: disable=function-docstring-args
     """Returns a dict mapping patch labels to comma-separated version strings."""
     patch_to_versions = {}
-    for version, patches in version_to_patches.items():
-        for patch in patches:
-            patch_label = Label(patch)
-            if patch_label not in patch_to_versions:
-                patch_to_versions[patch_label] = [version]
-            else:
-                patch_to_versions[patch_label].append(version)
+    for cuda_version, patches_or_llvm_dict in version_to_patches.items():
+        if type(patches_or_llvm_dict) == "dict":
+            for llvm_version, patches in patches_or_llvm_dict.items():
+                version_spec = "{}:{}".format(cuda_version, llvm_version)
+                for patch in patches:
+                    patch_label = Label(patch)
+                    if patch_label not in patch_to_versions:
+                        patch_to_versions[patch_label] = [version_spec]
+                    else:
+                        patch_to_versions[patch_label].append(version_spec)
+        else:
+            for patch in patches_or_llvm_dict:
+                patch_label = Label(patch)
+                if patch_label not in patch_to_versions:
+                    patch_to_versions[patch_label] = [cuda_version]
+                else:
+                    patch_to_versions[patch_label].append(cuda_version)
     return {
         patch_label: ",".join(versions)
         for patch_label, versions in patch_to_versions.items()
