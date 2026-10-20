@@ -41,7 +41,7 @@ diff -ruN a/include/crt/host_config.h b/include/crt/host_config.h
 diff -ruN a/include/crt/host_defines.h b/include/crt/host_defines.h
 --- a/include/crt/host_defines.h	2025-05-27 09:41:21.000000000 +0000
 +++ b/include/crt/host_defines.h	2026-10-16 23:28:51.062890322 +0000
-@@ -62,10 +62,437 @@
+@@ -62,10 +62,436 @@
  
  #if defined(__CUDACC__) && !defined(__CUDACC_RTC__) && !defined(__CUDADEVRT_INTERNAL__) && !defined(_ALLOW_UNSUPPORTED_LIBCPP)
  #include <ctype.h>
