@@ -233,7 +233,10 @@ def InvokeHipcc(argv, log=False):
         if args.sysroot[0] != "/":
             gpu_compiler_options.extend(["--sysroot", args.sysroot[0]])
     if args.g:
-        gpu_compiler_options.append("-g" + " -g".join(set(sum(args.g, []))))
+        # Forward every -g flag as its own argument, in the original order, so
+        # that the last debug level wins as it would with clang directly
+        # (e.g. "-g0 -g0" or "-g2 -g0").
+        gpu_compiler_options.extend("-g" + "".join(g) for g in args.g)
     if args.no_canonical_prefixes:
         gpu_compiler_options.append("-no-canonical-prefixes")
 
