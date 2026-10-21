@@ -37,6 +37,8 @@ def _cuda_redist_init_ext_impl(mctx):
     for mod in reversed(mctx.modules):
         mod_patches = {}
         for tag in mod.tags.patch:
+            if tag.dev_dependency and not mod.is_root:
+                continue
             redist_patches = mod_patches.setdefault(tag.redist_name, {})
             cuda_ver_patches = redist_patches.setdefault(tag.cuda_version, {})
             llvm_ver_patches = cuda_ver_patches.setdefault(tag.llvm_version, [])
@@ -77,6 +79,10 @@ _patch_tag = tag_class(
             allow_files = True,
             mandatory = True,
             doc = "List of patch file labels to apply when cuda_version and llvm_version match.",
+        ),
+        "dev_dependency": attr.bool(
+            default = False,
+            doc = "If true, this patch configuration is ignored when the module is not the root module.",
         ),
     },
     doc = "Configure patches to apply to a hermetic CUDA redistribution repository.",
