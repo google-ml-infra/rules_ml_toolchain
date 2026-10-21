@@ -68,11 +68,31 @@ def cudnn_redist_init_repository(
         local_source_dirs = local_source_dirs,
     )
 
+def _merge_version_to_patches(base_patches, override_patches):
+    merged = {}
+    for cuda_ver, val in base_patches.items():
+        if type(val) == "dict":
+            merged[cuda_ver] = dict(val)
+        else:
+            merged[cuda_ver] = list(val)
+    for cuda_ver, val in override_patches.items():
+        if type(val) == "dict" and cuda_ver in merged and type(merged[cuda_ver]) == "dict":
+            merged_llvm = dict(merged[cuda_ver])
+            for llvm_ver, patches in val.items():
+                merged_llvm[llvm_ver] = list(patches)
+            merged[cuda_ver] = merged_llvm
+        elif type(val) == "dict":
+            merged[cuda_ver] = dict(val)
+        else:
+            merged[cuda_ver] = list(val)
+    return merged
+
 def cuda_redist_init_repositories(
         cuda_redistributions,
         cuda_redist_path_prefix = CUDA_REDIST_PATH_PREFIX,
         mirrored_tar_cuda_redist_path_prefix = MIRRORED_TAR_CUDA_REDIST_PATH_PREFIX,
-        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES):
+        redist_versions_to_build_templates = REDIST_VERSIONS_TO_BUILD_TEMPLATES,
+        cuda_redist_patches = {}):
     # buildifier: disable=function-docstring-args
     """Initializes CUDA repositories.
 
@@ -94,6 +114,10 @@ def cuda_redist_init_repositories(
         local_templates = get_local_templates(repo_data["local"], templates)
         local_source_dirs = repo_data["local"]["source_dirs"]
         local_path_env_var = repo_data["local"].get("local_path_env_var") or "LOCAL_CUDA_PATH"
+        version_to_patches = _merge_version_to_patches(
+            repo_data.get("version_to_patches", {}),
+            cuda_redist_patches.get(redist_name, cuda_redist_patches.get(repo_data["repo_name"], {})),
+        )
         redist_init_repository(
             name = repo_data["repo_name"],
             versions = versions,
@@ -107,9 +131,7 @@ def cuda_redist_init_repositories(
             use_tar_file_env_var = "USE_CUDA_TAR_ARCHIVE_FILES",
             target_arch_env_var = "CUDA_REDIST_TARGET_PLATFORM",
             local_source_dirs = local_source_dirs,
-            patches = get_patch_to_versions_dict(
-                repo_data.get("version_to_patches", {}),
-            ),
+            patches = get_patch_to_versions_dict(version_to_patches),
             repository_symlinks = {
                 Label("@cuda_cudart//:include/cuda.h"): "include/cuda.h",
                 Label("@cuda_nvdisasm//:bin/nvdisasm"): "bin/nvdisasm",

@@ -593,14 +593,14 @@ def get_patch_to_versions_dict(version_to_patches):
             for llvm_version, patches in patches_or_llvm_dict.items():
                 version_spec = "{}:{}".format(cuda_version, llvm_version)
                 for patch in patches:
-                    patch_label = Label(patch)
+                    patch_label = patch if type(patch) == "Label" else Label(patch)
                     if patch_label not in patch_to_versions:
                         patch_to_versions[patch_label] = [version_spec]
                     else:
                         patch_to_versions[patch_label].append(version_spec)
         else:
             for patch in patches_or_llvm_dict:
-                patch_label = Label(patch)
+                patch_label = patch if type(patch) == "Label" else Label(patch)
                 if patch_label not in patch_to_versions:
                     patch_to_versions[patch_label] = [cuda_version]
                 else:

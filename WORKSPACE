@@ -180,6 +180,15 @@ load(
 
 cuda_redist_init_repositories(
     cuda_redistributions = CUDA_REDISTRIBUTIONS,
+    cuda_redist_patches = {
+        "cuda_nvcc": {
+            "12.9.1": {
+                "22": [
+                    "//gpu/cuda/patches:cuda_nvcc_clang22_libcxx22.patch",
+                ],
+            },
+        },
+    },
 )
 
 cudnn_redist_init_repository(
