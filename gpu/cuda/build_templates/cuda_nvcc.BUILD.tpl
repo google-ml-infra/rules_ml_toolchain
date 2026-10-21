@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+load("@rules_ml_toolchain//gpu/cuda:static_library.bzl", "cuda_static_import")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 
@@ -115,7 +116,7 @@ cc_library(
 )
 
 %{multiline_comment}
-cc_import(
+cuda_static_import(
     name = "nvptxcompiler_static_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", None, "lib/libnvptxcompiler_static.a"),

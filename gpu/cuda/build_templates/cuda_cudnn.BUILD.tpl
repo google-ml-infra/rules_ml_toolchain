@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+load("@rules_ml_toolchain//gpu/cuda:static_library.bzl", "cuda_static_import")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
@@ -60,7 +61,7 @@ cc_import(
     shared_library = "lib/libcudnn.so.%{libcudnn_version}",
 )
 
-cc_import(
+cuda_static_import(
     name = "cudnn_graph_static",
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
