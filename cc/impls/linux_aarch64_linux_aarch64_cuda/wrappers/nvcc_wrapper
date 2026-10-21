@@ -291,6 +291,14 @@ def invoke_nvcc(argv, cuda_log=False):
   # Use at your own risk.
   if USE_CLANG_COMPILER:
     nvccopts += ' -allow-unsupported-compiler --expt-extended-lambda --expt-relaxed-constexpr '
+    clang_version_match = re.search(r'llvm(\d+)_', HOST_COMPILER_PATH)
+    clang_major_version = (
+        int(clang_version_match.group(1)) if clang_version_match else 0
+    )
+    if clang_major_version >= 20:
+      nvccopts += ' -D_Nullable= -D_Nonnull= -D_Null_unspecified= '
+    if clang_major_version >= 22:
+      nvccopts += " '-D__builtin_is_cpp_trivially_relocatable(...)=false' "
 
   if depfiles:
     # Generate the dependency file
