@@ -1010,7 +1010,7 @@ REDIST_VERSIONS_TO_BUILD_TEMPLATES = {
             "any": "//gpu/cuda/build_templates:cuda_nvcc.BUILD.tpl",
         },
         "version_to_patches": {
-            "12": {
+            "12.9.1": {
                 "22": [
                     "//gpu/cuda/patches:cuda_nvcc_clang22_libcxx22.patch",
                 ],

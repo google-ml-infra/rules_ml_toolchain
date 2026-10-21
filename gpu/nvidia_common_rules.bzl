@@ -446,7 +446,6 @@ def _use_downloaded_redistribution(repository_ctx):
 def _apply_patches(repository_ctx, cuda_version):
     if not repository_ctx.attr.patches or not cuda_version:
         return
-    major_cuda_version = cuda_version.split(".")[0]
     llvm_version = get_env_var(repository_ctx, "LLVM_VERSION") or ""
     major_llvm_version = llvm_version.split(".")[0] if llvm_version else ""
     for patch_file, versions in repository_ctx.attr.patches.items():
@@ -454,7 +453,7 @@ def _apply_patches(repository_ctx, cuda_version):
             cuda_ver, _, llvm_ver = version_spec.partition(":")
             if not llvm_ver:
                 llvm_ver = "any"
-            cuda_match = cuda_ver in ["any", cuda_version, major_cuda_version]
+            cuda_match = cuda_ver in ["any", cuda_version]
             llvm_match = llvm_ver in ["any", llvm_version, major_llvm_version] if llvm_version else (llvm_ver == "any")
             if cuda_match and llvm_match:
                 repository_ctx.patch(patch_file, strip = 1)
