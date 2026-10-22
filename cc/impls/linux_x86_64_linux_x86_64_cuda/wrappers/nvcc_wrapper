@@ -299,6 +299,8 @@ def invoke_nvcc(argv, cuda_log=False):
       nvccopts += ' -D_Nullable= -D_Nonnull= -D_Null_unspecified= '
     if clang_major_version >= 22:
       nvccopts += " '-D__builtin_is_cpp_trivially_relocatable(...)=false' "
+    if 'c++20' in std_options:
+      nvccopts += ' -Dconstinit= -Dlifetimebound=__disabled_lifetimebound '
 
   if depfiles:
     # Generate the dependency file
