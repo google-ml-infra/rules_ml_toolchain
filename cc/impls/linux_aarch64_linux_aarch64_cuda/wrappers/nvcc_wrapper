@@ -301,6 +301,12 @@ def invoke_nvcc(argv, cuda_log=False):
       nvccopts += " '-D__builtin_is_cpp_trivially_relocatable(...)=false' "
     if 'c++20' in std_options:
       nvccopts += ' -Dconstinit= -Dlifetimebound=__disabled_lifetimebound '
+      # Forward toolchain injected headers (e.g., clang_cuda_runtime_wrapper.h)
+      # so NVCC C++20 device-code workarounds (such as __host__ __device__
+      # std::bit_cast for libc++) are pre-included.
+      nvccopts += ''.join([
+          ' --pre-include=' + inc for inc in get_option_value(argv, '-include')
+      ])
 
   if depfiles:
     # Generate the dependency file
