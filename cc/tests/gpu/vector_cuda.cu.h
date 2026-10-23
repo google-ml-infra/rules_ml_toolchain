@@ -21,7 +21,5 @@ Licensed under the Apache License, Version 2.0 (the "License");
 
 __global__ void VectorAdd(const int *a, const int *b, int *c, int n);
 int VectorGenerateAndSum(int size);
-void GatherBFloat16Grad(const float *grad, int index, float *params_grad,
-                        int num_slices, int slice_size);
 
 #endif //VECTOR_CUDA_H
