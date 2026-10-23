@@ -20,3 +20,20 @@ TEST(VectorCudaTest, VectorCudaTest) {
     EXPECT_EQ(90, VectorGenerateAndSum(10));
 }
 
+TEST(VectorCudaTest, GatherBFloat16GradTest) {
+    constexpr int kNumSlices = 2;
+    constexpr int kSliceSize = 6;
+    const float grad[kSliceSize] = {
+        -0.96484375f, -1.4921875f, -0.08496094f,
+        -1.0390625f,  0.33007812f, -0.13476562f,
+    };
+    float params_grad[kNumSlices * kSliceSize] = {0.0f};
+
+    GatherBFloat16Grad(grad, /*index=*/1, params_grad, kNumSlices, kSliceSize);
+
+    for (int i = 0; i < kSliceSize; ++i) {
+        EXPECT_FLOAT_EQ(0.0f, params_grad[i]);
+        EXPECT_FLOAT_EQ(grad[i], params_grad[kSliceSize + i]);
+    }
+}
+

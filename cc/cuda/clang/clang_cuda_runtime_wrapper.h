@@ -21,17 +21,18 @@
 #endif
 
 // In C++20 mode, Eigen::numext::bit_cast delegates to std::bit_cast, which in
-// libc++ is a constexpr host function template without __host__ __device__.
-// Normally --expt-relaxed-constexpr implicitly treats constexpr host functions
-// as __host__ __device__. However, when _ToType is trivially copyable but not
-// a literal type (e.g., Eigen::half, whose default constructor is not constexpr
-// when EIGEN_HAS_GPU_FP16 is enabled), NVCC's EDG frontend drops constexpr from
-// that specialization under pre-C++23 rules, turning it into a __host__-only
-// function. Calling it from a __host__ __device__ function in a system header
-// then silently compiles to a null function pointer call in device PTX.
-// Redeclaring std::bit_cast with __host__ __device__ ensures NVCC always emits
-// the device implementation.
+// both libc++ and libstdc++ (>= 11) is a constexpr host function template
+// without __host__ __device__. Normally --expt-relaxed-constexpr implicitly
+// treats constexpr host functions as __host__ __device__. However, when
+// _ToType is trivially copyable but not a literal type (e.g., Eigen::half,
+// whose default constructor is not constexpr when EIGEN_HAS_GPU_FP16 is
+// enabled), NVCC's EDG frontend drops constexpr from that specialization under
+// pre-C++23 rules, turning it into a __host__-only function. Calling it from a
+// __host__ __device__ function in a system header then silently compiles to a
+// null function pointer call in device PTX. Redeclaring std::bit_cast with
+// __host__ __device__ ensures NVCC always emits the device implementation.
 #if defined(__CUDACC__) && defined(__NVCC__) && __cplusplus >= 202002L
+#if __has_include(<bit>)
 #pragma GCC system_header
 #include <bit>
 #if defined(_LIBCPP_VERSION)
@@ -41,6 +42,18 @@ template <class _ToType, class _FromType>
            is_trivially_copyable_v<_FromType>)
 [[nodiscard]] _LIBCPP_HIDE_FROM_ABI __host__ __device__ constexpr _ToType bit_cast(const _FromType& __from) noexcept;
 _LIBCPP_END_NAMESPACE_STD
+#elif defined(__GLIBCXX__) && defined(__cpp_lib_bit_cast)
+namespace std _GLIBCXX_VISIBILITY(default) {
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+template <typename _To, typename _From>
+[[nodiscard]] __host__ __device__ constexpr _To bit_cast(const _From& __from) noexcept
+#ifdef __cpp_concepts
+  requires(sizeof(_To) == sizeof(_From)) && is_trivially_copyable_v<_To> && is_trivially_copyable_v<_From>
+#endif
+;
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace std
+#endif
 #endif
 #endif
 
