@@ -412,12 +412,17 @@ def _use_downloaded_redistribution(repository_ctx):
             ),
         )
 
+    # Pre-resolve patch labels before downloading to avoid Skyframe restarts.
+    for patch_file in repository_ctx.attr.patches.keys():
+        repository_ctx.path(patch_file)
+
     _download_redistribution(
         repository_ctx,
         arch_key,
         repository_ctx.attr.redist_path_prefix,
         repository_ctx.attr.mirrored_tar_redist_path_prefix,
     )
+    _apply_patches(repository_ctx, cuda_version)
 
     lib_name_to_version_dict = get_lib_name_to_version_dict(repository_ctx)
     major_version = get_major_library_version(
@@ -437,6 +442,22 @@ def _use_downloaded_redistribution(repository_ctx):
     )
     _create_repository_symlinks(repository_ctx)
     create_version_file(repository_ctx, major_version)
+
+def _apply_patches(repository_ctx, cuda_version):
+    if not repository_ctx.attr.patches or not cuda_version:
+        return
+    llvm_version = get_env_var(repository_ctx, "LLVM_VERSION") or ""
+    major_llvm_version = llvm_version.split(".")[0] if llvm_version else ""
+    for patch_file, versions in repository_ctx.attr.patches.items():
+        for version_spec in versions.split(","):
+            cuda_ver, _, llvm_ver = version_spec.partition(":")
+            if not llvm_ver:
+                llvm_ver = "any"
+            cuda_match = cuda_ver in ["any", cuda_version]
+            llvm_match = llvm_ver in ["any", llvm_version, major_llvm_version] if llvm_version else (llvm_ver == "any")
+            if cuda_match and llvm_match:
+                repository_ctx.patch(patch_file, strip = 1)
+                break
 
 def _redist_repo_impl(repository_ctx):
     local_redist_path = get_env_var(repository_ctx, repository_ctx.attr.local_path_env_var)
@@ -459,6 +480,7 @@ _redist_repo = repository_rule(
         "use_tar_file_env_var": attr.string(mandatory = True),
         "target_arch_env_var": attr.string(mandatory = True),
         "local_source_dirs": attr.string_list(mandatory = False),
+        "patches": attr.label_keyed_string_dict(mandatory = False),
         "repository_symlinks": attr.label_keyed_string_dict(mandatory = False),
         "xz_tool": attr.label(
             default = Label("@xz//:bin/xz"),
@@ -469,7 +491,7 @@ _redist_repo = repository_rule(
             allow_single_file = True,
         ),
     },
-    environ = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION"],
+    environ = ["HERMETIC_CUDA_VERSION", "TF_CUDA_VERSION", "LLVM_VERSION"],
 )
 
 def redist_init_repository(
@@ -485,6 +507,7 @@ def redist_init_repository(
         use_tar_file_env_var,
         target_arch_env_var,
         local_source_dirs,
+        patches = {},
         repository_symlinks = {}):
     # buildifier: disable=function-docstring-args
     """Initializes repository for individual NVIDIA redistribution."""
@@ -501,6 +524,7 @@ def redist_init_repository(
         use_tar_file_env_var = use_tar_file_env_var,
         target_arch_env_var = target_arch_env_var,
         local_source_dirs = local_source_dirs,
+        patches = patches,
         repository_symlinks = repository_symlinks,
     )
 
@@ -558,6 +582,33 @@ def get_version_and_template_lists(version_to_template):
         version_list.append(",".join(versions))
         template_list.append(Label(template))
     return (version_list, template_list)
+
+def get_patch_to_versions_dict(version_to_patches):
+    # buildifier: disable=function-docstring-return
+    # buildifier: disable=function-docstring-args
+    """Returns a dict mapping patch labels to comma-separated version strings."""
+    patch_to_versions = {}
+    for cuda_version, patches_or_llvm_dict in version_to_patches.items():
+        if type(patches_or_llvm_dict) == "dict":
+            for llvm_version, patches in patches_or_llvm_dict.items():
+                version_spec = "{}:{}".format(cuda_version, llvm_version)
+                for patch in patches:
+                    patch_label = patch if type(patch) == "Label" else Label(patch)
+                    if patch_label not in patch_to_versions:
+                        patch_to_versions[patch_label] = [version_spec]
+                    else:
+                        patch_to_versions[patch_label].append(version_spec)
+        else:
+            for patch in patches_or_llvm_dict:
+                patch_label = patch if type(patch) == "Label" else Label(patch)
+                if patch_label not in patch_to_versions:
+                    patch_to_versions[patch_label] = [cuda_version]
+                else:
+                    patch_to_versions[patch_label].append(cuda_version)
+    return {
+        patch_label: ",".join(versions)
+        for patch_label, versions in patch_to_versions.items()
+    }
 
 def get_local_templates(local_repo_data, templates):
     if "version_to_template" in local_repo_data:

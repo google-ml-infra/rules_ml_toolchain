@@ -20,4 +20,69 @@
 #include <__clang_cuda_runtime_wrapper.h>
 #endif
 
+// In C++20 mode, Eigen::numext::bit_cast delegates to std::bit_cast, which in
+// both libc++ and libstdc++ (>= 11) is a constexpr host function template
+// without __host__ __device__. Normally --expt-relaxed-constexpr implicitly
+// treats constexpr host functions as __host__ __device__. However, when
+// _ToType is trivially copyable but not a literal type (e.g., Eigen::half,
+// whose default constructor is not constexpr when EIGEN_HAS_GPU_FP16 is
+// enabled), NVCC's EDG frontend drops constexpr from that specialization under
+// pre-C++23 rules, turning it into a __host__-only function. Calling it from a
+// __host__ __device__ function in a system header then silently compiles to a
+// null function pointer call in device PTX. Redeclaring std::bit_cast with
+// __host__ __device__ ensures NVCC always emits the device implementation.
+#if defined(__CUDACC__) && defined(__NVCC__) && __cplusplus >= 202002L
+#if __has_include(<bit>)
+#pragma GCC system_header
+#include <bit>
+#if defined(_LIBCPP_VERSION)
+_LIBCPP_BEGIN_NAMESPACE_STD
+template <class _ToType, class _FromType>
+  requires(sizeof(_ToType) == sizeof(_FromType) && is_trivially_copyable_v<_ToType> &&
+           is_trivially_copyable_v<_FromType>)
+[[nodiscard]] _LIBCPP_HIDE_FROM_ABI __host__ __device__ constexpr _ToType bit_cast(const _FromType& __from) noexcept;
+_LIBCPP_END_NAMESPACE_STD
+#elif defined(__GLIBCXX__) && defined(__cpp_lib_bit_cast)
+namespace std _GLIBCXX_VISIBILITY(default) {
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+template <typename _To, typename _From>
+[[nodiscard]] __host__ __device__ constexpr _To bit_cast(const _From& __from) noexcept
+#ifdef __cpp_concepts
+  requires(sizeof(_To) == sizeof(_From)) && is_trivially_copyable_v<_To> && is_trivially_copyable_v<_From>
+#endif
+;
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace std
+#endif
+#endif
+#endif
+
+// In LLVM >= 22 libc++, std::__math::signbit (aliased by std::signbit) is a
+// non-constexpr host function template without __host__ __device__. CUDA 13's
+// crt/math_functions.h upstreamed the _LIBCPP_VERSION >= 220000 device
+// overload declarations for std::__math::isnan and std::__math::isinf, but
+// omitted the template overloads for std::__math::signbit. Without __host__
+// __device__ on std::__math::signbit, calling std::signbit(float) from a
+// __host__ __device__ function in a system header (such as
+// Eigen::bfloat16_impl::float_to_bfloat16_rtne<false> when handling NaN inputs)
+// emits a call to an undefined function in device code, causing cicc (NVVM) to
+// treat the NaN branch as unreachable and optimize it away, converting canonical
+// float NaNs (0x7fffffff from cvt.f32.f16) into -0.0 (finite) in bfloat16.
+#if defined(__CUDACC__) && defined(__NVCC__)
+#pragma GCC system_header
+#include <cmath>
+#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
+_LIBCPP_BEGIN_NAMESPACE_STD
+namespace __math {
+template <class _A1>
+__host__ __device__ inline bool signbit(float __x) noexcept;
+template <class _A1>
+__host__ __device__ inline bool signbit(double __x) noexcept;
+template <class _A1>
+__host__ __device__ inline bool signbit(long double __x) noexcept;
+} // namespace __math
+_LIBCPP_END_NAMESPACE_STD
+#endif
+#endif
+
 #endif //__CLANG_CUDA_RUNTIME_WRAPPER_H

@@ -53,11 +53,65 @@ cuda_cc_test(
     ],
 )
 
+cuda_library(
+    name = "absl_cuda",
+    srcs = ["absl_cuda.cu.cc"],
+    hdrs = ["absl_cuda.cu.h"],
+    tags = ["cuda-only"],
+    deps = [
+        "@com_google_absl//absl/functional:any_invocable",
+        "@com_google_absl//absl/meta:type_traits",
+    ],
+)
+
+cuda_cc_test(
+    name = "absl_cuda_test",
+    srcs = [
+        "absl_cuda_test.cc",
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
+    deps = [
+        ":absl_cuda",
+        "@cuda_cudart//:cudart",
+        "@gtest//:gtest_main",
+        "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+    ],
+)
+
+cuda_library(
+    name = "bfloat16_atomic_add_cuda",
+    srcs = ["bfloat16_atomic_add_cuda.cu.cc"],
+    hdrs = ["bfloat16_atomic_add_cuda.cu.h"],
+    tags = ["cuda-only"],
+)
+
+cuda_cc_test(
+    name = "bfloat16_atomic_add_cuda_test",
+    srcs = [
+        "bfloat16_atomic_add_cuda_test.cc",
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
+    deps = [
+        ":bfloat16_atomic_add_cuda",
+        "@cuda_cudart//:cudart",
+        "@gtest//:gtest_main",
+        "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+    ],
+)
+
 #############################################
 # Tests Suite
 test_suite(
     name = "all",
     tests = [
+        ":absl_cuda_test",
+        ":bfloat16_atomic_add_cuda_test",
         ":vector_cuda_test",
     ],
 )
