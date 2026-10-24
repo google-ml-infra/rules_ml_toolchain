@@ -57,4 +57,32 @@ _GLIBCXX_END_NAMESPACE_VERSION
 #endif
 #endif
 
+// In LLVM >= 22 libc++, std::__math::signbit (aliased by std::signbit) is a
+// non-constexpr host function template without __host__ __device__. CUDA 13's
+// crt/math_functions.h upstreamed the _LIBCPP_VERSION >= 220000 device
+// overload declarations for std::__math::isnan and std::__math::isinf, but
+// omitted the template overloads for std::__math::signbit. Without __host__
+// __device__ on std::__math::signbit, calling std::signbit(float) from a
+// __host__ __device__ function in a system header (such as
+// Eigen::bfloat16_impl::float_to_bfloat16_rtne<false> when handling NaN inputs)
+// emits a call to an undefined function in device code, causing cicc (NVVM) to
+// treat the NaN branch as unreachable and optimize it away, converting canonical
+// float NaNs (0x7fffffff from cvt.f32.f16) into -0.0 (finite) in bfloat16.
+#if defined(__CUDACC__) && defined(__NVCC__)
+#pragma GCC system_header
+#include <cmath>
+#if defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 220000)
+_LIBCPP_BEGIN_NAMESPACE_STD
+namespace __math {
+template <class _A1>
+__host__ __device__ inline bool signbit(float __x) noexcept;
+template <class _A1>
+__host__ __device__ inline bool signbit(double __x) noexcept;
+template <class _A1>
+__host__ __device__ inline bool signbit(long double __x) noexcept;
+} // namespace __math
+_LIBCPP_END_NAMESPACE_STD
+#endif
+#endif
+
 #endif //__CLANG_CUDA_RUNTIME_WRAPPER_H

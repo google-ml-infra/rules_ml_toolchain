@@ -324,14 +324,15 @@ def invoke_nvcc(argv, cuda_log=False):
       # rewrites into GNU-style __attribute__((lifetimebound)) in .cudafe1.cpp
       # where Clang rejects it on constructors and operators.
       nvccopts += ' -Dconstinit= -Dlifetimebound=__disabled_lifetimebound '
-      if use_libcxx or libstdcxx_major_version >= 11:
-        # Forward toolchain injected headers (e.g., clang_cuda_runtime_wrapper.h)
-        # when C++20 std::bit_cast is provided by the standard library (libc++
-        # or libstdc++ >= 11) so it is redeclared with __host__ __device__.
-        nvccopts += ''.join([
-            ' --pre-include=' + inc
-            for inc in get_option_value(argv, '-include')
-        ])
+    if use_libcxx or ('c++20' in std_options and libstdcxx_major_version >= 11):
+      # Forward toolchain injected headers (e.g., clang_cuda_runtime_wrapper.h)
+      # when using libc++ (to redeclare std::__math::signbit and C++20
+      # std::bit_cast with __host__ __device__) or when using libstdc++ >= 11
+      # in C++20 mode (to redeclare std::bit_cast with __host__ __device__).
+      nvccopts += ''.join([
+          ' --pre-include=' + inc
+          for inc in get_option_value(argv, '-include')
+      ])
 
   if depfiles:
     # Generate the dependency file
