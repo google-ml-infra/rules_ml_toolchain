@@ -19,7 +19,12 @@ Licensed under the Apache License, Version 2.0 (the "License");
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+#include <stdint.h>
+
 void GatherBFloat16Grad(const float *grad, int index, float *params_grad,
                         int num_slices, int slice_size);
+
+void SaturateCastHalfToBFloat16(const uint16_t *in_half_bits,
+                                bool *out_is_finite, int count);
 
 #endif  // BFLOAT16_ATOMIC_ADD_CUDA_H

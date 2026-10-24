@@ -32,3 +32,17 @@ TEST(BFloat16AtomicAddCudaTest, GatherBFloat16GradTest) {
     EXPECT_FLOAT_EQ(grad[i], params_grad[kSliceSize + i]);
   }
 }
+
+TEST(BFloat16AtomicAddCudaTest, SaturateCastHandlesInfsAndNaNsTest) {
+  // IEEE 754 binary16 bit patterns for [inf, -inf, nan, -nan].
+  constexpr int kCount = 4;
+  const uint16_t in_half_bits[kCount] = {0x7c00, 0xfc00, 0x7e00, 0xfe00};
+  bool out_is_finite[kCount] = {false, false, true, true};
+
+  SaturateCastHalfToBFloat16(in_half_bits, out_is_finite, kCount);
+
+  EXPECT_TRUE(out_is_finite[0]);
+  EXPECT_TRUE(out_is_finite[1]);
+  EXPECT_FALSE(out_is_finite[2]);
+  EXPECT_FALSE(out_is_finite[3]);
+}
