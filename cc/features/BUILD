@@ -47,6 +47,7 @@ package(
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
+        "//cc/impls/windows_x86_64_windows_x86_64:__pkg__",
     ],
 )
 

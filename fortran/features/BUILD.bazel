@@ -1,0 +1,150 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+load(
+    ":features.bzl",
+    "fortran_feature",
+)
+
+package(
+    default_visibility = [
+        "//fortran:__subpackages__",
+    ],
+)
+
+# Hermetic includes, module files, configuration, and libraries.
+fortran_feature(
+    name = "hermetic",
+    compiler_flags = [
+        "--no-default-config",
+        "-nostdinc",
+        "-fno-rtlib-add-rpath",
+    ],
+    enabled = True,
+    linker_flags = [
+        "--no-default-config",
+        "-nostdlib",
+        "-nodefaultlibs",
+    ],
+)
+
+# Override time macros and canonical prefixes to ensure reproducible builds.
+fortran_feature(
+    name = "reproducible",
+    compiler_flags = [
+        "-no-canonical-prefixes",
+        "-Wno-builtin-macro-redefined",
+        "-D__DATE__=\"redacted\"",
+        "-D__TIMESTAMP__=\"redacted\"",
+        "-D__TIME__=\"redacted\"",
+    ],
+    enabled = True,
+    linker_flags = [
+        "-no-canonical-prefixes",
+    ],
+)
+
+fortran_feature(
+    name = "warnings",
+    compiler_flags = [
+        "-pedantic",
+        "-fcolor-diagnostics",
+    ],
+    enabled = True,
+)
+
+fortran_feature(
+    name = "errors",
+    compiler_flags = [
+        "-Werror",
+    ],
+    enabled = False,
+)
+
+fortran_feature(
+    name = "use_lld",
+    enabled = True,
+    linker_flags = [
+        "-fuse-ld=lld",
+    ],
+)
+
+fortran_feature(
+    name = "position_independent_code",
+    compiler_flags = [
+        "-fPIC",
+    ],
+    enabled = True,
+)
+
+fortran_feature(
+    name = "garbage_collect_symbols",
+    enabled = True,
+    linker_flags = [
+        "-Wl,--gc-sections",
+    ],
+)
+
+# macOS specific: allow dynamic symbol lookup for shared modules.
+fortran_feature(
+    name = "undefined_symbols",
+    enabled = True,
+    linker_flags = [
+        "-Wl,-undefined,dynamic_lookup",
+    ],
+)
+
+# macOS specific: needed for llvm-install-name-tool when long paths for libraries are used.
+fortran_feature(
+    name = "max_install_names",
+    enabled = True,
+    linker_flags = [
+        "-headerpad_max_install_names",
+    ],
+)
+
+# Compilation modes
+fortran_feature(
+    name = "fastbuild",
+    compiler_flags = [
+        "-O0",
+    ],
+    enabled = True,
+    expand_if_mode = "fastbuild",
+    provides = ["compilation_mode"],
+)
+
+fortran_feature(
+    name = "dbg",
+    compiler_flags = [
+        "-g",
+        "-O0",
+    ],
+    enabled = True,
+    expand_if_mode = "dbg",
+    provides = ["compilation_mode"],
+)
+
+fortran_feature(
+    name = "opt",
+    compiler_flags = [
+        "-g0",
+        "-O2",
+        "-DNDEBUG",
+    ],
+    enabled = True,
+    expand_if_mode = "opt",
+    provides = ["compilation_mode"],
+)

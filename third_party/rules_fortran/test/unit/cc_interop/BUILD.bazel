@@ -1,0 +1,5 @@
+"""Unit tests for Fortran/C interoperability."""
+
+load(":cc_interop_test.bzl", "cc_interop_test_suite")
+
+cc_interop_test_suite(name = "cc_interop_test")

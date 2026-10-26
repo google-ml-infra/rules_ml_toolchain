@@ -1,0 +1,5 @@
+"""Unit tests for OpenMP compilation and linking."""
+
+load(":omp_test.bzl", "omp_test_suite")
+
+omp_test_suite(name = "omp_test")
