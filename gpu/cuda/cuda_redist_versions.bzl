@@ -138,10 +138,6 @@ CUDA_REDIST_JSON_DICT = {
         "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.3.0.json",
         "507eddaab1360336bc0fe17b77552e0b7dfe1e74da888671c3a2f5fad7775db1",
     ],
-    "13.3.1": [
-        "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.3.1.json",
-        "a93703b6d7b8e4847c6640918904c5e7b96726d3eab8fbf8c9a9fce527a65bd0",
-    ],
     "13.4.1": [
         "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.4.1.json",
         "e24677584a7161a69f370271fc638b252a0e77e48bdf5fccf1862bae028c08d5",
@@ -786,6 +782,7 @@ PTX_VERSION_DICT = {
         "13.1": "9.1",
         "13.2": "9.2",
         "13.3": "9.3",
+        "13.4": "9.4",
     },
 }
 
