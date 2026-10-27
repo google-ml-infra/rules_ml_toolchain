@@ -63,7 +63,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Clang 18, Glibc 2.27 | Testing..."
+      - name: "Clang 18, Glibc 2.27, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -84,7 +84,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+      - name: "Clang 22, Glibc 2.31, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -104,7 +104,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 22, Glibc 2.27, libc++ static linking | Testing..."
+      - name: "Bzlmod. Clang 22, Glibc 2.27, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++20" --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -127,7 +127,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking (build by Clang is only supported) | Testing..."
+      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -139,7 +139,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 22, Glibc 2.27, libc++ static linking | Testing..."
+      - name: "Bzlmod. Clang 22, Glibc 2.27, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++20" --config=build_cuda_with_clang \
             --config=cuda12 \
@@ -152,7 +152,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
+      - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking (only Clang is supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++20" --config=build_cuda_with_clang \
             --config=cuda12 \
