@@ -86,6 +86,8 @@ Available sysroots
 By default, `rules_ml_toolchain` links dynamically against `libstdc++` for Linux builds.
 However, you can choose to link against `libc++` instead, using dynamic or static linking.
 
+> **Note:** For NVIDIA GPU builds, `libc++` linkage support starts from CUDA `13.4` only; previous CUDA versions do not support it.
+
 For example, to link statically against `libc++`, developer can use the following configuration
 ```
 common --enable_platform_specific_config
