@@ -210,7 +210,8 @@ def invoke_nvcc(argv, cuda_log=False):
   nvcc_std_map = {}
   if int(NVCC_VERSION.split('.')[0]) >= 11:
       nvcc_std_map["c++1z"] = "c++17"
-      nvcc_allowed_std_options += ["c++17", "c++1z"]
+      nvcc_std_map["c++2a"] = "c++20"
+      nvcc_allowed_std_options += ["c++17", "c++1z", "c++20", "c++2a"]
   std_options = ''.join([' -std=' +
       (nvcc_std_map[define] if define in nvcc_std_map else define)
       for define in std_options if define in nvcc_allowed_std_options][-1:])
@@ -275,9 +276,13 @@ def invoke_nvcc(argv, cuda_log=False):
   nvccopts += m_options
   nvccopts += warning_options
   if int(NVCC_VERSION.split('.')[0]) >= 13:
+    # CUDA 13 defaults to hidden visibility for device entities and internal
+    # (static) linkage for __global__ template host stubs, which breaks
+    # explicit template instantiations and cross-TU kernel references.
     nvccopts += ' --device-entity-has-hidden-visibility=false -static-global-template-stub=false '
-  # Force C++17 dialect (note, everything in just one string!)
-  nvccopts += ' --std c++17 '
+  if not std_options:
+    # Force C++17 dialect (note, everything in just one string!)
+    nvccopts += ' --std c++17 '
   nvccopts += fatbin_options
   # The option `-allow-unsupported-compiler` is required for the combination of
   # NVCC+clang compilers.
@@ -289,6 +294,45 @@ def invoke_nvcc(argv, cuda_log=False):
   # Use at your own risk.
   if USE_CLANG_COMPILER:
     nvccopts += ' -allow-unsupported-compiler --expt-extended-lambda --expt-relaxed-constexpr '
+    clang_version_match = re.search(r'llvm(\d+)_', HOST_COMPILER_PATH)
+    clang_major_version = (
+        int(clang_version_match.group(1)) if clang_version_match else 0
+    )
+    use_libcxx = 'include/c++/v1' in host_compiler_options
+    libstdcxx_version_match = re.search(
+        r'include/c\+\+/(\d+)', host_compiler_options
+    )
+    libstdcxx_major_version = (
+        int(libstdcxx_version_match.group(1))
+        if libstdcxx_version_match
+        else 0
+    )
+    if clang_major_version >= 20:
+      # Clang >= 20 enables nullability_on_classes, causing headers (e.g.
+      # Abseil and libc++) to emit Clang nullability type qualifiers that
+      # NVCC's EDG frontend (cudafe++ / cicc) does not recognize.
+      nvccopts += ' -D_Nullable= -D_Nonnull= -D_Null_unspecified= '
+    if clang_major_version >= 22:
+      # Clang 22 introduces __builtin_is_cpp_trivially_relocatable (used by
+      # Abseil and libc++ when __has_builtin detects it on the Clang host
+      # compiler), which is not supported by NVCC's EDG frontend.
+      nvccopts += " '-D__builtin_is_cpp_trivially_relocatable(...)=false' "
+    if 'c++20' in std_options:
+      # -Dconstinit=: Avoids NVCC EDG constinit evaluation errors in C++20 mode.
+      # -Dlifetimebound=__disabled_lifetimebound: In C++20 mode, headers (such
+      # as Abseil and libc++) use [[clang::lifetimebound]], which cudafe++
+      # rewrites into GNU-style __attribute__((lifetimebound)) in .cudafe1.cpp
+      # where Clang rejects it on constructors and operators.
+      nvccopts += ' -Dconstinit= -Dlifetimebound=__disabled_lifetimebound '
+    if use_libcxx or ('c++20' in std_options and libstdcxx_major_version >= 11):
+      # Forward toolchain injected headers (e.g., clang_cuda_runtime_wrapper.h)
+      # when using libc++ (to redeclare std::__math::signbit and C++20
+      # std::bit_cast with __host__ __device__) or when using libstdc++ >= 11
+      # in C++20 mode (to redeclare std::bit_cast with __host__ __device__).
+      nvccopts += ''.join([
+          ' --pre-include=' + inc
+          for inc in get_option_value(argv, '-include')
+      ])
 
   if depfiles:
     # Generate the dependency file
