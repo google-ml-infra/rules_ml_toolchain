@@ -29,6 +29,8 @@ load(
 _TF_NCCL_USE_STUB = "TF_NCCL_USE_STUB"
 
 _NCCL_DUMMY_BUILD_CONTENT = """
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 filegroup(
   name = "LICENSE",
   visibility = ["//visibility:public"],
@@ -48,6 +50,8 @@ cc_library(
 """
 
 _NCCL_ARCHIVE_BUILD_CONTENT = """
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 filegroup(
   name = "LICENSE",
   data = ["@nccl_archive//:LICENSE.txt"],
@@ -90,6 +94,8 @@ alias(
 """
 
 _NCCL_ARCHIVE_STUB_BUILD_CONTENT = """
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 filegroup(
   name = "LICENSE",
   data = ["@nccl_archive//:LICENSE.txt"],
