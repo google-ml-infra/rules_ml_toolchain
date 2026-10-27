@@ -106,7 +106,7 @@ jobs:
 
       - name: "Bzlmod. Clang 22, Glibc 2.27, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++20" --config=build_cuda_with_nvcc \
+          bazel build --cxxopt="-std=c++20" --config=build_cuda_with_clang \
             --config=cuda12 \
             --config=cuda_libraries_from_stubs \
             --config=bzlmod \
@@ -127,7 +127,7 @@ jobs:
             --color=yes \
             //cc/tests/gpu:all
 
-      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking | Testing..."
+      - name: "Bzlmod. Clang 18, Glibc 2.27, libc++ static linking (build by Clang is only supported) | Testing..."
         run: |
           bazel build --cxxopt="-std=c++17" --config=build_cuda_with_clang \
             --config=cuda12 \
