@@ -18,6 +18,10 @@ load(
     "ACTION_NAMES",
 )
 load(
+    "//cc/features/linux:runtime_library_search_directories.bzl",
+    "runtime_library_search_directories",
+)
+load(
     "//third_party/rules_cc_toolchain/features:features.bzl",
     "cc_feature",
     "cc_toolchain_import_feature",
@@ -26,18 +30,13 @@ load(
     ":features.bzl",
     "compiler_input_feature",
     "compiler_output_feature",
-    "user_compile_feature",
-    "include_paths_feature",
     "external_include_paths_feature",
-)
-load(
-    "//cc/features/linux:runtime_library_search_directories.bzl",
-    "runtime_library_search_directories",
+    "include_paths_feature",
+    "user_compile_feature",
 )
 
 package(
     default_visibility = [
-        "@darwin_local_config_cc//:__pkg__",
         "//cc/impls/darwin_aarch64_darwin_aarch64:__pkg__",
         "//cc/impls/linux_aarch64_linux_aarch64:__pkg__",
         "//cc/impls/linux_aarch64_linux_aarch64_cuda:__pkg__",
@@ -47,15 +46,12 @@ package(
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
+        "@darwin_local_config_cc//:__pkg__",
     ],
 )
 
 cc_feature(
     name = "language",
-    # C language
-    c_flags = [
-        "-xc",
-    ],
     # C++ language actions and flag (excluding C++ modules)
     actions = [
         ACTION_NAMES.linkstamp_compile,
@@ -65,10 +61,14 @@ cc_feature(
         ACTION_NAMES.clif_match,
         ACTION_NAMES.objcpp_compile,
     ],
+    # C language
+    c_flags = [
+        "-xc",
+    ],
+    enabled = True,
     flags = [
         "-xc++",
     ],
-    enabled = True,
 )
 
 cc_feature(
@@ -123,12 +123,12 @@ cc_feature(
 # Generic for all Linux architectures
 cc_feature(
     name = "local_sysroot_linux",
-    enabled = True,
     compiler_flags = ["--sysroot=/"],
-    linker_flags = ["--sysroot=/"],
+    enabled = True,
     env_sets = {
         "HOST_SYSROOT": "/",
     },
+    linker_flags = ["--sysroot=/"],
 )
 
 # When using local sysroot, we need to explicitly link default system libraries
@@ -214,9 +214,9 @@ cc_feature(
     compiler_flags = [
         "-O0",
     ],
+    expand_if_not_available = "opt",
     #implies = ["generate_pdb_file"],
     provides = ["compilation_mode"],
-    expand_if_not_available = "opt",
 )
 
 cc_feature(
@@ -238,18 +238,6 @@ cc_feature(
     provides = ["compilation_mode"],
 )
 
-cc_feature(
-    name = "libc++",
-    compiler_flags = [
-        # Allows the use of GNU-specific extension keywords that are not part of the standard C or C++ specifications
-        "-fgnu-keywords",
-    ],
-    linker_flags = [
-        "-stdlib=libc++",
-    ],
-    enabled = True,
-)
-
 # Runtime library search directories feature
 # This overrides the default action_config-embedded flag_sets to ensure
 # proper with_features support for no_solib_rpaths
@@ -267,11 +255,11 @@ cc_feature(
     actions = [
         ACTION_NAMES.cpp20_module_compile,
     ],
+    enabled = True,
+    expand_if_available = "cpp_module_output_file",
     flags = [
         "-fmodule-output=%{cpp_module_output_file}",
     ],
-    expand_if_available = "cpp_module_output_file",
-    enabled = True,
 )
 
 cc_feature(
@@ -281,11 +269,11 @@ cc_feature(
         ACTION_NAMES.cpp20_module_compile,
         ACTION_NAMES.cpp20_module_codegen,
     ],
+    enabled = True,
+    expand_if_available = "cpp_module_modmap_file",
     flags = [
         "@%{cpp_module_modmap_file}",
     ],
-    expand_if_available = "cpp_module_modmap_file",
-    enabled = True,
 )
 
 cc_feature(
@@ -303,13 +291,13 @@ cc_feature(
         ACTION_NAMES.cpp20_module_compile,
         ACTION_NAMES.clif_match,
     ],
-    flags = [
-	"-MMD",  # -MMD tells Clang to generate the dependency file, but to filter out any headers found via -isystem 
-        "-MF",
-        "%{dependency_file}"
-    ],
-    expand_if_available = "dependency_file",
     enabled = True,
+    expand_if_available = "dependency_file",
+    flags = [
+        "-MMD",  # -MMD tells Clang to generate the dependency file, but to filter out any headers found via -isystem
+        "-MF",
+        "%{dependency_file}",
+    ],
 )
 
 cc_feature(
@@ -323,11 +311,11 @@ cc_feature(
         ACTION_NAMES.cpp20_module_compile,
         ACTION_NAMES.cpp20_module_codegen,
     ],
+    enabled = True,
+    expand_if_available = "output_file",
     flags = [
         "-frandom-seed=%{output_file}",
     ],
-    expand_if_available = "output_file",
-    enabled = True,
 )
 
 compiler_input_feature(
