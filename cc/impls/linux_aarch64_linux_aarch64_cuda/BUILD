@@ -111,7 +111,7 @@ alias(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@rules_ml_toolchain//cc/cuda/clang:inject_cuda_runtime_wrapper",
+        "@rules_ml_toolchain//gpu/cuda/clang:inject_cuda_runtime_wrapper",
         ":std_incs",
         "@llvm_linux_aarch64//:compiler_incs",
         "@sysroot_linux_aarch64//:sys_incs",
@@ -215,7 +215,7 @@ cc_toolchain_config(
 
         # Hermetic features required before import
         "//third_party/rules_cc_toolchain/features:hermetic",
-        "//cc/cuda/features:hermetic_cuda",
+        "//gpu/cuda/features:hermetic_cuda",
         ":imports_feature",
         ":cuda_nvcc_feature",
 

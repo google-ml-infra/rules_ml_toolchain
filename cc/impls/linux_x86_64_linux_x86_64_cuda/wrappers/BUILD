@@ -27,6 +27,7 @@ filegroup(
         "nvcc_wrapper",
         "objcopy",
         "module-deps-scanner",
+        "//gpu/cuda/wrappers:nvcc_wrapper.py",
     ],
     visibility = ["//visibility:public"],
 )

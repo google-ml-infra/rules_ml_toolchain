@@ -58,7 +58,7 @@ jobs:
             --config=sycl_hermetic \
             --repo_env=ONEAPI_VERSION=2025.1 \
             --repo_env=OS=ubuntu_24.10 \
-            //cc/tests/gpu/sycl:all
+            //gpu/sycl/tests:all
 
       - name: Test host CPU code compilation with oneAPI toolchain
         run: |
@@ -75,7 +75,7 @@ jobs:
             --repo_env=ONEAPI_VERSION=2025.1 \
             --repo_env=OS=ubuntu_24.10 \
             --config=bzlmod \
-            //cc/tests/gpu/sycl:all
+            //gpu/sycl/tests:all
 
       - name: Test host CPU code compilation bzlmod
         run: |

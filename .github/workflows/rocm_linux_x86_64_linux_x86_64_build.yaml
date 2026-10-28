@@ -58,7 +58,7 @@ jobs:
             --config=rocm \
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --define=using_rocm=true \
-            //cc/tests/gpu/rocm:all
+            //gpu/rocm/tests:all
 
       - name: Test host (CPU) code compilation with ROCm toolchain
         run: |
@@ -75,7 +75,7 @@ jobs:
             --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
             --config=bzlmod \
             --define=using_rocm=true \
-            //cc/tests/gpu/rocm:all
+            //gpu/rocm/tests:all
 
       - name: Test host (CPU) code compilation (bzlmod)
         run: |

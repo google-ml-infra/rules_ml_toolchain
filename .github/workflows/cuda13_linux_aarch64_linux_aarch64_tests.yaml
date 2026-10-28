@@ -63,7 +63,7 @@ jobs:
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
@@ -75,7 +75,7 @@ jobs:
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "NVCC | Testing..."
         run: |
@@ -84,7 +84,7 @@ jobs:
             --config=cuda_libraries_from_stubs \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "NVCC, Glibc 2.27, LLVM22 libc++ static linking | Testing..."
         run: |
@@ -97,7 +97,7 @@ jobs:
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "NVCC Static CUDA | Testing..."
         run: |
@@ -107,7 +107,7 @@ jobs:
             --@rules_ml_toolchain//common:link_cuda_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "NVCC Static CUDNN CUDA | Testing..."
         run: |
@@ -118,7 +118,7 @@ jobs:
             --@rules_ml_toolchain//common:link_cudnn_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
-            //cc/tests/gpu:cudnn_test
+            //gpu/cuda/tests:cudnn_test
 
 
       - name: "NVCC Static NVRTC CUDA | Testing..."
@@ -130,7 +130,7 @@ jobs:
             --@rules_ml_toolchain//common:link_nvrtc_static_libs=true \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
-            //cc/tests/gpu:nvrtc_test
+            //gpu/cuda/tests:nvrtc_test
 
       - name: "Bzlmod. Clang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
@@ -143,7 +143,7 @@ jobs:
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "Clang 22, Glibc 2.27, LLVM22 libc++ static linking | Testing..."
         run: |
@@ -156,7 +156,7 @@ jobs:
             --@rules_ml_toolchain//common:stdlib=libc++ \
             --@rules_ml_toolchain//common:static_libcxx=true \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
       - name: "Bzlmod. NVCC | Testing..."
         run: |
@@ -166,5 +166,5 @@ jobs:
             --config=bzlmod \
             --repo_env=HERMETIC_CUDNN_VERSION=9.12.0 \
             --verbose_failures \
-            //cc/tests/gpu:all
+            //gpu/cuda/tests:all
 
