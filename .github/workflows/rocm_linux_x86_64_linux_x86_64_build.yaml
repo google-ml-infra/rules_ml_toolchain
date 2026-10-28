@@ -86,3 +86,21 @@ jobs:
             --define=using_rocm=true \
             //cc/tests/cpu:all
 
+      - name: Test ROCm GPU code compilation with ROCm distro clang
+        run: |
+          bazel test --color=yes \
+            --config=rocm \
+            --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
+            --@rules_ml_toolchain//common:use_rocm_clang=True \
+            --define=using_rocm=true \
+            //cc/tests/gpu/rocm:all
+
+      - name: Test host (CPU) code compilation with ROCm distro clang
+        run: |
+          bazel test --color=yes \
+            --config=rocm \
+            --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908" \
+            --@rules_ml_toolchain//common:use_rocm_clang=True \
+            --define=using_rocm=true \
+            //cc/tests/cpu:all
+
