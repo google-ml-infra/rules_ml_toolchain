@@ -41,3 +41,11 @@ cc_feature(
     compiler_flags = ["-nocudainc"],
     enabled = True,
 )
+
+cc_feature(
+    name = "libc++_x86_enable",
+    compiler_flags = [
+        "-D_ALLOW_UNSUPPORTED_LIBCPP",
+    ],
+    enabled = True,
+)
