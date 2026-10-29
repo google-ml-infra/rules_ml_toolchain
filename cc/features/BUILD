@@ -243,11 +243,8 @@ cc_feature(
     enabled = True,
     linker_flags = [
         "-stdlib=libc++",
-        # --exclude-libs tells ld.lld to mark all symbols imported from those specific .a archives as LOCAL (hidden)
-        # instead of GLOBAL, even when -rdynamic is present. None of their symbols are exported to .dynsym.
-        # Added to resolve libc++ and libstdc++ conflicts when prebuilt libraries (e.g., libcudnn_*.so.9) is used.
-        "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
-        "-Wl,-Bsymbolic-functions",
+        # Added to resolve libc++abi/libunwind and libstdc++/libgcc_s conflicts when prebuilt libraries (e.g., libcudnn_*.so.9) are used.
+        "-Wl,--exclude-libs,libc++abi.a:libunwind.a",
     ],
 )
 
