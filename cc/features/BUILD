@@ -240,14 +240,14 @@ cc_feature(
 
 cc_feature(
     name = "libc++",
-    compiler_flags = [
-        # Allows the use of GNU-specific extension keywords that are not part of the standard C or C++ specifications
-        "-fgnu-keywords",
-    ],
+    enabled = True,
     linker_flags = [
         "-stdlib=libc++",
+        # --exclude-libs tells ld.lld to mark all symbols imported from those specific .a archives as LOCAL (hidden)
+        # instead of GLOBAL, even when -rdynamic is present. None of their symbols are exported to .dynsym.
+        # Added to resolve libc++ and libstdc++ conflicts when prebuilt libraries (e.g., libcudnn_*.so.9) is used.
+        "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
     ],
-    enabled = True,
 )
 
 # Runtime library search directories feature
@@ -304,7 +304,7 @@ cc_feature(
         ACTION_NAMES.clif_match,
     ],
     flags = [
-	"-MMD",  # -MMD tells Clang to generate the dependency file, but to filter out any headers found via -isystem 
+	"-MMD",  # -MMD tells Clang to generate the dependency file, but to filter out any headers found via -isystem
         "-MF",
         "%{dependency_file}"
     ],
