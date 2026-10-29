@@ -30,6 +30,8 @@ def python_init_pip():
     numpy_annotations = {
         "numpy": package_annotation(
             additive_build_content = """\
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 cc_library(
     name = "numpy_headers_2",
     hdrs = glob(["site-packages/numpy/_core/include/**/*.h"]),
