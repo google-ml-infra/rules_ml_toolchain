@@ -296,7 +296,6 @@ FEATURES_ESSENTIAL = [
 ] + select({
     "//common:is_stdlib_libcxx": [
         "//cc/features:libc++",
-        "//gpu/cuda/features:libc++_x86_enable",
     ],
     "//conditions:default": [],
 })

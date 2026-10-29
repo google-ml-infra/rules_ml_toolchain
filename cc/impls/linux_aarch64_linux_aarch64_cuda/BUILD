@@ -259,7 +259,12 @@ cc_toolchain_config(
         "//cc/features:allow_shlib_undefined",
         "//cc/features:supports_dynamic_linker",
         "//cc/features:supports_start_end_lib_feature",
-    ],
+    ] + select({
+        "//common:is_stdlib_libcxx": [
+            "//cc/features:libc++",
+        ],
+        "//conditions:default": [],
+    }),
     headers_parser = "@llvm_linux_x86_64//:clang",
     linker = "@llvm_linux_aarch64//:ld",
     module_deps_scanner = "@llvm_linux_aarch64//:scan_deps",
