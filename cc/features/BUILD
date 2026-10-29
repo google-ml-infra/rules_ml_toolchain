@@ -247,6 +247,7 @@ cc_feature(
         # instead of GLOBAL, even when -rdynamic is present. None of their symbols are exported to .dynsym.
         # Added to resolve libc++ and libstdc++ conflicts when prebuilt libraries (e.g., libcudnn_*.so.9) is used.
         "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
+        "-Wl,-Bsymbolic-functions",
     ],
 )
 
