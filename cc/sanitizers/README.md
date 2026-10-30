@@ -32,7 +32,7 @@ bazel test --test_tag_filters=-noasan \
     --config=build_cuda_with_clang \
     --config=cuda \
     --config=cuda_libraries_from_stubs \
-    //cc/tests/gpu:all
+    //gpu/cuda/tests:all
 ```
 
 ```
@@ -41,7 +41,7 @@ bazel test --test_tag_filters=-noasan \
     --config=build_cuda_with_nvcc \
     --config=cuda \
     --config=cuda_libraries_from_stubs \
-    //cc/tests/gpu:all
+    //gpu/cuda/tests:all
 ```
 ## Troubleshooting
 

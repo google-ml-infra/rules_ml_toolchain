@@ -88,6 +88,7 @@ def _cuda_nvcc_feature_impl(ctx):
             env_entries = [
                 env_entry("NVCC_PATH", (ctx.attr.bin.label.workspace_root + "/" + ctx.attr.bin.label.name)),
                 env_entry("NVCC_VERSION", ctx.attr.version),
+                env_entry("NVCC_WRAPPER_PATH", ctx.file.nvcc_wrapper.path),
             ],
         )],
     )
@@ -105,6 +106,10 @@ cuda_nvcc_feature = rule(
         ),
         "version": attr.string(
             mandatory = True,
+        ),
+        "nvcc_wrapper": attr.label(
+            default = Label("@rules_ml_toolchain//gpu/cuda/wrappers:nvcc_wrapper.py"),
+            allow_single_file = True,
         ),
     },
     provides = [FeatureInfo],

@@ -117,7 +117,7 @@ alias(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        "@rules_ml_toolchain//cc/cuda/clang:inject_cuda_runtime_wrapper",
+        "@rules_ml_toolchain//gpu/cuda/clang:inject_cuda_runtime_wrapper",
         ":std_incs",
         "@llvm_linux_x86_64//:compiler_incs",
         "@sysroot_linux_x86_64//:sys_incs",
@@ -245,7 +245,7 @@ FEATURES_ESSENTIAL = [
 
     # Hermetic features required before import
     "//third_party/rules_cc_toolchain/features:hermetic",
-    "//cc/cuda/features:hermetic_cuda",
+    "//gpu/cuda/features:hermetic_cuda",
     ":imports_feature",
     ":cuda_nvcc_feature",
 
@@ -296,7 +296,7 @@ FEATURES_ESSENTIAL = [
 ] + select({
     "//common:is_stdlib_libcxx": [
         "//cc/features:libc++",
-        "//cc/cuda/features:libc++_x86_enable",
+        "//gpu/cuda/features:libc++_x86_enable",
     ],
     "//conditions:default": [],
 })

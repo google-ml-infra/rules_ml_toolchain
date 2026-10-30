@@ -25,7 +25,7 @@ def _generate_toolchain_cppmap_impl(ctx):
     for f in ctx.files.targets:
         path = f.path
 
-        if "/include/" not in path and "cc/cuda/" not in path:
+        if "/include/" not in path and "gpu/cuda/clang/" not in path:
             continue
 
         # Apply prefix if file is in the main workspace

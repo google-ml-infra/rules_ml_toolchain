@@ -7,7 +7,7 @@ load(
     "if_static_cuda",
 )
 load(
-    "@rules_ml_toolchain//cc/cuda/features:cuda_nvcc_feature.bzl",
+    "@rules_ml_toolchain//gpu/cuda/features:cuda_nvcc_feature.bzl",
     "cuda_nvcc_feature",
 )
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_newer_than")
