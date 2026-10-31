@@ -22,7 +22,7 @@ bazel build \
   --define=using_rocm=true \
   --repo_env ROCM_PATH=/opt/rocm \
   --repo_env TF_ROCM_AMDGPU_TARGETS="gfx906,gfx908,gfx90a" \
-  //cc/tests/gpu/rocm:all
+  //gpu/rocm/tests:all
 
 # Run tests (requires ROCm GPU)
 bazel test \
@@ -30,7 +30,7 @@ bazel test \
   --define=using_rocm=true \
   --repo_env ROCM_PATH=/opt/rocm \
   --repo_env TF_ROCM_AMDGPU_TARGETS="gfx906,gfx908,gfx90a" \
-  //cc/tests/gpu/rocm:all
+  //gpu/rocm/tests:all
 ```
 
 ## CI/CD

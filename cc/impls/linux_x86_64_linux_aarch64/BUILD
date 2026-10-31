@@ -208,7 +208,12 @@ FEATURES_ESSENTIAL = [
     "//cc/features/linux/aarch64:sysroot",
     "//cc/features:compiler_input_flags",
     "//cc/features:compiler_output_flags",
-]
+] + select({
+    "//common:is_stdlib_libcxx": [
+        "//cc/features:libc++",
+    ],
+    "//conditions:default": [],
+})
 
 cc_toolchain_config(
     name = "config",

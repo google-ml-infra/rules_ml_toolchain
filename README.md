@@ -122,19 +122,19 @@ Project supports GPU hermetic builds on Linux x86_64 / aarch64. Running tests re
 
 Hermetic tests could be run with the help of the command:
 ###### Build by Clang
-`bazel test //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs`
+`bazel test //gpu/cuda/tests:all --config=build_cuda_with_clang --config=cuda --config=cuda_libraries_from_stubs`
 
 ###### Build by NVCC
-`bazel test //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs`
+`bazel test //gpu/cuda/tests:all --config=build_cuda_with_nvcc --config=cuda --config=cuda_libraries_from_stubs`
 
 #### CUDA and non-hermetic toolchains tests
 When the executor and the target are the same, a non-hermetic GPU build can still be run.
 
 ###### Build by Clang
-`bazel test //cc/tests/gpu:all --config=build_cuda_with_clang --config=cuda_clang_local --config=cuda_libraries_from_stubs`
+`bazel test //gpu/cuda/tests:all --config=build_cuda_with_clang --config=cuda_clang_local --config=cuda_libraries_from_stubs`
 
 ###### Build by NVCC
-`bazel test //cc/tests/gpu:all --config=build_cuda_with_nvcc --config=cuda_clang_local --config=cuda_libraries_from_stubs`
+`bazel test //gpu/cuda/tests:all --config=build_cuda_with_nvcc --config=cuda_clang_local --config=cuda_libraries_from_stubs`
 
 For details, look at the `.bazelrc` file, specifically the `cuda_clang_local` configuration.
 
