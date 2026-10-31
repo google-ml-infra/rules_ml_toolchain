@@ -1,4 +1,3 @@
-
 load(
     "@rules_cc//cc:action_names.bzl",
     "ACTION_NAMES",
@@ -151,7 +150,6 @@ def _compiler_output_feature_impl(ctx):
         ),
     ]
 
-
 compiler_output_feature = rule(
     _compiler_output_feature_impl,
     attrs = {
@@ -296,6 +294,67 @@ external_include_paths_feature = rule(
         "provides": attr.string_list(),
         "requires": attr.string_list(),
         "implies": attr.string_list(),
+    },
+    provides = [FeatureInfo],
+)
+
+def _libcxx_feature_impl(ctx):
+    flag_sets = [
+        # For executables (e.g., cudnn_test, cc_test, cc_binary):
+        # Hide all static C++ runtime archives from .dynsym so they never
+        # collide with prebuilt libstdc++.so.6 / libgcc_s.so.1 libraries (e.g., libcudnn_*.so.9).
+        flag_set(
+            actions = [
+                ACTION_NAMES.cpp_link_executable,
+                ACTION_NAMES.lto_index_for_executable,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "-stdlib=libc++",
+                        "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
+                    ],
+                ),
+            ],
+        ),
+        # For shared libraries (e.g., libtensorflow_framework.so.2, _pywrap_*.so):
+        # Hide only stateless libunwind.a to avoid _Unwind_* collisions with libgcc_s.so.1,
+        # while keeping libc++.a and libc++abi.a together for cross-DSO C++ exception handling.
+        flag_set(
+            actions = [
+                ACTION_NAMES.cpp_link_dynamic_library,
+                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ACTION_NAMES.lto_index_for_dynamic_library,
+                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "-stdlib=libc++",
+                        "-Wl,--exclude-libs,libunwind.a",
+                    ],
+                ),
+            ],
+        ),
+    ]
+
+    return [
+        feature(
+            name = ctx.label.name,
+            enabled = ctx.attr.enabled,
+            provides = ctx.attr.provides,
+            implies = [target.label.name for target in ctx.attr.implies],
+            flag_sets = flag_sets,
+        ),
+    ]
+
+libcxx_feature = rule(
+    _libcxx_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = False),
+        "provides": attr.string_list(),
+        "requires": attr.string_list(),
+        "implies": attr.label_list(),
     },
     provides = [FeatureInfo],
 )

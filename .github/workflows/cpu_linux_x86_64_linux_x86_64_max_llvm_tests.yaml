@@ -115,7 +115,7 @@ jobs:
       # TODO: Replace `build` to `test` and run //cc/tests/cpu:all when GitHub runners will be updated to Ubuntu 24
       - name: "Clang 22, Glibc 2.39, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
