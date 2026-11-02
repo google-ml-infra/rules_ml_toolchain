@@ -32,6 +32,7 @@ load(
     "compiler_output_feature",
     "external_include_paths_feature",
     "include_paths_feature",
+    "libcxx_feature",
     "user_compile_feature",
 )
 
@@ -238,16 +239,6 @@ cc_feature(
     provides = ["compilation_mode"],
 )
 
-cc_feature(
-    name = "libc++",
-    enabled = True,
-    linker_flags = [
-        "-stdlib=libc++",
-        # Added to resolve libc++abi/libunwind and libstdc++/libgcc_s conflicts when prebuilt libraries (e.g., libcudnn_*.so.9) are used.
-        "-Wl,--exclude-libs,libc++abi.a:libunwind.a",
-    ],
-)
-
 # Runtime library search directories feature
 # This overrides the default action_config-embedded flag_sets to ensure
 # proper with_features support for no_solib_rpaths
@@ -350,5 +341,10 @@ include_paths_feature(
 
 external_include_paths_feature(
     name = "external_include_paths",
+    enabled = True,
+)
+
+libcxx_feature(
+    name = "libc++",
     enabled = True,
 )
