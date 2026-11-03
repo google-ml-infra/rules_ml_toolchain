@@ -317,15 +317,31 @@ def _libcxx_feature_impl(ctx):
                 ),
             ],
         ),
+        # For transitively linked cc_library shared objects (e.g., _solib_*/lib*.so in dynamic cc_test):
+        # Hide static libc++abi.a and libunwind.a to avoid __cxa_* / _Unwind_* collisions with
+        # libstdc++.so.6 / libgcc_s.so.1, while keeping libc++.a (std::__1::*) visible so all DSOs
+        # coalesce onto a single shared std::__1 runtime instance.
+        flag_set(
+            actions = [
+                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "-stdlib=libc++",
+                        "-Wl,--exclude-libs,libc++abi.a:libunwind.a",
+                    ],
+                ),
+            ],
+        ),
         # For shared libraries (e.g., libtensorflow_framework.so.2, _pywrap_*.so):
         # Hide only stateless libunwind.a to avoid _Unwind_* collisions with libgcc_s.so.1,
         # while keeping libc++.a and libc++abi.a together for cross-DSO C++ exception handling.
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_dynamic_library,
-                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
                 ACTION_NAMES.lto_index_for_dynamic_library,
-                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
             ],
             flag_groups = [
                 flag_group(
