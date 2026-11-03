@@ -306,15 +306,27 @@ def _libcxx_feature_impl(ctx):
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_executable,
-                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
                 ACTION_NAMES.lto_index_for_executable,
-                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
             ],
             flag_groups = [
                 flag_group(
                     flags = [
                         "-stdlib=libc++",
                         "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
+                    ],
+                ),
+            ],
+        ),
+        flag_set(
+            actions = [
+                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
+            ],
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "-stdlib=libc++",
+                        "-Wl,--exclude-libs,libc++abi.a:libunwind.a",
                     ],
                 ),
             ],
