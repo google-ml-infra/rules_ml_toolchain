@@ -317,6 +317,10 @@ def _libcxx_feature_impl(ctx):
                 ),
             ],
         ),
+        # For transitively linked cc_library shared objects (e.g., _solib_*/lib*.so in dynamic cc_test):
+        # Hide static libc++abi.a and libunwind.a to avoid __cxa_* / _Unwind_* collisions with
+        # libstdc++.so.6 / libgcc_s.so.1, while keeping libc++.a (std::__1::*) visible so all DSOs
+        # coalesce onto a single shared std::__1 runtime instance.
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_nodeps_dynamic_library,
