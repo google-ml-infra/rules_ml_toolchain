@@ -306,7 +306,9 @@ def _libcxx_feature_impl(ctx):
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_executable,
+                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
                 ACTION_NAMES.lto_index_for_executable,
+                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
             ],
             flag_groups = [
                 flag_group(
@@ -323,9 +325,7 @@ def _libcxx_feature_impl(ctx):
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_dynamic_library,
-                ACTION_NAMES.cpp_link_nodeps_dynamic_library,
                 ACTION_NAMES.lto_index_for_dynamic_library,
-                ACTION_NAMES.lto_index_for_nodeps_dynamic_library,
             ],
             flag_groups = [
                 flag_group(
