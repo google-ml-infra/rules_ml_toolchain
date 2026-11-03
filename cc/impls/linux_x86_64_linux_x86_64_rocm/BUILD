@@ -19,7 +19,7 @@
 
 load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
-load("//cc/config:constants.bzl", "LIBCXX_FLAGS", "LIBSTDCXX_FLAGS")
+load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
@@ -101,27 +101,23 @@ cc_toolchain_import_feature(
 cc_toolchain_import(
     name = "imports",
     deps = [
-        # Always include hermetic sysroot headers - needed for GPU compilation
+        # Always include hermetic C++ standard library headers - needed for GPU compilation
         # GPU compilation requires hermetic headers (system headers incompatible with ROCm clang)
         # Host compilation will use system headers when HOST_SYSROOT is set (via wrapper override)
+        # Host and device code must agree on the standard library, so :std_incs follows
+        # --@rules_ml_toolchain//common:stdlib for both: .cu.cc files emit host code too and
+        # have to link against objects built by the host compiler.
         # IMPORTANT: std_incs must come before compiler_incs to ensure correct stdatomic.h resolution
         # The sysroot C++ stdatomic.h wrapper uses #include_next to find clang's built-in stdatomic.h
-        "@sysroot_linux_x86_64//:std_incs",
+        ":std_incs",
         # Hermetic LLVM headers
         "@llvm_linux_x86_64//:compiler_incs",
         "@sysroot_linux_x86_64//:sys_incs",
         ":std_libs",
         "@sysroot_linux_x86_64//:sys_libs",
+        "@llvm_linux_x86_64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
-)
-
-config_setting(
-    name = "is_static_libcxx",
-    flag_values = {
-        "//common:stdlib": "libc++",
-        "//common:static_libcxx": "True",
-    },
 )
 
 config_setting(
@@ -149,6 +145,10 @@ cc_feature(
 cc_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
+    static_link_flags = select({
+        "//common:is_static_libcxx": LIBCXX_FLAGS,
+        "//conditions:default": [],
+    }),
     toolchain_import = ":imports",
 )
 
@@ -271,13 +271,21 @@ FEATURES_ESSENTIAL = [
     "//cc/features:detect_issues",
 
     # C++ standard flags
+    "//third_party/rules_cc_toolchain/features:c++11",
+    "//third_party/rules_cc_toolchain/features:c++14",
     "//third_party/rules_cc_toolchain/features:c++17",
+    "//third_party/rules_cc_toolchain/features:c++20",
 
     # Other flags
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
-]
+] + select({
+    "//common:is_stdlib_libcxx": [
+        "//cc/features:libc++",
+    ],
+    "//conditions:default": [],
+})
 
 # =============================================================================
 # Toolchain Configuration
