@@ -112,6 +112,7 @@ cc_toolchain_import(
         "@sysroot_linux_x86_64//:sys_incs",
         ":std_libs",
         "@sysroot_linux_x86_64//:sys_libs",
+        "@llvm_linux_x86_64//:libclang_rt",
     ],
     visibility = ["//visibility:public"],
 )
