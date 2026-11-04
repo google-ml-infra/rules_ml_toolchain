@@ -67,7 +67,6 @@ cc_toolchain_import(
         "usr/include/c++/{gcc_version}".format(gcc_version = GCC_VERSION),
         "usr/include/aarch64-linux-gnu/c++/{gcc_version}".format(gcc_version = GCC_VERSION),
         "usr/include/c++/{gcc_version}/backward".format(gcc_version = GCC_VERSION),
-        "usr/include/c++/{gcc_version}/experimental".format(gcc_version = GCC_VERSION),
     ],
     visibility = ["//visibility:public"],
 )
