@@ -47,11 +47,8 @@ package(
         "//cc/impls/linux_x86_64_linux_x86_64_cuda:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_rocm:__pkg__",
         "//cc/impls/linux_x86_64_linux_x86_64_sycl:__pkg__",
-<<<<<<< HEAD
-        "@darwin_local_config_cc//:__pkg__",
-=======
         "//cc/impls/windows_x86_64_windows_x86_64:__pkg__",
->>>>>>> fortran-toolchain
+        "@darwin_local_config_cc//:__pkg__",
     ],
 )
 
