@@ -266,9 +266,6 @@ def InvokeHipcc(argv, log=False):
     # This ensures proper macro setup before other headers
     cmd.extend(["--include=hip/hip_runtime.h"])
 
-    # Force C++17 dialect
-    cmd.extend(["--std=c++17"])
-
     # Use -fno-gpu-rdc by default
     cmd.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
 
