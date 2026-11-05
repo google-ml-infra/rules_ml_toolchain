@@ -64,6 +64,7 @@ fortran_toolchain(
         "//fortran/features:fastbuild",
         "//fortran/features:opt",
         "//fortran/features/windows/x86_64:sysroot",
+        "//fortran/features/windows/x86_64:dynamic_link_msvcrt",
         "//fortran/features:use_lld",
     ],
     compiler_files = ":compiler",

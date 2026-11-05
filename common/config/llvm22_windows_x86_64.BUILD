@@ -203,7 +203,7 @@ cc_toolchain_import(
         [
             "lib/FortranRuntime*.lib",
             "lib/FortranDecimal*.lib",
-            "lib/clang/{clang_version}/lib/*/flang_rt.runtime.static.lib".format(clang_version = CLANG_VERSION),
+            "lib/clang/{clang_version}/lib/*/flang_rt.runtime.dynamic.lib".format(clang_version = CLANG_VERSION),
             "lib/clang/{clang_version}/lib/*/clang_rt.builtins-*.lib".format(clang_version = CLANG_VERSION),
         ],
         allow_empty = True,

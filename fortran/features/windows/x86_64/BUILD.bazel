@@ -15,6 +15,7 @@
 
 load(
     "//fortran/features:features.bzl",
+    "fortran_feature",
     "fortran_toolchain_sysroot_feature",
 )
 
@@ -28,4 +29,15 @@ fortran_toolchain_sysroot_feature(
     name = "sysroot",
     enabled = True,
     target = "x86_64-pc-windows-msvc",
+)
+
+fortran_feature(
+    name = "dynamic_link_msvcrt",
+    compiler_flags = [
+        "-fms-runtime-lib=dll",
+    ],
+    enabled = True,
+    linker_flags = [
+        "-fms-runtime-lib=dll",
+    ],
 )
