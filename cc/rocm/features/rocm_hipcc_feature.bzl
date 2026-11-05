@@ -68,6 +68,7 @@ def _rocm_hipcc_feature_impl(ctx):
     The environment variables are read by the hipcc_wrapper script to locate
     the HIPcc compiler and ROCm toolkit.
     """
+
     # Construct full paths using workspace_root from the rocm_toolkit label
     # and relative paths from hipcc_config() struct
     workspace_root = ctx.attr.rocm_toolkit.label.workspace_root
@@ -106,12 +107,6 @@ def _rocm_hipcc_feature_impl(ctx):
         "-fcuda-flush-denormals-to-zero",
     ])
 
-    # C++ only flags
-    cpp_only_flags = [
-        # Force C++17 for HIP compilation (only valid for C++)
-        "--std=c++17",
-    ]
-
     return _feature(
         name = ctx.label.name,
         enabled = ctx.attr.enabled,
@@ -127,15 +122,6 @@ def _rocm_hipcc_feature_impl(ctx):
                         flags = common_compiler_flags,
                     ),
                 ] if common_compiler_flags else [],
-            ),
-            # C++ only flags (not applied to c_compile)
-            flag_set(
-                actions = ALL_CPP_COMPILE_ACTION_NAMES,
-                flag_groups = [
-                    flag_group(
-                        flags = cpp_only_flags,
-                    ),
-                ],
             ),
         ],
         env_sets = [env_set(
