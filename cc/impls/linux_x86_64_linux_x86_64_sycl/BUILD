@@ -190,6 +190,7 @@ cc_toolchain_config(
         "//third_party/rules_cc_toolchain/features:c++11",
         "//third_party/rules_cc_toolchain/features:c++14",
         "//third_party/rules_cc_toolchain/features:c++17",
+        "//third_party/rules_cc_toolchain/features:c++20",
 
         #
         "//cc/features:allow_shlib_undefined",
