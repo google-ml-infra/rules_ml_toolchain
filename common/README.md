@@ -77,7 +77,7 @@ The archive should be made on Linux machine with GLIBC 2.31 or earlier version
    ```
 
 9. Update the `xz_x86_64` or `xz_aarch64` data in
-   `cc/deps/cc_toolchain_deps.bzl` file.
+   `common/deps/toolchain_deps.bzl` file.
 
 ## TAR archive
 
@@ -139,6 +139,6 @@ The archive should be made on Linux machine with GLIBC 2.31 or earlier version
    ```
 
 8. Update the `tar_x86_64` or `tar_aarch64` data in
-   `cc/deps/cc_toolchain_deps.bzl` file.
+   `common/deps/toolchain_deps.bzl` file.
 
 

@@ -1,0 +1,82 @@
+"""Test module for rules_ml_toolchain/fortran examples.
+
+This module depends on the parent rules_ml_toolchain/fortran module and adds
+example-specific dependencies (BLAS, LAPACK, LAPACKE) that are not needed
+by users of rules_ml_toolchain/fortran.
+"""
+
+module(
+    name = "rules_ml_toolchain_fortran_examples",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+
+# TODO: drop git_override once libomp lands in BCR
+bazel_dep(name = "libomp", version = "0.0.0")
+git_override(
+    module_name = "libomp",
+    commit = "4095ab47928ff185c5651a402416924e74f1feaa",
+    remote = "https://github.com/miinso/omp.git",
+)
+
+bazel_dep(name = "rules_python", version = "1.8.4")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "emsdk", version = "6.0.2")
+
+# hermetic node to run wasm test output (don't rely on runner-preinstalled node)
+bazel_dep(name = "rules_nodejs", version = "6.7.5")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+use_repo(node, "nodejs_host")
+
+# Depend on parent rules_ml_toolchain
+bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
+local_path_override(
+    module_name = "rules_ml_toolchain",
+    path = "../../",  # Parent directory
+)
+
+register_toolchains(
+    "@rules_ml_toolchain//cc/...",
+    "@rules_ml_toolchain//fortran/...",
+)
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Netlib BLAS (for BLAS examples)
+http_archive(
+    name = "blas",
+    build_file = "//blas:blas.BUILD",
+    # netlib 3.12.1 blat1 drivers always exit 0 and the c/z variants FAIL the
+    # infinity row unconditionally (missing SNRM == ZNRM guard that s/d have);
+    # patched to fix the comparison and STOP 1 when any test failed. guard fixed
+    # upstream post-3.12.1: https://github.com/Reference-LAPACK/lapack/pull/1264
+    # -- drop the comparison hunks when the next release ships
+    patch_args = ["-p1"],
+    patches = ["//blas:blat1-nrm2-inf-and-exit-code.patch"],
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1/BLAS",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
+)
+
+# Netlib LAPACK (for LAPACK examples)
+http_archive(
+    name = "lapack",
+    build_file = "//lapack:lapack.BUILD",
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
+)
+
+# LAPACKE - C interface to LAPACK (for interop examples)
+http_archive(
+    name = "lapacke",
+    build_file = "//lapack:lapacke.BUILD",
+    patch_args = ["-p2"],  # strip 2 levels: lapack-3.12.1/LAPACKE/
+    patches = ["//lapack:pr-1164-msvc-complex.patch"],  # discard once they rollout #1164
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1/LAPACKE",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
+)

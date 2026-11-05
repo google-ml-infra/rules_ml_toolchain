@@ -92,3 +92,27 @@ alias(
     actual = "@@%{llvm_repo_name}//:libclang_rt",
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "flang",
+    actual = "@@%{llvm_repo_name}//:flang",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "flang_incs",
+    actual = "@@%{llvm_repo_name}//:flang_incs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fortran_libs",
+    actual = "@@%{llvm_repo_name}//:fortran_libs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fortran_main",
+    actual = "@@%{llvm_repo_name}//:fortran_main",
+    visibility = ["//visibility:public"],
+)
