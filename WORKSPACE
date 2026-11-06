@@ -152,9 +152,9 @@ http_archive(
 ##############################################################
 # Hermetic toolchain configuration
 
-load("//common/deps:toolchain_deps.bzl", "toolchain_deps")
+load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
-toolchain_deps()
+cc_toolchain_deps()
 
 register_toolchains(
     "//cc/...",

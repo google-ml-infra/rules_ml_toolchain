@@ -14,8 +14,8 @@
 
 """Module extension for toolchain."""
 
-load("//common/deps:toolchain_deps.bzl", "toolchain_deps")
+load("//cc/deps:cc_toolchain_deps.bzl", "cc_toolchain_deps")
 
 toolchain_ext = module_extension(
-    implementation = lambda mctx: toolchain_deps(),
+    implementation = lambda mctx: cc_toolchain_deps(),
 )
