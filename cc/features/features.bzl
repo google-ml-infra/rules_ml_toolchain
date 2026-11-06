@@ -300,6 +300,17 @@ external_include_paths_feature = rule(
 
 def _libcxx_feature_impl(ctx):
     flag_sets = [
+        # Allows the use of GNU-specific extension keywords that are not part of the standard C or C++ specifications
+        flag_set(
+            actions = ALL_COMPILE_ACTIONS,
+            flag_groups = [
+                flag_group(
+                    flags = [
+                        "-fgnu-keywords",
+                    ],
+                ),
+            ],
+        ),
         # For executables (e.g., cudnn_test, cc_test, cc_binary):
         # Hide all static C++ runtime archives from .dynsym so they never
         # collide with prebuilt libstdc++.so.6 / libgcc_s.so.1 libraries (e.g., libcudnn_*.so.9).
