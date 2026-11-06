@@ -266,8 +266,13 @@ def InvokeHipcc(argv, log=False):
     # This ensures proper macro setup before other headers
     cmd.extend(["--include=hip/hip_runtime.h"])
 
-    # Force C++17 dialect
-    cmd.extend(["--std=c++17"])
+    # Forward the C++ standard selected by the build (e.g. --cxxopt=-std=c++20)
+    # so that device code is compiled with the same standard as host code. The
+    # last occurrence wins, as it would with clang directly. If the build does
+    # not select one, hipcc's default standard is used.
+    std_flags = [f for f in argv if f.startswith("-std=") or f.startswith("--std=")]
+    if std_flags:
+        cmd.append(std_flags[-1])
 
     # Use -fno-gpu-rdc by default
     cmd.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
