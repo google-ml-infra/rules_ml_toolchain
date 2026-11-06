@@ -1,0 +1,333 @@
+load("@rules_ml_toolchain//fortran:defs.bzl", "fortran_test")
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+
+# simple DGESV run
+fortran_test(
+    name = "lu",
+    srcs = ["lu.f90"],
+    copts = ["-O2"],
+    deps = ["@lapack//:double"],
+)
+
+# Cholesky decomposition demo
+fortran_test(
+    name = "chol",
+    srcs = ["chol.f90"],
+    copts = ["-O2"],
+    deps = ["@lapack"],
+)
+
+# SVD decomposition demo
+fortran_test(
+    name = "svd",
+    srcs = ["svd.f90"],
+    copts = ["-O2"],
+    deps = ["@lapack//:double"],
+)
+
+# Selective compilation
+fortran_test(
+    name = "mixed",
+    srcs = ["mixed.f90"],
+    copts = ["-O2"],
+    deps = [
+        "@lapack//:double",
+        "@lapack//:single",
+    ],
+)
+
+# =============================================================================
+# LAPACK Test Suite
+# =============================================================================
+
+# LIN Tests (Linear Equation routines)
+[
+    py_test(
+        name = "%stest" % prefix,
+        size = "large",
+        srcs = ["run.py"],
+        args = [
+            "$(location @lapack//:xlintst%s)" % prefix,
+            "$(location @lapack//:TESTING/%stest.in)" % prefix,
+            "%stest.out" % prefix,
+        ],
+        data = [
+            "@lapack//:xlintst%s" % prefix,
+            "@lapack//:TESTING/%stest.in" % prefix,
+        ],
+        main = "run.py",
+        tags = ["lapack"],
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]
+
+# Mixed precision LIN Tests
+py_test(
+    name = "dstest",
+    size = "large",
+    srcs = ["run.py"],
+    args = [
+        "$(location @lapack//:xlintstds)",
+        "$(location @lapack//:TESTING/dstest.in)",
+        "dstest.out",
+    ],
+    data = [
+        "@lapack//:TESTING/dstest.in",
+        "@lapack//:xlintstds",
+    ],
+    main = "run.py",
+    tags = ["lapack"],
+)
+
+py_test(
+    name = "zctest",
+    size = "large",
+    srcs = ["run.py"],
+    args = [
+        "$(location @lapack//:xlintstzc)",
+        "$(location @lapack//:TESTING/zctest.in)",
+        "zctest.out",
+    ],
+    data = [
+        "@lapack//:TESTING/zctest.in",
+        "@lapack//:xlintstzc",
+    ],
+    main = "run.py",
+    tags = ["lapack"],
+)
+
+# RFP format LIN Tests
+[
+    py_test(
+        name = "%stest_rfp" % prefix,
+        size = "large",
+        srcs = ["run.py"],
+        args = [
+            "$(location @lapack//:xlintstrf%s)" % prefix,
+            "$(location @lapack//:TESTING/%stest_rfp.in)" % prefix,
+            "%stest_rfp.out" % prefix,
+        ],
+        data = [
+            "@lapack//:xlintstrf%s" % prefix,
+            "@lapack//:TESTING/%stest_rfp.in" % prefix,
+        ],
+        main = "run.py",
+        tags = ["lapack"],
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]
+
+# DMD EIG Tests
+[
+    py_test(
+        name = "%sdmd" % prefix,
+        size = "large",
+        srcs = ["run.py"],
+        args = [
+            "$(location @lapack//:xdmdeigtst%s)" % prefix,
+            "$(location @lapack//:TESTING/%sdmd.in)" % prefix,
+            "%sdmd.out" % prefix,
+        ],
+        data = [
+            "@lapack//:xdmdeigtst%s" % prefix,
+            "@lapack//:TESTING/%sdmd.in" % prefix,
+        ],
+        main = "run.py",
+        tags = ["lapack"],
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+]
+
+# EIG Tests - Multiple input files per binary
+# Common EIG input files (same for all precisions)
+EIG_COMMON_INPUTS = [
+    "nep",
+    "sep",
+    "se2",
+    "svd",
+    "glm",
+    "gqr",
+    "gsv",
+    "csd",
+    "lse",
+]
+
+# Precision-specific EIG input files
+EIG_PRECISION_INPUTS = [
+    "ec",
+    "ed",
+    "gg",
+    "gd",
+    "sb",
+    "sg",
+    "bb",
+    "bak",
+    "bal",
+    "gbak",
+    "gbal",
+]
+
+[
+    py_test(
+        name = "%s%s" % (prefix, test_name),
+        size = "large",
+        srcs = ["run.py"],
+        args = [
+            "$(location @lapack//:xeigtst%s)" % prefix,
+            "$(location @lapack//:TESTING/%s.in)" % test_name,
+            "%s%s.out" % (prefix, test_name),
+        ],
+        data = [
+            "@lapack//:xeigtst%s" % prefix,
+            "@lapack//:TESTING/%s.in" % test_name,
+        ],
+        main = "run.py",
+        tags = [
+            "eig",
+            "lapack",
+        ],
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+    for test_name in EIG_COMMON_INPUTS
+]
+
+[
+    py_test(
+        name = "%s%s" % (prefix, test_name),
+        size = "large",
+        srcs = ["run.py"],
+        args = [
+            "$(location @lapack//:xeigtst%s)" % prefix,
+            "$(location @lapack//:TESTING/%s%s.in)" % (prefix, test_name),
+            "%s%s.out" % (prefix, test_name),
+        ],
+        data = [
+            "@lapack//:xeigtst%s" % prefix,
+            "@lapack//:TESTING/%s%s.in" % (prefix, test_name),
+        ],
+        main = "run.py",
+        tags = [
+            "eig",
+            "lapack",
+        ],
+    )
+    for prefix in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+    for test_name in EIG_PRECISION_INPUTS
+]
+
+# =============================================================================
+# LAPACK Testing Summary Script
+# =============================================================================
+
+# All LIN test binaries
+LIN_BINARIES = [
+    "@lapack//:xlintsts",
+    "@lapack//:xlintstd",
+    "@lapack//:xlintstc",
+    "@lapack//:xlintstz",
+]
+
+# All EIG test binaries
+EIG_BINARIES = [
+    "@lapack//:xeigtsts",
+    "@lapack//:xeigtstd",
+    "@lapack//:xeigtstc",
+    "@lapack//:xeigtstz",
+]
+
+# All DMD test binaries
+DMD_BINARIES = [
+    "@lapack//:xdmdeigtsts",
+    "@lapack//:xdmdeigtstd",
+    "@lapack//:xdmdeigtstc",
+    "@lapack//:xdmdeigtstz",
+]
+
+# Mixed precision binaries
+MIXED_BINARIES = [
+    "@lapack//:xlintstds",
+    "@lapack//:xlintstzc",
+]
+
+# RFP binaries
+RFP_BINARIES = [
+    "@lapack//:xlintstrfs",
+    "@lapack//:xlintstrfd",
+    "@lapack//:xlintstrfc",
+    "@lapack//:xlintstrfz",
+]
+
+# All test input files
+TEST_INPUTS = [
+    "@lapack//:TESTING/stest.in",
+    "@lapack//:TESTING/dtest.in",
+    "@lapack//:TESTING/ctest.in",
+    "@lapack//:TESTING/ztest.in",
+    "@lapack//:TESTING/dstest.in",
+    "@lapack//:TESTING/zctest.in",
+    "@lapack//:TESTING/stest_rfp.in",
+    "@lapack//:TESTING/dtest_rfp.in",
+    "@lapack//:TESTING/ctest_rfp.in",
+    "@lapack//:TESTING/ztest_rfp.in",
+    "@lapack//:TESTING/sdmd.in",
+    "@lapack//:TESTING/ddmd.in",
+    "@lapack//:TESTING/cdmd.in",
+    "@lapack//:TESTING/zdmd.in",
+    "@lapack//:TESTING/nep.in",
+    "@lapack//:TESTING/sep.in",
+    "@lapack//:TESTING/se2.in",
+    "@lapack//:TESTING/svd.in",
+    "@lapack//:TESTING/glm.in",
+    "@lapack//:TESTING/gqr.in",
+    "@lapack//:TESTING/gsv.in",
+    "@lapack//:TESTING/csd.in",
+    "@lapack//:TESTING/lse.in",
+] + [
+    "@lapack//:TESTING/%s%s.in" % (p, t)
+    for p in [
+        "s",
+        "d",
+        "c",
+        "z",
+    ]
+    for t in [
+        "ec",
+        "ed",
+        "gg",
+        "gd",
+        "sb",
+        "sg",
+        "bb",
+    ]
+]
+
+py_binary(
+    name = "lapack_testing",
+    srcs = ["lapack_testing.py"],
+    data = LIN_BINARIES + EIG_BINARIES + DMD_BINARIES + MIXED_BINARIES + RFP_BINARIES + TEST_INPUTS,
+)

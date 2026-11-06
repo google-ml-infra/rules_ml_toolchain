@@ -1,0 +1,16 @@
+"""Test suite for rules_fortran."""
+
+test_suite(
+    name = "all",
+    tests = [
+        "//third_party/rules_fortran/test/unit/action_validation:action_validation_test",
+        "//third_party/rules_fortran/test/unit/cc_interop:cc_interop_test",
+        "//third_party/rules_fortran/test/unit/dependency_propagation:dependency_propagation_test",
+        "//third_party/rules_fortran/test/unit/edge_cases:edge_cases_test",
+        "//third_party/rules_fortran/test/unit/fortran_binary:fortran_binary_test",
+        "//third_party/rules_fortran/test/unit/fortran_library:fortran_library_test",
+        "//third_party/rules_fortran/test/unit/linking:linking_test",
+        "//third_party/rules_fortran/test/unit/module_propagation:module_propagation_test",
+        "//third_party/rules_fortran/test/unit/omp:omp_test",
+    ],
+)

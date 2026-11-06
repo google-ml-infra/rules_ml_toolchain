@@ -229,3 +229,30 @@ toolchain(
     toolchain = "//cc/impls/darwin_aarch64_darwin_aarch64:toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )
+
+#=====================================================================
+# Executor platform: Windows x86_64
+#=====================================================================
+
+# Target platform: Windows x86_64
+# buildifier: leave-alone
+toolchain(
+    name = "windows_x86_64_windows_x86_64",
+    exec_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:windows",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:windows",
+    ],
+    target_settings = [
+        "//common:is_cuda_disabled",
+        "//common:is_rocm_disabled",
+        "//common:is_sycl_disabled",
+        "//common:is_hermetic_cc_enabled",
+    ],
+    toolchain = "//cc/impls/windows_x86_64_windows_x86_64:toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+

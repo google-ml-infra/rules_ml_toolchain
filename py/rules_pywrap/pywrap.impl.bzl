@@ -815,18 +815,15 @@ def _generated_win_def_file_impl(ctx):
     win_def_file = ctx.actions.declare_file(win_def_file_name)
 
     if pywrap_info.cc_only:
-        command = "echo \"EXPORTS\r\n\">> {win_def_file}"
+        content = "EXPORTS\r\n"
     else:
-        command = "echo \"EXPORTS\r\n  PyInit_{owner}\">> {win_def_file}"
-
-    ctx.actions.run_shell(
-        inputs = [],
-        command = command.format(
+        content = "EXPORTS\r\n  PyInit_{owner}\r\n".format(
             owner = pywrap_info.owner.name,
-            win_def_file = win_def_file.path,
-        ),
-        mnemonic = "PywrapWinDefFile",
-        outputs = [win_def_file],
+        )
+
+    ctx.actions.write(
+        output = win_def_file,
+        content = content,
     )
 
     return [DefaultInfo(files = depset(direct = [win_def_file]))]
@@ -1242,15 +1239,34 @@ def _pywrap_binaries_impl(ctx):
         final_binary_name = "%s%s%s" % (subfolder, pywrap_info.owner.name, extension)
         final_binary = ctx.actions.declare_file(final_binary_name)
         original_binary_file = original_binary.files.to_list()[0]
-        ctx.actions.run_shell(
-            inputs = [original_binary_file],
-            command = "cp {original} {final}".format(
-                original = original_binary_file.path,
-                final = final_binary.path,
-            ),
-            mnemonic = "PywrapBinaryRename",
-            outputs = [final_binary],
-        )
+        if extension == ".pyd":
+            bat = ctx.actions.declare_file("%s-%s-cmd.bat" % (ctx.label.name, pywrap_info.owner.name))
+            ctx.actions.write(
+                output = bat,
+                content = "@copy /Y \"%s\" \"%s\" >NUL\r\n" % (
+                    original_binary_file.path.replace("/", "\\"),
+                    final_binary.path.replace("/", "\\"),
+                ),
+                is_executable = True,
+            )
+            ctx.actions.run(
+                inputs = [original_binary_file, bat],
+                outputs = [final_binary],
+                executable = "cmd.exe",
+                arguments = ["/C", bat.path.replace("/", "\\")],
+                mnemonic = "PywrapBinaryRename",
+                use_default_shell_env = True,
+            )
+        else:
+            ctx.actions.run_shell(
+                inputs = [original_binary_file],
+                command = "cp {original} {final}".format(
+                    original = original_binary_file.path,
+                    final = final_binary.path,
+                ),
+                mnemonic = "PywrapBinaryRename",
+                outputs = [final_binary],
+            )
 
         original_to_final_binaries.append(
             "    '{original}' => '{final}'{starlark_only}".format(

@@ -165,9 +165,11 @@ use_repo(
     "llvm20_linux_aarch64",
     "llvm20_linux_x86_64",
     "llvm21_linux_x86_64",
+    "llvm22_windows_x86_64",
     "llvm_darwin_aarch64",
     "llvm_linux_aarch64",
     "llvm_linux_x86_64",
+    "llvm_windows_x86_64",
     "sysroot_darwin_aarch64",
     "sysroot_linux_aarch64",
     "sysroot_linux_aarch64_glibc_2_27",
@@ -175,6 +177,7 @@ use_repo(
     "sysroot_linux_x86_64",
     "sysroot_linux_x86_64_glibc_2_27",
     "sysroot_linux_x86_64_glibc_2_31",
+    "sysroot_windows_x86_64",
     "tar",
     "xz",
 )
@@ -188,5 +191,6 @@ use_repo(local_sysroot, "local_sysroot_config")
 # Projects that use rules_ml_toolchain should register toolchains on their end
 register_toolchains(
     "//cc/...",
+    "//fortran/...",
     dev_dependency = True,
 )

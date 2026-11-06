@@ -1,0 +1,5 @@
+"""Unit tests for action validation."""
+
+load(":action_validation_test.bzl", "action_validation_test_suite")
+
+action_validation_test_suite(name = "action_validation_test")
