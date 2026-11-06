@@ -21,6 +21,11 @@ load("@config_rocm_hipcc//rocm:build_defs.bzl", "hipcc_config")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
 load("//cc/config:constants.bzl", "LIBCXX_FLAGS")
 load("//cc/rocm/features:rocm_hipcc_feature.bzl", "rocm_hipcc_feature")
+load(
+    "//cc/sanitizers:features.bzl",
+    "cc_toolchain_import_asan_feature",
+    "cc_toolchain_import_tsan_feature",
+)
 load("//third_party/rules_cc_toolchain:toolchain_config.bzl", "cc_toolchain_config")
 load("//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl", "cc_toolchain_import")
 load("//third_party/rules_cc_toolchain/features:features.bzl", "cc_feature", "cc_toolchain_import_feature")
@@ -152,6 +157,32 @@ cc_toolchain_import_feature(
     toolchain_import = ":imports",
 )
 
+cc_toolchain_import(
+    name = "asan_import",
+    deps = [
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:rt_asan",
+    ],
+)
+
+cc_toolchain_import(
+    name = "tsan_import",
+    deps = [
+        "@llvm_linux_x86_64//:libclang_rt",
+        "@llvm_linux_x86_64//:rt_tsan",
+    ],
+)
+
+cc_toolchain_import_asan_feature(
+    name = "asan",
+    toolchain_import = ":asan_import",
+)
+
+cc_toolchain_import_tsan_feature(
+    name = "tsan",
+    toolchain_import = ":tsan_import",
+)
+
 # Conditional hermetic libraries feature
 # Disabled by default for XLA (to avoid -nodefaultlibs issues with ROCm)
 # Can be enabled via --@rules_ml_toolchain//common:enable_hermetic_libraries=True
@@ -185,6 +216,8 @@ filegroup(
 filegroup(
     name = "compiler",
     srcs = [
+        ":asan_import",
+        ":tsan_import",
         ":imports",
         ":rocm_toolkit_files",
         ":wrappers",
@@ -280,6 +313,10 @@ FEATURES_ESSENTIAL = [
     "//cc/features:allow_shlib_undefined",
     "//cc/features:supports_dynamic_linker",
     "//cc/features:supports_start_end_lib_feature",
+
+    # Sanitizers
+    ":asan",
+    ":tsan",
 ] + select({
     "//common:is_stdlib_libcxx": [
         "//cc/features:libc++",
