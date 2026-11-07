@@ -27,10 +27,16 @@ cc_library(
 
 filegroup(
     name = "header_list",
-    %{comment}srcs = glob([
-        %{comment}"include/**/*.h",
-        %{comment}"include/**/*.cuh",
-    %{comment}]),
+    # Older NCCL distributions (e.g., <= 2.27.7) only ship .h headers and do not
+    # contain any .cuh files under include/, which fails in Bazel 8+ where
+    # --incompatible_disallow_empty_glob is enabled by default.
+    %{comment}srcs = glob(
+        %{comment}[
+            %{comment}"include/**/*.h",
+            %{comment}"include/**/*.cuh",
+        %{comment}],
+        %{comment}allow_empty = True,
+    %{comment}),
 )
 
 cc_library(
