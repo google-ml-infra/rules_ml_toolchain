@@ -105,6 +105,33 @@ cuda_cc_test(
     ],
 )
 
+cuda_library(
+    name = "nccl_cuda",
+    srcs = ["nccl_cuda.cu.cc"],
+    hdrs = ["nccl_cuda.cu.h"],
+    tags = ["cuda-only"],
+    deps = [
+        "@cuda_nccl//:headers",
+    ],
+)
+
+cuda_cc_test(
+    name = "nccl_cuda_test",
+    srcs = [
+        "nccl_cuda_test.cc",
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
+    deps = [
+        ":nccl_cuda",
+        "@cuda_cudart//:cudart",
+        "@gtest//:gtest_main",
+        "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
+    ],
+)
+
 #############################################
 # Tests Suite
 test_suite(
@@ -112,6 +139,7 @@ test_suite(
     tests = [
         ":absl_cuda_test",
         ":bfloat16_atomic_add_cuda_test",
+        ":nccl_cuda_test",
         ":vector_cuda_test",
     ],
 )
