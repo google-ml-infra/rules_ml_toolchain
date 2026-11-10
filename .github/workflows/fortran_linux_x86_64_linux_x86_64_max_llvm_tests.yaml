@@ -54,15 +54,6 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - name: "Flang 21, Glibc 2.35 | Testing..."
-        run: |
-          bazel test --cxxopt="-std=c++17" \
-            --repo_env=LLVM_VERSION=21 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
-            --color=yes \
-            --verbose_failures \
-            //fortran/tests:all
-
       - name: "Bzlmod. Flang 21, Glibc 2.35 | Testing..."
         run: |
           bazel test --cxxopt="-std=c++17" \
@@ -76,33 +67,10 @@ jobs:
       # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
       - name: "Bzlmod. Flang 22, Glibc 2.39 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
             --config=bzlmod \
-            --color=yes \
-            --verbose_failures \
-            //fortran/tests:all
-
-      - name: "Flang 21, Glibc 2.35, libc++ static linking | Testing..."
-        run: |
-          bazel test --cxxopt="-std=c++17" \
-            --repo_env=LLVM_VERSION=21 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            --color=yes \
-            --verbose_failures \
-            //fortran/tests:all
-
-      # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
-      - name: "Flang 22, Glibc 2.39, libc++ static linking | Testing..."
-        run: |
-          bazel build --cxxopt="-std=c++17" \
-            --repo_env=LLVM_VERSION=22 \
-            --repo_env=SYSROOT_DIST=linux_glibc_2_39 \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
             --color=yes \
             --verbose_failures \
             //fortran/tests:all

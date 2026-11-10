@@ -15,7 +15,7 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load(
-    "//fortran:defs.bzl",
+    "@rules_fortran//:defs.bzl",
     "fortran_binary",
     "fortran_library",
     "fortran_test",
@@ -38,7 +38,6 @@ fortran_test(
 fortran_library(
     name = "math_mod",
     srcs = ["math_mod.f90"],
-    hdrs = ["math_mod.h"],
 )
 
 fortran_library(
@@ -78,7 +77,10 @@ fortran_test(
 
 cc_test(
     name = "cc_calls_fortran_test",
-    srcs = ["cc_calls_fortran_test.cc"],
+    srcs = [
+        "cc_calls_fortran_test.cc",
+        "math_mod.h",
+    ],
     deps = [
         ":math_mod",
         "@gtest//:gtest_main",

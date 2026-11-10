@@ -20,8 +20,9 @@ load(
     _FortranToolchainInfo = "FortranToolchainInfo",
     _fortran_toolchain = "fortran_toolchain",
 )
+
 load(
-    "//third_party/rules_fortran:defs.bzl",
+    "@rules_fortran//:defs.bzl",
     _FortranInfo = "FortranInfo",
     _fortran_binary = "fortran_binary",
     _fortran_library = "fortran_library",

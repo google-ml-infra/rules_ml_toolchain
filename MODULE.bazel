@@ -85,6 +85,23 @@ pybind11_internal_configure = use_extension(
 use_repo(pybind11_internal_configure, "pybind11")
 
 ##############################################################
+# Fortran dependencies
+bazel_dep(
+    name = "rules_fortran",
+    dev_dependency = True,
+)
+
+git_override(
+    module_name = "rules_fortran",
+    commit = "f0cac73ebdcbda7bc01b38b8a4ee33869416c220",
+    patch_strip = 1,
+    patches = [
+        "//third_party/rules_fortran:toolchains.patch",
+    ],
+    remote = "https://github.com/miinso/rules_fortran.git",
+)
+
+##############################################################
 # CUDA
 
 cuda_configure_ext = use_extension("//extensions:cuda_configure.bzl", "cuda_configure_ext")
