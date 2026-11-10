@@ -1,6 +1,6 @@
 # Hermetic Fortran Toolchains for ML
 
-This package provides Bazel rules and hermetic `flang` toolchains for building Fortran targets and mixed Fortran/C/C++ libraries (such as BLAS and LAPACK) in ML projects.
+This package provides hermetic `flang` toolchains for building Fortran targets and mixed Fortran/C/C++ libraries (such as BLAS and LAPACK) in ML projects, designed to work with [`rules_fortran`](https://github.com/miinso/rules_fortran).
 
 Fortran hermetic builds benefits:
 * Reproducibility: Every build produces identical results regardless of the developer's machine environment.
@@ -11,16 +11,31 @@ Fortran hermetic builds benefits:
 
 ### Using Bzlmod (`MODULE.bazel`)
 
-Add the following configuration to your `MODULE.bazel` file to register both C++ and Fortran toolchains:
+Fortran build rules (`fortran_library`, `fortran_binary`, `fortran_test`) are provided by [`rules_fortran`](https://github.com/miinso/rules_fortran), while `rules_ml_toolchain` provides the hermetic `flang` toolchains.
+
+Add the following configuration to your `MODULE.bazel` file to configure [`rules_fortran`](https://github.com/miinso/rules_fortran) with `rules_ml_toolchain` and register both C++ and Fortran toolchains:
 
 ```starlark
 bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
+
+bazel_dep(name = "rules_fortran")
+git_override(
+    module_name = "rules_fortran",
+    commit = "f0cac73ebdcbda7bc01b38b8a4ee33869416c220",
+    patch_strip = 1,
+    patches = [
+        "@rules_ml_toolchain//third_party/rules_fortran:toolchains.patch",
+    ],
+    remote = "https://github.com/miinso/rules_fortran.git",
+)
 
 register_toolchains(
     "@rules_ml_toolchain//cc/...",
     "@rules_ml_toolchain//fortran/...",
 )
 ```
+
+> **Note:** `toolchains.patch` aliases `@rules_fortran//fortran:toolchain_type` to `@rules_ml_toolchain//fortran:toolchain_type` and removes `rules_fortran`'s default toolchain registration so that `rules_ml_toolchain`'s hermetic `flang` toolchains are resolved instead.
 
 ### Using `WORKSPACE`
 
@@ -80,7 +95,7 @@ Available Linux sysroots:
 
 ## Fortran rules usage
 
-Load `fortran_library`, `fortran_binary`, and `fortran_test` from `@rules_fortran//:defs.bzl`:
+Fortran rules are provided by [`rules_fortran`](https://github.com/miinso/rules_fortran). Load `fortran_library`, `fortran_binary`, and `fortran_test` from `@rules_fortran//:defs.bzl`:
 
 ```starlark
 load(
@@ -112,12 +127,15 @@ fortran_test(
 ### C / C++ Interoperability (`iso_c_binding`)
 
 * `fortran_library` produces `CcInfo`, allowing `cc_library`, `cc_binary`, and `cc_test` targets to depend directly on Fortran targets via `deps`.
-* `fortran_library`, `fortran_binary`, and `fortran_test` accept C/C++ dependencies via `cc_deps`.
+* `fortran_library`, `fortran_binary`, and `fortran_test` accept C/C++ (`cc_library`) dependencies directly via `deps`.
 
 ```starlark
 cc_test(
     name = "cc_calls_fortran_test",
-    srcs = ["cc_calls_fortran_test.cc"],
+    srcs = [
+        "cc_calls_fortran_test.cc",
+        "math_mod.h",
+    ],
     deps = [":math_mod"],
 )
 ```
