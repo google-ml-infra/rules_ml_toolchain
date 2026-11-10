@@ -17,7 +17,7 @@ Usage in your BUILD file:
   deps = ["@lapack//:double"]  # Only double precision
 """
 
-load("@rules_ml_toolchain//fortran:defs.bzl", "fortran_binary", "fortran_library")
+load("@rules_fortran//:defs.bzl", "fortran_binary", "fortran_library")
 
 package(default_visibility = ["//visibility:public"])
 

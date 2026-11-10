@@ -80,11 +80,11 @@ Available Linux sysroots:
 
 ## Fortran rules usage
 
-Load `fortran_library`, `fortran_binary`, and `fortran_test` from `@rules_ml_toolchain//fortran:defs.bzl`:
+Load `fortran_library`, `fortran_binary`, and `fortran_test` from `@rules_fortran//:defs.bzl`:
 
 ```starlark
 load(
-    "@rules_ml_toolchain//fortran:defs.bzl",
+    "@rules_fortran//:defs.bzl",
     "fortran_binary",
     "fortran_library",
     "fortran_test",

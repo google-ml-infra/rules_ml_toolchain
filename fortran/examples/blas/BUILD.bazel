@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:native_binary.bzl", "native_test")
-load("@rules_ml_toolchain//fortran:defs.bzl", "fortran_test")
+load("@rules_fortran//:defs.bzl", "fortran_test")
 load("@rules_python//python:defs.bzl", "py_test")
 
 # Example: Simple BLAS DGEMM test

@@ -18,7 +18,7 @@ options, Bazel only builds what you actually depend on. Just reference the
 precision target you need - unused precisions won't be compiled.
 """
 
-load("@rules_ml_toolchain//fortran:defs.bzl", "fortran_binary", "fortran_library", "fortran_test")
+load("@rules_fortran//:defs.bzl", "fortran_binary", "fortran_library", "fortran_test")
 
 # Auxiliary BLAS routines (required by all precisions)
 ALLBLAS_SRCS = [
