@@ -273,7 +273,7 @@ def _fortran_toolchain_impl(ctx):
             compiler_files,
             fortran_libs,
             fortran_main,
-            cc_toolchain.all_files,
+            cc_toolchain._linker_files,
         ],
     )
 
