@@ -51,15 +51,6 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - name: "Flang 22, MSVC | Testing..."
-        run: |
-          bazel --output_user_root=C:/_rmt test \
-            --verbose_failures \
-            --test_output=errors \
-            --color=yes \
-            --enable_runfiles \
-            //fortran/tests:all
-
       - name: "Bzlmod. Flang 22, MSVC | Testing..."
         run: |
           bazel --output_user_root=C:/_rmt test \
@@ -68,4 +59,9 @@ jobs:
             --test_output=errors \
             --color=yes \
             --enable_runfiles \
-            //fortran/tests:all
+            //fortran/tests:all \
+            //third_party/rules_fortran/examples/blas:main \
+            //third_party/rules_fortran/examples/lapack:chol \
+            //third_party/rules_fortran/examples/lapack:lu \
+            //third_party/rules_fortran/examples/lapack:mixed \
+            //third_party/rules_fortran/examples/lapack:svd

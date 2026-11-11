@@ -14,7 +14,7 @@ fortran_test(
     name = "chol",
     srcs = ["chol.f90"],
     copts = ["-O2"],
-    deps = ["@lapack"],
+    deps = ["@lapack//:double"],
 )
 
 # SVD decomposition demo
