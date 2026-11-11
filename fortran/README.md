@@ -61,25 +61,32 @@ For diagnosing the compiler and linker invocations during build or test executio
 
 ## Configure the LLVM / Sysroot in rules_ml_toolchain
 
-By default:
-* Linux and macOS toolchains use LLVM `18` and the `linux_glibc_2_27` sysroot.
-* Windows x86_64 toolchain uses LLVM `22` (the first official upstream LLVM Windows release bundling `flang`).
+Hermetic Fortran builds require **LLVM `20` or newer**:
+* **Why LLVM 20+ is required:** LLVM `20` is the first release where the `flang` driver supports the flags needed for hermetic compilation and linking:
+  * `--no-default-config`: Ignores host and user default configuration files.
+  * `-fno-rtlib-add-rpath`: Prevents baking host compiler runtime `RPATH` entries into outputs.
+  * `-nostdlib` and `-nodefaultlibs`: Prevents linking against host system standard and default libraries.
+  * `-w`: Suppresses warnings when compiling third-party Fortran libraries (such as Netlib BLAS and LAPACK).
+  * Earlier versions (LLVM `18` and `19`) do not support these flags in `flang-new` and are blocked by the Fortran toolchain.
 
-To change these defaults, specify the required LLVM version and sysroot distribution in your `.bazelrc` file:
+By default in `rules_ml_toolchain`:
+* Linux and macOS toolchains default to LLVM `18` (for C++) and the `linux_glibc_2_27` sysroot, so you **must** specify `LLVM_VERSION=20` (or `21`, `22`) when building Fortran targets on Linux or macOS.
+* Windows x86_64 toolchain defaults to LLVM `22` (the first official upstream LLVM Windows release bundling `flang`).
+
+Specify the required LLVM version (`20` or newer) and sysroot distribution in your `.bazelrc` file:
 
 ```
 common --enable_platform_specific_config
 
 build:linux --repo_env=LLVM_VERSION=20
 build:linux --repo_env=SYSROOT_DIST=linux_glibc_2_31
+build:macos --repo_env=LLVM_VERSION=20
 ```
 
 Supported versions of LLVM with Fortran (`flang`):
 
 | Version | Linux x86_64 | Linux aarch64 | macOS aarch64 | Windows x86_64 |
 |---------|--------------|---------------|---------------|----------------|
-| 18      | x            | x             | x             |                |
-| 19      | x            | x             | x             |                |
 | 20      | x            | x             | x             |                |
 | 21      | x            | x             |               |                |
 | 22      | x            | x             |               | x              |
@@ -150,17 +157,17 @@ Project supports hermetic Fortran builds and tests on:
 
 Run the Fortran test suite with:
 
-`bazel test //fortran/tests:all`
+`bazel test --repo_env=LLVM_VERSION=20 //fortran/tests:all`
 
 ### BLAS and LAPACK examples
 Standalone examples demonstrating Netlib BLAS, LAPACK, LAPACKE C/C++ interop, and OpenMP are available in [`../third_party/rules_fortran/examples/`](../third_party/rules_fortran/examples/):
 
-`bazel test --config=bzlmod //third_party/rules_fortran/examples/blas:main //third_party/rules_fortran/examples/lapack:chol //third_party/rules_fortran/examples/lapack:lu //third_party/rules_fortran/examples/lapack:mixed //third_party/rules_fortran/examples/lapack:svd`
+`bazel test --repo_env=LLVM_VERSION=20 //third_party/rules_fortran/examples/blas:main //third_party/rules_fortran/examples/lapack:chol //third_party/rules_fortran/examples/lapack:lu //third_party/rules_fortran/examples/lapack:mixed //third_party/rules_fortran/examples/lapack:svd`
 
 ### Cross-platform builds
 Project supports cross-compiling Fortran targets from a Linux x86_64 executor to Linux aarch64:
 
-`bazel build //fortran/tests/... --platforms=//common:linux_aarch64`
+`bazel build --repo_env=LLVM_VERSION=20 //fortran/tests/... --platforms=//common:linux_aarch64`
 
 ## Troubleshooting
 Encountering issues? Try to find a solution on the [How To Fix](../HOW-TO-FIX.md) page.

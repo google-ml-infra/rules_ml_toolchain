@@ -45,7 +45,7 @@ FortranToolchainInfo = provider(
     },
 )
 
-# Flags in shared feature definitions that flang-new (-fc1) does not accept directly.
+# Flags in shared feature definitions that flang (-fc1) does not accept directly.
 _FLANG_UNSUPPORTED_COMPILE_FLAGS = {
     "-nostdinc": True,
     "-nostdinc++": True,
@@ -53,21 +53,10 @@ _FLANG_UNSUPPORTED_COMPILE_FLAGS = {
     "-Wno-builtin-macro-redefined": True,
 }
 
-# Flags supported by the flang-new driver starting in LLVM 20+.
-_FLANG_LLVM20_PLUS_COMPILE_FLAGS = {
-    "--no-default-config": True,
-    "-fno-rtlib-add-rpath": True,
-    "-nostdlib": True,
-    "-nodefaultlibs": True,
-}
-
-def _filter_flang_compile_flags(flang_bin, flags):
-    is_pre_llvm20 = flang_bin and ("llvm18" in flang_bin.path or "llvm19" in flang_bin.path)
+def _filter_flang_compile_flags(flags):
     filtered = []
     for flag in flags:
         if flag in _FLANG_UNSUPPORTED_COMPILE_FLAGS:
-            continue
-        if is_pre_llvm20 and flag in _FLANG_LLVM20_PLUS_COMPILE_FLAGS:
             continue
         filtered.append(flag)
     return filtered
@@ -112,6 +101,11 @@ def _make_runtime_ccinfo(ctx, cc_toolchain, feature_configuration, runtime_libs)
 def _fortran_toolchain_impl(ctx):
     flang_files = ctx.files.flang
     flang_bin = flang_files[0] if flang_files else None
+    if not flang_bin or "llvm18" in flang_bin.path or "llvm19" in flang_bin.path:
+        fail(
+            "Hermetic Fortran toolchain requires LLVM 20 or newer. " +
+            "Specify a supported version via --repo_env=LLVM_VERSION=20 (or 21, 22).",
+        )
 
     features = [f[FortranFeatureInfo] for f in ctx.attr.compiler_features]
     mode = ctx.var.get("COMPILATION_MODE", "fastbuild")
@@ -184,7 +178,7 @@ def _fortran_toolchain_impl(ctx):
             prefix = target.split("macosx")[0]
             target = "{}macosx{}".format(prefix, macos_min_os)
 
-    filtered_flags = _filter_flang_compile_flags(flang_bin, raw_compile_flags)
+    filtered_flags = _filter_flang_compile_flags(raw_compile_flags)
     compiler_flags = []
     preprocessor_flags = list(ctx.attr.preprocessor_flags)
 
