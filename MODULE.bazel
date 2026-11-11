@@ -86,11 +86,11 @@ use_repo(pybind11_internal_configure, "pybind11")
 
 ##############################################################
 # Fortran dependencies
+
 bazel_dep(
     name = "rules_fortran",
     dev_dependency = True,
 )
-
 git_override(
     module_name = "rules_fortran",
     commit = "f0cac73ebdcbda7bc01b38b8a4ee33869416c220",
@@ -99,43 +99,6 @@ git_override(
         "//third_party/rules_fortran:toolchains.patch",
     ],
     remote = "https://github.com/miinso/rules_fortran.git",
-)
-
-# Repositories for testing fortran
-http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-# Netlib BLAS (for Fortran examples)
-http_archive(
-    name = "blas",
-    build_file = "//third_party/rules_fortran/examples/blas:blas.BUILD",
-    dev_dependency = True,
-    patch_args = ["-p1"],
-    patches = ["//third_party/rules_fortran/examples/blas:blat1-nrm2-inf-and-exit-code.patch"],
-    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
-    strip_prefix = "lapack-3.12.1/BLAS",
-    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
-)
-
-# Netlib LAPACK (for Fortran examples)
-http_archive(
-    name = "lapack",
-    build_file = "//third_party/rules_fortran/examples/lapack:lapack.BUILD",
-    dev_dependency = True,
-    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
-    strip_prefix = "lapack-3.12.1",
-    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
-)
-
-# LAPACKE - C interface to LAPACK (for Fortran interop examples)
-http_archive(
-    name = "lapacke",
-    build_file = "//third_party/rules_fortran/examples/lapack:lapacke.BUILD",
-    dev_dependency = True,
-    patch_args = ["-p2"],
-    patches = ["//third_party/rules_fortran/examples/lapack:pr-1164-msvc-complex.patch"],
-    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
-    strip_prefix = "lapack-3.12.1/LAPACKE",
-    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
 )
 
 ##############################################################
@@ -247,4 +210,43 @@ register_toolchains(
     "//cc/...",
     "//fortran/...",
     dev_dependency = True,
+)
+
+##############################################################
+# Repositories for testing the LAPACK library
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Netlib BLAS (for Fortran examples)
+http_archive(
+    name = "blas",
+    build_file = "//third_party/rules_fortran/examples/blas:blas.BUILD",
+    dev_dependency = True,
+    patch_args = ["-p1"],
+    patches = ["//third_party/rules_fortran/examples/blas:blat1-nrm2-inf-and-exit-code.patch"],
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1/BLAS",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
+)
+
+# Netlib LAPACK (for Fortran examples)
+http_archive(
+    name = "lapack",
+    build_file = "//third_party/rules_fortran/examples/lapack:lapack.BUILD",
+    dev_dependency = True,
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
+)
+
+# LAPACKE - C interface to LAPACK (for Fortran interop examples)
+http_archive(
+    name = "lapacke",
+    build_file = "//third_party/rules_fortran/examples/lapack:lapacke.BUILD",
+    dev_dependency = True,
+    patch_args = ["-p2"],
+    patches = ["//third_party/rules_fortran/examples/lapack:pr-1164-msvc-complex.patch"],
+    sha256 = "2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422",
+    strip_prefix = "lapack-3.12.1/LAPACKE",
+    url = "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz",
 )
