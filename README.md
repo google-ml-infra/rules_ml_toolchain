@@ -36,6 +36,7 @@ toolchain_deps()
 
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 ```
 
 If CUDA or SYCL initialization is required, ensure this block is inserted before either initialization occurs.
@@ -52,7 +53,7 @@ For detailed instructions on how to configure hermetic CUDA, CUDNN, NCCL and NVS
 
 ## Configure the LLVM / Sysroot in rules_ml_toolchain
 
-LLVM `18` and the `linux_glibc_2_27` sysroot are used for compilation by default.
+LLVM `18` (for Linux and macOS), LLVM `22` (for Windows x86_64), and the `linux_glibc_2_27` sysroot are used for compilation by default.
 To change these defaults, specify the required LLVM version and sysroot distribution in `.bazelrc` file.
 
 For example, to configure LLVM `20` with `linux_glibc_2_31`, update your `.bazelrc` with below lines
@@ -65,13 +66,13 @@ build:linux --repo_env=SYSROOT_DIST=linux_glibc_2_31
 
 Supported versions of LLVM
 
-| Version | Linux x86_64 | Linux aarch64 | macOS aarch64 |
-|---------|--------------|---------------|---------------|
-| 18      | x | x             | x             |
-| 19      | x | x             | x             |
-| 20      | x | x             | x             |
-| 21      | x | x             |               |
-| 22      | x | x             |               |
+| Version | Linux x86_64 | Linux aarch64 | macOS aarch64 | Windows x86_64 |
+|---------|--------------|---------------|---------------|----------------|
+| 18      | x | x             | x             |                |
+| 19      | x | x             | x             |                |
+| 20      | x | x             | x             |                |
+| 21      | x | x             |               |                |
+| 22      | x | x             |               | x              |
 
 Available sysroots
 
@@ -102,9 +103,10 @@ For detailed instructions on how to configure and use sanitizers [click this lin
 
 ## Run rules_ml_toolchain tests
 ### CPU hermetic tests
-Project supports CPU hermetic builds on:
+Project supports CPU builds on:
 * Linux x86_64 / aarch64
 * macOS aarch64 (using LLVM 19 or newer is highly recommended, as it introduces linker updates for Apple platforms)
+* Windows x86_64 (hermetic build tools paired with a non-hermetic host sysroot)
 
 The command allows you to run hermetic build tests:
 
