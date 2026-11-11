@@ -490,6 +490,8 @@ def toolchain_deps():
                 "@llvm18_darwin_aarch64//:all": "18",
                 "@llvm19_darwin_aarch64//:all": "19",
                 "@llvm20_darwin_aarch64//:all": "20",
+                "@llvm21_darwin_aarch64//:all": "21",
+                "@llvm22_darwin_aarch64//:all": "22",
             },
             build_file_tpl = Label("//cc/llvms:llvm_darwin.BUILD.tpl"),
         )
@@ -522,6 +524,26 @@ def toolchain_deps():
             mirrored_tar_sha256 = "19f015fd93ef0a9963e4cebe02b051e6d357b4ab86bb060ca8ad5141d7284289",
             build_file = Label("//common/config:llvm20_darwin_aarch64.BUILD"),
             strip_prefix = "LLVM-20.1.8-macOS-ARM64",
+        )
+
+    if "llvm21_darwin_aarch64" not in native.existing_rules():
+        mirrored_http_archive(
+            name = "llvm21_darwin_aarch64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-macOS-ARM64.tar.xz"),
+            sha256 = "b95bdd32a33a81ee4d40363aaeb26728a26783fcef26a4d80f65457433ea4669",
+            mirrored_tar_sha256 = "b2280cf3c00c63d8f547ae1f26af3a19ee64eaaabea7ccc5603650218a16a14b",
+            build_file = Label("//common/config:llvm21_darwin_aarch64.BUILD"),
+            strip_prefix = "LLVM-21.1.8-macOS-ARM64",
+        )
+
+    if "llvm22_darwin_aarch64" not in native.existing_rules():
+        mirrored_http_archive(
+            name = "llvm22_darwin_aarch64",
+            urls = tf_mirror_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/LLVM-22.1.8-macOS-ARM64.tar.xz"),
+            sha256 = "f260f4f7c0d430828a81ae8a3826a1d63fc0963ec2459489308cc23b1f7eab4f",
+            mirrored_tar_sha256 = "beb738604580f7991c9d03525a98cf384e968309e7141be424d7650d3102210c",
+            build_file = Label("//common/config:llvm22_darwin_aarch64.BUILD"),
+            strip_prefix = "LLVM-22.1.8-macOS-ARM64",
         )
 
     ################################################################

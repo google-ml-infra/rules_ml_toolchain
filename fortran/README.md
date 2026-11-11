@@ -88,7 +88,7 @@ Supported versions of LLVM with Fortran (`flang`):
 | Version | Linux x86_64 | Linux aarch64 | macOS aarch64 | Windows x86_64 |
 |---------|--------------|---------------|---------------|----------------|
 | 20      | x            | x             | x             |                |
-| 21      | x            | x             |               |                |
+| 21      | x            | x             | x             |                |
 | 22      | x            | x             |               | x              |
 
 Available Linux sysroots:

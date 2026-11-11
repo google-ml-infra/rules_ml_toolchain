@@ -71,8 +71,8 @@ Supported versions of LLVM
 | 18      | x | x             | x             |                |
 | 19      | x | x             | x             |                |
 | 20      | x | x             | x             |                |
-| 21      | x | x             |               |                |
-| 22      | x | x             |               | x              |
+| 21      | x | x             | x             |                |
+| 22      | x | x             | x             | x              |
 
 Available sysroots
 
