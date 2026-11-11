@@ -153,9 +153,9 @@ Run the Fortran test suite with:
 `bazel test //fortran/tests:all`
 
 ### BLAS and LAPACK examples
-Standalone examples demonstrating Netlib BLAS, LAPACK, LAPACKE C/C++ interop, and OpenMP are available in [`examples/`](examples/):
+Standalone examples demonstrating Netlib BLAS, LAPACK, LAPACKE C/C++ interop, and OpenMP are available in [`../third_party/rules_fortran/examples/`](../third_party/rules_fortran/examples/):
 
-`cd fortran/examples && bazel test //blas/... //lapack/...`
+`cd third_party/rules_fortran/examples && bazel test //blas/... //lapack/...`
 
 ### Cross-platform builds
 Project supports cross-compiling Fortran targets from a Linux x86_64 executor to Linux aarch64:

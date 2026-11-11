@@ -35,7 +35,7 @@ use_repo(node, "nodejs_host")
 bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
 local_path_override(
     module_name = "rules_ml_toolchain",
-    path = "../../",  # Parent directory
+    path = "../../../",  # Root workspace directory
 )
 
 register_toolchains(

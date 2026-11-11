@@ -26,12 +26,24 @@ load(
     "//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "CcToolchainImportInfo",
 )
-load(
-    "//third_party/rules_fortran/private:providers.bzl",
-    _FortranToolchainInfo = "FortranToolchainInfo",
+FortranToolchainInfo = provider(
+    doc = "Information about the Fortran toolchain.",
+    fields = {
+        "all_files": "All toolchain files",
+        "archiver": "The archiver executable (ar)",
+        "compiler": "The Fortran compiler executable",
+        "compiler_flags": "Default compiler flags",
+        "link_env": "Environment variables for linker execution",
+        "linker": "The linker executable",
+        "linker_flags": "Default linker flags",
+        "module_flag_format": "Format string for module path flag (e.g., '-J{}', '-module {}')",
+        "preprocessor_flag": "Flag to enable preprocessing (e.g., '-cpp', '-fpp')",
+        "preprocessor_flags": "Default preprocessor flags (e.g., ['-D_OPENMP'])",
+        "runtime_ccinfo": "CcInfo provider containing Fortran runtime libraries",
+        "runtime_libraries": "flang/clang runtime libraries needed for C/Fortran interop",
+        "supports_module_path": "Whether compiler supports -J flag for modules",
+    },
 )
-
-FortranToolchainInfo = _FortranToolchainInfo
 
 # Flags in shared feature definitions that flang-new (-fc1) does not accept directly.
 _FLANG_UNSUPPORTED_COMPILE_FLAGS = {
