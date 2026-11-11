@@ -54,39 +54,9 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - name: "Bzlmod. Flang 18, Glibc 2.27 | Testing..."
-        run: |
-          bazel build --cxxopt="-std=c++17" \
-            --platforms=//common:linux_aarch64 \
-            --config=bzlmod \
-            --color=yes \
-            --verbose_failures \
-            //fortran/tests:all \
-            //third_party/rules_fortran/examples/blas:main \
-            //third_party/rules_fortran/examples/lapack:chol \
-            //third_party/rules_fortran/examples/lapack:lu \
-            //third_party/rules_fortran/examples/lapack:mixed \
-            //third_party/rules_fortran/examples/lapack:svd
-
-      - name: "Bzlmod. Flang 18, Glibc 2.27, libc++ static linking | Testing..."
-        run: |
-          bazel build --cxxopt="-std=c++17" \
-            --platforms=//common:linux_aarch64 \
-            --@rules_ml_toolchain//common:stdlib=libc++ \
-            --@rules_ml_toolchain//common:static_libcxx=true \
-            --config=bzlmod \
-            --color=yes \
-            --verbose_failures \
-            //fortran/tests:all \
-            //third_party/rules_fortran/examples/blas:main \
-            //third_party/rules_fortran/examples/lapack:chol \
-            //third_party/rules_fortran/examples/lapack:lu \
-            //third_party/rules_fortran/examples/lapack:mixed \
-            //third_party/rules_fortran/examples/lapack:svd
-
       - name: "Bzlmod. Flang 21, Glibc 2.31 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --platforms=//common:linux_aarch64 \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
@@ -103,7 +73,7 @@ jobs:
       # TODO: Replace `build` to `test` when GitHub runners will be updated to Ubuntu 24
       - name: "Bzlmod. Flang 22, Glibc 2.31 | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --platforms=//common:linux_aarch64 \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
@@ -119,7 +89,7 @@ jobs:
 
       - name: "Bzlmod. Flang 21, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --platforms=//common:linux_aarch64 \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
@@ -137,7 +107,7 @@ jobs:
 
       - name: "Bzlmod. Flang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel build --cxxopt="-std=c++17" \
+          bazel build --cxxopt="-std=c++20" \
             --platforms=//common:linux_aarch64 \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \

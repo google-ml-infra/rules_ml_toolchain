@@ -56,7 +56,7 @@ jobs:
 
       - name: "Bzlmod. Flang 21, Glibc 2.35 | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" \
+          bazel test --cxxopt="-std=c++20" \
             --repo_env=LLVM_VERSION=21 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_35 \
             --config=bzlmod \
@@ -87,7 +87,7 @@ jobs:
 
       - name: "Bzlmod. Flang 22, Glibc 2.31, libc++ static linking | Testing..."
         run: |
-          bazel test --cxxopt="-std=c++17" \
+          bazel test --cxxopt="-std=c++20" \
             --repo_env=LLVM_VERSION=22 \
             --repo_env=SYSROOT_DIST=linux_glibc_2_31 \
             --@rules_ml_toolchain//common:stdlib=libc++ \
