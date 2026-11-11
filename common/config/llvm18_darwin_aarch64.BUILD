@@ -112,6 +112,10 @@ cc_toolchain_import(
 
 #============================================================================================
 # Fortran
+# Note: allow_empty = True is required here because the upstream LLVM 18 macOS
+# archive (clang+llvm-18.1.8-arm64-apple-macos11.tar.xz) does not bundle flang
+# or its runtime libraries, and @llvm_darwin_aarch64 aliases these targets when
+# loading the package for C++ builds (Fortran itself requires LLVM 20+).
 
 filegroup(
     name = "flang",

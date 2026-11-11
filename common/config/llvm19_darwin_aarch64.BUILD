@@ -112,6 +112,9 @@ cc_toolchain_import(
 
 #============================================================================================
 # Fortran
+# Note: allow_empty = True is used here because @llvm_darwin_aarch64 aliases
+# these targets when loading the package for C++ builds, while Fortran requires
+# LLVM 20+ and libflang_rt.runtime.a is not present in LLVM 19.
 
 filegroup(
     name = "flang",

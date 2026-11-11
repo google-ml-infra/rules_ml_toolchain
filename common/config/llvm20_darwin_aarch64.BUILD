@@ -115,22 +115,18 @@ cc_toolchain_import(
 
 filegroup(
     name = "flang",
-    srcs = glob(
-        [
-            "bin/flang",
-            "bin/flang-new",
-        ],
-        allow_empty = True,
-    ),
+    srcs = [
+        "bin/flang",
+        "bin/flang-new",
+    ],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "flang_incs",
-    hdrs = glob(
-        ["include/flang/**"],
-        allow_empty = True,
-    ),
+    hdrs = glob([
+        "include/flang/**",
+    ]),
     includes = [
         "include/flang",
     ],
@@ -138,23 +134,29 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
+    name = "libfortran_runtime",
+    static_library = "lib/libFortranRuntime.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
+    name = "libfortran_decimal",
+    static_library = "lib/libFortranDecimal.a",
+    visibility = ["//visibility:private"],
+)
+
+cc_toolchain_import(
     name = "fortran_libs",
-    additional_libs = glob(
-        [
-            "lib/libFortranRuntime.a",
-            "lib/libFortranDecimal.a",
-            "lib/clang/{clang_version}/lib/darwin/libflang_rt.runtime.a".format(clang_version = CLANG_VERSION),
-        ],
-        allow_empty = True,
-    ),
+    deps = [
+        ":libfortran_runtime",
+        ":libfortran_decimal",
+    ],
     visibility = ["//visibility:public"],
 )
 
+# Starting in LLVM 20, libFortran_main.a is no longer shipped as a separate archive.
 filegroup(
     name = "fortran_main",
-    srcs = glob(
-        ["lib/libFortran_main.a"],
-        allow_empty = True,
-    ),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
