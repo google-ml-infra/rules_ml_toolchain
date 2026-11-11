@@ -111,51 +111,26 @@ cc_toolchain_import(
 )
 
 #============================================================================================
-# Fortran
-# Note: allow_empty = True is required here because the upstream LLVM 18 macOS
-# archive (clang+llvm-18.1.8-arm64-apple-macos11.tar.xz) does not bundle flang
-# or its runtime libraries, and @llvm_darwin_aarch64 aliases these targets when
-# loading the package for C++ builds (Fortran itself requires LLVM 20+).
+# Fortran (supported in LLVM 20 or newer)
 
 filegroup(
     name = "flang",
-    srcs = glob(
-        ["bin/flang-new"],
-        allow_empty = True,
-    ),
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "flang_incs",
-    hdrs = glob(
-        ["include/flang/**"],
-        allow_empty = True,
-    ),
-    includes = [
-        "include/flang",
-    ],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "fortran_libs",
-    additional_libs = glob(
-        [
-            "lib/libFortranRuntime.a",
-            "lib/libFortranDecimal.a",
-            "lib/clang/{clang_version}/lib/darwin/libflang_rt.runtime.a".format(clang_version = CLANG_VERSION),
-        ],
-        allow_empty = True,
-    ),
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "fortran_main",
-    srcs = glob(
-        ["lib/libFortran_main.a"],
-        allow_empty = True,
-    ),
+    srcs = [],
     visibility = ["//visibility:public"],
 )

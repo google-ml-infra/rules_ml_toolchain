@@ -217,45 +217,21 @@ cc_library(
 )
 
 #============================================================================================
-# Fortran
+# Fortran (supported in LLVM 20 or newer)
 
 filegroup(
     name = "flang",
-    srcs = [
-        "bin/flang-new",
-    ],
+    srcs = [],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
     name = "flang_incs",
-    hdrs = glob([
-        "include/flang/**",
-    ]),
-    includes = [
-        "include/flang",
-    ],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain_import(
-    name = "libfortran_runtime",
-    static_library = "lib/libFortranRuntime.a",
-    visibility = ["//visibility:private"],
-)
-
-cc_toolchain_import(
-    name = "libfortran_decimal",
-    static_library = "lib/libFortranDecimal.a",
-    visibility = ["//visibility:private"],
-)
-
-cc_toolchain_import(
     name = "fortran_libs",
-    deps = [
-        ":libfortran_runtime",
-        ":libfortran_decimal",
-    ],
     visibility = ["//visibility:public"],
 )
 
@@ -264,4 +240,3 @@ filegroup(
     srcs = [],
     visibility = ["//visibility:public"],
 )
-

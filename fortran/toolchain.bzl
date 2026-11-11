@@ -101,7 +101,7 @@ def _make_runtime_ccinfo(ctx, cc_toolchain, feature_configuration, runtime_libs)
 def _fortran_toolchain_impl(ctx):
     flang_files = ctx.files.flang
     flang_bin = flang_files[0] if flang_files else None
-    if not flang_bin or "llvm18" in flang_bin.path or "llvm19" in flang_bin.path:
+    if not flang_bin:
         fail(
             "Hermetic Fortran toolchain requires LLVM 20 or newer. " +
             "Specify a supported version via --repo_env=LLVM_VERSION=20 (or 21, 22).",
