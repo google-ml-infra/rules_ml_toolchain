@@ -9,8 +9,6 @@ Fortran hermetic builds benefits:
 
 ## Configure Fortran toolchains in rules_ml_toolchain
 
-### Using Bzlmod (`MODULE.bazel`)
-
 Fortran build rules (`fortran_library`, `fortran_binary`, `fortran_test`) are provided by [`rules_fortran`](https://github.com/miinso/rules_fortran), while `rules_ml_toolchain` provides the hermetic `flang` toolchains.
 
 Add the following configuration to your `MODULE.bazel` file to configure [`rules_fortran`](https://github.com/miinso/rules_fortran) with `rules_ml_toolchain` and register both C++ and Fortran toolchains:
@@ -46,35 +44,6 @@ register_toolchains("@rules_ml_toolchain//fortran:windows_x86_64_windows_x86_64"
 ```
 
 > **Note:** `toolchains.patch` aliases `@rules_fortran//fortran:toolchain_type` to `@rules_ml_toolchain//fortran:toolchain_type` and removes `rules_fortran`'s default toolchain registration so that `rules_ml_toolchain`'s hermetic `flang` toolchains are resolved instead.
-
-### Using `WORKSPACE`
-
-Add the following code to your `WORKSPACE` file:
-
-```starlark
-http_archive(
-    name = "rules_ml_toolchain",
-    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
-    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
-    urls = [
-        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
-    ],
-)
-
-load(
-    "@rules_ml_toolchain//common/deps:toolchain_deps.bzl",
-    "toolchain_deps",
-)
-
-toolchain_deps()
-
-register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_x86_64")
-register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//fortran:linux_aarch64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//fortran:darwin_aarch64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//fortran:windows_x86_64_windows_x86_64")
-```
 
 For diagnosing the compiler and linker invocations during build or test execution, append the `--subcommands` flag to your Bazel command to verify that hermetic `flang` and `lld` binaries are used.
 

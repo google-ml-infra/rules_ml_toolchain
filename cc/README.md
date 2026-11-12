@@ -15,8 +15,6 @@ C++ cross-platform builds benefits:
 
 ## Configure C++ toolchains in rules_ml_toolchain
 
-### Using Bzlmod (`MODULE.bazel`)
-
 Add the following to your `MODULE.bazel` file:
 
 ```starlark
@@ -29,35 +27,6 @@ archive_override(
         "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
     ],
 )
-
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
-```
-
-### Using `WORKSPACE`
-
-Add the following code to WORKSPACE file:
-
-```starlark
-http_archive(
-    name = "rules_ml_toolchain",
-    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
-    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
-    urls = [
-        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
-    ],
-)
-
-load(
-    "@rules_ml_toolchain//common/deps:toolchain_deps.bzl",
-    "toolchain_deps",
-)
-
-toolchain_deps()
 
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")

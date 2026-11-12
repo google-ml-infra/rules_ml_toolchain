@@ -9,8 +9,6 @@ Python hermetic builds benefits:
 
 ## Configure Python toolchains in rules_ml_toolchain
 
-### Using Bzlmod (`MODULE.bazel`)
-
 Configure the `rules_python` toolchain extension and `python_version_ext` in your `MODULE.bazel` file:
 
 ```starlark
@@ -41,56 +39,6 @@ python.toolchain(python_version = "3.11")
 python.toolchain(python_version = "3.12")
 python.toolchain(python_version = "3.13")
 python.toolchain(python_version = "3.14")
-```
-
-### Using `WORKSPACE`
-
-Add the following code to your `WORKSPACE` file:
-
-```starlark
-http_archive(
-    name = "rules_ml_toolchain",
-    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
-    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
-    urls = [
-        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
-    ],
-)
-
-# Initialize rules_python and dependencies
-load("@rules_ml_toolchain//third_party/py:python_init_rules.bzl", "python_init_rules")
-
-python_init_rules()
-
-load("@rules_ml_toolchain//py:python_init_repositories.bzl", "python_init_repositories")
-
-python_init_repositories(
-    default_python_version = "system",
-    requirements = {
-        "3.11": "//build:requirements_lock_3_11.txt",
-        "3.12": "//build:requirements_lock_3_12.txt",
-        "3.13": "//build:requirements_lock_3_13.txt",
-        "3.14": "//build:requirements_lock_3_14.txt",
-        "3.13-ft": "//build:requirements_lock_3_13_ft.txt",
-        "3.14-ft": "//build:requirements_lock_3_14_ft.txt",
-    },
-)
-
-load("@rules_ml_toolchain//py:python_register_toolchain.bzl", "python_register_toolchain")
-
-python_register_toolchain()
-
-load("@rules_ml_toolchain//py:python_configure.bzl", "python_configure")
-
-python_configure(name = "local_config_python")
-```
-
-If you also need PyPI packages parsed from your `requirements_lock` files in `WORKSPACE` mode, initialize `pip` after registering the toolchain:
-
-```starlark
-load("@rules_ml_toolchain//py:python_init_pip.bzl", "python_init_pip")
-
-python_init_pip()
 ```
 
 ## Configure the Python version and custom interpreter
