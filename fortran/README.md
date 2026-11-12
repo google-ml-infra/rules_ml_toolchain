@@ -16,7 +16,15 @@ Fortran build rules (`fortran_library`, `fortran_binary`, `fortran_test`) are pr
 Add the following configuration to your `MODULE.bazel` file to configure [`rules_fortran`](https://github.com/miinso/rules_fortran) with `rules_ml_toolchain` and register both C++ and Fortran toolchains:
 
 ```starlark
-bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
+bazel_dep(name = "rules_ml_toolchain")
+archive_override(
+    module_name = "rules_ml_toolchain",
+    integrity = "sha256-bywqV064uobGw+nzpAUoTZyRWvpn6m4SwhCoFnY98Sk=",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+    ],
+)
 
 bazel_dep(name = "rules_fortran")
 git_override(
@@ -29,10 +37,18 @@ git_override(
     remote = "https://github.com/miinso/rules_fortran.git",
 )
 
-register_toolchains(
-    "@rules_ml_toolchain//cc:all",
-    "@rules_ml_toolchain//fortran:all",
-)
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//fortran:darwin_aarch64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//fortran:windows_x86_64_windows_x86_64")
 ```
 
 > **Note:** `toolchains.patch` aliases `@rules_fortran//fortran:toolchain_type` to `@rules_ml_toolchain//fortran:toolchain_type` and removes `rules_fortran`'s default toolchain registration so that `rules_ml_toolchain`'s hermetic `flang` toolchains are resolved instead.
@@ -42,6 +58,15 @@ register_toolchains(
 Add the following code to your `WORKSPACE` file:
 
 ```starlark
+http_archive(
+    name = "rules_ml_toolchain",
+    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+    ],
+)
+
 load(
     "@rules_ml_toolchain//common/deps:toolchain_deps.bzl",
     "toolchain_deps",
@@ -50,8 +75,14 @@ load(
 toolchain_deps()
 
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_aarch64_linux_aarch64")
 register_toolchains("@rules_ml_toolchain//fortran:darwin_aarch64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//fortran:windows_x86_64_windows_x86_64")

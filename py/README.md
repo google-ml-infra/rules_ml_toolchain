@@ -14,7 +14,15 @@ Python hermetic builds benefits:
 Configure the `rules_python` toolchain extension and `python_version_ext` in your `MODULE.bazel` file:
 
 ```starlark
-bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
+bazel_dep(name = "rules_ml_toolchain")
+archive_override(
+    module_name = "rules_ml_toolchain",
+    integrity = "sha256-bywqV064uobGw+nzpAUoTZyRWvpn6m4SwhCoFnY98Sk=",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+    ],
+)
 bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 
@@ -40,6 +48,15 @@ python.toolchain(python_version = "3.14")
 Add the following code to your `WORKSPACE` file:
 
 ```starlark
+http_archive(
+    name = "rules_ml_toolchain",
+    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+    ],
+)
+
 # Initialize rules_python and dependencies
 load("@rules_ml_toolchain//third_party/py:python_init_rules.bzl", "python_init_rules")
 

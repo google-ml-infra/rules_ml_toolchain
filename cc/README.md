@@ -20,9 +20,22 @@ C++ cross-platform builds benefits:
 Add the following to your `MODULE.bazel` file:
 
 ```starlark
-bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
+bazel_dep(name = "rules_ml_toolchain")
+archive_override(
+    module_name = "rules_ml_toolchain",
+    integrity = "sha256-bywqV064uobGw+nzpAUoTZyRWvpn6m4SwhCoFnY98Sk=",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+    urls = [
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+    ],
+)
 
-register_toolchains("@rules_ml_toolchain//cc:all")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 ```
 
 ### Using `WORKSPACE`
@@ -32,10 +45,10 @@ Add the following code to WORKSPACE file:
 ```starlark
 http_archive(
     name = "rules_ml_toolchain",
-    sha256 = "dd6035b2aa22ec22c7598c0c78d1f593a74606d787d1059d19ab0f9b581e513d",
-    strip_prefix = "rules_ml_toolchain-4d9fa39eda9c769db86770a13ce2c2e2090bced8",
+    sha256 = "6f2c2a574eb8ba86c6c3e9f3a405284d9c915afa67ea6e12c210a816763df129",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
     urls = [
-        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/4d9fa39eda9c769db86770a13ce2c2e2090bced8.tar.gz",
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
     ],
 )
 
@@ -47,7 +60,10 @@ load(
 toolchain_deps()
 
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 ```
 
