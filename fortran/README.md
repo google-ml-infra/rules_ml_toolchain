@@ -156,6 +156,3 @@ Standalone examples demonstrating Netlib BLAS, LAPACK, LAPACKE C/C++ interop, an
 Project supports cross-compiling Fortran targets from a Linux x86_64 executor to Linux aarch64:
 
 `bazel build --repo_env=LLVM_VERSION=20 //fortran/tests/... --platforms=//common:linux_aarch64`
-
-## Troubleshooting
-Encountering issues? Try to find a solution on the [How To Fix](../HOW-TO-FIX.md) page.

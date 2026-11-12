@@ -193,5 +193,3 @@ cc_library(
 )
 ```
 
-## Troubleshooting
-Encountering issues? Try to find decision on [How To Fix](../HOW-TO-FIX.md) page.

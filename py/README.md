@@ -94,6 +94,3 @@ To run with Bzlmod enabled:
 ```bash
 bazel test --config=bzlmod --repo_env=USE_PYWRAP_RULES=True //py/tests/pybind:all //py/tests/pybind_external:all
 ```
-
-## Troubleshooting
-Encountering issues? Try to find a solution on the [How To Fix](../HOW-TO-FIX.md) page.
