@@ -1,6 +1,6 @@
 # Hermetic Toolchains for ML
 
-`rules_ml_toolchain` provides Bazel rules and hermetic toolchains for ML projects to achieve reproducible, consistent, and isolated builds across Linux, macOS, and Windows.
+`rules_ml_toolchain` provides toolchains for ML projects to achieve reproducible, consistent, and isolated builds across Linux, macOS, and Windows.
 
 Hermetic builds benefits:
 * **Reproducibility**: Every build produces identical results regardless of the developer's machine environment.

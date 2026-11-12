@@ -37,12 +37,6 @@ git_override(
     remote = "https://github.com/miinso/rules_fortran.git",
 )
 
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_aarch64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_darwin_aarch64")
@@ -74,12 +68,6 @@ load(
 
 toolchain_deps()
 
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
-register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_x86_64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_linux_aarch64")
 register_toolchains("@rules_ml_toolchain//fortran:linux_x86_64_darwin_aarch64")
