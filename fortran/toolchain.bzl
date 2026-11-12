@@ -66,7 +66,7 @@ def _make_runtime_ccinfo(ctx, cc_toolchain, feature_configuration, runtime_libs)
     if not runtime_libs:
         return CcInfo(
             compilation_context = cc_common.create_compilation_context(),
-            linking_context = cc_common.create_linking_context(),
+            linking_context = cc_common.create_linking_context(linker_inputs = depset()),
         )
 
     libraries_to_link = []
