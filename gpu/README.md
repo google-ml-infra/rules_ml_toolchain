@@ -815,3 +815,6 @@ The structure of the folders inside NVSHMEM dir should be the following:
     lib/
     bin/
 ```
+
+## Troubleshooting
+Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.

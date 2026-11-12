@@ -15,13 +15,3 @@ This project provides hermetic toolchains for **C++**, **Python**, **Fortran**, 
 * **[Python Toolchains (`py/README.md`)](py/README.md)**: Hermetic CPython interpreters (`3.11`, `3.12`, `3.13`, `3.14`, including free-threaded builds), locked PyPI dependency management, and [Pywrap rules (`rules_pywrap`)](py/rules_pywrap/README.md) for building C++/Python (`pybind11`) bindings.
 * **[Fortran Toolchains (`fortran/README.md`)](fortran/README.md)**: Hermetic LLVM `flang` toolchains for building Fortran targets and mixed Fortran/C/C++ libraries (such as BLAS and LAPACK) on Linux (`x86_64`, `aarch64`), macOS (`aarch64`), and Windows (`x86_64`).
 * **[GPU Toolchains (`gpu/README.md`)](gpu/README.md)**: Hermetic GPU toolchains and redistributables for NVIDIA CUDA, CUDNN, NCCL, and NVSHMEM, AMD ROCm, and Intel oneAPI SYCL.
-
-## Documentation Links
-
-* [C++ Hermetic Toolchain](cc/README.md)
-* [Python Hermetic Toolchain](py/README.md)
-* [Fortran Hermetic Toolchain](fortran/README.md)
-* [GPU Hermetic Toolchains (CUDA, CUDNN, NCCL, NVSHMEM, ROCm, SYCL)](gpu/README.md)
-
-## Troubleshooting
-Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.
