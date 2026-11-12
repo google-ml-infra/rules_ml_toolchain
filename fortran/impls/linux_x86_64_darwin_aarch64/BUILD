@@ -44,7 +44,7 @@ filegroup(
     name = "compiler",
     srcs = [
         ":imports",
-        "@llvm_linux_x86_64//:ar_darwin",
+        "@llvm_linux_x86_64//:ar",
         "@llvm_linux_x86_64//:clang++",
         "@llvm_linux_x86_64//:distro_libs",
         "@llvm_linux_x86_64//:flang",
@@ -55,7 +55,7 @@ filegroup(
 
 fortran_toolchain(
     name = "toolchain",
-    archiver = "@llvm_linux_x86_64//:ar_darwin",
+    archiver = "@llvm_linux_x86_64//:ar",
     compiler_features = [
         "//fortran/features:hermetic",
         ":imports_feature",

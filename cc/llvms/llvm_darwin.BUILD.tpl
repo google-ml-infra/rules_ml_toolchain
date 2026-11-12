@@ -44,6 +44,12 @@ alias(
 )
 
 alias(
+    name = "llvm-ar",
+    actual = "@@%{llvm_repo_name}//:bin/llvm-ar",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "clang-format",
     actual = "@@%{llvm_repo_name}//:bin/clang-format",
     visibility = ["//visibility:public"],

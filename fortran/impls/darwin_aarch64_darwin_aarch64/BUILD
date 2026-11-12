@@ -44,18 +44,18 @@ filegroup(
     name = "compiler",
     srcs = [
         ":imports",
-        "@llvm_darwin_aarch64//:ar",
         "@llvm_darwin_aarch64//:clang++",
         "@llvm_darwin_aarch64//:distro_libs",
         "@llvm_darwin_aarch64//:flang",
         "@llvm_darwin_aarch64//:flang_incs",
         "@llvm_darwin_aarch64//:ld",
+        "@llvm_darwin_aarch64//:llvm-ar",
     ],
 )
 
 fortran_toolchain(
     name = "toolchain",
-    archiver = "@llvm_darwin_aarch64//:ar",
+    archiver = "@llvm_darwin_aarch64//:llvm-ar",
     compiler_features = [
         "//fortran/features:hermetic",
         ":imports_feature",
