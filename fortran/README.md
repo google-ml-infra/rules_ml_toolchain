@@ -30,8 +30,8 @@ git_override(
 )
 
 register_toolchains(
-    "@rules_ml_toolchain//cc/...",
-    "@rules_ml_toolchain//fortran/...",
+    "@rules_ml_toolchain//cc:all",
+    "@rules_ml_toolchain//fortran:all",
 )
 ```
 

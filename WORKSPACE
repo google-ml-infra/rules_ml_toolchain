@@ -157,8 +157,8 @@ load("//common/deps:toolchain_deps.bzl", "toolchain_deps")
 toolchain_deps()
 
 register_toolchains(
-    "//cc/...",
-    "//fortran/...",
+    "//cc:all",
+    "//fortran:all",
 )
 
 
