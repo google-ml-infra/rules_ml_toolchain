@@ -169,10 +169,6 @@ use_repo(sycl_configure, "level_zero", "local_config_sycl", "oneapi", "zero_load
 rocm_hermetic = use_extension("//extensions:rocm_hermetic_download.bzl", "rocm_hermetic_download_ext")
 use_repo(rocm_hermetic, "config_rocm_hipcc", "rocm_hermetic_dist")
 
-# Linker version script, generated from GLOBAL_SYMBOLS_TO_VERSION
-global_symbol_version = use_extension("//extensions:global_symbol_version_configure.bzl", "global_symbol_version_ext")
-use_repo(global_symbol_version, "global_symbol_version_config")
-
 ##############################################################
 # Hermetic toolchain configuration
 
@@ -180,6 +176,8 @@ toolchain = use_extension("//extensions:toolchain.bzl", "toolchain_ext")
 use_repo(
     toolchain,
     "darwin_local_config_cc",
+    # Linker version script, generated from GLOBAL_SYMBOLS_TO_VERSION
+    "global_symbol_version_config",
     "llvm18_linux_aarch64",
     "llvm18_linux_x86_64",
     "llvm19_linux_x86_64",
