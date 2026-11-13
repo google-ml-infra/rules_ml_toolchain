@@ -91,6 +91,10 @@ bazel_dep(
     name = "rules_fortran",
     dev_dependency = True,
 )
+
+# Overrides only take effect in the root module, so projects that depend on rules_ml_toolchain do
+# not inherit this one. To use rules_fortran they copy third_party/rules_fortran/toolchains.patch
+# into their own project and declare the same git_override there (see fortran/README.md).
 git_override(
     module_name = "rules_fortran",
     commit = "f0cac73ebdcbda7bc01b38b8a4ee33869416c220",

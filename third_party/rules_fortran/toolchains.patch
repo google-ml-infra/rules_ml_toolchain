@@ -1,8 +1,8 @@
 diff --git a/MODULE.bazel b/MODULE.bazel
-index bedd432..a53a08e 100644
+index bedd432..7a1ea21 100644
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
-@@ -21,22 +21,10 @@ local_bazel_import(
+@@ -21,22 +21,4 @@ local_bazel_import(
      dev_dependency = True,
  )
 
@@ -24,13 +24,8 @@ index bedd432..a53a08e 100644
 -    "//fortran/toolchains:macos_aarch64_toolchain",
 -    "//fortran/toolchains:windows_x86_64_toolchain",
 -    "//fortran/toolchains:emscripten_wasm32_toolchain",
+-)
 +bazel_dep(name = "rules_ml_toolchain")
-+archive_override(
-+    module_name = "rules_ml_toolchain",
-+    integrity = "sha256-QXaXIdifM/Sxa5Md+HuXKLiw7Z2oVgFTSt6pBc3QDdg=",
-+    strip_prefix = "rules_ml_toolchain-fb4e7404fa2fec0e894b429e0c188fc5540cc8ed",
-+    urls = ["https://github.com/yuriivcs/rules_ml_toolchain/archive/fb4e7404fa2fec0e894b429e0c188fc5540cc8ed.tar.gz"],
- )
 diff --git a/fortran/BUILD.bazel b/fortran/BUILD.bazel
 index 63f9fa8..6a42b2c 100644
 --- a/fortran/BUILD.bazel
