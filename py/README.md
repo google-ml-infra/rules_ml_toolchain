@@ -9,6 +9,8 @@ Python hermetic builds benefits:
 
 ## Configure Python toolchains in rules_ml_toolchain
 
+`rules_python` is patched with the patch files in [`third_party/rules_python`](../third_party/rules_python/) through a `single_version_override`. Overrides only take effect in the root module, and `single_version_override` only accepts patch files from the root module's own source tree, so your project has to declare the `single_version_override` itself: copy the patch files into your own project first and point `patches` at your copies. The example below assumes the copies are in `third_party/rules_python/`, next to a `BUILD.bazel` file (it can be empty) so that the labels resolve.
+
 Configure `rules_python` (including the `rules_ml_toolchain` patches required for free-threaded builds and lockfile compatibility) and `python_version_ext` in your `MODULE.bazel` file:
 
 ```starlark
@@ -24,14 +26,15 @@ archive_override(
 bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 
+# Uses your own copies of rules_ml_toolchain's third_party/rules_python/*.patch files (see above).
 single_version_override(
     module_name = "rules_python",
     patch_strip = 1,
     patches = [
-        "@rules_ml_toolchain//third_party/rules_python:rules_python_scope.patch",
-        "@rules_ml_toolchain//third_party/rules_python:rules_python_freethreaded.patch",
-        "@rules_ml_toolchain//third_party/rules_python:rules_python_versions.patch",
-        "@rules_ml_toolchain//third_party/rules_python:rules_python_pip_version.patch",
+        "//third_party/rules_python:rules_python_scope.patch",
+        "//third_party/rules_python:rules_python_freethreaded.patch",
+        "//third_party/rules_python:rules_python_versions.patch",
+        "//third_party/rules_python:rules_python_pip_version.patch",
     ],
     version = "1.8.5",
 )
