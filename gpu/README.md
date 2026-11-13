@@ -832,4 +832,4 @@ The structure of the folders inside NVSHMEM dir should be the following:
 ```
 
 ## Troubleshooting
-Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.
+Encountering issues? Try to find decision on [How To Fix](../HOW-TO-FIX.md) page.

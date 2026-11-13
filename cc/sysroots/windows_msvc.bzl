@@ -33,6 +33,11 @@ def _find_vc_path(rctx):
         if rctx.path(vc_candidate).exists:
             return vc_candidate
 
+    # vswhere.exe is installed in "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer", see
+    # https://github.com/microsoft/vswhere#readme. "ProgramFiles(x86)" is the actual variable name,
+    # parentheses included, of the 32-bit Program Files directory on 64-bit Windows, see
+    # https://learn.microsoft.com/en-us/windows/win32/winprog64/wow64-implementation-details#environment-variables
+    # rctx.getenv() looks up one exact name, so both common spellings of each name are tried.
     program_files_dirs = []
     for env_var in ["ProgramFiles(x86)", "PROGRAMFILES(X86)", "ProgramFiles", "PROGRAMFILES"]:
         val = rctx.getenv(env_var)
@@ -106,9 +111,12 @@ def _setup_msvc_env(rctx, vcvarsall):
     rctx.file(
         "get_msvc_env.bat",
         "@call " + cmd + " > NUL\n@set\n",
-         True,
+        True,
     )
     sysroot = _get_SystemRoot(rctx)
+
+    # Use the absolute path so that the system cmd.exe always runs: for a bare name, CreateProcessW
+    # checks the caller's executable and current directories before System32, and PATH last.
     cmd_exe = sysroot.rstrip("\\/") + "\\System32\\cmd.exe"
     if not rctx.path(cmd_exe).exists:
         cmd_exe = "cmd.exe"

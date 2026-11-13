@@ -11,6 +11,8 @@ Fortran hermetic builds benefits:
 
 Fortran build rules (`fortran_library`, `fortran_binary`, `fortran_test`) are provided by [`rules_fortran`](https://github.com/miinso/rules_fortran), while `rules_ml_toolchain` provides the hermetic `flang` toolchains.
 
+`rules_fortran` is patched with [`toolchains.patch`](../third_party/rules_fortran/toolchains.patch) through a `git_override`. Overrides only take effect in the root module, so your project has to declare the `git_override` itself: copy `toolchains.patch` into your own project first and point `patches` at your copy. The example below assumes the copy is at `third_party/rules_fortran/toolchains.patch`, next to a `BUILD.bazel` file (it can be empty) so that the label resolves.
+
 Add the following configuration to your `MODULE.bazel` file to configure [`rules_fortran`](https://github.com/miinso/rules_fortran) with `rules_ml_toolchain` and register both C++ and Fortran toolchains:
 
 ```starlark
@@ -25,12 +27,14 @@ archive_override(
 )
 
 bazel_dep(name = "rules_fortran")
+
+# Uses your own copy of rules_ml_toolchain's third_party/rules_fortran/toolchains.patch (see above).
 git_override(
     module_name = "rules_fortran",
     commit = "f0cac73ebdcbda7bc01b38b8a4ee33869416c220",
     patch_strip = 1,
     patches = [
-        "@rules_ml_toolchain//third_party/rules_fortran:toolchains.patch",
+        "//third_party/rules_fortran:toolchains.patch",
     ],
     remote = "https://github.com/miinso/rules_fortran.git",
 )
