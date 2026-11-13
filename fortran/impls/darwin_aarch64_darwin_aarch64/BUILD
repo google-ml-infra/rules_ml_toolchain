@@ -45,7 +45,7 @@ filegroup(
     srcs = [
         ":imports",
         "@llvm_darwin_aarch64//:clang++",
-        "@llvm_darwin_aarch64//:distro_libs",
+        "@llvm_darwin_aarch64//:runtime_libs",
         "@llvm_darwin_aarch64//:flang",
         "@llvm_darwin_aarch64//:flang_incs",
         "@llvm_darwin_aarch64//:ld",

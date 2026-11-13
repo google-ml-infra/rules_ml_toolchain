@@ -47,7 +47,7 @@ filegroup(
         "@llvm_linux_aarch64//:flang_incs",
         "@llvm_linux_x86_64//:ar",
         "@llvm_linux_x86_64//:clang++",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
         "@llvm_linux_x86_64//:flang",
         "@llvm_linux_x86_64//:ld",
     ],

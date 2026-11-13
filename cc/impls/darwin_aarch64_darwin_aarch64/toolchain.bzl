@@ -96,7 +96,7 @@ def darwin_aarch64_darwin_aarch64_toolchain(
         srcs = [
             ":wrappers",
             Label("@llvm_darwin_aarch64//:objcopy"),
-            Label("@llvm_darwin_aarch64//:distro_libs"),
+            Label("@llvm_darwin_aarch64//:runtime_libs"),
         ],
     )
 
@@ -106,7 +106,7 @@ def darwin_aarch64_darwin_aarch64_toolchain(
         srcs = [
             ":wrappers",
             Label("@llvm_darwin_aarch64//:strip"),
-            Label("@llvm_darwin_aarch64//:distro_libs"),
+            Label("@llvm_darwin_aarch64//:runtime_libs"),
         ],
     )
 

@@ -215,7 +215,7 @@ def _merge_archive_impl(ctx):
         tools = []
 
     ctx.actions.run_shell(
-        inputs = ctx.files.srcs + ctx.files.distro_libs,
+        inputs = ctx.files.srcs + ctx.files.runtime_libs,
         outputs = [ctx.outputs.out],
         command = command,
         tools = tools,
@@ -233,7 +233,7 @@ _merge_archive = rule(
             allow_single_file = True,
             cfg = "exec",
         ),
-        "distro_libs":  attr.label(
+        "runtime_libs":  attr.label(
             allow_single_file = True,
             cfg = "exec",
         ),
@@ -389,9 +389,9 @@ def cuda_rdc_library(name, hdrs = None, copts = None, linkstatic = True, defines
             "@bazel_tools//src/conditions:linux_x86_64": Label("@llvm_linux_x86_64//:llvm-ar"),
             "@bazel_tools//src/conditions:linux_aarch64": Label("@llvm_linux_aarch64//:llvm-ar"),
         }),
-        distro_libs = select({
-            "@bazel_tools//src/conditions:linux_x86_64": Label("@llvm_linux_x86_64//:distro_libs"),
-            "@bazel_tools//src/conditions:linux_aarch64": Label("@llvm_linux_aarch64//:distro_libs"),
+        runtime_libs = select({
+            "@bazel_tools//src/conditions:linux_x86_64": Label("@llvm_linux_x86_64//:runtime_libs"),
+            "@bazel_tools//src/conditions:linux_aarch64": Label("@llvm_linux_aarch64//:runtime_libs"),
         }),
     )
 

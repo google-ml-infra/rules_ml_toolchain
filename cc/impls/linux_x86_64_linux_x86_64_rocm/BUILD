@@ -223,7 +223,7 @@ filegroup(
         ":wrappers",
         "@llvm_linux_x86_64//:clang",
         "@llvm_linux_x86_64//:clang++",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
         "@llvm_linux_x86_64//:asan_ignorelist",
     ],
 )
@@ -237,7 +237,7 @@ filegroup(
         ":startup_libs",
         ":wrappers",
         "//cc/rocm/features:global_symbol_version_script",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
         "@llvm_linux_x86_64//:ld",
     ],
 )
@@ -249,7 +249,7 @@ filegroup(
         ":rocm_toolkit_files",
         ":wrappers",
         "@llvm_linux_x86_64//:ar",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
     ],
 )
 
@@ -258,7 +258,7 @@ filegroup(
     name = "strip",
     srcs = [
         ":wrappers",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
         "@llvm_linux_x86_64//:strip",
     ],
 )

@@ -86,7 +86,7 @@ filegroup(
 
 # LLVM18 needs libtinfo.so.5 library as part of ubuntu 18 distributive
 filegroup(
-    name = "distro_libs",
+    name = "runtime_libs",
     srcs = [
         "lib/libtinfo.so.5",
     ],

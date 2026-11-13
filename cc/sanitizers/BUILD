@@ -31,6 +31,6 @@ sanitizer_wrapper(
     llvm_symbolizer = "@llvm_linux_x86_64//:llvm-symbolizer",
     asan_options = "detect_leaks=0",
     tsan_options = "halt_on_error=1:exitcode=66",
-    additional_data = ["@llvm_linux_x86_64//:distro_libs"],
+    additional_data = ["@llvm_linux_x86_64//:runtime_libs"],
     visibility = ["//visibility:public"],
 )

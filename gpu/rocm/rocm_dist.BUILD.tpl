@@ -55,7 +55,7 @@ filegroup(
 
 # Distribution libraries needed by llvm-symbolizer
 filegroup(
-    name = "distro_libs",
+    name = "runtime_libs",
     srcs = glob([
         "%{rocm_root}/llvm/lib/*.so*",
         "%{rocm_root}/lib/llvm/lib/*.so*",

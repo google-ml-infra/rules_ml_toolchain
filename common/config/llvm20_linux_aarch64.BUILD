@@ -86,7 +86,7 @@ filegroup(
 
 # Stub for LLVM 18 Linux x86_64, leave it for backward compatibility
 filegroup(
-    name = "distro_libs",
+    name = "runtime_libs",
     srcs = [],
     visibility = ["//visibility:public"],
 )

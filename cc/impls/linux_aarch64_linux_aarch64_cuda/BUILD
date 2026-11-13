@@ -155,7 +155,7 @@ filegroup(
         "@llvm_linux_aarch64//:clang",
         "@llvm_linux_aarch64//:clang++",
         "@llvm_linux_aarch64//:scan_deps",
-        "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:runtime_libs",
     ],
 )
 
@@ -168,7 +168,7 @@ filegroup(
         ":wrappers",
         "@llvm_linux_aarch64//:ld",
         ":startup_libs",
-        "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:runtime_libs",
     ],
 )
 
@@ -179,7 +179,7 @@ filegroup(
         ":cuda_nvcc",
         ":wrappers",
         "@llvm_linux_aarch64//:ar",
-        "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:runtime_libs",
     ],
 )
 
@@ -189,7 +189,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_linux_aarch64//:objcopy",
-        "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:runtime_libs",
     ],
 )
 
@@ -199,7 +199,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_linux_aarch64//:strip",
-        "@llvm_linux_aarch64//:distro_libs",
+        "@llvm_linux_aarch64//:runtime_libs",
     ],
 )
 

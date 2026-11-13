@@ -80,8 +80,8 @@ alias(
 )
 
 alias(
-    name = "distro_libs",
-    actual = "@@%{llvm_repo_name}//:distro_libs",
+    name = "runtime_libs",
+    actual = "@@%{llvm_repo_name}//:runtime_libs",
     visibility = ["//visibility:public"],
 )
 

@@ -45,7 +45,7 @@ filegroup(
         ":imports",
         "@llvm_windows_x86_64//:ar",
         "@llvm_windows_x86_64//:clang++",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
         "@llvm_windows_x86_64//:flang",
         "@llvm_windows_x86_64//:flang_incs",
         "@llvm_windows_x86_64//:lld",

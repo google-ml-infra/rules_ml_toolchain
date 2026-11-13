@@ -100,8 +100,8 @@ alias(
 
 # LLVM18 needs libtinfo.so.5 library as part of ubuntu 18 distributive
 alias(
-    name = "distro_libs",
-    actual = "@@%{llvm_repo_name}//:distro_libs",
+    name = "runtime_libs",
+    actual = "@@%{llvm_repo_name}//:runtime_libs",
     visibility = ["//visibility:public"],
 )
 

@@ -96,7 +96,7 @@ filegroup(
         "@llvm_windows_x86_64//:clang-cl",
         "@llvm_windows_x86_64//:llvm-ml",
         "@llvm_windows_x86_64//:scan_deps",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
         "@llvm_windows_x86_64//:asan_ignorelist",
     ],
 )
@@ -108,7 +108,7 @@ filegroup(
         ":compiler",
         ":wrappers",
         "@llvm_windows_x86_64//:lld-link",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
     ],
 )
 
@@ -118,7 +118,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_windows_x86_64//:llvm-lib",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
     ],
 )
 
@@ -128,7 +128,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_windows_x86_64//:objcopy",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
     ],
 )
 
@@ -138,7 +138,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_windows_x86_64//:strip",
-        "@llvm_windows_x86_64//:distro_libs",
+        "@llvm_windows_x86_64//:runtime_libs",
     ],
 )
 

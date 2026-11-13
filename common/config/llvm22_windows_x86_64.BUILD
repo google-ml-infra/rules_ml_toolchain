@@ -116,7 +116,7 @@ filegroup(
 )
 
 filegroup(
-    name = "distro_libs",
+    name = "runtime_libs",
     srcs = glob(
         ["bin/*.dll"],
         allow_empty = True,

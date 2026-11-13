@@ -74,7 +74,7 @@ filegroup(
         "@llvm_linux_x86_64//:clang",
         "@llvm_linux_x86_64//:clang++",
         "@llvm_linux_x86_64//:scan_deps",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
         "@llvm_linux_x86_64//:asan_ignorelist",
     ],
 )
@@ -86,7 +86,7 @@ filegroup(
         ":compiler",
         ":wrappers",
         "@llvm_linux_x86_64//:ld",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
     ],
 )
 
@@ -96,7 +96,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_linux_x86_64//:ar_darwin",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
     ],
 )
 
@@ -106,7 +106,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_linux_x86_64//:objcopy",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
     ],
 )
 
@@ -116,7 +116,7 @@ filegroup(
     srcs = [
         ":wrappers",
         "@llvm_linux_x86_64//:strip",
-        "@llvm_linux_x86_64//:distro_libs",
+        "@llvm_linux_x86_64//:runtime_libs",
     ],
 )
 
