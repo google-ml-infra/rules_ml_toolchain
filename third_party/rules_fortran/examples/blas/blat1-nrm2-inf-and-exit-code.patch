@@ -1,0 +1,232 @@
+diff --git a/TESTING/cblat1.f b/TESTING/cblat1.f
+index 82798fe..67bc3ea 100644
+--- a/TESTING/cblat1.f
++++ b/TESTING/cblat1.f
+@@ -50,6 +50,7 @@
+ *     .. Local Scalars ..
+       REAL             SFAC
+       INTEGER          IC
++      LOGICAL          FATAL
+ *     .. External Subroutines ..
+       EXTERNAL         CHECK1, CHECK2, HEADER
+ *     .. Common blocks ..
+@@ -58,6 +59,7 @@
+       DATA             SFAC/9.765625E-4/
+ *     .. Executable Statements ..
+       WRITE (NOUT,99999)
++      FATAL = .FALSE.
+       DO 20 IC = 1, 10
+          ICASE = IC
+          CALL HEADER
+@@ -77,8 +79,13 @@
+             CALL CHECK1(SFAC)
+          END IF
+ *        -- Print
+-         IF (PASS) WRITE (NOUT,99998)
++         IF (PASS) THEN
++            WRITE (NOUT,99998)
++         ELSE
++            FATAL = .TRUE.
++         END IF
+    20 CONTINUE
++      IF (FATAL) STOP 1
+       STOP
+ *
+ 99999 FORMAT (' Complex BLAS Test Program Results',/1X)
+@@ -806,6 +813,10 @@
+ *     .. Scalar Arguments ..
+       INTEGER           INCX, N
+       REAL              THRESH
++*     .. Scalars in Common ..
++      INTEGER           ICASEC, INCXC, INCYC, MODEC, NC
++      LOGICAL           PASS
++      COMMON            /COMBLA/ICASEC, NC, INCXC, INCYC, MODEC, PASS
+ *
+ *  =====================================================================
+ *     .. Parameters ..
+@@ -969,12 +980,15 @@
+                ELSE
+                   TRAT = ZERO
+                END IF
++            ELSE IF (SNRM == ZNRM) THEN
++               TRAT = ZERO
+             ELSE IF (ZNRM == ZERO) THEN
+                TRAT = SNRM / ULP
+             ELSE
+                TRAT = (ABS(SNRM-ZNRM) / ZNRM) / (TWO*REAL(N)*ULP)
+             END IF
+             IF ((TRAT.NE.TRAT).OR.(TRAT.GE.THRESH)) THEN
++               PASS = .FALSE.
+                IF (FIRST) THEN
+                   FIRST = .FALSE.
+                   WRITE(NOUT,99999)
+diff --git a/TESTING/dblat1.f b/TESTING/dblat1.f
+index 95da39d..a69b673 100644
+--- a/TESTING/dblat1.f
++++ b/TESTING/dblat1.f
+@@ -50,6 +50,7 @@
+ *     .. Local Scalars ..
+       DOUBLE PRECISION SFAC
+       INTEGER          IC
++      LOGICAL          FATAL
+ *     .. External Subroutines ..
+       EXTERNAL         CHECK0, CHECK1, CHECK2, CHECK3, HEADER
+ *     .. Common blocks ..
+@@ -58,6 +59,7 @@
+       DATA             SFAC/9.765625D-4/
+ *     .. Executable Statements ..
+       WRITE (NOUT,99999)
++      FATAL = .FALSE.
+       DO 20 IC = 1, 13
+          ICASE = IC
+          CALL HEADER
+@@ -82,8 +84,13 @@
+             CALL CHECK3(SFAC)
+          END IF
+ *        -- Print
+-         IF (PASS) WRITE (NOUT,99998)
++         IF (PASS) THEN
++            WRITE (NOUT,99998)
++         ELSE
++            FATAL = .TRUE.
++         END IF
+    20 CONTINUE
++      IF (FATAL) STOP 1
+       STOP
+ *
+ 99999 FORMAT (' Real BLAS Test Program Results',/1X)
+@@ -1153,6 +1160,10 @@
+ *     .. Scalar Arguments ..
+       INTEGER           INCX, N
+       DOUBLE PRECISION  THRESH
++*     .. Scalars in Common ..
++      INTEGER           ICASEC, INCXC, INCYC, NC
++      LOGICAL           PASS
++      COMMON            /COMBLA/ICASEC, NC, INCXC, INCYC, PASS
+ *
+ *  =====================================================================
+ *     .. Parameters ..
+@@ -1307,6 +1318,7 @@
+                TRAT = (ABS(SNRM-ZNRM) / ZNRM) / (DBLE(N)*ULP)
+             END IF
+             IF ((TRAT.NE.TRAT).OR.(TRAT.GE.THRESH)) THEN
++               PASS = .FALSE.
+                IF (FIRST) THEN
+                   FIRST = .FALSE.
+                   WRITE(NOUT,99999)
+diff --git a/TESTING/sblat1.f b/TESTING/sblat1.f
+index e68ee09..ebb1a78 100644
+--- a/TESTING/sblat1.f
++++ b/TESTING/sblat1.f
+@@ -50,6 +50,7 @@
+ *     .. Local Scalars ..
+       REAL             SFAC
+       INTEGER          IC
++      LOGICAL          FATAL
+ *     .. External Subroutines ..
+       EXTERNAL         CHECK0, CHECK1, CHECK2, CHECK3, HEADER
+ *     .. Common blocks ..
+@@ -58,6 +59,7 @@
+       DATA             SFAC/9.765625E-4/
+ *     .. Executable Statements ..
+       WRITE (NOUT,99999)
++      FATAL = .FALSE.
+       DO 20 IC = 1, 13
+          ICASE = IC
+          CALL HEADER
+@@ -82,8 +84,13 @@
+             CALL CHECK3(SFAC)
+          END IF
+ *        -- Print
+-         IF (PASS) WRITE (NOUT,99998)
++         IF (PASS) THEN
++            WRITE (NOUT,99998)
++         ELSE
++            FATAL = .TRUE.
++         END IF
+    20 CONTINUE
++      IF (FATAL) STOP 1
+       STOP
+ *
+ 99999 FORMAT (' Real BLAS Test Program Results',/1X)
+@@ -1105,6 +1112,10 @@
+ *     .. Scalar Arguments ..
+       INTEGER           INCX, N
+       REAL              THRESH
++*     .. Scalars in Common ..
++      INTEGER           ICASEC, INCXC, INCYC, NC
++      LOGICAL           PASS
++      COMMON            /COMBLA/ICASEC, NC, INCXC, INCYC, PASS
+ *
+ *  =====================================================================
+ *     .. Parameters ..
+@@ -1259,6 +1270,7 @@
+                TRAT = (ABS(SNRM-ZNRM) / ZNRM) / (REAL(N)*ULP)
+             END IF
+             IF ((TRAT.NE.TRAT).OR.(TRAT.GE.THRESH)) THEN
++               PASS = .FALSE.
+                IF (FIRST) THEN
+                   FIRST = .FALSE.
+                   WRITE(NOUT,99999)
+diff --git a/TESTING/zblat1.f b/TESTING/zblat1.f
+index 29daad5..b2ff0d2 100644
+--- a/TESTING/zblat1.f
++++ b/TESTING/zblat1.f
+@@ -50,6 +50,7 @@
+ *     .. Local Scalars ..
+       DOUBLE PRECISION SFAC
+       INTEGER          IC
++      LOGICAL          FATAL
+ *     .. External Subroutines ..
+       EXTERNAL         CHECK1, CHECK2, HEADER
+ *     .. Common blocks ..
+@@ -58,6 +59,7 @@
+       DATA             SFAC/9.765625D-4/
+ *     .. Executable Statements ..
+       WRITE (NOUT,99999)
++      FATAL = .FALSE.
+       DO 20 IC = 1, 10
+          ICASE = IC
+          CALL HEADER
+@@ -77,8 +79,13 @@
+             CALL CHECK1(SFAC)
+          END IF
+ *        -- Print
+-         IF (PASS) WRITE (NOUT,99998)
++         IF (PASS) THEN
++            WRITE (NOUT,99998)
++         ELSE
++            FATAL = .TRUE.
++         END IF
+    20 CONTINUE
++      IF (FATAL) STOP 1
+       STOP
+ *
+ 99999 FORMAT (' Complex BLAS Test Program Results',/1X)
+@@ -806,6 +813,10 @@
+ *     .. Scalar Arguments ..
+       INTEGER           INCX, N
+       DOUBLE PRECISION  THRESH
++*     .. Scalars in Common ..
++      INTEGER           ICASEC, INCXC, INCYC, MODEC, NC
++      LOGICAL           PASS
++      COMMON            /COMBLA/ICASEC, NC, INCXC, INCYC, MODEC, PASS
+ *
+ *  =====================================================================
+ *     .. Parameters ..
+@@ -969,12 +980,15 @@
+                ELSE
+                   TRAT = ZERO
+                END IF
++            ELSE IF (SNRM == ZNRM) THEN
++               TRAT = ZERO
+             ELSE IF (ZNRM == ZERO) THEN
+                TRAT = SNRM / ULP
+             ELSE
+                TRAT = (ABS(SNRM-ZNRM) / ZNRM) / (TWO*DBLE(N)*ULP)
+             END IF
+             IF ((TRAT.NE.TRAT).OR.(TRAT.GE.THRESH)) THEN
++               PASS = .FALSE.
+                IF (FIRST) THEN
+                   FIRST = .FALSE.
+                   WRITE(NOUT,99999)

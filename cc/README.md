@@ -1,6 +1,6 @@
 # Hermetic C++ Toolchains for ML
 
-This package provides hermetic LLVM/Clang C++ toolchains and sysroots for building C++ targets across Linux (`x86_64`, `aarch64`), macOS (`aarch64`), and Windows (`x86_64`).
+This package provides Bazel rules and hermetic LLVM/Clang C++ toolchains and sysroots for building C++ targets across Linux (`x86_64`, `aarch64`), macOS (`aarch64`), and Windows (`x86_64`).
 
 C++ and CUDA hermetic builds benefits:
 * Reproducibility: Every build produces identical results regardless of the developer's machine environment.
@@ -15,39 +15,24 @@ C++ cross-platform builds benefits:
 
 ## Configure C++ toolchains in rules_ml_toolchain
 
-### Using Bzlmod (`MODULE.bazel`)
-
 Add the following to your `MODULE.bazel` file:
 
 ```starlark
-bazel_dep(name = "rules_ml_toolchain", version = "0.0.0")
-
-register_toolchains("@rules_ml_toolchain//cc:all")
-```
-
-### Using `WORKSPACE`
-
-Add the following code to your `WORKSPACE` file:
-
-```starlark
-http_archive(
-    name = "rules_ml_toolchain",
-    sha256 = "dd6035b2aa22ec22c7598c0c78d1f593a74606d787d1059d19ab0f9b581e513d",
-    strip_prefix = "rules_ml_toolchain-4d9fa39eda9c769db86770a13ce2c2e2090bced8",
+bazel_dep(name = "rules_ml_toolchain")
+archive_override(
+    module_name = "rules_ml_toolchain",
+    integrity = "sha256-bywqV064uobGw+nzpAUoTZyRWvpn6m4SwhCoFnY98Sk=",
+    strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
     urls = [
-        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/4d9fa39eda9c769db86770a13ce2c2e2090bced8.tar.gz",
+        "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
     ],
 )
 
-load(
-    "@rules_ml_toolchain//common/deps:toolchain_deps.bzl",
-    "toolchain_deps",
-)
-
-toolchain_deps()
-
 register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64")
+register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 ```
 
@@ -61,7 +46,7 @@ For diagnosing the utility set being used during build or test execution, the `-
 to the Bazel command. This will facilitate checking that the compiler or linker are not being used from your machine.
 
 ## Configure hermetic CUDA, CUDNN, NCCL and NVSHMEM
-For detailed instructions on how to configure hermetic CUDA, CUDNN, NCCL and NVSHMEM, [click this link](../gpu/).
+For detailed instructions on how to configure hermetic CUDA, CUDNN, NCCL and NVSHMEM, [click this link](../gpu/README.md).
 
 ## Configure the LLVM / Sysroot in rules_ml_toolchain
 
@@ -111,14 +96,14 @@ build:linux --@rules_ml_toolchain//common:static_libcxx=true
 ```
 
 ## Configure sanitizers
-For detailed instructions on how to configure and use sanitizers [click this link](sanitizers).
+For detailed instructions on how to configure and use sanitizers [click this link](sanitizers/README.md).
 
-## Run rules_ml_toolchain C++ tests
+## Run rules_ml_toolchain tests
 ### CPU hermetic tests
-Project supports CPU hermetic builds on:
+Project supports CPU builds on:
 * Linux x86_64 / aarch64
 * macOS aarch64 (using LLVM 19 or newer is highly recommended, as it introduces linker updates for Apple platforms)
-* Windows x86_64
+* Windows x86_64 (hermetic build tools paired with a non-hermetic host sysroot)
 
 The command allows you to run hermetic build tests:
 
@@ -208,5 +193,3 @@ cc_library(
 )
 ```
 
-## Troubleshooting
-Encountering issues? Try to find a solution on the [How To Fix](../HOW-TO-FIX.md) page.
