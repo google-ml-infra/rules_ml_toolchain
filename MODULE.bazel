@@ -176,6 +176,8 @@ toolchain = use_extension("//extensions:toolchain.bzl", "toolchain_ext")
 use_repo(
     toolchain,
     "darwin_local_config_cc",
+    # Linker version script, generated from GLOBAL_SYMBOLS_TO_VERSION
+    "global_symbol_version_config",
     "llvm18_linux_aarch64",
     "llvm18_linux_x86_64",
     "llvm19_linux_x86_64",
