@@ -273,6 +273,14 @@ hipcc_configure(
     rocm_dist = "@rocm_redist_dist//:rocm_root",
 )
 
+# Linker version script, generated from GLOBAL_SYMBOLS_TO_VERSION
+load(
+    "//cc/rocm/features:global_symbol_version_configure.bzl",
+    "global_symbol_version_configure",
+)
+
+global_symbol_version_configure(name = "global_symbol_version_config")
+
 ##############################################################
 # Local sysroot configuration
 
