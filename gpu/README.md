@@ -86,52 +86,74 @@ is specified in [gpu/cuda/cuda_redist_versions.bzl](https://github.com/google-ml
 ### Configure hermetic CUDA, CUDNN and NCCL
 
 1. In the downstream project dependent on `rules_ml_toolchain`, add the
-   following lines to the `WORKSPACE` file:
+   following lines to the `MODULE.bazel` file:
 
-   ```
+   ```starlark
+   bazel_dep(name = "rules_ml_toolchain")
+   archive_override(
+       module_name = "rules_ml_toolchain",
+       integrity = "sha256-bywqV064uobGw+nzpAUoTZyRWvpn6m4SwhCoFnY98Sk=",
+       strip_prefix = "rules_ml_toolchain-ec70529c9a611b364f12d67f61f083524e445431",
+       urls = [
+           "https://github.com/google-ml-infra/rules_ml_toolchain/archive/ec70529c9a611b364f12d67f61f083524e445431.tar.gz",
+       ],
+   )
+
    register_toolchains("@rules_ml_toolchain//cc:linux_x86_64_linux_x86_64_cuda")
    register_toolchains("@rules_ml_toolchain//cc:linux_aarch64_linux_aarch64_cuda")
-   
-   load(
-      "@rules_ml_toolchain///gpu/cuda:cuda_json_init_repository.bzl",
-      "cuda_json_init_repository",
-   )
-   cuda_json_init_repository()
 
-   load(
-      "@cuda_redist_json//:distributions.bzl",
-      "CUDA_REDISTRIBUTIONS",
-      "CUDNN_REDISTRIBUTIONS",
+   cuda_configure = use_extension(
+       "@rules_ml_toolchain//extensions:cuda_configure.bzl",
+       "cuda_configure_ext",
    )
-   load(
-      "@rules_ml_toolchain//gpu/cuda:cuda_redist_init_repositories.bzl",
-      "cuda_redist_init_repositories",
-      "cudnn_redist_init_repository",
+   use_repo(cuda_configure, "local_config_cuda")
+
+   cuda_json = use_extension(
+       "@rules_ml_toolchain//extensions:cuda_json.bzl",
+       "cuda_json_ext",
    )
-   cuda_redist_init_repositories(
-      cuda_redistributions = CUDA_REDISTRIBUTIONS,
+   use_repo(cuda_json, "cuda_redist_json")
+
+   cuda_redist_init = use_extension(
+       "@rules_ml_toolchain//extensions:cuda_redist_init.bzl",
+       "cuda_redist_init_ext",
    )
-   cudnn_redist_init_repository(
-      cudnn_redistributions = CUDNN_REDISTRIBUTIONS,
+   use_repo(
+       cuda_redist_init,
+       "cuda_cccl",
+       "cuda_crt",
+       "cuda_cublas",
+       "cuda_cudart",
+       "cuda_cudnn",
+       "cuda_cufft",
+       "cuda_cupti",
+       "cuda_curand",
+       "cuda_cusolver",
+       "cuda_cusparse",
+       "cuda_driver",
+       "cuda_nvcc",
+       "cuda_nvdisasm",
+       "cuda_nvfatbin",
+       "cuda_nvjitlink",
+       "cuda_nvml",
+       "cuda_nvptxcompiler",
+       "cuda_nvrtc",
+       "cuda_nvtx",
+       "cuda_nvvm",
+       "cuda_profiler_api",
    )
 
-   load(
-      "@rules_ml_toolchain//gpu/cuda:cuda_configure.bzl",
-      "cuda_configure",
+   nccl_redist = use_extension(
+       "@rules_ml_toolchain//extensions:nccl_redist.bzl",
+       "nccl_redist_ext",
    )
-   cuda_configure(name = "local_config_cuda")
+   use_repo(nccl_redist, "cuda_nccl")
 
-   load(
-      "@rules_ml_toolchain//gpu/nccl:nccl_redist_init_repository.bzl",
-      "nccl_redist_init_repository",
+   nccl_configure = use_extension(
+       "@rules_ml_toolchain//extensions:nccl_configure.bzl",
+       "nccl_configure_ext",
    )
-   nccl_redist_init_repository()
-
-   load(
-      "@rules_ml_toolchain//gpu/nccl:nccl_configure.bzl",
-      "nccl_configure",
-   )
-   nccl_configure(name = "local_config_nccl")
+   use_repo(nccl_configure, "local_config_nccl")
    ```
 
 2. To enable CUDA, set `TF_NEED_CUDA` environment variable and enable the flag
@@ -234,27 +256,20 @@ UMD version should be compatible with KMD and CUDA Runtime versions.
 ### Configure hermetic NVSHMEM
 
 1. In the downstream project dependent on `rules_ml_toolchain`, add the
-   following lines to the `WORKSPACE` file:
+   following lines to the `MODULE.bazel` file:
 
-   ```
-   load(
-    "@rules_ml_toolchain//gpu/nvshmem:nvshmem_json_init_repository.bzl",
-    "nvshmem_json_init_repository",
+   ```starlark
+   nvshmem_json = use_extension(
+       "@rules_ml_toolchain//extensions:nvshmem_json.bzl",
+       "nvshmem_json_ext",
    )
-   nvshmem_json_init_repository()
+   use_repo(nvshmem_json, "nvshmem_redist_json")
 
-   load(
-      "@nvshmem_redist_json//:distributions.bzl",
-      "NVSHMEM_REDISTRIBUTIONS",
+   nvshmem_redist = use_extension(
+       "@rules_ml_toolchain//extensions:nvshmem_redist.bzl",
+       "nvshmem_redist_ext",
    )
-   load(
-      "@rules_ml_toolchain//gpu/nvshmem:nvshmem_redist_init_repository.bzl",
-      "nvshmem_redist_init_repository",
-   )
-   nvshmem_redist_init_repository(
-      nvshmem_redistributions = NVSHMEM_REDISTRIBUTIONS,
-   )
-
+   use_repo(nvshmem_redist, "nvidia_nvshmem")
    ```
 
 2. To select specific version of hermetic NCCL, set the
@@ -815,3 +830,6 @@ The structure of the folders inside NVSHMEM dir should be the following:
     lib/
     bin/
 ```
+
+## Troubleshooting
+Encountering issues? Try to find decision on [How To Fix](HOW-TO-FIX.md) page.
