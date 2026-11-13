@@ -60,13 +60,14 @@ def _global_symbol_version_configure_impl(repository_ctx):
 
     # Patterns naming a C++ scope only match once the symbol is demangled, so
     # they go into the template's `extern "C++"` block; the rest are matched as
-    # written.
+    # written. Both are substituted as a single line, leaving the layout of the
+    # script to the template.
     repository_ctx.template(
         "global_symbol_version.lds",
         repository_ctx.attr._version_script_template,
         substitutions = {
-            "%{cpp_symbols}": "".join(["      %s;\n" % s for s in symbols if "::" in s]),
-            "%{symbols}": "".join(["    %s;\n" % s for s in symbols if "::" not in s]),
+            "%{cpp_symbols}": " ".join(["%s;" % s for s in symbols if "::" in s]),
+            "%{symbols}": " ".join(["%s;" % s for s in symbols if "::" not in s]),
         },
         executable = False,
     )

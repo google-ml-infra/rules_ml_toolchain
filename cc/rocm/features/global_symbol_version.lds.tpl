@@ -14,5 +14,7 @@
 XLA_TEST {
   global:
     extern "C++" {
-%{cpp_symbols}    };
-%{symbols}};
+        %{cpp_symbols}    
+    };
+    %{symbols}
+};
