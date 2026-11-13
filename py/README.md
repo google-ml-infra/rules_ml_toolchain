@@ -9,7 +9,9 @@ Python hermetic builds benefits:
 
 ## Configure Python toolchains in rules_ml_toolchain
 
-Configure the `rules_python` toolchain extension and `python_version_ext` in your `MODULE.bazel` file:
+`rules_python` is patched with the patch files in [`third_party/rules_python`](../third_party/rules_python/) through a `single_version_override`. Overrides only take effect in the root module, and `single_version_override` only accepts patch files from the root module's own source tree, so your project has to declare the `single_version_override` itself: copy the patch files into your own project first and point `patches` at your copies. The example below assumes the copies are in `third_party/rules_python/`, next to a `BUILD.bazel` file (it can be empty) so that the labels resolve.
+
+Configure `rules_python` (including the `rules_ml_toolchain` patches required for free-threaded builds and lockfile compatibility) and `python_version_ext` in your `MODULE.bazel` file:
 
 ```starlark
 bazel_dep(name = "rules_ml_toolchain")
@@ -23,6 +25,19 @@ archive_override(
 )
 bazel_dep(name = "rules_python", version = "1.8.5")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+
+# Uses your own copies of rules_ml_toolchain's third_party/rules_python/*.patch files (see above).
+single_version_override(
+    module_name = "rules_python",
+    patch_strip = 1,
+    patches = [
+        "//third_party/rules_python:rules_python_scope.patch",
+        "//third_party/rules_python:rules_python_freethreaded.patch",
+        "//third_party/rules_python:rules_python_versions.patch",
+        "//third_party/rules_python:rules_python_pip_version.patch",
+    ],
+    version = "1.8.5",
+)
 
 python_version_ext = use_extension(
     "@rules_ml_toolchain//extensions:python_version.bzl",
@@ -49,20 +64,24 @@ By default, Python `3.11` is used (or `3.13` as configured in `.bazelrc`). You c
 build --repo_env=HERMETIC_PYTHON_VERSION=3.13
 ```
 
-Supported Python versions:
+Supported Python versions and mode requirements:
 
-| Version   | Description                          |
-|-----------|--------------------------------------|
-| `3.11`    | CPython 3.11                         |
-| `3.12`    | CPython 3.12                         |
-| `3.13`    | CPython 3.13                         |
-| `3.14`    | CPython 3.14                         |
-| `3.13-ft` | CPython 3.13 free-threaded (`cp313t`)|
-| `3.14-ft` | CPython 3.14 free-threaded (`cp314t`)|
+| Version   | Description                           | Bzlmod (`MODULE.bazel`)                                                                                          | `WORKSPACE` (`python_init_repositories`)                                                                         |
+|-----------|---------------------------------------|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| `3.11`    | CPython 3.11                          | `--repo_env=HERMETIC_PYTHON_VERSION=3.11`                                                                        | `--repo_env=HERMETIC_PYTHON_VERSION=3.11`                                                                        |
+| `3.12`    | CPython 3.12                          | `--repo_env=HERMETIC_PYTHON_VERSION=3.12`                                                                        | `--repo_env=HERMETIC_PYTHON_VERSION=3.12`                                                                        |
+| `3.13`    | CPython 3.13                          | `--repo_env=HERMETIC_PYTHON_VERSION=3.13`                                                                        | `--repo_env=HERMETIC_PYTHON_VERSION=3.13`                                                                        |
+| `3.14`    | CPython 3.14                          | `--repo_env=HERMETIC_PYTHON_VERSION=3.14`                                                                        | `--repo_env=HERMETIC_PYTHON_VERSION=3.14`                                                                        |
+| `3.13-ft` | CPython 3.13 free-threaded (`cp313t`) | Requires patched `rules_python`: `--repo_env=HERMETIC_PYTHON_VERSION=3.13` + `--@rules_python//python/config_settings:py_freethreaded="yes"` | `--repo_env=HERMETIC_PYTHON_VERSION=3.13-ft` + `--@rules_python//python/config_settings:py_freethreaded="yes"` |
+| `3.14-ft` | CPython 3.14 free-threaded (`cp314t`) | Requires patched `rules_python`: `--repo_env=HERMETIC_PYTHON_VERSION=3.14` + `--@rules_python//python/config_settings:py_freethreaded="yes"` | `--repo_env=HERMETIC_PYTHON_VERSION=3.14-ft` + `--@rules_python//python/config_settings:py_freethreaded="yes"` |
 
-### Custom Python interpreter archive
+> **Note on free-threaded Python (`-ft`):** The `-ft` suffix in `HERMETIC_PYTHON_VERSION` (e.g., `3.13-ft`, `3.14-ft`) is parsed by `python_init_repositories` / `python_register_toolchain` in **`WORKSPACE` mode** to select both the free-threaded interpreter and the `*_ft.txt` lockfile. Under **Bzlmod**, `@rules_python//python/extensions:python.bzl` only accepts standard version strings (`3.13`, `3.14`) and switches to the free-threaded interpreter when `rules_python` is patched and `--@rules_python//python/config_settings:py_freethreaded="yes"` is passed.
 
-To use a custom-built CPython archive (for example, an ASan- or TSan-instrumented Python build), specify `HERMETIC_PYTHON_URL`, `HERMETIC_PYTHON_SHA256`, and `HERMETIC_PYTHON_PREFIX`:
+### Custom Python interpreter archive (`WORKSPACE` mode only)
+
+> **Note:** Custom interpreter environment variables (`HERMETIC_PYTHON_URL`, `HERMETIC_PYTHON_SHA256`, and `HERMETIC_PYTHON_PREFIX`) are currently supported **only in `WORKSPACE` mode** via `python_init_repositories()` and `python_register_toolchain()` (Bzlmod support is tracked as a `TODO` in [`MODULE.bazel`](../MODULE.bazel)).
+
+To use a custom-built CPython archive in `WORKSPACE` mode (for example, an ASan- or TSan-instrumented Python build), specify `HERMETIC_PYTHON_URL`, `HERMETIC_PYTHON_SHA256`, and `HERMETIC_PYTHON_PREFIX`:
 
 ```
 build --repo_env=HERMETIC_PYTHON_VERSION=3.13

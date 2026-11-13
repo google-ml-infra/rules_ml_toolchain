@@ -21,13 +21,11 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
-  issues: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   # Don't cancel in-progress jobs for main branch
-  cancel-in-progress: ${{ github.ref != 'main' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   run-tests:
@@ -53,6 +51,8 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
       - name: "Bzlmod. Flang 21, Glibc 2.35 | Testing..."
         run: |

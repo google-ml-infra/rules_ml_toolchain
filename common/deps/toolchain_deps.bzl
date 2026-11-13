@@ -15,6 +15,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//cc/impls/darwin_aarch64_darwin_aarch64:darwin_local_config_cc.bzl", "darwin_local_config_cc")
+load("//cc/rocm/features:global_symbol_version_configure.bzl", "global_symbol_version_configure")
 load("//cc/llvms:llvm.bzl", "llvm")
 load("//cc/sysroots:macos_sdk.bzl", "macos_sdk")
 load("//cc/sysroots:sysroot.bzl", "sysroot")
@@ -24,6 +25,15 @@ load("//common:repo.bzl", "tf_mirror_urls")
 load("//common:tar_extraction_utils.bzl", "tool_archive")
 
 def toolchain_deps():
+    ################################################################
+    # Linker version script generated from GLOBAL_SYMBOLS_TO_VERSION
+    ################################################################
+
+    if "global_symbol_version_config" not in native.existing_rules():
+        global_symbol_version_configure(
+            name = "global_symbol_version_config",
+        )
+
     tool_archive(
         name = "tar",
         linux_x86_64_sha256 = "d3be6744685d7a90adc16e3d5342ba9b28fc388422629a1bea146b3798229af6",

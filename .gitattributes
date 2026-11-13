@@ -1,0 +1,9 @@
+# Ensure Windows batch wrappers always have CRLF line endings in checkouts and release archives.
+*.bat text eol=crlf
+
+# Exclude CI workflows, repo metadata, and dev-only examples from `git archive` release tarballs.
+/.bcr export-ignore
+/.github export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/third_party/rules_fortran/examples export-ignore

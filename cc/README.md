@@ -36,8 +36,6 @@ register_toolchains("@rules_ml_toolchain//cc:darwin_aarch64_darwin_aarch64")
 register_toolchains("@rules_ml_toolchain//cc:windows_x86_64_windows_x86_64")
 ```
 
-If CUDA or SYCL initialization is required, ensure this block is inserted before either initialization occurs.
-
 It must be ensured that builds for Linux x86_64 / aarch64 are run without the `--noincompatible_enable_cc_toolchain_resolution`
 flag. Furthermore, reliance on environment variables like `CLANG_COMPILER_PATH`, `BAZEL_COMPILER`, `CC`, or `CXX`
 must be avoided.

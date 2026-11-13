@@ -23,6 +23,9 @@ load(":rocm_global_symbol_version_script_feature.bzl", "rocm_global_symbol_versi
 
 package(default_visibility = ["//visibility:public"])
 
+# Export template file for the global_symbol_version_configure repository rule
+exports_files(["global_symbol_version.lds.tpl"])
+
 config_setting(
     name = "is_xla_test_global_symbol_version_enabled",
     flag_values = {
@@ -30,9 +33,11 @@ config_setting(
     },
 )
 
-filegroup(
+# Generated from the GLOBAL_SYMBOLS_TO_VERSION environment variable by the
+# global_symbol_version_configure repository rule.
+alias(
     name = "global_symbol_version_script",
-    srcs = ["global_symbol_version.lds"],
+    actual = "@global_symbol_version_config//:global_symbol_version_script",
 )
 
 # ROCm-specific preprocessor definitions
