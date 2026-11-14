@@ -36,15 +36,16 @@ cc_toolchain_import(
 fortran_toolchain_import_feature(
     name = "imports_feature",
     enabled = True,
-    flang_incs = "@llvm_linux_aarch64//:flang_incs",
+    flang_incs = "@llvm_linux_x86_64//:flang_incs",
     toolchain_import = ":imports",
 )
 
+# buildifier: leave-alone
 filegroup(
     name = "compiler",
     srcs = [
         ":imports",
-        "@llvm_linux_aarch64//:flang_incs",
+        "@llvm_linux_x86_64//:flang_incs",
         "@llvm_linux_x86_64//:ar",
         "@llvm_linux_x86_64//:clang++",
         "@llvm_linux_x86_64//:distro_libs",
@@ -72,7 +73,7 @@ fortran_toolchain(
     ],
     compiler_files = ":compiler",
     flang = "@llvm_linux_x86_64//:flang",
-    flang_incs = "@llvm_linux_aarch64//:flang_incs",
+    flang_incs = "@llvm_linux_x86_64//:flang_incs",
     fortran_libs = "@llvm_linux_aarch64//:fortran_libs",
     fortran_main = "@llvm_linux_aarch64//:fortran_main",
     linker = "@llvm_linux_x86_64//:clang++",
