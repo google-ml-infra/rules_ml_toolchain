@@ -86,7 +86,7 @@ filegroup(
 
 # LLVM18 needs libtinfo.so.5 library as part of ubuntu 18 distributive
 filegroup(
-    name = "runtime_libs",
+    name = "distro_libs",
     srcs = [
         "lib/libtinfo.so.5",
     ],
@@ -171,6 +171,16 @@ cc_toolchain_import(
         ":libc++",
         ":libc++abi",
         ":libunwind",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain_import(
+    name = "distro_libs",
+    additional_libs = [
+        "lib/libicudata.so.66",
+        "lib/libicuuc.so.66",
+        "lib/libxml2.so.2",
     ],
     visibility = ["//visibility:public"],
 )

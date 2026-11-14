@@ -71,6 +71,7 @@ cc_toolchain_import(
         "@sysroot_linux_aarch64//:sys_libs",
         "@sysroot_linux_aarch64//:openmp",
         "@llvm_linux_aarch64//:libclang_rt",
+        "@llvm_linux_aarch64//:distro_libs",
     ],
     visibility = ["//visibility:public"],
 )

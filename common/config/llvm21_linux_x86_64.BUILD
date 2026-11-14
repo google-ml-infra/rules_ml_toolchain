@@ -173,6 +173,16 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
+cc_toolchain_import(
+    name = "distro_libs",
+    additional_libs = [
+        "lib/libicudata.so.66",
+        "lib/libicuuc.so.66",
+        "lib/libxml2.so.2",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 #============================================================================================
 # Sanitizers
 

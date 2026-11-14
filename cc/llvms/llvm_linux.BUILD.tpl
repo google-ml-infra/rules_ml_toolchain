@@ -106,6 +106,12 @@ alias(
 )
 
 alias(
+    name = "distro_libs",
+    actual = "@@%{llvm_repo_name}//:distro_libs",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "asan_ignorelist",
     actual = "@@%{llvm_repo_name}//:asan_ignorelist",
     visibility = ["//visibility:public"],
