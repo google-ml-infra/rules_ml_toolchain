@@ -86,7 +86,7 @@ filegroup(
 
 # Stub for LLVM 18 Linux x86_64, leave it for backward compatibility
 filegroup(
-    name = "distro_libs",
+    name = "runtime_libs",
     srcs = [ ],
     visibility = ["//visibility:public"],
 )
@@ -169,16 +169,6 @@ cc_toolchain_import(
         ":libc++",
         ":libc++abi",
         ":libunwind",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-cc_toolchain_import(
-    name = "distro_libs",
-    additional_libs = [
-        "lib/liblzma.so.5",
-        "lib/libxml2.so.2",
-        "lib/libz.so.1",
     ],
     visibility = ["//visibility:public"],
 )

@@ -79,25 +79,6 @@ reconstruction error: 4.884981e-15
 
 See `lu.m`, `chol.m`, and `svd.m` for full MATLAB equivalents.
 
-## SGEDMDQ (DMD)
-
-Recovers the eigenvalues [0.9, 0.5, 0.2] of a linear system from four snapshots of its trajectory (Dynamic Mode Decomposition).
-
-```
-bazel run //lapack:dmd
-```
-
-```
- DMD eigenvalues:
-  lambda(1) =     0.900001  (expected:     0.900000)
-  lambda(2) =     0.500000  (expected:     0.500000)
-  lambda(3) =     0.200000  (expected:     0.200000)
-max error:   8.34E-07
-max residual:   4.54E-07
-```
-
-`SGEDMD`/`SGEDMDQ` import an intrinsic module (`USE, INTRINSIC :: iso_fortran_env`), as does `dmd.f90`, so this example also exercises the compiler's intrinsic module lookup.
-
 ## Netlib test suite
 
 This directory also includes the full [LAPACK test suite from Netlib](https://www.netlib.org/lapack/), built from source -- LIN, EIG, DMD, mixed precision, and RFP routines across all four precisions (s/d/c/z).

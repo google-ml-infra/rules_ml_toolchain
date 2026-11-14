@@ -45,7 +45,6 @@ cc_toolchain_import(
         "@sysroot_darwin_aarch64//:sys_incs",
         "@sysroot_darwin_aarch64//:sys_libs",
         "@llvm_darwin_aarch64//:libclang_rt",
-        "@llvm_linux_x86_64//:distro_libs",
     ],
     visibility = ["//visibility:public"],
 )

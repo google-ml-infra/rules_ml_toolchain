@@ -25,14 +25,6 @@ fortran_test(
     deps = ["@lapack//:double"],
 )
 
-# Dynamic Mode Decomposition demo (SGEDMDQ)
-fortran_test(
-    name = "dmd",
-    srcs = ["dmd.f90"],
-    copts = ["-O2"],
-    deps = ["@lapack//:single"],
-)
-
 # Selective compilation
 fortran_test(
     name = "mixed",

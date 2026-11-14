@@ -121,7 +121,6 @@ cc_toolchain_import(
         ":std_libs",
         "@sysroot_linux_x86_64//:sys_libs",
         "@llvm_linux_x86_64//:libclang_rt",
-        "@llvm_linux_x86_64//:distro_libs",
     ],
     visibility = ["//visibility:public"],
 )

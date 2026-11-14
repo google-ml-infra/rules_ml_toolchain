@@ -173,16 +173,6 @@ cc_toolchain_import(
     visibility = ["//visibility:public"],
 )
 
-cc_toolchain_import(
-    name = "distro_libs",
-    additional_libs = [
-        "lib/liblzma.so.5",
-        "lib/libxml2.so.2",
-        "lib/libz.so.1",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 #============================================================================================
 # Sanitizers
 
