@@ -43,9 +43,9 @@ SYNOPSIS:
 REQUIRED ENVIRONMENT VARIABLES (set by the rocm_hipcc_feature of the toolchain):
   GCC_PATH: Path to the host compiler (clang)
   HIPCC_PATH: Path to the hipcc compiler
-  ROCM_PATH: Path to the ROCm installation
   ROCM_CLANG_RESOURCES_DIR: Resource directory of ROCm's clang, relative to
-                ROCM_PATH. The cuda_wrappers headers are looked up below it.
+                the ROCm root passed as --rocm-path. The cuda_wrappers headers
+                are looked up below it.
 
 OPTIONAL ENVIRONMENT VARIABLES:
   HOST_SYSROOT: Sysroot path for host (CPU) compilation. If set, uses this system
@@ -90,7 +90,6 @@ def RequiredEnv(name):
 # Get paths from environment variables set by toolchain features
 CPU_COMPILER = RequiredEnv("GCC_PATH")
 HIPCC_PATH = RequiredEnv("HIPCC_PATH")
-ROCM_PATH = RequiredEnv("ROCM_PATH")
 ROCM_CLANG_RESOURCES_DIR = RequiredEnv("ROCM_CLANG_RESOURCES_DIR")
 
 # Optional: system sysroot for host compilation
@@ -242,7 +241,9 @@ def InvokeHipcc(argv, log=False):
     parser.add_argument("-no-canonical-prefixes", action="store_true")
     args, _ = parser.parse_known_args(argv)
 
-    rocm_path_arg = args.rocm_path[0] if args.rocm_path else ROCM_PATH
+    # The toolchain's rocm_hipcc_feature puts --rocm-path on every compile and
+    # link command line.
+    rocm_path_arg = args.rocm_path[0]
 
     # Build options for GPU compilation
     # Only include project-specific includes, filter out hermetic LLVM
@@ -545,7 +546,6 @@ def main():
     if VERBOSE:
         Log("PWD=" + os.getcwd())
         Log("HIPCC_PATH=" + HIPCC_PATH)
-        Log("ROCM_PATH=" + ROCM_PATH)
 
     if args.x and args.x[0] == "rocm":
         # GPU compilation mode

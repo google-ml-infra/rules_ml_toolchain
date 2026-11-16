@@ -84,7 +84,6 @@ def _rocm_hipcc_feature_impl(ctx):
     # duplicate environment variable errors.
     env_entries = [
         env_entry("HIPCC_PATH", hipcc_path),
-        env_entry("ROCM_PATH", rocm_path),
         env_entry("ROCM_CLANG_VERSION", ctx.attr.clang_version),
         env_entry("ROCM_CLANG_RESOURCES_DIR", ctx.attr.clang_resources_dir),
     ]
@@ -175,8 +174,8 @@ rocm_hipcc_feature = rule(
     doc = """
 Creates a toolchain feature for ROCm/HIP compilation.
 
-This feature sets environment variables (HIPCC_PATH, ROCM_PATH,
-ROCM_CLANG_VERSION, GCC_PATH) that are read by the hipcc_wrapper script,
+This feature sets environment variables (HIPCC_PATH, ROCM_CLANG_VERSION, GCC_PATH) 
+that are read by the hipcc_wrapper script,
 and adds compiler flags for ROCm compilation (--rocm-path, --offload-arch).
 
 The hipcc_wrapper constructs paths to ROCm's LLVM headers (cuda_wrappers and builtins)
