@@ -28,7 +28,6 @@ load(
     "execute",
     "files_exist",
     "get_bash_bin",
-    "get_python_bin",
 )
 # No longer need download logic - consumers handle downloads
 
@@ -76,15 +75,52 @@ def _amdgpu_targets(repository_ctx, rocm_toolkit_path, bash_bin):
             auto_configure_fail("Invalid AMDGPU target: %s" % amdgpu_target)
     return amdgpu_targets
 
-def find_rocm_config(repository_ctx):
-    """Returns ROCm config dictionary from running find_rocm_config.py"""
-    python_bin = get_python_bin(repository_ctx)
-    exec_result = execute(repository_ctx, [python_bin, repository_ctx.attr._find_rocm_config], env_vars = {"ROCM_PATH": _DISTRIBUTION_PATH})
-    if exec_result.return_code:
-        auto_configure_fail("Failed to run find_rocm_config.py: %s" % err_out(exec_result))
+def _clang_info(repository_ctx):
+    """Returns version and resource directory of the distribution's clang.
 
-    # Parse the dict from stdout.
-    return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])
+    Both are queried from clang itself rather than guessed from the directory
+    layout: the resource directory is where clang looks for its own headers
+    (cuda_wrappers among them), and only clang knows which one it picks.
+
+    Args:
+      repository_ctx: The repository context.
+
+    Returns:
+      A struct with a clang_version field holding the major version, e.g. "22",
+      and a clang_resources_dir field holding the resource directory relative
+      to the distribution root, e.g. "lib/llvm/lib/clang/22".
+    """
+    clang = repository_ctx.path(_DISTRIBUTION_PATH + "/lib/llvm/bin/clang")
+    if not clang.exists:
+        auto_configure_fail("clang not found in the ROCm distribution: %s" % clang)
+
+    def ask_clang(argument):
+        result = execute(repository_ctx, [str(clang), argument])
+        if result.return_code:
+            auto_configure_fail(
+                "Failed to run %s %s: %s" % (clang, argument, err_out(result)),
+            )
+        return result.stdout.strip()
+
+    # -dumpversion prints the bare version, e.g. "22.0.0git", unlike --version
+    # which embeds it in a vendor and git revision banner. Only the major
+    # version is of interest, it is what names clang's resource directory.
+    clang_version = ask_clang("-dumpversion").split(".")[0]
+
+    # clang reports an absolute path; the configuration has to stay relative to
+    # the distribution so that it can be used from a build action.
+    resources_dir = repository_ctx.path(ask_clang("-print-resource-dir"))
+    distribution_dir = repository_ctx.path(_DISTRIBUTION_PATH).realpath
+    if not str(resources_dir).startswith(str(distribution_dir) + "/"):
+        auto_configure_fail(
+            "clang resource directory %s is outside of the ROCm " % resources_dir +
+            "distribution %s" % distribution_dir,
+        )
+
+    return struct(
+        clang_version = clang_version,
+        clang_resources_dir = str(resources_dir)[len(str(distribution_dir)) + 1:],
+    )
 
 def _hipcc_env(repository_ctx):
     """Returns the environment variable string for hipcc.
@@ -123,23 +159,18 @@ def _get_rocm_config(repository_ctx, bash_bin, install_path):
       A struct containing the following fields:
         rocm_toolkit_path: The ROCm toolkit installation directory.
         amdgpu_targets: A list of the system's AMDGPU targets.
-        rocm_version_number: The version of ROCm on the system.
-        hipruntime_version_number: The version of HIP Runtime on the system.
         clang_version: The clang version in ROCm's LLVM.
+        clang_resources_dir: Resource dir of ROCm's clang, relative to the
+          distribution root.
         install_path: Original install path.
         rocm_lib_paths: List of lib paths (for multiple paths setup).
     """
-    config = find_rocm_config(repository_ctx)
-    rocm_toolkit_path = config["rocm_toolkit_path"]
-    rocm_version_number = config["rocm_version_number"]
-    hipruntime_version_number = config["hipruntime_version_number"]
-    clang_version = config.get("clang_version", "")
+    clang_info = _clang_info(repository_ctx)
     return struct(
-        amdgpu_targets = _amdgpu_targets(repository_ctx, rocm_toolkit_path, bash_bin),
-        rocm_toolkit_path = rocm_toolkit_path,
-        rocm_version_number = rocm_version_number,
-        hipruntime_version_number = hipruntime_version_number,
-        clang_version = clang_version,
+        amdgpu_targets = _amdgpu_targets(repository_ctx, _DISTRIBUTION_PATH, bash_bin),
+        rocm_toolkit_path = _DISTRIBUTION_PATH,
+        clang_version = clang_info.clang_version,
+        clang_resources_dir = clang_info.clang_resources_dir,
         install_path = install_path,
     )
 
@@ -241,10 +272,9 @@ def _create_dummy_repository(repository_ctx):
         "%{repo_name}": repository_ctx.name,
         "%{rocm_root}": "empty",
         "%{rocm_gpu_architectures}": "[]",
-        "%{rocm_version_number}": "0",
-        "%{hipruntime_version_number}": "0",
         "%{hipcc_path}": "",
         "%{clang_version}": "",
+        "%{clang_resources_dir}": "",
     }
 
     _tpl(repository_ctx, "rocm:BUILD", stub_dict)
@@ -253,8 +283,6 @@ def _create_dummy_repository(repository_ctx):
 def _setup_rocm_repository(repository_ctx):
     """Sets up the ROCm repository when ROCm is enabled."""
     rocm_config = _setup_rocm_distro_dir(repository_ctx)
-    rocm_version_number = int(rocm_config.rocm_version_number)
-    hipruntime_version_number = int(rocm_config.hipruntime_version_number)
 
     # Handle hermetic vs non-hermetic ROCm
     if rocm_config.install_path:
@@ -281,10 +309,9 @@ def _setup_rocm_repository(repository_ctx):
         "%{rocm_root}": rocm_toolkit_path,
         "%{rocm_source_repo}": rocm_source_repo,
         "%{rocm_gpu_architectures}": str(rocm_config.amdgpu_targets),
-        "%{rocm_version_number}": str(rocm_version_number),
-        "%{hipruntime_version_number}": str(hipruntime_version_number),
         "%{hipcc_path}": hipcc_path_relative,
         "%{clang_version}": rocm_config.clang_version,
+        "%{clang_resources_dir}": rocm_config.clang_resources_dir,
         "%{hipcc_env}": _hipcc_env(repository_ctx),
     }
 
@@ -315,9 +342,6 @@ hipcc_configure = repository_rule(
             mandatory = True,
             doc = "Label to the ROCm distribution " +
                   "(e.g. @rocm_hermetic_dist//:rocm_root or @local_config_rocm//:rocm_root).",
-        ),
-        "_find_rocm_config": attr.label(
-            default = Label("//gpu/rocm:find_rocm_config.py"),
         ),
     },
 )
