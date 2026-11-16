@@ -180,6 +180,23 @@ def _remove_root_dir(path, root_dir):
         return path[len(root_dir) + 1:]
     return path
 
+def _watch_rocm_distro(repository_ctx, rocm_dist_path):
+    """Registers a dependency on the whole ROCm distribution.
+
+    The distribution is only reached through a symlink and is inspected by a
+    subprocess, neither of which Bazel can see, so nothing would otherwise tie
+    this repository to the distribution's contents: swapping the distribution
+    would leave the generated BUILD/build_defs.bzl (ROCm version, HIP runtime
+    version, clang version, ...) stale. Watching the whole tree re-runs the
+    configuration whenever anything in the distribution changes, including
+    between distributions that report the same ROCm version.
+
+    Args:
+        repository_ctx: The repository context.
+        rocm_dist_path: Path of the ROCm distribution directory.
+    """
+    repository_ctx.watch_tree(rocm_dist_path)
+
 # Removed: _setup_rocm_from_multiple_paths - only hermetic builds supported
 
 def _setup_rocm_distro_dir(repository_ctx):
@@ -204,6 +221,8 @@ def _setup_rocm_distro_dir(repository_ctx):
     auto_configure_warning("Using hermetic ROCm from: {}".format(rocm_source_repo))
 
     repository_ctx.symlink(rocm_dist_path, _DISTRIBUTION_PATH)
+
+    _watch_rocm_distro(repository_ctx, rocm_dist_path)
 
     rocm_config_with_source = _get_rocm_config(repository_ctx, bash_bin, "")
 

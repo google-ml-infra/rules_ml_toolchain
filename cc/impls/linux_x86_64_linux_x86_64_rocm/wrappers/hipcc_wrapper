@@ -291,8 +291,19 @@ def InvokeHipcc(argv, log=False):
     # Add cuda_wrappers BEFORE any system includes
     # This provides device-compatible versions of <new>, <cmath>, <algorithm>, etc.
     rocm_cuda_wrappers = os.path.join(
-        rocm_path_arg, "lib/llvm/lib/clang", ROCM_CLANG_VERSION, "include/cuda_wrappers"
+        rocm_path_arg,
+        "lib/llvm/lib/clang",
+        ROCM_CLANG_VERSION,
+        "include/cuda_wrappers",
     )
+    if not os.path.isdir(rocm_cuda_wrappers):
+        sys.stderr.write(
+            "hipcc_wrapper: cuda_wrappers directory not found: {0}\n".format(
+                rocm_cuda_wrappers
+            )
+        )
+        return 1
+
     cmd.extend(["-isystem", rocm_cuda_wrappers])
 
     # Define __device__ as a macro so cuda_wrappers headers work correctly
