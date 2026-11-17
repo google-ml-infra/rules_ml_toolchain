@@ -84,9 +84,8 @@ def _rocm_hipcc_feature_impl(ctx):
     # duplicate environment variable errors.
     env_entries = [
         env_entry("HIPCC_PATH", hipcc_path),
-        env_entry("ROCM_PATH", rocm_path),
-        env_entry("HIPCC_VERSION", ctx.attr.version),
         env_entry("ROCM_CLANG_VERSION", ctx.attr.clang_version),
+        env_entry("ROCM_CLANG_RESOURCES_DIR", ctx.attr.clang_resources_dir),
     ]
 
     # Build compiler flags (common to both C and C++)
@@ -148,10 +147,6 @@ rocm_hipcc_feature = rule(
             allow_single_file = True,
             doc = "Label pointing to the host compiler (clang).",
         ),
-        "version": attr.string(
-            mandatory = True,
-            doc = "The ROCm/HIP version string.",
-        ),
         "amdgpu_targets": attr.string_list(
             default = [],
             doc = "List of AMDGPU targets (e.g., gfx906, gfx908).",
@@ -166,15 +161,21 @@ rocm_hipcc_feature = rule(
         ),
         "clang_version": attr.string(
             default = "",
-            doc = "The clang version in ROCm's LLVM (e.g., '22', '21').",
+            doc = "The clang version in ROCm's LLVM (e.g., '22.0.0git').",
+        ),
+        "clang_resources_dir": attr.string(
+            default = "",
+            doc = "Resource directory of ROCm's clang, relative to the ROCm " +
+                  "root (e.g., 'lib/llvm/lib/clang/22'). The cuda_wrappers " +
+                  "headers live below it.",
         ),
     },
     provides = [FeatureInfo],
     doc = """
 Creates a toolchain feature for ROCm/HIP compilation.
 
-This feature sets environment variables (HIPCC_PATH, ROCM_PATH, HIPCC_VERSION,
-ROCM_CLANG_VERSION, GCC_PATH) that are read by the hipcc_wrapper script,
+This feature sets environment variables (HIPCC_PATH, ROCM_CLANG_VERSION, GCC_PATH) 
+that are read by the hipcc_wrapper script,
 and adds compiler flags for ROCm compilation (--rocm-path, --offload-arch).
 
 The hipcc_wrapper constructs paths to ROCm's LLVM headers (cuda_wrappers and builtins)
