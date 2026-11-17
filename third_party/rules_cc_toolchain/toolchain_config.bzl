@@ -514,6 +514,11 @@ def _create_artifact_name_patterns(ctx):
                 prefix = "",
                 extension = ".if.lib",
             ),
+            artifact_name_pattern(
+                category_name = "cpp_module",
+                prefix = "",
+                extension = ".pcm",
+            ),
         ]
 
     artifact_name_patterns = []
