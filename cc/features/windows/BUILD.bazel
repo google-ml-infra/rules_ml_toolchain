@@ -146,11 +146,14 @@ cc_feature(
         # (e.g., XLA, TensorFlow/TSL) that check COMPILER_MSVC for Windows/MSVC-compatible builds.
         "/DCOMPILER_MSVC",
         "/DNOMINMAX",
+        "/DWIN32_LEAN_AND_MEAN",
+        "/DNOGDI",
         "/D_CRT_SECURE_NO_DEPRECATE",
         "/D_CRT_SECURE_NO_WARNINGS",
         # Prevents conflicting _m_prefetchw declarations between Clang's prfchwintrin.h
         # and MSVC's intrin0.inl.h when building on Windows with clang-cl.
         "/D__PRFCHWINTRIN_H",
+        "/Zc:preprocessor",
         "/bigobj",
         "/Zm500",
         "/EHsc",
