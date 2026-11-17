@@ -152,6 +152,9 @@ cc_feature(
     flags = [
         "-nobuiltininc",
         "-no-canonical-prefixes",
+        # Matches Bazel's default Windows toolchain flags; required by projects
+        # (e.g., XLA, TensorFlow/TSL) that check COMPILER_MSVC for Windows/MSVC-compatible builds.
+        "/DCOMPILER_MSVC",
         "/DNOMINMAX",
         "/D_CRT_SECURE_NO_DEPRECATE",
         "/D_CRT_SECURE_NO_WARNINGS",
