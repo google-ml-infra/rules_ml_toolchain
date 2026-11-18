@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+load("@rules_ml_toolchain//gpu/cuda:static_library.bzl", "cuda_static_import")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
@@ -29,7 +30,7 @@ cc_import(
     static_library = "lib/libnvrtc-builtins_static.alt.a",
 )
 
-cc_import(
+cuda_static_import(
     name = "nvrtc_static",
     static_library = "lib/libnvrtc_static.a",
 )
@@ -39,7 +40,7 @@ cc_import(
     static_library = "lib/libnvrtc-builtins_static.a",
 )
 
-cc_import(
+cuda_static_import(
     name = "nvrtc_static_alt",
     static_library = "lib/libnvrtc_static.alt.a",
 )

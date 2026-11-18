@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+load("@rules_ml_toolchain//gpu/cuda:static_library.bzl", "cuda_static_import")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 
@@ -19,7 +20,7 @@ cc_import(
     shared_library = "lib/libnvfatbin.so.%{libnvfatbin_version}",
 )
 
-cc_import(
+cuda_static_import(
     name = "nvfatbin_static_library",
     hdrs = [":headers"],
     static_library = "lib/libnvfatbin_static.a",

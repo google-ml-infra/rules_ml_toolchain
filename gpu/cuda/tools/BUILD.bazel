@@ -1,0 +1,7 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary(
+    name = "ctors_to_init_array",
+    srcs = ["ctors_to_init_array.cc"],
+    visibility = ["//visibility:public"],
+)

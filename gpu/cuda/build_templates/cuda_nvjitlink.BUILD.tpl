@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+load("@rules_ml_toolchain//gpu/cuda:static_library.bzl", "cuda_static_import")
 
 licenses(["restricted"])  # NVIDIA proprietary license
 load(
@@ -18,10 +19,13 @@ cc_import(
     shared_library = "lib/libnvJitLink.so.%{libnvjitlink_version}",
 )
 
-cc_import(
+cuda_static_import(
     name = "nvjitlink_static_library",
     hdrs = [":headers"],
     static_library = "lib/libnvJitLink_static.a",
+    # libnvJitLink_static.a calls into libnvptxcompiler_static.a, which NVIDIA
+    # requires to be linked after it.
+    deps = ["@cuda_nvcc//:nvptxcompiler"],
 )
 %{multiline_comment}
 cc_library(
