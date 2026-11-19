@@ -108,11 +108,19 @@ cc_toolchain_import(
 
 cc_toolchain_import_asan_feature(
     name = "asan",
+    link_mode_flags = select({
+        "//common:is_dynamic_sanitizer_runtime": ["-shared-libsan"],
+        "//conditions:default": [],
+    }),
     toolchain_import = ":asan_import",
 )
 
 cc_toolchain_import_tsan_feature(
     name = "tsan",
+    link_mode_flags = select({
+        "//common:is_dynamic_sanitizer_runtime": ["-shared-libsan"],
+        "//conditions:default": [],
+    }),
     toolchain_import = ":tsan_import",
 )
 

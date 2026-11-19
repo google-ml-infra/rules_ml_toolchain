@@ -170,6 +170,21 @@ config_setting(
     },
 )
 
+# Controls whether the ASan/TSan sanitizer runtime is linked dynamically
+# (clang's `-shared-libsan`) instead of the default static link. Enable with
+# '--@rules_ml_toolchain//common:dynamic_sanitizer_runtime'.
+bool_flag(
+    name = "dynamic_sanitizer_runtime",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "is_dynamic_sanitizer_runtime",
+    flag_values = {
+        ":dynamic_sanitizer_runtime": "True",
+    },
+)
+
 #######################################################
 # Enable CUDA support flags
 #

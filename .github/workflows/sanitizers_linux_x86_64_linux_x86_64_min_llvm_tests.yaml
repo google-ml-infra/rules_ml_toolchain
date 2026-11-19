@@ -60,8 +60,14 @@ jobs:
       - name: "Bzlmod. ASan Clang 18, Glibc 2.27 | Testing..."
         run: bazel test --cxxopt="-std=c++17" --color=yes --config=asan --config=bzlmod //cc/sanitizers/tests:asan_test
 
+      - name: "Dynamic ASan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --cxxopt="-std=c++17" --color=yes --config=asan_dynamic //cc/sanitizers/tests:asan_test
+
       - name: "TSan Clang 18, Glibc 2.27 | Testing..."
         run: bazel test --cxxopt="-std=c++17" --color=yes --config=tsan --config=tsan_test //cc/sanitizers/tests:tsan_test
+
+      - name: "Dynamic TSan Clang 18, Glibc 2.27 | Testing..."
+        run: bazel test --cxxopt="-std=c++17" --color=yes --config=tsan_dynamic --config=tsan_test //cc/sanitizers/tests:tsan_test
 
       - name: "Bzlmod. TSan Clang 18, Glibc 2.27 | Testing..."
         run: bazel test --cxxopt="-std=c++17" --color=yes --config=tsan --config=tsan_test --config=bzlmod //cc/sanitizers/tests:tsan_test
