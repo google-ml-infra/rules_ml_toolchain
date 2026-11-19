@@ -25,24 +25,48 @@ def sanitizer_wrapper(
         lsan_ignore_list = None,
         tsan_ignore_list = None,
         run_under = None,
-        additional_data = [],
+        extra_sanitizer_rt = [],
+        data = [],
         tags = ["manual"],
         visibility = None):
     """Creates a sanitizer wrapper binary that configures symbolizer and options.
 
     Args:
         name: Name of the sh_binary wrapper target
-        llvm_symbolizer: Label to llvm-symbolizer binary
+        llvm_symbolizer: Label to llvm-symbolizer binary. The sanitizer
+            runtime shared library (e.g. libclang_rt.asan.so) needed by
+            dynamic sanitizer builds is derived automatically from the same
+            package as this label, via its ":rt_asan"/":rt_tsan" sibling
+            targets -- every toolchain distro repo in this project exposes
+            those cc_toolchain_import targets next to its llvm-symbolizer
+            binary, already correctly populated for that version.
         asan_options: ASAN_OPTIONS string
         tsan_options: TSAN_OPTIONS string
         asan_ignore_list: Optional ASAN ignore list file
         lsan_ignore_list: Optional LSAN ignore list file
         tsan_ignore_list: Optional TSAN ignore list file
         run_under: Optional script to run under (e.g., parallel_gpu_execute)
-        additional_data: Additional data dependencies
+        extra_sanitizer_rt: Optional sanitizer runtime targets to prefer over
+            the automatically derived default (e.g. a vendor-specific
+            prebuilt library that needs a matching, differently-versioned
+            runtime). Checked in list order, ahead of the default.
+        data: Additional data dependencies unrelated to the sanitizer
+            runtime (e.g. a `rocminfo` binary needed by run_under).
         tags: Tags for the sh_binary
         visibility: Visibility of the target
     """
+
+    # Every toolchain distro repo in this project exposes ":rt_asan"/":rt_tsan"
+    # cc_toolchain_import targets (the same ones the "asan"/"tsan" toolchain
+    # features link against) in the same package as its llvm-symbolizer
+    # binary, already correctly populated with that version's dynamic
+    # sanitizer runtimes -- derive them automatically instead of asking every
+    # caller to wire up a runtime location by hand.
+    symbolizer_label = Label(llvm_symbolizer)
+    sanitizer_rt = list(extra_sanitizer_rt) + [
+        symbolizer_label.same_package_label("rt_asan"),
+        symbolizer_label.same_package_label("rt_tsan"),
+    ]
 
     # Generate wrapper script
     script_name = name + "_script"
@@ -54,6 +78,7 @@ def sanitizer_wrapper(
         lsan_ignore_list = lsan_ignore_list,
         tsan_ignore_list = tsan_ignore_list,
         run_under = run_under,
+        sanitizer_rt = sanitizer_rt,
     )
 
     ignore_lists = []
@@ -64,7 +89,7 @@ def sanitizer_wrapper(
     if tsan_ignore_list:
         ignore_lists.append(tsan_ignore_list)
 
-    data_deps = [llvm_symbolizer] + ignore_lists + additional_data
+    data_deps = [llvm_symbolizer] + ignore_lists + sanitizer_rt + data
     if run_under:
         data_deps.append(run_under)
 
@@ -78,6 +103,7 @@ def sanitizer_wrapper(
 
 def _sanitizer_wrapper_script_impl(ctx):
     """Generate sanitizer wrapper script from template."""
+
     # Helper to get runfiles path for a file
     def get_runfiles_path(file):
         # For external repos, short_path starts with ../repo_name/
@@ -103,6 +129,19 @@ def _sanitizer_wrapper_script_impl(ctx):
     if ctx.attr.tsan_ignore_list:
         tsan_opts.append('suppressions="${wrapper_runfiles}/' + get_runfiles_path(ctx.file.tsan_ignore_list) + '"')
 
+    # Dynamic sanitizer builds need libclang_rt.{asan,tsan,...}.so on the
+    # loader path. Resolve it here (analysis time) rather than searching
+    # runfiles at run time, so the result is deterministic: the first
+    # sanitizer_rt target (in BUILD-declared order) that carries a matching
+    # runtime wins. This lets callers put a vendor-specific sanitizer runtime
+    # (e.g. one matching an ASan-instrumented SDK build) ahead of the
+    # automatically derived toolchain default.
+    sanitizer_lib_dir = ""
+    for f in ctx.files.sanitizer_rt:
+        if f.basename.startswith("libclang_rt.") and f.basename.endswith(".so") and "-" not in f.basename:
+            sanitizer_lib_dir = "/".join(get_runfiles_path(f).split("/")[:-1])
+            break
+
     # Build exec command
     if ctx.attr.run_under:
         # For executables, use the executable's runfiles path
@@ -127,6 +166,7 @@ def _sanitizer_wrapper_script_impl(ctx):
             "{LSAN_BASE_OPTIONS}": ":".join(lsan_opts),
             "{TSAN_BASE_OPTIONS}": ":".join(tsan_opts),
             "{RUN_UNDER_EXEC}": exec_cmd,
+            "{SANITIZER_LIB_DIR}": sanitizer_lib_dir,
         },
         is_executable = True,
     )
@@ -142,6 +182,7 @@ _sanitizer_wrapper_script = rule(
         "lsan_ignore_list": attr.label(allow_single_file = True),
         "tsan_ignore_list": attr.label(allow_single_file = True),
         "run_under": attr.label(executable = True, cfg = "target"),
+        "sanitizer_rt": attr.label_list(allow_files = True),
         "template": attr.label(
             default = Label("//cc/sanitizers:sanitizer_wrapper.sh.tpl"),
             allow_single_file = True,

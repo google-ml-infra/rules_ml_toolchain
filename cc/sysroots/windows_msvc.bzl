@@ -141,6 +141,31 @@ def _setup_msvc_env(rctx, vcvarsall):
             env_map[k.upper()] = v.strip()
     return env_map
 
+def _get_msvc_version(rctx, vc_path, env_map):
+    """Extract the exact MSVC toolset version from the environment or VC directory."""
+    vc_tools_ver = env_map.get("VCTOOLSVERSION", "")
+    if vc_tools_ver:
+        return vc_tools_ver
+
+    for env_val in [env_map.get("VCTOOLSINSTALLDIR", ""), env_map.get("INCLUDE", "")]:
+        for entry in env_val.split(";"):
+            norm = entry.strip().replace("/", "\\")
+            marker = "\\Tools\\MSVC\\"
+            idx = norm.find(marker)
+            if idx != -1:
+                rest = norm[idx + len(marker):].strip("\\")
+                ver = rest.split("\\", 1)[0]
+                if ver:
+                    return ver
+
+    default_ver_file = rctx.path(vc_path.rstrip("\\/") + "\\Auxiliary\\Build\\Microsoft.VCToolsVersion.default.txt")
+    if default_ver_file.exists:
+        ver = rctx.read(default_ver_file).strip()
+        if ver:
+            return ver
+
+    return "unknown"
+
 def _windows_msvc_impl(rctx):
     os_name = rctx.os.name.lower()
 
@@ -162,6 +187,9 @@ def _windows_msvc_impl(rctx):
             fail("VCVARSALL.BAT was not found under '%s'." % vc_path)
 
         env_map = _setup_msvc_env(rctx, vcvarsall)
+        msvc_version = _get_msvc_version(rctx, vc_path, env_map)
+        print("Found MSVC version %s at '%s'" % (msvc_version, vc_path))  # buildifier: disable=print
+
         msvc_path = env_map.get("PATH", "") or "msvc_not_found"
         msvc_include = env_map.get("INCLUDE", "") or "msvc_not_found"
         msvc_lib = env_map.get("LIB", "") or "msvc_not_found"

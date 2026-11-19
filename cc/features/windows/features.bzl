@@ -183,8 +183,10 @@ def _windows_include_paths_feature_impl(ctx):
                         ACTION_NAMES.cpp_compile,
                         ACTION_NAMES.cpp_header_parsing,
                         ACTION_NAMES.cpp_module_compile,
+                        ACTION_NAMES.cpp_module_codegen,
                         ACTION_NAMES.cpp_module_deps_scanning,
                         ACTION_NAMES.cpp20_module_compile,
+                        ACTION_NAMES.cpp20_module_codegen,
                     ],
                     flag_groups = [
                         flag_group(
@@ -213,7 +215,7 @@ windows_include_paths_feature = rule(
     provides = [FeatureInfo],
 )
 
-def _windows_external_include_paths_feature_impl(ctx):
+def _windows_includes_feature_impl(ctx):
     return [
         feature(
             name = ctx.label.name,
@@ -231,6 +233,49 @@ def _windows_external_include_paths_feature_impl(ctx):
                         ACTION_NAMES.cpp20_module_compile,
                     ],
                     flag_groups = [
+                        flag_group(
+                            flags = ["/FI%{includes}"],
+                            iterate_over = "includes",
+                            expand_if_available = "includes",
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
+
+windows_includes_feature = rule(
+    implementation = _windows_includes_feature_impl,
+    attrs = {
+        "enabled": attr.bool(default = True),
+    },
+    provides = [FeatureInfo],
+)
+
+def _windows_external_include_paths_feature_impl(ctx):
+    return [
+        feature(
+            name = ctx.label.name,
+            enabled = ctx.attr.enabled,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        ACTION_NAMES.preprocess_assemble,
+                        ACTION_NAMES.linkstamp_compile,
+                        ACTION_NAMES.c_compile,
+                        ACTION_NAMES.cpp_compile,
+                        ACTION_NAMES.cpp_header_parsing,
+                        ACTION_NAMES.cpp_module_compile,
+                        ACTION_NAMES.cpp_module_deps_scanning,
+                        ACTION_NAMES.cpp20_module_compile,
+                        ACTION_NAMES.clif_match,
+                        ACTION_NAMES.objc_compile,
+                        ACTION_NAMES.objcpp_compile,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = ["/external:W0"],
+                        ),
                         flag_group(
                             flags = ["/external:I%{external_include_paths}"],
                             iterate_over = "external_include_paths",
@@ -432,6 +477,16 @@ def _windows_input_param_flags_feature_impl(ctx):
                         flag_group(
                             flags = ["/IMPLIB:%{interface_library_output_path}"],
                             expand_if_available = "interface_library_output_path",
+                        ),
+                    ],
+                ),
+                flag_set(
+                    actions = ALL_LINK_ACTIONS,
+                    flag_groups = [
+                        flag_group(
+                            flags = ["%{libopts}"],
+                            iterate_over = "libopts",
+                            expand_if_available = "libopts",
                         ),
                     ],
                 ),
@@ -803,6 +858,7 @@ def _windows_compiler_output_flags_feature_impl(ctx):
                         ACTION_NAMES.cpp_header_parsing,
                         ACTION_NAMES.cpp_module_compile,
                         ACTION_NAMES.cpp_module_codegen,
+                        ACTION_NAMES.cpp_module_deps_scanning,
                         ACTION_NAMES.cpp20_module_compile,
                         ACTION_NAMES.cpp20_module_codegen,
                     ],

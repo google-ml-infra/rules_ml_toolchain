@@ -36,6 +36,7 @@ load(
     "windows_external_include_paths_feature",
     "windows_generate_pdb_file_feature",
     "windows_include_paths_feature",
+    "windows_includes_feature",
     "windows_input_param_flags_feature",
     "windows_linkstamps_feature",
     "windows_msvc_compile_env_feature",
@@ -136,25 +137,23 @@ cc_feature(
 
 cc_feature(
     name = "default_compile_flags",
-    actions = [
-        ACTION_NAMES.preprocess_assemble,
-        ACTION_NAMES.c_compile,
-        ACTION_NAMES.linkstamp_compile,
-        ACTION_NAMES.cpp_compile,
-        ACTION_NAMES.cpp_header_parsing,
-        ACTION_NAMES.cpp_module_compile,
-        ACTION_NAMES.cpp_module_codegen,
-        ACTION_NAMES.cpp_module_deps_scanning,
-        ACTION_NAMES.cpp20_module_compile,
-        ACTION_NAMES.cpp20_module_codegen,
-    ],
+    actions = ALL_COMPILE_ACTIONS,
     enabled = True,
     flags = [
         "-nobuiltininc",
         "-no-canonical-prefixes",
+        # Matches Bazel's default Windows toolchain flags; required by projects
+        # (e.g., XLA, TensorFlow/TSL) that check COMPILER_MSVC for Windows/MSVC-compatible builds.
+        "/DCOMPILER_MSVC",
         "/DNOMINMAX",
+        "/DWIN32_LEAN_AND_MEAN",
+        "/DNOGDI",
         "/D_CRT_SECURE_NO_DEPRECATE",
         "/D_CRT_SECURE_NO_WARNINGS",
+        # Prevents conflicting _m_prefetchw declarations between Clang's prfchwintrin.h
+        # and MSVC's intrin0.inl.h when building on Windows with clang-cl.
+        "/D__PRFCHWINTRIN_H",
+        "/Zc:preprocessor",
         "/bigobj",
         "/Zm500",
         "/EHsc",
@@ -191,6 +190,11 @@ windows_include_paths_feature(
     enabled = True,
 )
 
+windows_includes_feature(
+    name = "includes",
+    enabled = True,
+)
+
 windows_external_include_paths_feature(
     name = "external_include_paths",
 )
@@ -213,6 +217,10 @@ cc_feature(
 cc_feature(
     name = "shorten_virtual_includes",
     enabled = True,
+)
+
+cc_feature(
+    name = "skip_virtual_includes",
 )
 
 windows_generate_pdb_file_feature(
@@ -305,7 +313,7 @@ cc_feature(
     ],
     implies = [":generate_pdb_file"],
     linker_flags = [
-        "/DEBUG:FULL",
+        "/DEBUG",
         "/INCREMENTAL:NO",
     ],
     provides = ["compilation_mode"],
@@ -319,8 +327,10 @@ cc_feature(
         "/Z7",
     ],
     implies = [":generate_pdb_file"],
+    # LLVM's lld-link.exe does not support /DEBUG:FASTLINK, so Bazel's clang-cl
+    # toolchain uses /DEBUG for both dbg and fastbuild.
     linker_flags = [
-        "/DEBUG:FASTLINK",
+        "/DEBUG",
         "/INCREMENTAL:NO",
     ],
     provides = ["compilation_mode"],
@@ -347,11 +357,15 @@ cc_feature(
     ],
     enabled = True,
     flags = [
+        "/Brepro",
         "/wd4117",
         "-D__DATE__=\"redacted\"",
         "-D__TIMESTAMP__=\"redacted\"",
         "-D__TIME__=\"redacted\"",
         "-Wno-builtin-macro-redefined",
+    ],
+    linker_flags = [
+        "/Brepro",
     ],
 )
 

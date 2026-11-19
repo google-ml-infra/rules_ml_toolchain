@@ -55,13 +55,13 @@ ROCM_TOOLS = {
 rocm_hipcc_feature(
     name = "rocm_hipcc_feature",
     amdgpu_targets = hipcc_config().gpu_architectures,
+    clang_resources_dir = hipcc_config().clang_resources_dir,
     clang_version = hipcc_config().clang_version,
     enabled = True,
     hipcc_path = hipcc_config().hipcc_path,
     host_compiler = "@llvm_linux_x86_64//:clang",
     rocm_path = hipcc_config().rocm_path,
     rocm_toolkit = "@config_rocm_hipcc//rocm:toolchain_data",
-    version = str(hipcc_config().version_number),
     visibility = ["//visibility:public"],
 )
 
@@ -175,11 +175,19 @@ cc_toolchain_import(
 
 cc_toolchain_import_asan_feature(
     name = "asan",
+    link_mode_flags = select({
+        "//common:is_dynamic_sanitizer_runtime": ["-shared-libsan"],
+        "//conditions:default": [],
+    }),
     toolchain_import = ":asan_import",
 )
 
 cc_toolchain_import_tsan_feature(
     name = "tsan",
+    link_mode_flags = select({
+        "//common:is_dynamic_sanitizer_runtime": ["-shared-libsan"],
+        "//conditions:default": [],
+    }),
     toolchain_import = ":tsan_import",
 )
 
