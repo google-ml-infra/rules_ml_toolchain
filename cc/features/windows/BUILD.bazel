@@ -153,7 +153,6 @@ cc_feature(
         # Prevents conflicting _m_prefetchw declarations between Clang's prfchwintrin.h
         # and MSVC's intrin0.inl.h when building on Windows with clang-cl.
         "/D__PRFCHWINTRIN_H",
-        "/Zc:preprocessor",
         "/bigobj",
         "/Zm500",
         "/EHsc",
@@ -319,16 +318,17 @@ cc_feature(
     provides = ["compilation_mode"],
 )
 
+# Matches Bazel 9 / rules_cc (v0.2.19+, commit 06cda56) default Windows clang-cl
+# fastbuild behavior: omit /Z7 to avoid inflating .obj/.lib size and compile
+# time, while keeping /DEBUG and generate_pdb_file (lld-link.exe does not
+# support /DEBUG:FASTLINK). Use -c dbg for full debug symbols (/Z7).
 cc_feature(
     name = "fastbuild",
     actions = MSVC_CL_COMPILE_ACTIONS,
     flags = [
         "/Od",
-        "/Z7",
     ],
     implies = [":generate_pdb_file"],
-    # LLVM's lld-link.exe does not support /DEBUG:FASTLINK, so Bazel's clang-cl
-    # toolchain uses /DEBUG for both dbg and fastbuild.
     linker_flags = [
         "/DEBUG",
         "/INCREMENTAL:NO",
