@@ -27,6 +27,7 @@ def sanitizer_wrapper(
         run_under = None,
         extra_sanitizer_rt = [],
         data = [],
+        additional_data = [],
         tags = ["manual"],
         visibility = None):
     """Creates a sanitizer wrapper binary that configures symbolizer and options.
@@ -52,6 +53,8 @@ def sanitizer_wrapper(
             runtime). Checked in list order, ahead of the default.
         data: Additional data dependencies unrelated to the sanitizer
             runtime (e.g. a `rocminfo` binary needed by run_under).
+        additional_data: Deprecated alias for `data`, kept for backward
+            compatibility with existing callers (e.g., XLA).
         tags: Tags for the sh_binary
         visibility: Visibility of the target
     """
@@ -89,9 +92,13 @@ def sanitizer_wrapper(
     if tsan_ignore_list:
         ignore_lists.append(tsan_ignore_list)
 
-    data_deps = [llvm_symbolizer] + ignore_lists + sanitizer_rt + data
+    data_deps = [llvm_symbolizer] + ignore_lists + sanitizer_rt
     if run_under:
         data_deps.append(run_under)
+    if data:
+        data_deps = data_deps + data
+    if additional_data:
+        data_deps = data_deps + additional_data
 
     sh_binary(
         name = name,
