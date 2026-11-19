@@ -153,7 +153,6 @@ cc_feature(
         # Prevents conflicting _m_prefetchw declarations between Clang's prfchwintrin.h
         # and MSVC's intrin0.inl.h when building on Windows with clang-cl.
         "/D__PRFCHWINTRIN_H",
-        "/Zc:preprocessor",
         "/bigobj",
         "/Zm500",
         "/EHsc",
