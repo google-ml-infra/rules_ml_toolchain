@@ -71,8 +71,13 @@ def sanitizer_wrapper(
         symbolizer_label.same_package_label("rt_tsan"),
     ]
 
-    # Generate wrapper script
+    # Generate wrapper script (always tag as manual so wildcard builds like
+    # //build_tools/... do not build the internal helper and pull Linux LLVM
+    # sanitizer runtimes on non-Linux hosts).
     script_name = name + "_script"
+    script_tags = list(tags) if tags else []
+    if "manual" not in script_tags:
+        script_tags.append("manual")
     _sanitizer_wrapper_script(
         name = script_name,
         asan_options = asan_options,
@@ -82,6 +87,7 @@ def sanitizer_wrapper(
         tsan_ignore_list = tsan_ignore_list,
         run_under = run_under,
         sanitizer_rt = sanitizer_rt,
+        tags = script_tags,
     )
 
     ignore_lists = []
