@@ -709,7 +709,19 @@ def _linker_input_filters_impl(ctx):
     for filter, name in ctx.attr.common_lib_filters.items():
         filter_li = filter[CcInfo].linking_context.linker_inputs.to_list()
         for li in filter_li:
-            if li not in visited_filters:
+            # Linker inputs without object code (e.g. link flags from TF_SYSTEM_LIBS)
+            # may be shared by multiple libraries.
+            # Otherwise the first filter claiming them would leave the others without
+            # e.g. the necessary `l` flags.
+            flags_only = all([
+                not (lib.objects
+                     or lib.static_library
+                     or lib.pic_static_library
+                     or lib.dynamic_library
+                     or lib.interface_library)
+                for lib in li.libraries
+            ])
+            if flags_only or li not in visited_filters:
                 common_lib_filters[name][li] = li.owner
                 visited_filters[li] = li.owner
 
