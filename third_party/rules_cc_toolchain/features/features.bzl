@@ -322,6 +322,12 @@ def _import_feature_impl(ctx):
         lib_dir_prefix + file.dirname
         for file in toolchain_import_info
             .linking_context.static_libraries.to_list()
+        if not file.is_source
+    ] + [
+        lib_dir_prefix + file.dirname
+        for file in toolchain_import_info
+            .linking_context.static_libraries.to_list()
+        if file.is_source
     ] + [
         lib_dir_prefix + file.dirname
         for file in toolchain_import_info
