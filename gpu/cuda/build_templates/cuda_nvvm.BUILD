@@ -15,6 +15,10 @@ filegroup(
         if_false = [],
     ),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -25,4 +29,8 @@ filegroup(
         if_false = [],
     ),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

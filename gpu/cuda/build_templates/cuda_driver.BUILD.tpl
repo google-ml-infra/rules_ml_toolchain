@@ -8,27 +8,47 @@ licenses(["restricted"])  # NVIDIA proprietary license
 cc_import(
     name = "driver_shared_library",
     shared_library = "lib/libcuda.so.%{libcuda_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvidia-ptxjitcompiler_shared_library",
     shared_library = "lib/libnvidia-ptxjitcompiler.so.%{libnvidia-ptxjitcompiler_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "libcuda_so_1",
     shared_library = "lib/libcuda.so.1",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "libnvidia-ptxjitcompiler_so_1",
     shared_library = "lib/libnvidia-ptxjitcompiler.so.1",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 # Workaround for adding path of library symlink to RPATH of cc_binaries.
 cc_import(
     name = "libcuda_so",
     shared_library = "lib/libcuda.so",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 # Workaround for adding unversioned library to NEEDED section of cc_binaries.
@@ -36,6 +56,10 @@ genrule(
     name = "fake_libcuda_cc",
     outs = ["libcuda.cc"],
     cmd = "echo '' > $@",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_binary(
@@ -43,11 +67,19 @@ cc_binary(
     srcs = [":fake_libcuda_cc"],
     linkopts = ["-Wl,-soname,libcuda.so"],
     linkshared = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "fake_libcuda",
     shared_library = ":fake_libcuda_binary",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 
@@ -60,6 +92,10 @@ cc_library(
         %{comment}":driver_shared_library",
     %{comment}],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -69,6 +105,10 @@ cc_library(
         %{comment}":nvidia-ptxjitcompiler_shared_library",
     %{comment}],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 # Flag indicating whether we should use hermetic user mode driver.

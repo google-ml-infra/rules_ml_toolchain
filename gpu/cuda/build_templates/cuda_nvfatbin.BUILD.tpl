@@ -17,12 +17,20 @@ cc_import(
     name = "nvfatbin_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libnvfatbin.so.%{libnvfatbin_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvfatbin_static_library",
     hdrs = [":headers"],
     static_library = "lib/libnvfatbin_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 
@@ -35,12 +43,20 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_nvfatbin/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
     name = "header_list",
     %{comment}srcs = ["include/nvFatbin.h"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -48,4 +64,8 @@ cc_library(
     %{comment}hdrs = [":header_list"],
     %{comment}includes = ["include"],
     %{comment}strip_include_prefix = "include",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
