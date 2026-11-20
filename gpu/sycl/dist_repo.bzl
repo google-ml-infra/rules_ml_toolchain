@@ -69,6 +69,7 @@ _ONEAPI_BUILD_SUBSTITUTIONS = {
         "%{mpi_version}": "2021.15",
         "%{oneapi_lib_paths}": ":compiler/2025.1/lib,:compiler/2025.1/compiler/lib/intel64_lin",
         "%{oneapi_version}": "2025.1",
+        "%{pti_version}": "0.12",
         "%{tbb_version}": "2022.1",
         "%{tcm_version}": "1.3",
         "%{umf_version}": "0.10",
