@@ -11,42 +11,70 @@ cc_import(
     name = "cudnn_ops_infer",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_ops_infer.so.%{libcudnn_ops_infer_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_cnn_infer",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_cnn_infer.so.%{libcudnn_cnn_infer_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_ops_train",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_ops_train.so.%{libcudnn_ops_train_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_cnn_train",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_cnn_train.so.%{libcudnn_cnn_train_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_adv_infer",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_adv_infer.so.%{libcudnn_adv_infer_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_adv_train",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_adv_train.so.%{libcudnn_adv_train_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_main",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn.so.%{libcudnn_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -63,6 +91,10 @@ cc_library(
     %{comment}],
     %{comment}linkopts = cuda_rpath_flags("nvidia/cudnn/lib"),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -71,6 +103,10 @@ filegroup(
         %{comment}"include/cudnn*.h",
     %{comment}]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -80,4 +116,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

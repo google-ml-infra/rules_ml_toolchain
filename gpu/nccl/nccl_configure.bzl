@@ -38,6 +38,10 @@ filegroup(
 
 cc_library(
   name = "nccl",
+  tags = [
+      "cuda-only",
+      "gpu",
+  ],
   visibility = ["//visibility:public"],
 )
 

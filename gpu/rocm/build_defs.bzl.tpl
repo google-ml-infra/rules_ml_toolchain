@@ -80,30 +80,34 @@ def rocm_default_copts():
         "-DTENSORFLOW_USE_ROCM=1",
     ])
 
-def rocm_library(copts = [], **kwargs):
+def rocm_library(copts = [], tags = [], **kwargs):
     """Wrapper over cc_library which adds default ROCm/HIP options.
 
     Args:
         copts: Additional compiler options.
+        tags: Additional tags.
         **kwargs: Other arguments passed to cc_library (including deps).
     """
     deps = kwargs.pop("deps", [])
     cc_library(
         copts = rocm_default_copts() + ["-x", "rocm"] + copts,
+        tags = tags + ["gpu", "rocm-only"],
         deps = deps + [str(Label("//rocm:rocm_defines"))],
         **kwargs
     )
 
-def rocm_cc_test(copts = [], deps = [], **kwargs):
+def rocm_cc_test(copts = [], deps = [], tags = [], **kwargs):
     """Wrapper over cc_test which adds default ROCm/HIP options.
 
     Args:
         copts: Additional compiler options.
         deps: Test dependencies.
+        tags: Additional tags.
         **kwargs: Other arguments passed to cc_test.
     """
     cc_test(
         copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
+        tags = tags + ["gpu", "rocm-only"],
         deps = deps + [
             str(Label("//rocm:hip_runtime")),
         ],

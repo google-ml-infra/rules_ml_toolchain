@@ -10,4 +10,8 @@ filegroup(
         "bin/nvdisasm",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

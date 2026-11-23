@@ -9,6 +9,10 @@ cc_import(
     name = "nvptxcompiler_static_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", "lib/libnvptxcompiler_static.a", None),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 
@@ -16,6 +20,10 @@ cc_library(
     name = "nvptxcompiler",
     %{comment}deps = [":nvptxcompiler_static_library"],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -24,6 +32,10 @@ filegroup(
         %{comment}"include/nvPTXCompiler.h",
     %{comment}],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -31,4 +43,8 @@ cc_library(
     hdrs = [":header_list"],
     includes = ["include"],
     strip_include_prefix = "include",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

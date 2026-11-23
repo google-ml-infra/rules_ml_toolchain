@@ -16,24 +16,40 @@ cc_import(
     name = "cublas_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcublas.so.%{libcublas_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cublasLt_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcublasLt.so.%{libcublaslt_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cublasLt_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcublasLt_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cublas_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcublas_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -48,6 +64,10 @@ cc_library(
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cublas/lib"),
     %{comment}),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -62,6 +82,10 @@ cc_library(
         %{comment}if_true = cuda_rpath_flags("nvidia/cu13/lib"),
         %{comment}if_false = cuda_rpath_flags("nvidia/cublas/lib"),
     %{comment}),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -73,6 +97,10 @@ filegroup(
         %{comment}"include/cublas_v2.h",
     %{comment}],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 
@@ -83,4 +111,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

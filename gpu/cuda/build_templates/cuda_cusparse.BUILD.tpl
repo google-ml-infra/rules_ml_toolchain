@@ -16,12 +16,20 @@ cc_import(
     name = "cusparse_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcusparse.so.%{libcusparse_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cusparse_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusparse_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -33,12 +41,20 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cusparse/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
     name = "header_list",
     %{comment}srcs = ["include/cusparse.h"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -48,4 +64,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
