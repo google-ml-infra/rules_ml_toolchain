@@ -20,7 +20,6 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
     "BUILD.tpl",
     "build_defs.bzl.tpl",
-    "find_rocm_config.py",
     "hipcc_configure.bzl",
     "rocm_redist.bzl",
 ])

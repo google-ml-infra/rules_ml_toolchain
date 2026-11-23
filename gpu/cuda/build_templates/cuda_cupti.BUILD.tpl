@@ -17,18 +17,30 @@ cc_import(
     name = "cupti_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcupti.so.%{libcupti_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cupti_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcupti_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvperf_host_static_library",
     hdrs = [":headers"],
     static_library = "lib/libnvperf_host_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -40,6 +52,10 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_cupti/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -94,6 +110,10 @@ filegroup(
         %{comment}["include/cupti_range_profiler.h"],
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -103,4 +123,8 @@ cc_library(
     includes = ["include/"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

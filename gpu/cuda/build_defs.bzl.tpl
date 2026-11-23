@@ -222,7 +222,7 @@ def cuda_library(copts = [], defines = [], tags = [], deps = [], linkopts = [], 
     """Wrapper over cc_library which adds default CUDA options."""
     cc_library(
         copts = cuda_default_copts() + copts,
-        tags = tags + ["gpu"],
+        tags = tags + ["cuda-only", "gpu"],
         deps = deps + if_cuda_is_configured([
             "@local_config_cuda//cuda:implicit_cuda_headers_dependency",
         ]),
@@ -238,9 +238,13 @@ def cuda_library(copts = [], defines = [], tags = [], deps = [], linkopts = [], 
         **kwargs
     )
 
-def cuda_cc_test(copts = [], **kwargs):
+def cuda_cc_test(copts = [], tags = [], **kwargs):
     """Wrapper over cc_test which adds default CUDA options."""
-    cc_test(copts = copts + if_cuda(["-DGOOGLE_CUDA=1"]), **kwargs)
+    cc_test(
+        copts = copts + if_cuda(["-DGOOGLE_CUDA=1"]),
+        tags = tags + ["cuda-only", "gpu"],
+        **kwargs
+    )
 
 EnableCudaInfo = provider()
 

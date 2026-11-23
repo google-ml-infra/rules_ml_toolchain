@@ -40,11 +40,14 @@ This wrapper handles three distinct compilation modes:
 SYNOPSIS:
   hipcc_wrapper [options passed in by cc_library() or cc_binary() rule]
 
-ENVIRONMENT VARIABLES (set by toolchain features):
+REQUIRED ENVIRONMENT VARIABLES (set by the rocm_hipcc_feature of the toolchain):
   GCC_PATH: Path to the host compiler (clang)
   HIPCC_PATH: Path to the hipcc compiler
-  ROCM_PATH: Path to the ROCm installation
-  ROCM_CLANG_VERSION: ROCm clang version for header paths
+  ROCM_CLANG_RESOURCES_DIR: Resource directory of ROCm's clang, relative to
+                the ROCm root passed as --rocm-path. The cuda_wrappers headers
+                are looked up below it.
+
+OPTIONAL ENVIRONMENT VARIABLES:
   HOST_SYSROOT: Sysroot path for host (CPU) compilation. If set, uses this system
                 sysroot for host compilation. If not set, uses hermetic sysroot.
                 GPU compilation always uses hermetic sysroot regardless of this setting.
@@ -57,14 +60,40 @@ import subprocess
 import re
 import sys
 
+
+def RequiredEnv(name):
+    """Returns the value of a required environment variable.
+
+    Exits with an error instead of falling back to a default: a missing value
+    means the wrapper was not invoked through the ROCm toolchain, and guessing
+    one would silently compile against a different toolchain than the build
+    was configured with.
+
+    Args:
+        name: Name of the environment variable.
+
+    Returns:
+        The value of the environment variable.
+    """
+    value = os.environ.get(name)
+    if not value:
+        sys.stderr.write(
+            "hipcc_wrapper: required environment variable {0} is not set.\n"
+            "It is set by the rocm_hipcc_feature of the ROCm toolchain, so the "
+            "wrapper has either been invoked outside of that toolchain or the "
+            "generated config_rocm_hipcc repository is incomplete.\n".format(name)
+        )
+        sys.exit(1)
+    return value
+
+
 # Get paths from environment variables set by toolchain features
-CPU_COMPILER = os.environ.get("GCC_PATH", "clang")
-HIPCC_PATH = os.environ.get("HIPCC_PATH", "/opt/rocm/bin/hipcc")
-ROCM_PATH = os.environ.get("ROCM_PATH", "/opt/rocm")
-ROCM_CLANG_VERSION = os.environ.get("ROCM_CLANG_VERSION", "20")
-HOST_SYSROOT = os.environ.get(
-    "HOST_SYSROOT", ""
-)  # System sysroot for host compilation (if set)
+CPU_COMPILER = RequiredEnv("GCC_PATH")
+HIPCC_PATH = RequiredEnv("HIPCC_PATH")
+ROCM_CLANG_RESOURCES_DIR = RequiredEnv("ROCM_CLANG_RESOURCES_DIR")
+
+# Optional: system sysroot for host compilation
+HOST_SYSROOT = os.environ.get("HOST_SYSROOT", "")
 VERBOSE = os.environ.get("CROSSTOOL_VERBOSE", "0") == "1"
 
 
@@ -212,7 +241,9 @@ def InvokeHipcc(argv, log=False):
     parser.add_argument("-no-canonical-prefixes", action="store_true")
     args, _ = parser.parse_known_args(argv)
 
-    rocm_path_arg = args.rocm_path[0] if args.rocm_path else ROCM_PATH
+    # The toolchain's rocm_hipcc_feature puts --rocm-path on every compile and
+    # link command line.
+    rocm_path_arg = args.rocm_path[0]
 
     # Build options for GPU compilation
     # Only include project-specific includes, filter out hermetic LLVM
@@ -291,8 +322,11 @@ def InvokeHipcc(argv, log=False):
     # Add cuda_wrappers BEFORE any system includes
     # This provides device-compatible versions of <new>, <cmath>, <algorithm>, etc.
     rocm_cuda_wrappers = os.path.join(
-        rocm_path_arg, "lib/llvm/lib/clang", ROCM_CLANG_VERSION, "include/cuda_wrappers"
+        rocm_path_arg,
+        ROCM_CLANG_RESOURCES_DIR,
+        "include/cuda_wrappers",
     )
+
     cmd.extend(["-isystem", rocm_cuda_wrappers])
 
     # Define __device__ as a macro so cuda_wrappers headers work correctly
@@ -512,7 +546,6 @@ def main():
     if VERBOSE:
         Log("PWD=" + os.getcwd())
         Log("HIPCC_PATH=" + HIPCC_PATH)
-        Log("ROCM_PATH=" + ROCM_PATH)
 
     if args.x and args.x[0] == "rocm":
         # GPU compilation mode

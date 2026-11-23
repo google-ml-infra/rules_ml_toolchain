@@ -20,6 +20,10 @@ filegroup(
     name = "nvvm",
     srcs = ["nvvm/libdevice/libdevice.10.bc"],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -28,6 +32,10 @@ filegroup(
         "bin/nvdisasm",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -36,6 +44,10 @@ filegroup(
         "bin/nvlink",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -44,6 +56,10 @@ filegroup(
         "bin/fatbinary",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -52,6 +68,10 @@ filegroup(
         "bin/bin2c",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -60,6 +80,10 @@ filegroup(
         "bin/ptxas",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -69,6 +93,10 @@ filegroup(
         "nvvm/bin/**",
     ], allow_empty = True),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -77,6 +105,10 @@ filegroup(
         "bin/crt/link.stub",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cuda_nvcc_feature(
@@ -103,6 +135,10 @@ filegroup(
         %{comment}if_false = glob(["include/crt/**"], allow_empty = True),
     %{comment}),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -112,6 +148,10 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 %{multiline_comment}
@@ -119,6 +159,10 @@ cc_import(
     name = "nvptxcompiler_static_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", None, "lib/libnvptxcompiler_static.a"),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 
@@ -130,4 +174,8 @@ cc_library(
         %{comment}[":nvptxcompiler_static_library"],
     %{comment})),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

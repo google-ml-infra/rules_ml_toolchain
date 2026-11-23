@@ -111,7 +111,7 @@ def _import_asan_feature_impl(ctx):
         "/INFERASANLIBS",
     ] if is_windows else depset([
         flag
-        for flag in ASAN_LINKER_FLAGS
+        for flag in ASAN_LINKER_FLAGS + ctx.attr.link_mode_flags
     ]).to_list()
 
     lib_dir_prefix = "/LIBPATH:" if is_windows else "-L"
@@ -155,6 +155,7 @@ cc_toolchain_import_asan_feature = rule(
         "is_windows": attr.bool(default = False),
         "provides": attr.string_list(),
         "implies": attr.string_list(),
+        "link_mode_flags": attr.string_list(),
         "toolchain_import": attr.label(
             mandatory = True,
             providers = [CcToolchainImportInfo],
@@ -199,7 +200,7 @@ def _import_tsan_feature_impl(ctx):
 
     linker_flags = depset([
         flag
-        for flag in TSAN_LINKER_FLAGS
+        for flag in TSAN_LINKER_FLAGS + ctx.attr.link_mode_flags
     ]).to_list()
 
     linker_dir_flags = depset([
@@ -241,6 +242,7 @@ cc_toolchain_import_tsan_feature = rule(
         "enabled": attr.bool(default = False),
         "provides": attr.string_list(),
         "implies": attr.string_list(),
+        "link_mode_flags": attr.string_list(),
         "toolchain_import": attr.label(
             mandatory = True,
             providers = [CcToolchainImportInfo],

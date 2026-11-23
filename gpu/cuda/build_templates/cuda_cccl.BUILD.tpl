@@ -16,6 +16,10 @@ filegroup(
         %{comment}"include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "") + "/thrust/**",
     ], allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 
@@ -26,4 +30,8 @@ cc_library(
     includes = ["include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", "")],
     strip_include_prefix = "include" + cuda_lib_header_prefix(_cudart_version, 13, "/cccl", ""),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

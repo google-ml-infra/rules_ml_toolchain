@@ -19,42 +19,70 @@ filegroup(
     name = "static",
     srcs = ["lib/libcudart_static.a"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_import(
     name = "cuda_stub",
     interface_library = "lib/stubs/libcuda.so",
     system_provided = 1,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudart_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcudart.so.%{libcudart_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudart_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcudart_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "culibos_static_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", None, "lib/libculibos.a"),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudadevrt_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcudadevrt.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
     name = "cuda_driver",
     %{comment}deps = [":cuda_stub"],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -75,6 +103,10 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_runtime/lib"),
     %{comment}) + if_static_cuda(["-lrt"], []),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -165,6 +197,10 @@ filegroup(
     %{comment}],
     %{comment}allow_empty = True),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -174,4 +210,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

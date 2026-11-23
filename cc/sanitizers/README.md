@@ -10,6 +10,12 @@ The following configuration provides a baseline for integrating ASan into ML pro
 common:asan --features=asan
 ```
 
+```
+# Enable ASan and link dynamically
+common:asan_dynamic --config=asan
+common:asan_dynamic --@rules_ml_toolchain//common:dynamic_sanitizer_runtime=true
+```
+
 ### Tests for verifying AddressSanitizer (ASan) functionality
 ```
 bazel test --test_tag_filters=-noasan \

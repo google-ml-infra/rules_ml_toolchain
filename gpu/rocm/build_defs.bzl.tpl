@@ -28,25 +28,23 @@ def hipcc_config():
         A struct with the following fields:
             - repo_name: Name of the repository containing this configuration
             - gpu_architectures: List of AMDGPU target architectures (e.g., ["gfx906", "gfx908"])
-            - version_number: ROCm version as integer (e.g., 60000 for ROCm 6.0.0)
             - hipcc_path: Path to the hipcc compiler binary
             - rocm_path: Path to the ROCm installation root
             - rocm_root: Path to the ROCm root within the distribution (for file labels)
             - miopen_version: MIOpen version number
-            - hipruntime_version: HIP runtime version number
             - clang_version: Clang version string
+            - clang_resources_dir: Clang resource dir, relative to rocm_path
             - lib_paths: List of library paths (for multiple ROCm paths setup)
             - hipcc_env: Environment variables for hipcc (semicolon-separated KEY=VALUE pairs)
     """
     return struct(
         repo_name = "%{repo_name}",
         gpu_architectures = %{rocm_gpu_architectures},
-        version_number = %{rocm_version_number},
         hipcc_path = "%{hipcc_path}",
         rocm_path = "%{rocm_root}",
         rocm_root = "%{rocm_root}",
-        hipruntime_version = %{hipruntime_version_number},
         clang_version = "%{clang_version}",
+        clang_resources_dir = "%{clang_resources_dir}",
         hipcc_env = "%{hipcc_env}",
     )
 
@@ -82,30 +80,34 @@ def rocm_default_copts():
         "-DTENSORFLOW_USE_ROCM=1",
     ])
 
-def rocm_library(copts = [], **kwargs):
+def rocm_library(copts = [], tags = [], **kwargs):
     """Wrapper over cc_library which adds default ROCm/HIP options.
 
     Args:
         copts: Additional compiler options.
+        tags: Additional tags.
         **kwargs: Other arguments passed to cc_library (including deps).
     """
     deps = kwargs.pop("deps", [])
     cc_library(
         copts = rocm_default_copts() + ["-x", "rocm"] + copts,
+        tags = tags + ["gpu", "rocm-only"],
         deps = deps + [str(Label("//rocm:rocm_defines"))],
         **kwargs
     )
 
-def rocm_cc_test(copts = [], deps = [], **kwargs):
+def rocm_cc_test(copts = [], deps = [], tags = [], **kwargs):
     """Wrapper over cc_test which adds default ROCm/HIP options.
 
     Args:
         copts: Additional compiler options.
         deps: Test dependencies.
+        tags: Additional tags.
         **kwargs: Other arguments passed to cc_test.
     """
     cc_test(
         copts = copts + if_rocm(["-D__HIP_PLATFORM_AMD__=1"]),
+        tags = tags + ["gpu", "rocm-only"],
         deps = deps + [
             str(Label("//rocm:hip_runtime")),
         ],

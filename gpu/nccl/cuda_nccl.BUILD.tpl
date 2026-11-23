@@ -14,6 +14,10 @@ cc_import(
     name = "nccl_shared_library",
     shared_library = "lib/libnccl.so.%{libnccl_version}",
     hdrs = [":headers"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
     deps = ["@local_config_cuda//cuda:cuda_headers", ":headers"],
 )
 %{multiline_comment}
@@ -22,6 +26,10 @@ cc_library(
     hdrs = [":header_list"],
     %{comment}deps = [":nccl_shared_library"],
     %{comment}linkopts = cuda_rpath_flags("nvidia/nccl/lib"),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -31,6 +39,10 @@ filegroup(
         %{comment}"include/**/*.h",
         %{comment}"include/**/*.cuh",
     %{comment}]),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -39,6 +51,10 @@ cc_library(
     include_prefix = "third_party/nccl",
     includes = ["include/"],
     strip_include_prefix = "include",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
     visibility = ["//visibility:public"],
     deps = ["@local_config_cuda//cuda:cuda_headers"],
 )

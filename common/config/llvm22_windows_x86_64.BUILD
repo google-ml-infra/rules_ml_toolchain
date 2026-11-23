@@ -115,11 +115,22 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Runtime DLLs needed by LLVM tools. Exclude large unused DLLs (~332 MB total)
+# that are not loaded by our toolchain binaries (clang-cl, lld-link, llvm-lib,
+# llvm-ml64, flang, etc.), since distro_libs is passed as an input to every
+# compile, link, archive, objcopy, and strip action and staging/hashing them
+# causes significant build and test time regressions.
 filegroup(
     name = "distro_libs",
     srcs = glob(
         ["bin/*.dll"],
         allow_empty = True,
+        exclude = [
+            "bin/LLVM-C.dll",  # LLVM C API library (~71 MB); tools link LLVM statically.
+            "bin/LTO.dll",  # Legacy C LTO library (~69 MB); lld-link has LTO built in.
+            "bin/libclang.dll",  # Clang C indexing/IDE library (~84 MB); unused by compiler.
+            "bin/liblldb.dll",  # LLDB debugger library (~109 MB); unused by build actions.
+        ],
     ),
     visibility = ["//visibility:public"],
 )
