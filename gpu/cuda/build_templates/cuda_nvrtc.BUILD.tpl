@@ -16,32 +16,56 @@ cc_import(
     name = "nvrtc_main",
     hdrs = [":headers"],
     shared_library = "lib/libnvrtc.so.%{libnvrtc_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvrtc_builtins",
     hdrs = [":headers"],
     shared_library = "lib/libnvrtc-builtins.so.%{libnvrtc-builtins_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvrtc_builtins_static_alt",
     static_library = "lib/libnvrtc-builtins_static.alt.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvrtc_static",
     static_library = "lib/libnvrtc_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvrtc_builtins_static",
     static_library = "lib/libnvrtc-builtins_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "nvrtc_static_alt",
     static_library = "lib/libnvrtc_static.alt.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -61,6 +85,10 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cuda_nvrtc/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -69,6 +97,10 @@ filegroup(
         %{comment}"include/nvrtc.h",
     %{comment}],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 
@@ -79,4 +111,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

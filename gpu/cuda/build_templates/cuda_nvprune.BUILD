@@ -6,4 +6,8 @@ filegroup(
         "bin/nvprune",
     ],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

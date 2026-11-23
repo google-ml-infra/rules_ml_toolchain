@@ -6,6 +6,10 @@ filegroup(
     name = "header_list",
     %{comment}srcs = ["include/nvml.h"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -15,6 +19,10 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 %{multiline_comment}
@@ -23,6 +31,10 @@ cc_import(
     interface_library = "lib/stubs/libnvidia-ml.so",
     system_provided = 1,
     visibility = ["@cuda_cudart//:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 
@@ -30,4 +42,8 @@ cc_library(
     name = "nvml",
     %{comment}deps = [":nvidia-ml_stub"],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

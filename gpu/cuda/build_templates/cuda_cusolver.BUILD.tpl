@@ -16,30 +16,50 @@ cc_import(
     name = "cusolver_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcusolver.so.%{libcusolver_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cusolver_lapack_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_lapack_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cusolver_metis_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_metis_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cusolver_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcusolver_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "metis_static_library",
     hdrs = [":headers"],
     static_library = "lib/libmetis_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -57,6 +77,10 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cusolver/lib"),
     %{comment}),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 
@@ -66,6 +90,10 @@ filegroup(
         %{comment}"include/cusolver*.h",
     %{comment}]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -75,4 +103,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

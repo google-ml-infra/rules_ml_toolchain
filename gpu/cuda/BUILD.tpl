@@ -48,6 +48,17 @@ config_setting(
     values = {"compilation_mode": "opt"},
 )
 
+# Provides only cuda_config.h (CUDA version/path configuration macros).
+# Safe to depend on from non-CUDA targets (e.g., DSO loaders and path utilities).
+cc_library(
+    name = "cuda_config",
+    hdrs = ["cuda/cuda_config.h"],
+    include_prefix = "third_party/gpus",
+    includes = [
+        ".",  # required to include cuda/cuda/cuda_config.h as cuda/config.h
+    ],
+)
+
 # Provides CUDA headers for '#include "third_party/gpus/cuda/include/cuda.h"'
 # All clients including TensorFlow should use these directives.
 cc_library(
@@ -56,6 +67,10 @@ cc_library(
     include_prefix = "third_party/gpus",
     includes = [
         ".",  # required to include cuda/cuda/cuda_config.h as cuda/config.h
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
     ],
     # For the layering check to work we need to re-export all the headers from
     # the subtargets. We still also need them in the dependencies for setting
@@ -110,6 +125,10 @@ cc_library(
         "-ldl",
         "-lpthread",
         %{cudart_static_linkopt}
+    ],
+    tags = [
+        "cuda-only",
+        "gpu",
     ],
 )
 
@@ -243,6 +262,10 @@ alias(
 
 cc_library(
     name = "cuda",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
     deps = [
         ":cublas",
         ":cublasLt",
@@ -287,6 +310,10 @@ alias(
 cc_library(
     name = "libdevice_root",
     data = [":cuda-nvvm"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 bzl_library(

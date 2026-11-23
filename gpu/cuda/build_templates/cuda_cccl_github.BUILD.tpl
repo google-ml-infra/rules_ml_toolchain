@@ -6,12 +6,20 @@ filegroup(
     name = "header_list",
     srcs = [":thrust_header_list",":nv_header_list", ":cuda_header_list", ":cub_header_list"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
     name = "headers",
     deps = [":thrust_headers",":nv_headers", ":cuda_headers", ":cub_headers"],
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -20,6 +28,10 @@ filegroup(
         %{comment}"thrust/thrust/**",
     ]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -29,6 +41,10 @@ cc_library(
     includes = ["thrust"],
     strip_include_prefix = "thrust",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -37,6 +53,10 @@ filegroup(
         %{comment}"libcudacxx/include/cuda/**",
     ]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -46,6 +66,10 @@ cc_library(
     includes = ["libcudacxx/include"],
     strip_include_prefix = "libcudacxx/include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -54,6 +78,10 @@ filegroup(
         %{comment}"libcudacxx/include/nv/**",
     ]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -63,6 +91,10 @@ cc_library(
     includes = ["libcudacxx/include/nv"],
     strip_include_prefix = "libcudacxx/include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -71,6 +103,10 @@ filegroup(
         %{comment}"cub/cub/**",
     ]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -80,5 +116,9 @@ cc_library(
     includes = ["cub"],
     strip_include_prefix = "cub",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 

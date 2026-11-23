@@ -29,6 +29,10 @@ exports_files(
 cc_library(
     name = "rocm_defines",
     defines = ["MIOPEN_BETA_API=1"],
+    tags = [
+        "gpu",
+        "rocm-only",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -40,6 +44,10 @@ cc_library(
     ),
     defines = ["MIOPEN_BETA_API=1"],
     includes = ["%{rocm_root}/include"],
+    tags = [
+        "gpu",
+        "rocm-only",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -61,6 +69,10 @@ cc_library(
             "%{rocm_root}/**/libamdhip64.so.*.*.*",
         ],
     ),
+    tags = [
+        "gpu",
+        "rocm-only",
+    ],
     visibility = ["//visibility:public"],
     deps = [":rocm_headers"],
 )
@@ -76,6 +88,10 @@ filegroup(
             "%{rocm_root}/lib/rocm_sysdeps/share/terminfo/**",
         ],
     ),
+    tags = [
+        "gpu",
+        "rocm-only",
+    ],
 )
 
 filegroup(
@@ -93,6 +109,10 @@ filegroup(
         ],
         allow_empty = True,
     ) + [":system_libs_data"],
+    tags = [
+        "gpu",
+        "rocm-only",
+    ],
     visibility = ["//visibility:public"],
 )
 

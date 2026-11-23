@@ -16,48 +16,80 @@ cc_import(
     name = "cudnn_ops",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_ops.so.%{libcudnn_ops_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_cnn",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_cnn.so.%{libcudnn_cnn_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_adv",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_adv.so.%{libcudnn_adv_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_graph",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_graph.so.%{libcudnn_graph_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_engines_precompiled",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_engines_precompiled.so.%{libcudnn_engines_precompiled_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_engines_runtime_compiled",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_engines_runtime_compiled.so.%{libcudnn_engines_runtime_compiled_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_heuristic",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn_heuristic.so.%{libcudnn_heuristic_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cudnn_main",
     hdrs = [":headers"],
     shared_library = "lib/libcudnn.so.%{libcudnn_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -65,6 +97,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_graph_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -72,6 +108,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_adv_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -79,6 +119,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_engines_runtime_compiled_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -86,6 +130,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_engines_precompiled_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -93,6 +141,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_ops_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -100,6 +152,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_heuristic_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
@@ -107,6 +163,10 @@ cc_import(
     hdrs = [":headers"],
     static_library = "lib/libcudnn_cnn_static_v%{libcudnn_version}.a",
     alwayslink = True,
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 %{multiline_comment}
 cc_library(
@@ -137,6 +197,10 @@ cc_library(
     %{comment}linkopts = if_static_cudnn(["-lrt"], []) + cuda_rpath_flags("nvidia/cudnn/lib"),
     includes = ["include"],
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -144,6 +208,10 @@ filegroup(
     %{comment}srcs = glob([
         %{comment}"include/cudnn*.h",
     %{comment}]),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 
@@ -154,4 +222,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )

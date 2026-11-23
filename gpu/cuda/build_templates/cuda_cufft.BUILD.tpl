@@ -16,24 +16,40 @@ cc_import(
     name = "cufft_shared_library",
     hdrs = [":headers"],
     shared_library = "lib/libcufft.so.%{libcufft_version}",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cufft_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcufft_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cufftw_static_library",
     hdrs = [":headers"],
     static_library = "lib/libcufftw_static.a",
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_import(
     name = "cufft_static_nocallback_library",
     hdrs = [":headers"],
     static_library = if_cuda_newer_than("13_0", "lib/libcufft_static.a", "lib/libcufft_static_nocallback.a"),
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 %{multiline_comment}
@@ -46,6 +62,10 @@ cc_library(
         %{comment}if_false = cuda_rpath_flags("nvidia/cufft/lib"),
     %{comment}) + if_static_cuda(["-Wl,--no-relax"]),
     visibility = ["//visibility:public"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 filegroup(
@@ -55,6 +75,10 @@ filegroup(
         %{comment}"include/cufft*.h"
     %{comment}]),
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
 
 cc_library(
@@ -64,4 +88,8 @@ cc_library(
     includes = ["include"],
     strip_include_prefix = "include",
     visibility = ["@local_config_cuda//cuda:__pkg__"],
+    tags = [
+        "cuda-only",
+        "gpu",
+    ],
 )
