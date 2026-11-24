@@ -325,6 +325,11 @@ FEATURES_ESSENTIAL = [
     # Sanitizers
     ":asan",
     ":tsan",
+
+    # Opts out of the device-side ASan/TSan instrumentation that clang
+    # enables implicitly whenever a sanitizer feature above targets an
+    # AMDGPU triple, while leaving host-side instrumentation intact.
+    "//cc/rocm/features:no_gpu_sanitize",
 ] + select({
     "//common:is_stdlib_libcxx": [
         "//cc/features:libc++",

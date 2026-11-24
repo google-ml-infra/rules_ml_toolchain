@@ -78,6 +78,21 @@ cc_feature(
     linker_flags = ["-rtlib=compiler-rt"],
 )
 
+# Disable sanitizer instrumentation of GPU device code.
+# Clang's AMDGPU/HIP support implicitly enables device-side ASan/TSan
+# instrumentation whenever -fsanitize=* targets an AMDGPU triple (e.g. from
+# the asan/tsan toolchain features). -Xarch_device scopes the override to
+# the device-side clang invocation only, leaving host-side instrumentation
+# (when a sanitizer feature is enabled) unaffected.
+cc_feature(
+    name = "no_gpu_sanitize",
+    compiler_flags = [
+        "-Xarch_device",
+        "-fno-sanitize=all",
+    ],
+    enabled = True,
+)
+
 # ROCm global symbol versioning
 # Controls symbol visibility using a linker version script
 # Can be enabled with --@rules_ml_toolchain//common:enable_xla_test_global_symbol_version=True

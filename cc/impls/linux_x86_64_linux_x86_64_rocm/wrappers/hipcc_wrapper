@@ -129,34 +129,6 @@ def GetOptionValue(argv, option):
         return sum(vars(args)[option], [])
 
 
-def GetHipccOptions(argv):
-    """Collect ROCm/hipcc-specific compiler options from argv.
-
-    Extracts GPU-specific flags like --offload-arch (target GPU architecture)
-    and -gline-tables-only (debug info for GPU code).
-
-    Args:
-        argv: A list of strings containing command-line arguments.
-
-    Returns:
-        A list of hipcc-specific options (--offload-arch, -gline-tables-only).
-    """
-    parser = ArgumentParser()
-    parser.add_argument("--offload-arch", nargs="*", action="append")
-    parser.add_argument("-gline-tables-only", action="store_true")
-
-    args, _ = parser.parse_known_args(argv)
-
-    hipcc_opts = []
-    if args.gline_tables_only:
-        hipcc_opts.append("-gline-tables-only")
-    if args.offload_arch:
-        for a in sum(args.offload_arch, []):
-            hipcc_opts.append("--offload-arch=" + a)
-
-    return hipcc_opts
-
-
 def SplitCombinedFlags(argv):
     """Split combined flags like '-isystem path' into ['-isystem', 'path'].
 
@@ -203,12 +175,78 @@ def SplitCombinedFlags(argv):
     return split_flags
 
 
+def IsHermeticLlvmHeaderPath(path):
+    # Replace + with / for Bzlmod canonical repo name
+    return "/llvm" in path.replace("+", "/") and "/clang/" in path
+
+
+def FilterGpuFlags(argv):
+    """Filter Bazel's compile flags down to what's safe to forward to hipcc.
+
+    Every flag is forwarded to hipcc as-is, in its original order, except:
+      - Hermetic LLVM -isystem/-I header paths, which conflict with the
+        headers ROCm's own clang ships (see IsHermeticLlvmHeaderPath).
+      - --sysroot /, which points at the non-hermetic system sysroot; GPU
+        compilation always uses the hermetic sysroot headers added
+        separately, regardless of this setting.
+      - -c, -o, and -MF, which the caller extracts and re-emits itself:
+        it needs to build a second, different invocation (a dependency
+        scan, with -c dropped and -o pointed at the depfile) from the same
+        base flags when -MF is present, which isn't possible without first
+        knowing where these are.
+      - -nohipinc (from the rocm_hermetic toolchain feature), which isn't a
+        flag hipcc's underlying clang driver actually accepts (same reason
+        it's stripped for host compilation in is_rocm_flag).
+
+    Everything else - including --rocm-path, --offload-arch, -fno-gpu-rdc,
+    -O/-g, -D/-U, -iquote, -std=, and any other toolchain-feature-provided
+    compiler flag - is already supplied by Bazel's feature flags and is
+    forwarded unchanged rather than being read and re-emitted.
+
+    Args:
+        argv: A list of strings containing compilation arguments from Bazel
+            (after SplitCombinedFlags).
+
+    Returns:
+        A list of strings with the flags above removed and all others kept,
+        in their original relative order.
+    """
+    filtered = []
+    skip_next = False
+    for i, flag in enumerate(argv):
+        if skip_next:
+            skip_next = False
+            continue
+
+        if flag in ("-c", "-o", "-MF"):
+            skip_next = True
+            continue
+
+        if flag == "-nohipinc":
+            continue
+
+        if flag in ("-isystem", "-I"):
+            next_flag = argv[i + 1] if i + 1 < len(argv) else ""
+            if IsHermeticLlvmHeaderPath(next_flag):
+                skip_next = True
+                continue
+
+        if flag == "--sysroot" and (argv[i + 1] if i + 1 < len(argv) else "") == "/":
+            skip_next = True
+            continue
+
+        filtered.append(flag)
+
+    return filtered
+
+
 def InvokeHipcc(argv, log=False):
     """Invoke hipcc for GPU device code compilation.
 
     This function handles ROCm GPU compilation using the hipcc compiler.
-    It processes Bazel's command-line arguments and constructs appropriate
-    hipcc compilation commands.
+    It forwards Bazel's command-line arguments to hipcc unchanged (see
+    FilterGpuFlags), adding only the handful of flags that nothing in the
+    Bazel toolchain configuration already provides.
 
     Args:
         argv: A list of strings containing compilation arguments from Bazel.
@@ -223,60 +261,26 @@ def InvokeHipcc(argv, log=False):
         - Always uses hermetic sysroot headers for device-compatible standard library
         - Adds ROCm's cuda_wrappers for device-compatible <new>, <cmath>, etc.
         - Generates dependency files if -MF flag is present
-        - Uses --rocm-path to point to ROCm installation
+        - --rocm-path, --offload-arch, -fno-gpu-rdc, -O/-g etc. come from
+          Bazel's toolchain features (see rocm_hipcc_feature, fastbuild/dbg/
+          opt) and are forwarded rather than reconstructed here
     """
     # Split combined flags from Bazel before parsing
     argv = SplitCombinedFlags(argv)
 
-    # Extract GPU-specific options
-    hipcc_compiler_options = GetHipccOptions(argv)
-
-    # Extract paths and flags for GPU compilation
+    # Read (without removing) the ROCm install path, needed to compute the
+    # cuda_wrappers include path below; --rocm-path itself is forwarded to
+    # hipcc as part of the generic passthrough.
     parser = ArgumentParser()
     parser.add_argument("--rocm-path", nargs=1)
-    parser.add_argument("-iquote", nargs="*", action="append")
-    parser.add_argument("-isystem", nargs="*", action="append")
-    parser.add_argument("--sysroot", nargs=1)
-    parser.add_argument("-g", nargs="*", action="append")
-    parser.add_argument("-no-canonical-prefixes", action="store_true")
     args, _ = parser.parse_known_args(argv)
 
     # The toolchain's rocm_hipcc_feature puts --rocm-path on every compile and
     # link command line.
     rocm_path_arg = args.rocm_path[0]
 
-    # Build options for GPU compilation
-    # Only include project-specific includes, filter out hermetic LLVM
-    gpu_compiler_options = []
-    if args.iquote:
-        for p in sum(args.iquote, []):
-            gpu_compiler_options.extend(["-iquote", p])
-    if args.isystem:
-        for p in sum(args.isystem, []):
-            # Skip hermetic LLVM headers - ROCm provides its own
-            # Replace + with / for Bzlmod canonical repo name
-            if "/llvm" in p.replace("+", "/") and "/clang/" in p:
-                continue
-            gpu_compiler_options.extend(["-isystem", p])
-    if args.sysroot:
-        # Skip --sysroot=/ for GPU compilation - system headers are incompatible with ROCm's clang
-        # Local sysroot is only for host (CPU) compilation, not GPU
-        if args.sysroot[0] != "/":
-            gpu_compiler_options.extend(["--sysroot", args.sysroot[0]])
-    if args.g:
-        # Forward every -g flag as its own argument, in the original order, so
-        # that the last debug level wins as it would with clang directly
-        # (e.g. "-g0 -g0" or "-g2 -g0").
-        gpu_compiler_options.extend("-g" + "".join(g) for g in args.g)
-    if args.no_canonical_prefixes:
-        gpu_compiler_options.append("-no-canonical-prefixes")
-
-    opt_option = GetOptionValue(argv, "O")
-    include_options = GetOptionValue(argv, "I")
     out_file = GetOptionValue(argv, "o")
     depfiles = GetOptionValue(argv, "MF")
-    defines = GetOptionValue(argv, "D")
-    undefines = GetOptionValue(argv, "U")
     src_files = GetOptionValue(argv, "c")
 
     if len(src_files) == 0:
@@ -287,52 +291,44 @@ def InvokeHipcc(argv, log=False):
     # Filter to only C/C++ source files
     src_files = [f for f in src_files if re.search(r"\.cpp$|\.cc$|\.c$|\.cxx$|\.C$", f)]
 
-    # Build command - simplified to match non-hermetic toolchain exactly
-    cmd = [HIPCC_PATH]
+    # Forward every other flag from Bazel as-is (see FilterGpuFlags for the
+    # few exceptions), e.g. -D/-U, -iquote, -g, -O, --rocm-path,
+    # --offload-arch, -gline-tables-only, -std=, and any other
+    # toolchain-feature-provided compiler flag (such as -fno-sanitize=all).
+    gpu_compiler_options = FilterGpuFlags(argv)
 
-    # Add hipcc-specific options (--offload-arch, -gline-tables-only)
-    cmd.extend(hipcc_compiler_options)
+    # Build command
+    cmd = [HIPCC_PATH]
 
     # Force HIP runtime header to be included first (from non-hermetic wrapper)
     # This ensures proper macro setup before other headers
     cmd.extend(["--include=hip/hip_runtime.h"])
 
-    # Forward the C++ standard selected by the build (e.g. --cxxopt=-std=c++20)
-    # so that device code is compiled with the same standard as host code. The
-    # last occurrence wins, as it would with clang directly. If the build does
-    # not select one, hipcc's default standard is used.
-    std_flags = [f for f in argv if f.startswith("-std=") or f.startswith("--std=")]
-    if std_flags:
-        cmd.append(std_flags[-1])
-
-    # Use -fno-gpu-rdc by default
-    cmd.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
-
-    # Add undefines
-    for undef in undefines:
-        cmd.append("-U" + undef)
-
-    # Add defines
-    for define in defines:
-        cmd.append("-D" + define)
-
-    # Add rocm-path
-    cmd.extend(["--rocm-path=" + rocm_path_arg])
-
     # Add cuda_wrappers BEFORE any system includes
     # This provides device-compatible versions of <new>, <cmath>, <algorithm>, etc.
-    rocm_cuda_wrappers = os.path.join(
-        rocm_path_arg,
-        ROCM_CLANG_RESOURCES_DIR,
-        "include/cuda_wrappers",
+    rocm_clang_resource_include = os.path.join(
+        rocm_path_arg, ROCM_CLANG_RESOURCES_DIR, "include"
     )
 
-    cmd.extend(["-isystem", rocm_cuda_wrappers])
+    cmd.extend(["-isystem", os.path.join(rocm_clang_resource_include, "cuda_wrappers")])
+
+    # Clang implicitly includes __clang_hip_runtime_wrapper.h for HIP
+    # compilation (unless passed -nohipinc/-nogpuinc, which we don't). That
+    # header - along with the other clang resource headers hipcc/clang
+    # itself needs - lives directly in this resource include directory, one
+    # level up from cuda_wrappers. Use -idirafter (lowest priority, like
+    # clang's own equivalent auto-added "-idirafter .../include"), not
+    # -isystem: this directory also ships a plain stddef.h, and with
+    # -isystem it would be found ahead of libc++'s own stddef.h shim in
+    # include/c++/v1 (when stdlib=libc++), breaking libc++'s internal
+    # check that its own stddef.h - not the compiler's resource one - is
+    # the one found via #include <stddef.h>.
+    cmd.extend(["-idirafter", rocm_clang_resource_include])
 
     # Define __device__ as a macro so cuda_wrappers headers work correctly
     cmd.extend(["-D__device__=__device__"])
 
-    # Add GPU compiler options (-isystem, -iquote, --sysroot)
+    # Add the (filtered) flags forwarded from Bazel
     cmd.extend(gpu_compiler_options)
 
     # -fPIC
@@ -340,21 +336,6 @@ def InvokeHipcc(argv, log=False):
 
     # -I .
     cmd.extend(["-I", "."])
-
-    # Add optimization flag
-    if len(opt_option) > 0 and int(opt_option[0]) > 0:
-        cmd.append("-O2")
-    else:
-        cmd.append("-g")
-
-    # Add include paths (filter hermetic LLVM headers)
-    for inc in include_options:
-        # Skip hermetic LLVM headers - they conflict with ROCm's headers
-        # ROCm provides its own LLVM headers (including cuda_wrappers) via --rocm-path
-        # Replace + with / for Bzlmod canonical repo name
-        if "/llvm" in inc.replace("+", "/") and "/clang/" in inc:
-            continue
-        cmd.extend(["-I", inc])
 
     # Generate dependency file if requested (must come before main compilation)
     if depfiles:
