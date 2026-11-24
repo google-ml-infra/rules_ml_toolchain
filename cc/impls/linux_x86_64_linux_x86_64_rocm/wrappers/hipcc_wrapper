@@ -316,8 +316,14 @@ def InvokeHipcc(argv, log=False):
     # compilation (unless passed -nohipinc/-nogpuinc, which we don't). That
     # header - along with the other clang resource headers hipcc/clang
     # itself needs - lives directly in this resource include directory, one
-    # level up from cuda_wrappers.
-    cmd.extend(["-isystem", rocm_clang_resource_include])
+    # level up from cuda_wrappers. Use -idirafter (lowest priority, like
+    # clang's own equivalent auto-added "-idirafter .../include"), not
+    # -isystem: this directory also ships a plain stddef.h, and with
+    # -isystem it would be found ahead of libc++'s own stddef.h shim in
+    # include/c++/v1 (when stdlib=libc++), breaking libc++'s internal
+    # check that its own stddef.h - not the compiler's resource one - is
+    # the one found via #include <stddef.h>.
+    cmd.extend(["-idirafter", rocm_clang_resource_include])
 
     # Define __device__ as a macro so cuda_wrappers headers work correctly
     cmd.extend(["-D__device__=__device__"])
