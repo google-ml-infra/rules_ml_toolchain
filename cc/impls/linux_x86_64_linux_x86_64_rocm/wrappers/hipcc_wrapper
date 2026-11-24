@@ -306,13 +306,18 @@ def InvokeHipcc(argv, log=False):
 
     # Add cuda_wrappers BEFORE any system includes
     # This provides device-compatible versions of <new>, <cmath>, <algorithm>, etc.
-    rocm_cuda_wrappers = os.path.join(
-        rocm_path_arg,
-        ROCM_CLANG_RESOURCES_DIR,
-        "include/cuda_wrappers",
+    rocm_clang_resource_include = os.path.join(
+        rocm_path_arg, ROCM_CLANG_RESOURCES_DIR, "include"
     )
 
-    cmd.extend(["-isystem", rocm_cuda_wrappers])
+    cmd.extend(["-isystem", os.path.join(rocm_clang_resource_include, "cuda_wrappers")])
+
+    # Clang implicitly includes __clang_hip_runtime_wrapper.h for HIP
+    # compilation (unless passed -nohipinc/-nogpuinc, which we don't). That
+    # header - along with the other clang resource headers hipcc/clang
+    # itself needs - lives directly in this resource include directory, one
+    # level up from cuda_wrappers.
+    cmd.extend(["-isystem", rocm_clang_resource_include])
 
     # Define __device__ as a macro so cuda_wrappers headers work correctly
     cmd.extend(["-D__device__=__device__"])
