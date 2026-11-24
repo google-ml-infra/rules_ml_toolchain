@@ -326,9 +326,9 @@ FEATURES_ESSENTIAL = [
     ":asan",
     ":tsan",
 
-    # Must come after the sanitizer features above: disables sanitizer
-    # instrumentation of GPU device code, which the AMDGPU backend doesn't
-    # support, while leaving host-side sanitizer instrumentation intact.
+    # Opts out of the device-side ASan/TSan instrumentation that clang
+    # enables implicitly whenever a sanitizer feature above targets an
+    # AMDGPU triple, while leaving host-side instrumentation intact.
     "//cc/rocm/features:no_gpu_sanitize",
 ] + select({
     "//common:is_stdlib_libcxx": [

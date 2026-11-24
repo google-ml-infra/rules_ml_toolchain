@@ -79,18 +79,15 @@ cc_feature(
 )
 
 # Disable sanitizer instrumentation of GPU device code.
-# The AMDGPU backend does not support sanitizer instrumentation, so
-# -fsanitize=* flags (e.g. from the asan/tsan toolchain features) must not
-# reach device-side compilation. -Xarch_device scopes the flag to the
-# device-side clang invocation only, leaving host-side instrumentation
-# (when a sanitizer feature is enabled) unaffected. Must be listed after
-# the sanitizer features in the toolchain's feature list so this flag is
-# emitted after -fsanitize=*, overriding it for the device compile only.
+# Clang's AMDGPU/HIP support implicitly enables device-side ASan/TSan
+# instrumentation whenever -fsanitize=* targets an AMDGPU triple (e.g. from
+# the asan/tsan toolchain features). -fno-gpu-sanitize is the dedicated
+# switch to opt back out of that, leaving host-side instrumentation (when a
+# sanitizer feature is enabled) unaffected.
 cc_feature(
     name = "no_gpu_sanitize",
     compiler_flags = [
-        "-Xarch_device",
-        "-fno-sanitize=all",
+        "-fno-gpu-sanitize",
     ],
     enabled = True,
 )
