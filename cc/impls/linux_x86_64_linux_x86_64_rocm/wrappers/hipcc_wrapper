@@ -305,8 +305,14 @@ def InvokeHipcc(argv, log=False):
     if std_flags:
         cmd.append(std_flags[-1])
 
+    # Forward the C++ sanitizer flags
+    cmd.extend([f for f in argv if f.startswith("-fsanitize=")])
+
     # Use -fno-gpu-rdc by default
     cmd.extend(["-fno-gpu-rdc", "-fcuda-flush-denormals-to-zero"])
+
+    # Disable sanitizers on gpu code
+    cmd.extend(["-Xarch_device", "-fno-sanitize=all"])
 
     # Add undefines
     for undef in undefines:
