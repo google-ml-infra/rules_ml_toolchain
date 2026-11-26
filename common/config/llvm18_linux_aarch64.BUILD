@@ -14,7 +14,10 @@
 # ==============================================================================
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-
+load(
+    "@rules_ml_toolchain//cc/libcxxabi:build_defs.bzl",
+    "libcxxabi_futex",
+)
 load(
     "@rules_ml_toolchain//third_party/rules_cc_toolchain/features:cc_toolchain_import.bzl",
     "cc_toolchain_import",
@@ -139,15 +142,20 @@ cc_toolchain_import(
     visibility = ["//visibility:private"],
 )
 
+libcxxabi_futex(
+    name = "libc++abi_futex",
+    src_archive = "lib/aarch64-unknown-linux-gnu/libc++abi.a",
+    target = "aarch64-unknown-linux-gnu",
+)
+
 cc_toolchain_import(
     name = "libc++abi",
     additional_libs = [
         "lib/aarch64-unknown-linux-gnu/libc++abi.so.1.0",
         "lib/aarch64-unknown-linux-gnu/libc++abi.so.1",
-        "lib/aarch64-unknown-linux-gnu/libc++abi.a",
     ],
     shared_library = "lib/aarch64-unknown-linux-gnu/libc++abi.so",
-    static_library = "lib/aarch64-unknown-linux-gnu/libc++abi.a",
+    static_library = ":libc++abi_futex",
     visibility = ["//visibility:private"],
 )
 
