@@ -152,23 +152,10 @@ cc_toolchain_import(
 )
 
 cc_toolchain_import(
-    name = "libunwind",
-    additional_libs = [
-        "lib/aarch64-unknown-linux-gnu/libunwind.so.1.0",
-        "lib/aarch64-unknown-linux-gnu/libunwind.so.1",
-        "lib/aarch64-unknown-linux-gnu/libunwind.a",
-    ],
-    shared_library = "lib/aarch64-unknown-linux-gnu/libunwind.so",
-    static_library = "lib/aarch64-unknown-linux-gnu/libunwind.a",
-    visibility = ["//visibility:private"],
-)
-
-cc_toolchain_import(
     name = "std_libs",
     deps = [
         ":libc++",
         ":libc++abi",
-        ":libunwind",
     ],
     visibility = ["//visibility:public"],
 )

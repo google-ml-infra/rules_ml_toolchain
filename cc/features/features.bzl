@@ -302,7 +302,7 @@ def _libcxx_feature_impl(ctx):
     flag_sets = [
         # For executables (e.g., cudnn_test, cc_test, cc_binary):
         # Hide all static C++ runtime archives from .dynsym so they never
-        # collide with prebuilt libstdc++.so.6 / libgcc_s.so.1 libraries (e.g., libcudnn_*.so.9).
+        # collide with prebuilt libstdc++.so.6 libraries (e.g., libcudnn_*.so.9).
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_executable,
@@ -312,14 +312,14 @@ def _libcxx_feature_impl(ctx):
                 flag_group(
                     flags = [
                         "-stdlib=libc++",
-                        "-Wl,--exclude-libs,libc++.a:libc++abi.a:libunwind.a",
+                        "-Wl,--exclude-libs,libc++.a:libc++abi.a",
                     ],
                 ),
             ],
         ),
         # For transitively linked cc_library shared objects (e.g., _solib_*/lib*.so in dynamic cc_test):
-        # Hide static libc++abi.a and libunwind.a to avoid __cxa_* / _Unwind_* collisions with
-        # libstdc++.so.6 / libgcc_s.so.1, while keeping libc++.a (std::__1::*) visible so all DSOs
+        # Hide static libc++abi.a to avoid __cxa_* collisions with
+        # libstdc++.so.6, while keeping libc++.a (std::__1::*) visible so all DSOs
         # coalesce onto a single shared std::__1 runtime instance.
         flag_set(
             actions = [
@@ -330,14 +330,13 @@ def _libcxx_feature_impl(ctx):
                 flag_group(
                     flags = [
                         "-stdlib=libc++",
-                        "-Wl,--exclude-libs,libc++abi.a:libunwind.a",
+                        "-Wl,--exclude-libs,libc++abi.a",
                     ],
                 ),
             ],
         ),
         # For shared libraries (e.g., libtensorflow_framework.so.2, _pywrap_*.so):
-        # Hide only stateless libunwind.a to avoid _Unwind_* collisions with libgcc_s.so.1,
-        # while keeping libc++.a and libc++abi.a together for cross-DSO C++ exception handling.
+        # Keep libc++.a and libc++abi.a together for cross-DSO C++ exception handling.
         flag_set(
             actions = [
                 ACTION_NAMES.cpp_link_dynamic_library,
@@ -347,7 +346,6 @@ def _libcxx_feature_impl(ctx):
                 flag_group(
                     flags = [
                         "-stdlib=libc++",
-                        "-Wl,--exclude-libs,libunwind.a",
                     ],
                 ),
             ],

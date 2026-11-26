@@ -17,7 +17,6 @@
 LIBCXX_FLAGS = [
     "-lc++",
     "-lc++abi",
-    "-lunwind",
 ]
 
 LIBSTDCXX_FLAGS = [
