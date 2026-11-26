@@ -89,12 +89,22 @@ cc_toolchain_import(
 cc_toolchain_import(
     name = "libgcc",
     additional_libs = [
-        "lib/aarch64-linux-gnu/libgcc_s.so.1",
         "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_eh.a".format(gcc_version = GCC_VERSION),
+    ],
+    static_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
+    visibility = ["//visibility:public"],
+)
+
+# Always linked dynamically (-lgcc_s). libgcc.a is included in additional_libs
+# because GCC's libgcc_s.so linker script references GROUP ( libgcc_s.so.1 -lgcc ).
+cc_toolchain_import(
+    name = "libgcc_s",
+    additional_libs = [
+        "lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
     ],
     runtime_path = "/usr/lib/aarch64-linux-gnu",
     shared_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc_s.so".format(gcc_version = GCC_VERSION),
-    static_library = "usr/lib/gcc/aarch64-linux-gnu/{gcc_version}/libgcc.a".format(gcc_version = GCC_VERSION),
     visibility = ["//visibility:public"],
 )
 
@@ -185,6 +195,7 @@ cc_toolchain_import(
         ":libpthread",
         ":libm",
         ":librt",
+        ":libgcc_s",
         #":libasan",
     ],
     visibility = ["//visibility:public"],
