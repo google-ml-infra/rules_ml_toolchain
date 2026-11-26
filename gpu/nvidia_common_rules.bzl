@@ -161,21 +161,26 @@ def create_dummy_build_file(repository_ctx, cuda_version, is_local_redist, use_c
     )
 
 def _get_build_template(repository_ctx, major_lib_version, is_local_redist):
-    template = None
+    # Version keys and templates are stored in matching list positions.
+    # Prefer an exact version match, regardless of order, and use "any" only
+    # when no exact match exists.
+    if is_local_redist:
+        templates = repository_ctx.attr.local_build_templates
+    else:
+        templates = repository_ctx.attr.build_templates
+    fallback_template = None
     for i in range(0, len(repository_ctx.attr.versions)):
         for dist_version in repository_ctx.attr.versions[i].split(","):
             if dist_version == major_lib_version:
-                if is_local_redist:
-                    template = repository_ctx.attr.local_build_templates[i]
-                else:
-                    template = repository_ctx.attr.build_templates[i]
-                break
-    if not template:
+                return templates[i]
+            if dist_version == "any":
+                fallback_template = templates[i]
+    if not fallback_template:
         fail("No build template found for {} version {}".format(
             _get_orig_repo_name(repository_ctx),
             major_lib_version,
         ))
-    return template
+    return fallback_template
 
 def get_major_library_version(repository_ctx, lib_name_to_version_dict):
     # buildifier: disable=function-docstring-return
